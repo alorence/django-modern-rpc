@@ -48,7 +48,7 @@ class RPCMethod(object):
 def get_method(name, entry_point, rpc_type):
     """Retrieve a method from the given name"""
     # Get the current RPC registry from internal cache
-    registry = cache.get_or_set(RPC_REGISTRY_KEY, default={}, timeout=DEFAULT_REGISTRY_TIMEOUT)
+    registry = cache.get(RPC_REGISTRY_KEY, default={})
 
     # Try to find the given method in cache
     if name in registry:
@@ -63,7 +63,7 @@ def get_method(name, entry_point, rpc_type):
 def register_method(method):
     """Register a RPC method"""
     # Get the current RPC registry from internal cache
-    registry = cache.get_or_set(RPC_REGISTRY_KEY, default={}, timeout=DEFAULT_REGISTRY_TIMEOUT)
+    registry = cache.get(RPC_REGISTRY_KEY, default={})
 
     # Ensure method names are unique in the registry
     if method.name in registry:
