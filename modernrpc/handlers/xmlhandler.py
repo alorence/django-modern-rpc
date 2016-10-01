@@ -70,7 +70,7 @@ class XMLRPCHandler(RPCHandler):
 
         raw_response = '<?xml version="1.0"?>'
         raw_response += '<methodResponse>'
-        raw_response += self.dumps(xmlrpc.client.Fault(exception.code, exception.message))
+        raw_response += self.dumps(xmlrpc_module.Fault(exception.code, exception.message))
         raw_response += '</methodResponse>'
 
         return self.xml_http_response(raw_response)

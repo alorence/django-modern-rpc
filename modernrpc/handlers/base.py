@@ -2,7 +2,7 @@
 import logging
 
 from modernrpc.core import get_method
-from modernrpc.exceptions import RPCUnknownMethod
+from modernrpc.exceptions import RPCUnknownMethod, RPCInvalidRequest
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +34,15 @@ class RPCHandler(object):
         raise NotImplementedError("You must override valid_content_types()")
 
     def can_handle(self, request):
-        result = request.content_type.lower() in self.valid_content_types()
+        try:
+            content_type = request.content_type
+        except AttributeError:
+            content_type = request.META['CONTENT_TYPE']
+
+        if not content_type:
+            raise RPCInvalidRequest('Missing header: Content-Type')
+
+        result = content_type.lower() in self.valid_content_types()
         logger.debug('Check if handler for {} can handle the request: {}'.format(self.rpc_type, result))
         return result
 
