@@ -14,10 +14,10 @@ ALL = "__all__"
 
 class RPCMethod(object):
 
-    def __init__(self, name, function, entry_point=ALL, rpc_type=ALL):
-        self.name = name
+    def __init__(self, function, external_name, entry_point=ALL, rpc_type=ALL):
         self.module = function.__module__
         self.func_name = function.__name__
+        self.external_name = external_name
         self.entry_point = entry_point
         if rpc_type != ALL and not isinstance(rpc_type, list):
             self.rpc_type = [rpc_type]
@@ -60,17 +60,25 @@ def get_method(name, entry_point, rpc_type):
     return None
 
 
-def register_method(method):
+def register_method(function, name=None, entry_point=ALL, rpc_type=ALL):
     """Register a RPC method"""
+    # Define the external name of the function
+    if not name:
+        name = getattr(function, '__name__')
+    logger.debug('Register method {}'.format(name))
+
+    # Encapsulate the function in a RPCMethod object
+    method = RPCMethod(function, name, entry_point, rpc_type)
+
     # Get the current RPC registry from internal cache
     registry = cache.get(RPC_REGISTRY_KEY, default={})
 
     # Ensure method names are unique in the registry
-    if method.name in registry:
+    if method.external_name in registry:
         raise ImproperlyConfigured("A RPC method with same has already been registered")
 
     # Store the method
-    registry[method.name] = method
+    registry[method.external_name] = method
     # Update the registry in internal cache
     cache.set(RPC_REGISTRY_KEY, registry, timeout=DEFAULT_REGISTRY_TIMEOUT)
 
@@ -89,12 +97,11 @@ def rpc_method(**kwargs):
 
     def __register(function):
 
-        name = kwargs.get('name', getattr(function, '__name__'))
+        name = kwargs.get('name')
         entry_point = kwargs.get('entry_point', ALL)
         rpc_type = kwargs.get('rpc_type', ALL)
 
-        logger.debug('Register method {}'.format(name))
-        register_method(RPCMethod(name, function, entry_point, rpc_type))
+        register_method(function, name, entry_point, rpc_type)
 
         return function
 
