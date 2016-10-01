@@ -35,8 +35,10 @@ class RPCHandler(object):
 
     def can_handle(self, request):
         try:
+            # Django 1.10
             content_type = request.content_type
         except AttributeError:
+            # Django up to 1.9
             content_type = request.META['CONTENT_TYPE']
 
         if not content_type:

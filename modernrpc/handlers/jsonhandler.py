@@ -1,6 +1,11 @@
 # coding: utf-8
 import json
-from json.decoder import JSONDecodeError
+try:
+    # Python 3
+    from json.decoder import JSONDecodeError
+except ImportError:
+    # Python 2: json.loads will raise a ValueError when loading json
+    JSONDecodeError = ValueError
 
 from django.http.response import HttpResponse
 from django.utils.module_loading import import_string
