@@ -1,0 +1,16 @@
+language: python
+
+# List of Python and Django version combinations to test
+matrix:
+  fast_finish: true
+  include:
+    - python: 3.5
+      env: DJANGO_VERSION=1.10.*
+
+# command to install Django
+install:
+  - pip install -q Django==$DJANGO_VERSION
+  - pip install -q pytest-django
+
+# command to run tests
+script: pytest

@@ -1,0 +1,4 @@
+ - Do not allow user to register method starting with "rpc." (http://www.jsonrpc.org/specification#request_object)
+ - Implements system special methods: system.listMethods, system.methodSignature, multi call, etc.
+ - Document all code
+ - Allow server to show documentation of supported methods, including method signatures
