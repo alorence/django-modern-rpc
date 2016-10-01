@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from handlers import JSONRPC, XMLRPC
+from modernrpc.handlers import JSONRPC, XMLRPC
 from modernrpc.views import RPCEntryPoint
 
 urlpatterns = [

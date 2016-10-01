@@ -1,12 +1,8 @@
-import os
-import sys
-
 DEBUG = True
 ALLOWED_HOSTS = ['*']
 SECRET_KEY = 'we_dont_care'
 ROOT_URLCONF = 'testsite.urls'
 
-sys.path.append(os.path.dirname(__file__))
 
 DATABASES = {
     'default': {
