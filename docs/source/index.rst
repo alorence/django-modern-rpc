@@ -6,6 +6,8 @@
 Welcome to django-modern-rpc's documentation!
 =============================================
 
+TODO: This module doesn't have any documentation yet...
+
 Contents:
 
 .. toctree::
