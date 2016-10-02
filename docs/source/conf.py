@@ -23,9 +23,6 @@ import sys
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(1, os.path.abspath(os.path.join(os.path.abspath('.'), '../..')))
 
-import modernrpc
-
-
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -65,6 +62,7 @@ author = 'Antoine Lorence'
 # built documents.
 #
 # The full version, including alpha/beta/rc tags.
+import modernrpc  # noqa: E402
 release = modernrpc.__version__
 # The short X.Y version.
 version = release.rsplit('.', 1)[0]
