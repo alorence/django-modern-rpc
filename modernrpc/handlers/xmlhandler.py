@@ -30,6 +30,10 @@ class XMLRPCHandler(RPCHandler):
         return xmlrpc_module.loads(data)
 
     def dumps(self, obj):
+
+        if not hasattr(obj, '__iter__') or isinstance(obj, dict):
+            obj = [obj]
+
         return self.marshaller.dumps(obj)
 
     def handle(self, request):
@@ -55,9 +59,6 @@ class XMLRPCHandler(RPCHandler):
         return response
 
     def result_success(self, data):
-
-        if not hasattr(data, '__iter__'):
-            data = [data]
 
         raw_response = '<?xml version="1.0"?>'
         raw_response += '<methodResponse>'
