@@ -49,3 +49,40 @@ def test_xrpc_numeric(live_server):
     result = client.get_float()
     assert type(result) == float
     assert result == 3.14
+
+
+def test_xrpc_string(live_server):
+
+    client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
+    result = client.get_string()
+
+    # Unlike JSON-RPC, XML-RPC always return a str. That means the result is unicode
+    # in Python 3 and ASCII in Python 2. This may be addressed in the future
+    assert type(result) == str
+    assert result == 'abcde'
+
+
+def test_jsrpc_bytes(live_server):
+
+    client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
+    result = client.get_byte()
+
+    assert result == b'abcde'
+
+
+def test_xrpc_list(live_server):
+
+    client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
+    result = client.get_list()
+
+    assert type(result) == list
+    assert result == [1, 2, 3, ]
+
+
+def test_jsrpc_struct(live_server):
+
+    client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
+    result = client.get_struct()
+
+    assert type(result) == dict
+    assert result == {'x': 1, 'y': 2, 'z': 3, }

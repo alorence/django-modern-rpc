@@ -32,10 +32,16 @@ class XMLRPCHandler(RPCHandler):
 
     def dumps(self, obj):
 
-        # TODO: Find a simpler, more readable way to achieve this
-        if isinstance(obj, xmlrpc_module.Fault) or (hasattr(obj, '__iter__') and not isinstance(obj, dict)):
+        # Marshaller has a specific handling of Fault instance. It is given without modification
+        if isinstance(obj, xmlrpc_module.Fault):
             return self.marshaller.dumps(obj)
 
+        # xmlrpc.client.Marshaller (or the Python equivalent) expects a list of objects to dumps.
+        # It will loop over these objects, will output a <param><value>X</value></param> for each element.
+        # This is not the return defined in XML-RPC standard, see http://xmlrpc.scripting.com/spec.html:
+        # > The body of the response is a single XML structure, a <methodResponse>, which can contain
+        # > a single <params> which contains a single <param> which contains a single <value>.
+        # For any type to dump, we need to give a list of only 1 element:
         return self.marshaller.dumps([obj])
 
     def handle(self, request):

@@ -51,5 +51,5 @@ def get_struct():
     return {
         'x': 1,
         'y': 2,
-        'z': 3,
+        'z': 3
     }
