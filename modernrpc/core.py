@@ -46,11 +46,11 @@ class RPCMethod(object):
     def available_for_type(self, protocol):
         return self.protocol == ALL or protocol in self.protocol
 
-    def available_for_entry_point(self, group):
-        return self.entry_point == ALL or group == self.entry_point
+    def available_for_entry_point(self, entry_point):
+        return self.entry_point == ALL or entry_point == self.entry_point
 
-    def is_valid_for(self, group, protocol):
-        return self.available_for_entry_point(group) and self.available_for_type(protocol)
+    def is_valid_for(self, entry_point, protocol):
+        return self.available_for_entry_point(entry_point) and self.available_for_type(protocol)
 
 
 def get_method(name, entry_point, protocol):
