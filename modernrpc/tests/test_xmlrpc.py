@@ -1,4 +1,6 @@
 # coding: utf-8
+import sys
+
 try:
     # Python 3
     import xmlrpc.client as xmlrpc_module
@@ -25,7 +27,10 @@ def test_basic_types(live_server):
     assert isinstance(response['float'], float)
     assert response['float'] == 51.2
 
-    assert isinstance(response['string'], str)
+    if sys.version_info < (3, 0):
+        assert isinstance(response['string'], unicode)
+    else:
+        assert isinstance(response['string'], str)
     assert response['string'] == 'abcde'
 
     assert isinstance(response['list'], list)

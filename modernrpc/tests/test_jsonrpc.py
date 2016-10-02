@@ -1,7 +1,7 @@
 # coding: utf-8
 import json
-
 import requests
+import sys
 
 
 def send_jsonrpc_request(url, method, params=(), req_id=42, return_json=True):
@@ -42,7 +42,10 @@ def test_basic_types(live_server):
     assert isinstance(result['float'], float)
     assert result['float'] == 51.2
 
-    assert isinstance(result['string'], str)
+    if sys.version_info < (3, 0):
+        assert isinstance(result['string'], unicode)
+    else:
+        assert isinstance(result['string'], str)
     assert result['string'] == 'abcde'
 
     assert isinstance(result['list'], list)
