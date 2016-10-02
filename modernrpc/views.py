@@ -29,7 +29,6 @@ class RPCEntryPoint(View):
 
         self.type = ''
 
-
     # This disable CRSF validation for POST requests
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
@@ -51,4 +50,3 @@ class RPCEntryPoint(View):
                 return handler.handle(request)
 
         return self.handlers[0].result_error(RPCInternalError('Unknown error'))
-

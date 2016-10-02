@@ -85,13 +85,13 @@ def register_method(function, name=None, entry_point=ALL, protocol=ALL):
     if method.external_name in registry:
         # Trying to register many times the same function is OK, because if a method is decorated
         # with @rpc_method(), it could be imported in different places of the code
-        xx = registry[method.external_name]
         if method == registry[method.external_name]:
             return
         # But if we try to use the same name to register 2 different methods, we
         # must inform the developer there is an error in the code
         else:
-            raise ImproperlyConfigured("A RPC method with name {} has already been registered".format(method.external_name))
+            raise ImproperlyConfigured("A RPC method with name {} has already been registered"
+                                       .format(method.external_name))
 
     # Store the method
     registry[method.external_name] = method

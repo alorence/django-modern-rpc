@@ -1,5 +1,8 @@
 # coding: utf-8
 import json
+
+from modernrpc.exceptions import RPCInternalError, RPCInvalidRequest, RPCException, RPCParseError
+
 try:
     # Python 3
     from json.decoder import JSONDecodeError
@@ -11,7 +14,7 @@ from django.http.response import HttpResponse
 from django.utils.module_loading import import_string
 
 from modernrpc import modernrpc_settings
-from modernrpc.exceptions import *
+
 from modernrpc.handlers.base import RPCHandler
 
 JSONRPC = '__json_rpc'
@@ -38,7 +41,7 @@ class JSONRPCHandler(RPCHandler):
         try:
             encoder = import_string(modernrpc_settings.JSONRPC_DEFAULT_ENCODER)
             return json.dumps(obj, cls=encoder)
-        except Exception as e:
+        except Exception:
             raise RPCInternalError('Unable to serialize result as valid JSON')
 
     def handle(self, request):

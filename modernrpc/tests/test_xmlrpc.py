@@ -11,4 +11,3 @@ except ImportError:
 def test_basic_add(live_server):
     client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
     assert client.add(2, 3) == 5
-

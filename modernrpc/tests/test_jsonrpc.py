@@ -1,7 +1,7 @@
 # coding: utf-8
 import json
+
 import requests
-import sys
 
 
 def send_jsonrpc_request(url, method, params=(), req_id=42, return_json=True):

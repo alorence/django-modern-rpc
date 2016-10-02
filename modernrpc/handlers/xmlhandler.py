@@ -16,7 +16,7 @@ XMLRPC = '__xml_rpc'
 
 class XMLRPCHandler(RPCHandler):
 
-    def __init__(self,entry_point):
+    def __init__(self, entry_point):
         super(XMLRPCHandler, self).__init__(entry_point, XMLRPC)
 
         self.marshaller = xmlrpc_module.Marshaller()

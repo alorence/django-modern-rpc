@@ -16,5 +16,3 @@ def basic_types():
         'list': [1, 2, 3],
         'struct': {'a': 6, 'b': 21},
     }
-
-

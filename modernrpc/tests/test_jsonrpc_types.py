@@ -92,7 +92,7 @@ def test_jsrpc_bytes(live_server):
         assert 'result' in response
 
         # ... but json.loads will convert that string into an unicode object
-        assert type(response['result']) == unicode
+        assert type(response['result']) == unicode  # noqa: F821
         assert response['result'] == 'abcde'
 
     else:
