@@ -1,6 +1,5 @@
 # coding: utf-8
 import sys
-import types
 
 from modernrpc.exceptions import RPC_INTERNAL_ERROR
 from modernrpc.tests import send_jsonrpc_request
@@ -86,11 +85,23 @@ def test_jsrpc_bytes(live_server):
 
     response = send_jsonrpc_request(live_server.url + '/all-rpc/', 'get_byte')
 
-    # We know JSON cannot transport a bytearray
-    assert 'error' in response
-    assert 'result' not in response
+    if sys.version_info < (3, 0):
 
-    assert response['error']['code'] == RPC_INTERNAL_ERROR
+        # Python 2: no problem, returned result is a standard string...
+        assert 'error' not in response
+        assert 'result' in response
+
+        # ... but json.loads will convert that string into an unicode object
+        assert type(response['result']) == unicode
+        assert response['result'] == 'abcde'
+
+    else:
+
+        # Python 3: JSON cannot transport a bytearray
+        assert 'error' in response
+        assert 'result' not in response
+
+        assert response['error']['code'] == RPC_INTERNAL_ERROR
 
 
 def test_jsrpc_list(live_server):
