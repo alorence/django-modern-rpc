@@ -27,29 +27,3 @@ def test_basic_add(live_server):
     assert response['id'] == 45
     assert response['jsonrpc'] == '2.0'
     assert response['result'] == 5
-
-
-def test_basic_types(live_server):
-    response = send_jsonrpc_request(live_server.url + '/all-rpc/', 'basic_types')
-    result = response['result']
-
-    assert isinstance(result['bool'], bool)
-    assert result['bool'] is True
-
-    assert isinstance(result['int'], int)
-    assert result['int'] == 42
-
-    assert isinstance(result['float'], float)
-    assert result['float'] == 51.2
-
-    if sys.version_info < (3, 0):
-        assert isinstance(result['string'], unicode)
-    else:
-        assert isinstance(result['string'], str)
-    assert result['string'] == 'abcde'
-
-    assert isinstance(result['list'], list)
-    assert result['list'] == [1, 2, 3]
-
-    assert isinstance(result['struct'], dict)
-    assert result['struct'] == {'a': 6, 'b': 21}

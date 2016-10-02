@@ -35,6 +35,14 @@ class RPCMethod(object):
         func = getattr(module, self.func_name)
         return func(*args, **kwargs)
 
+    def __eq__(self, other):
+        return \
+            self.external_name == other.external_name and \
+            self.module == other.module and \
+            self.func_name == other.func_name and \
+            self.entry_point == other.entry_point and \
+            self.rpc_type == other.rpc_type
+
     def available_for_type(self, rpc_type):
         return self.rpc_type == ALL or rpc_type in self.rpc_type
 
@@ -75,7 +83,15 @@ def register_method(function, name=None, entry_point=ALL, rpc_type=ALL):
 
     # Ensure method names are unique in the registry
     if method.external_name in registry:
-        raise ImproperlyConfigured("A RPC method with same has already been registered")
+        # Trying to register many times the same function is OK, because if a method is decorated
+        # with @rpc_method(), it could be imported in different places of the code
+        xx = registry[method.external_name]
+        if method == registry[method.external_name]:
+            return
+        # But if we try to use the same name to register 2 different methods, we
+        # must inform the developer there is an error in the code
+        else:
+            raise ImproperlyConfigured("A RPC method with name {} has already been registered".format(method.external_name))
 
     # Store the method
     registry[method.external_name] = method

@@ -32,10 +32,11 @@ class XMLRPCHandler(RPCHandler):
 
     def dumps(self, obj):
 
-        if not hasattr(obj, '__iter__') or isinstance(obj, dict):
-            obj = [obj]
+        # TODO: Find a simpler, more readable way to achieve this
+        if isinstance(obj, xmlrpc_module.Fault) or (hasattr(obj, '__iter__') and not isinstance(obj, dict)):
+            return self.marshaller.dumps(obj)
 
-        return self.marshaller.dumps(obj)
+        return self.marshaller.dumps([obj])
 
     def handle(self, request):
 
