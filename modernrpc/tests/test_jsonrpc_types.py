@@ -24,3 +24,25 @@ def test_jsrpc_null(live_server):
 
     assert result is None
 
+
+def test_jsrpc_numeric(live_server):
+
+    response = send_jsonrpc_request(live_server.url + '/all-rpc/', 'get_int')
+    result = response['result']
+
+    assert type(result) == int
+    assert result == 42
+
+    response = send_jsonrpc_request(live_server.url + '/all-rpc/', 'get_negative_int')
+    result = response['result']
+
+    assert type(result) == int
+    assert result == -42
+
+    response = send_jsonrpc_request(live_server.url + '/all-rpc/', 'get_float')
+    result = response['result']
+
+    assert type(result) == float
+    assert result == 3.14
+
+

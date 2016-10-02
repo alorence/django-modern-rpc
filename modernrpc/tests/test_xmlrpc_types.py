@@ -32,3 +32,20 @@ def test_xrpc_null(live_server):
 
         assert e.faultCode == -32603
         assert 'cannot marshal None unless allow_none is enabled' in e.faultString
+
+
+def test_xrpc_numeric(live_server):
+
+    client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
+
+    result = client.get_int()
+    assert type(result) == int
+    assert result == 42
+
+    result = client.get_negative_int()
+    assert type(result) == int
+    assert result == -42
+
+    result = client.get_float()
+    assert type(result) == float
+    assert result == 3.14
