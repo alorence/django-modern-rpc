@@ -34,7 +34,7 @@ your PYTHONPATH when starting Django
 ## Quick start
 
 Decorate the methods you want to make reachable from RPC call:
-```
+```python
 # In myproject/rpc_app/rpc_methods.py
 from modernrpc.core import rpc_method
 
@@ -46,7 +46,7 @@ def add(a, b):
 and make sure these functions are imported at Django startup. A simple
 way to do that is to import them in your app's modeul:
 
-```
+```python
 # In myproject/rpc_app/__init__.py
 from rpc_app.rpc_methods import add
 ```
@@ -55,7 +55,7 @@ Now, you have to declare an entry point. This is a standard Django view
 which will automatically route the request to the right handler (for
 JSON-RPC or XML-RPC call) and call the method on the server.
 
-```
+```python
 # In myproject/rpc_app/urls.py
 from django.conf.urls import url
 
@@ -68,7 +68,7 @@ urlpatterns = [
 
 Now, you can call the function add from a client:
 
-```
+```python
 try:
     # Python 3
     import xmlrpc.client as xmlrpc_module
@@ -79,7 +79,7 @@ except ImportError:
 client = xmlrpc_module.ServerProxy('http://127.0.0.1:8000/all-rpc/')
 print(client.add(2, 3))
 
-# >> 5
+# Returns: 5
 ```
 
 [![Travis Build status](https://travis-ci.org/alorence/django-modern-rpc.svg?branch=master)](https://travis-ci.org/alorence/django-modern-rpc)
