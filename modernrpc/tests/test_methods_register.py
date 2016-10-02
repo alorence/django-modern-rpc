@@ -3,7 +3,7 @@ import pytest
 from django.core.exceptions import ImproperlyConfigured
 
 from modernrpc.core import register_method
-from rpc_methods_stub.not_decorated import func_a, func_b
+from testsite.rpc_methods_stub.not_decorated import func_a, func_b
 
 
 def test_redundant_names():

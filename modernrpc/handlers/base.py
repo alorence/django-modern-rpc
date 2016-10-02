@@ -9,8 +9,8 @@ logger = logging.getLogger(__name__)
 
 class RPCHandler(object):
 
-    def __init__(self, entry_point, rpc_type):
-        self.rpc_type = rpc_type
+    def __init__(self, entry_point, protocol):
+        self.protocol = protocol
         self.entry_point = entry_point
 
     def loads(self, data):
@@ -20,7 +20,7 @@ class RPCHandler(object):
         raise NotImplementedError("You must override dumps()")
 
     def get_method(self, method_name):
-        return get_method(method_name, self.entry_point, self.rpc_type)
+        return get_method(method_name, self.entry_point, self.protocol)
 
     def call_method(self, method_name, params):
         method = self.get_method(method_name)
@@ -45,7 +45,7 @@ class RPCHandler(object):
             raise RPCInvalidRequest('Missing header: Content-Type')
 
         result = content_type.lower() in self.valid_content_types()
-        logger.debug('Check if handler for {} can handle the request: {}'.format(self.rpc_type, result))
+        logger.debug('Check if handler for {} can handle the request: {}'.format(self.protocol, result))
         return result
 
     def handle(self, request):

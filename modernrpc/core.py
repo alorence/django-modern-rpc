@@ -14,15 +14,15 @@ ALL = "__all__"
 
 class RPCMethod(object):
 
-    def __init__(self, function, external_name, entry_point=ALL, rpc_type=ALL):
+    def __init__(self, function, external_name, entry_point=ALL, protocol=ALL):
         self.module = function.__module__
         self.func_name = function.__name__
         self.external_name = external_name
         self.entry_point = entry_point
-        if rpc_type != ALL and not isinstance(rpc_type, list):
-            self.rpc_type = [rpc_type]
+        if protocol != ALL and not isinstance(protocol, list):
+            self.protocol = [protocol]
         else:
-            self.rpc_type = rpc_type
+            self.protocol = protocol
 
     def __call__(self, *args, **kwargs):
         """
@@ -41,19 +41,19 @@ class RPCMethod(object):
             self.module == other.module and \
             self.func_name == other.func_name and \
             self.entry_point == other.entry_point and \
-            self.rpc_type == other.rpc_type
+            self.protocol == other.protocol
 
-    def available_for_type(self, rpc_type):
-        return self.rpc_type == ALL or rpc_type in self.rpc_type
+    def available_for_type(self, protocol):
+        return self.protocol == ALL or protocol in self.protocol
 
     def available_for_entry_point(self, group):
         return self.entry_point == ALL or group == self.entry_point
 
-    def is_valid_for(self, group, rpc_type):
-        return self.available_for_entry_point(group) and self.available_for_type(rpc_type)
+    def is_valid_for(self, group, protocol):
+        return self.available_for_entry_point(group) and self.available_for_type(protocol)
 
 
-def get_method(name, entry_point, rpc_type):
+def get_method(name, entry_point, protocol):
     """Retrieve a method from the given name"""
     # Get the current RPC registry from internal cache
     registry = cache.get(RPC_REGISTRY_KEY, default={})
@@ -61,14 +61,14 @@ def get_method(name, entry_point, rpc_type):
     # Try to find the given method in cache
     if name in registry:
         method = registry.get(name)
-        # Ensure the method can be returned for given entry_point and rpc_type
-        if method and method.is_valid_for(entry_point, rpc_type):
+        # Ensure the method can be returned for given entry_point and protocol
+        if method and method.is_valid_for(entry_point, protocol):
             return method
 
     return None
 
 
-def register_method(function, name=None, entry_point=ALL, rpc_type=ALL):
+def register_method(function, name=None, entry_point=ALL, protocol=ALL):
     """Register a RPC method"""
     # Define the external name of the function
     if not name:
@@ -76,7 +76,7 @@ def register_method(function, name=None, entry_point=ALL, rpc_type=ALL):
     logger.debug('Register method {}'.format(name))
 
     # Encapsulate the function in a RPCMethod object
-    method = RPCMethod(function, name, entry_point, rpc_type)
+    method = RPCMethod(function, name, entry_point, protocol)
 
     # Get the current RPC registry from internal cache
     registry = cache.get(RPC_REGISTRY_KEY, default={})
@@ -99,13 +99,13 @@ def register_method(function, name=None, entry_point=ALL, rpc_type=ALL):
     cache.set(RPC_REGISTRY_KEY, registry, timeout=DEFAULT_REGISTRY_TIMEOUT)
 
 
-def get_all_methods(entry_point=ALL, rpc_type=ALL):
-    """Return a list of all methods in the registry supported by the given entry_point / rpc_type pair"""
+def get_all_methods(entry_point=ALL, protocol=ALL):
+    """Return a list of all methods in the registry supported by the given entry_point / protocol pair"""
     # Get the current RPC registry from internal cache
     registry = cache.get_or_set(RPC_REGISTRY_KEY, default={}, timeout=DEFAULT_REGISTRY_TIMEOUT)
 
     return [
-        method_name for method_name, method in registry if method.is_valid_for(entry_point, rpc_type)
+        method_name for method_name, method in registry if method.is_valid_for(entry_point, protocol)
     ]
 
 
@@ -115,9 +115,9 @@ def rpc_method(**kwargs):
 
         name = kwargs.get('name')
         entry_point = kwargs.get('entry_point', ALL)
-        rpc_type = kwargs.get('rpc_type', ALL)
+        protocol = kwargs.get('protocol', ALL)
 
-        register_method(function, name, entry_point, rpc_type)
+        register_method(function, name, entry_point, protocol)
 
         return function
 
