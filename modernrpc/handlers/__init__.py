@@ -1,3 +1,11 @@
+# coding: utf-8
 
-JSONRPC = '__json_rpc'
-XMLRPC = '__xml_rpc'
+from modernrpc.handlers.jsonhandler import JSONRPC, JSONRPCHandler
+from modernrpc.handlers.xmlhandler import XMLRPC, XMLRPCHandler
+
+__all__ = [
+    'JSONRPC',
+    'XMLRPC',
+    'JSONRPCHandler',
+    'XMLRPCHandler',
+]

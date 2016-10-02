@@ -9,8 +9,9 @@ except ImportError:
 from django.http.response import HttpResponse
 
 from modernrpc.exceptions import RPCInternalError, RPCException
-from modernrpc.handlers import XMLRPC
 from modernrpc.handlers.base import RPCHandler
+
+XMLRPC = '__xml_rpc'
 
 
 class XMLRPCHandler(RPCHandler):

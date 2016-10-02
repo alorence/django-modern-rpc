@@ -12,8 +12,9 @@ from django.utils.module_loading import import_string
 
 from modernrpc import modernrpc_settings
 from modernrpc.exceptions import *
-from modernrpc.handlers import JSONRPC
 from modernrpc.handlers.base import RPCHandler
+
+JSONRPC = '__json_rpc'
 
 
 class JSONRPCHandler(RPCHandler):
