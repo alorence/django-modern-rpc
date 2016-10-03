@@ -2,6 +2,8 @@
 django-modern-rpc
 =================
 
+|TravisStatus|_ |RTDBadge|_
+
     **Important note**: This project is under development, and is not ready for production environment.
     You are free to install and test it and provide feedback or make pull
     request if you want to add a feature, report a bug or try to resolve
@@ -37,9 +39,9 @@ Features planned to implement
 Installation
 ------------
 
-There is no pypi package for now. This will be availble in the future.
-To use django-modern-rpc, you have to clone it and import its path to
-your PYTHONPATH when starting Django
+To install django-modern-rpc, simply use pip::
+
+    pip install django-modern-rpc
 
 -----------
 Quick start
@@ -57,7 +59,7 @@ Decorate the methods you want to make reachable from RPC call:
         return a + b
 
 and make sure these functions are imported at Django startup. A simple
-way to do that is to import them in your app's modeul:
+way to do that is to import them in your app's module:
 
 .. code:: python
 
@@ -95,8 +97,8 @@ Now, you can call the function add from a client:
 
     # Returns: 5
 
-
-|TravisStatus|_
-
 .. |TravisStatus| image:: https://travis-ci.org/alorence/django-modern-rpc.svg?branch=master
 .. _TravisStatus: https://travis-ci.org/alorence/django-modern-rpc
+
+.. |RTDBadge| image:: https://img.shields.io/badge/docs-latest-brightgreen.svg?style=flat
+.. _RTDBadge: http://django-modern-rpc.readthedocs.io/en/latest/

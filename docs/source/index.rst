@@ -1,18 +1,22 @@
-.. django-modern-rpc documentation master file, created by
-   sphinx-quickstart on Sun Oct  2 15:22:29 2016.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+Django-moder-rpc
+================
 
-Welcome to django-modern-rpc's documentation!
-=============================================
+Overview
+--------
 
-TODO: This module doesn't have any documentation yet...
+Django-moder-rpc provides a simple solution to implements a remote procedure call (RPX) server as part of your Django
+project.
 
-Contents:
+.. note::
+   This project is under development. It should not be used in a production environment yet.
+
+
 
 .. toctree::
    :maxdepth: 2
+   :caption: Table of Contents
 
+   install_and_config
 
 
 Indices and tables
