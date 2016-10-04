@@ -7,7 +7,7 @@ setup(
     name='django-modern-rpc',
     version=modernrpc.__version__,
     description='Simple and modern RPC Server for Django',
-    long_description=open('README.md').read(),
+    long_description=open('README.rst').read(),
     author='Antoine Lorence',
     author_email='antoine.lorence@gmail.com',
     url='https://github.com/alorence/django-modern-rpc',
