@@ -1,7 +1,7 @@
 Changelog
 =========
 
-Newt release
+Next release
 ------------
 
 - Added very basic documentation: http://django-modern-rpc.rtfd.io/
