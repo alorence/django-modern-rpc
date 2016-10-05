@@ -6,8 +6,8 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
-from modernrpc.core import ALL
-from modernrpc.exceptions import RPCInternalError, RPCException
+from modernrpc.core import get_all_methods, ALL
+from modernrpc.exceptions import RPCInternalError, RPCException, RPCUnknownMethod
 from modernrpc.handlers import JSONRPCHandler, XMLRPCHandler
 
 logger = logging.getLogger(__name__)
@@ -26,7 +26,6 @@ class RPCEntryPoint(View):
         self.entry_point = entry_point
         self.protocol = protocol
         logger.debug('Create "{}" RPCEntryPoint view'.format(self.entry_point))
-
 
     # This disable CRSF validation for POST requests
     @method_decorator(csrf_exempt)
@@ -55,6 +54,10 @@ class RPCEntryPoint(View):
 
                     method, params = handler.parse_request()
 
+                    if method.startswith('system.'):
+                        result = self.call_system_method(handler, method, params)
+                        return handler.result_success(result)
+
                     result = handler.call_method(method, params)
 
                     return handler.result_success(result)
@@ -65,3 +68,16 @@ class RPCEntryPoint(View):
                     return handler.result_error(RPCInternalError(str(e)))
 
         return handlers[0].result_error(RPCInternalError('Unknown error'))
+
+    def call_system_method(self, handler, method_name, params):
+
+        if method_name == 'system.listMethods':
+
+            methods = [
+                'system.listMethods',
+            ]
+            methods += get_all_methods(self.entry_point, handler.protocol)
+
+            return methods
+
+        raise RPCUnknownMethod(method_name)

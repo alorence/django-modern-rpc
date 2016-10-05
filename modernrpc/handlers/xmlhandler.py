@@ -6,11 +6,11 @@ except ImportError:
     # Python 2
     import xmlrpclib as xmlrpc_module
 
+import logging
+
 from django.http.response import HttpResponse
 
-from modernrpc.exceptions import RPCInternalError, RPCException
 from modernrpc.handlers.base import RPCHandler
-import logging
 
 logger = logging.getLogger(__name__)
 XMLRPC = '__xml_rpc'
@@ -52,7 +52,6 @@ class XMLRPCHandler(RPCHandler):
         params, method_name = self.loads(data)
 
         return method_name, params
-
 
     @staticmethod
     def xml_http_response(data):

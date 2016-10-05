@@ -102,10 +102,10 @@ def register_method(function, name=None, entry_point=ALL, protocol=ALL):
 def get_all_methods(entry_point=ALL, protocol=ALL):
     """Return a list of all methods in the registry supported by the given entry_point / protocol pair"""
     # Get the current RPC registry from internal cache
-    registry = cache.get_or_set(RPC_REGISTRY_KEY, default={}, timeout=DEFAULT_REGISTRY_TIMEOUT)
+    registry = cache.get(RPC_REGISTRY_KEY, default={})
 
     return [
-        method_name for method_name, method in registry if method.is_valid_for(entry_point, protocol)
+        method_name for method_name, method in registry.items() if method.is_valid_for(entry_point, protocol)
     ]
 
 
