@@ -2,28 +2,40 @@ language: python
 
 # List of Python and Django version combinations to test
 python:
-  - 3.5
-  - 3.4
-  - 3.3
-  - 2.7
+- 3.5
+- 3.4
+- 3.3
+- 2.7
+
 env:
-  - DJANGO_VERSION=1.10.*
-  - DJANGO_VERSION=1.9.*
-  - DJANGO_VERSION=1.8.*
+- DJANGO_VERSION=1.10.*
+- DJANGO_VERSION=1.9.*
+- DJANGO_VERSION=1.8.*
 
 # Some Django / python version combination are not supported
 # See https://docs.djangoproject.com/en/1.10/faq/install/#what-python-version-can-i-use-with-django
 matrix:
   exclude:
-    - python: 3.3
-      env: DJANGO_VERSION=1.9.*
-    - python: 3.3
-      env: DJANGO_VERSION=1.10.*
+  - python: 3.3
+    env: DJANGO_VERSION=1.9.*
+  - python: 3.3
+    env: DJANGO_VERSION=1.10.*
 
 # command to install Django (not in requirements.txt to control version to install)
 install:
-  - pip install -q Django==$DJANGO_VERSION && echo "Django $$DJANGO_VERSION installed"
-  - pip install -v -r requirements.txt
+- pip install -q Django==$DJANGO_VERSION && echo "Django $$DJANGO_VERSION installed"
+- pip install -v -r requirements.txt
 
 # command to run tests
 script: python run_tests.py
+
+# Deployment on PyPi
+deploy:
+  provider: pypi
+  user: alorence
+  password:
+    secure: l3hmlkkATAAIzuqFtJmWM4Qvfh11dVsCXlOYvlZrjSGh5g/1JIzRzqK0iWmXxD9L4V5R3tniY/jQxj9v2dWqdUBil4LnR4RR1QTaxTibRkwzIz+kOqBWc/KH7FerKpplOfU3mgS37prmIiD+ysM7iRM5cGes5VBjNVnPF2LkJ+eGJR6gijLaNGgXFQ1YW1K65VIUXO0rrzn95MTnNSF0uVR4fg96/3gTRTChp6FORHO82JAClsgEz4mpbnUrnwREbX71nbQ0sIDIHMYLckYQ3txhV07GcFG1z6N5nX+dQvhimLDPdy8ru+w01SO0e5assQltjBAz069Mw6mk2YIKkOq4pplSPMzunBMn6CDy3nY9eCeDVvm/CCRhUS6PrOSLd71ihWWvMnfC8eN/qWkf03GL0rT36gWBjRiPmZjKpGUyZZdxDHka6WN9PeABA0RSDQxL7+dsGXby7nvcfjaqerBfpsVR/AvruZIyiRUEic/HsYgPHhyzdehIonPA/wSJ8wooUc181FwoUQzFks2pSU0XIOPa/TfGneLZgbRKd/oVOj4Vp8DygXuyIbI44G36E5F3Ka3aQhRP+0DRSIoqapNOiAgdBFNqlo8sZUDYBA88M/w++5feDh7prgdTsEIw/oK4Zhspqf+opSTz9X/+vSMuLJXCzneDYm7sFOtwQPE=
+  on:
+    tags: true
+  distributions: sdist bdist_wheel
+  repo: alorence/django-modern-rpc
