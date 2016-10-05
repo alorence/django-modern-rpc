@@ -8,6 +8,11 @@ except ImportError:
     import xmlrpclib as xmlrpc_module
 
 
+def test_basic_add(live_server):
+    client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
+    assert client.add(2, 3) == 5
+
+
 def test_xrpc_list_methods(live_server):
 
     client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
@@ -18,6 +23,19 @@ def test_xrpc_list_methods(live_server):
     assert len(result) > 1
 
 
-def test_basic_add(live_server):
+def test_get_signature(live_server):
+
     client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
-    assert client.add(2, 3) == 5
+
+    signature = client.system.getSignature('add')
+    # This one doesn not have any docstring defined
+    assert type(signature) == list
+    assert len(signature) == 0
+
+    signature = client.system.getSignature('divide')
+    # Return type + 2 parameters = 3 elements in the signature
+    assert type(signature) == list
+    assert len(signature) == 3
+    assert signature[0] == 'int or double'
+    assert signature[1] == 'int or double'
+    assert signature[2] == 'int or double'

@@ -1,6 +1,7 @@
 # coding: utf-8
 import importlib
 import logging
+import re
 
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
@@ -10,6 +11,9 @@ logger = logging.getLogger(__name__)
 RPC_REGISTRY_KEY = '__rpc_registry__'
 DEFAULT_REGISTRY_TIMEOUT = None
 ALL = "__all__"
+
+PARAM_TYPE_REXP = r':type [\w]+:\s?(.+)'
+RETURN_TYPE_REXP = r':rtype:\s?(.+)'
 
 
 class RPCMethod(object):
@@ -23,6 +27,24 @@ class RPCMethod(object):
             self.protocol = [protocol]
         else:
             self.protocol = protocol
+
+        self.signature = []
+        self.doc_text = ''
+        self.parse_docstring(function.__doc__)
+
+    def parse_docstring(self, content):
+        if content is None:
+            return
+        lines = content.split('\n')
+        for line in lines:
+            sline = line.strip()
+
+            type_match = re.match(PARAM_TYPE_REXP, sline)
+            return_match = re.match(RETURN_TYPE_REXP, sline)
+            if type_match:
+                self.signature.append(type_match.group(1))
+            elif return_match:
+                self.signature.insert(0, return_match.group(1))
 
     def __call__(self, *args, **kwargs):
         """

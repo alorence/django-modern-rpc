@@ -6,9 +6,12 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
-from modernrpc.core import get_all_methods, ALL
-from modernrpc.exceptions import RPCInternalError, RPCException, RPCUnknownMethod
+from modernrpc.core import get_all_methods, ALL, get_method
+from modernrpc.exceptions import RPCInternalError, RPCException, RPCUnknownMethod, RPCInvalidParams
 from modernrpc.handlers import JSONRPCHandler, XMLRPCHandler
+
+SYSTEM_LIST_METHODS = 'system.listMethods'
+SYSTEM_GET_SIGNATURE = 'system.getSignature'
 
 logger = logging.getLogger(__name__)
 
@@ -71,13 +74,21 @@ class RPCEntryPoint(View):
 
     def call_system_method(self, handler, method_name, params):
 
-        if method_name == 'system.listMethods':
+        if method_name == SYSTEM_LIST_METHODS:
 
             methods = [
-                'system.listMethods',
+                SYSTEM_LIST_METHODS,
+                SYSTEM_GET_SIGNATURE,
             ]
             methods += get_all_methods(self.entry_point, handler.protocol)
 
             return methods
+
+        elif method_name == SYSTEM_GET_SIGNATURE:
+            method_name = params[0]
+            method = get_method(method_name, self.entry_point, handler.protocol)
+            if method is None:
+                raise RPCInvalidParams('The method {} is not found in the system. Unable to retrieve signature.')
+            return method.signature
 
         raise RPCUnknownMethod(method_name)

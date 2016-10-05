@@ -9,6 +9,15 @@ def add(a, b):
 
 @rpc_method()
 def divide(numerator, denominator):
+    """
+    Divide a numerator by a denominator
+    :param numerator:
+    :param denominator:
+    :type numerator: int or double
+    :type denominator: int or double
+    :return:
+    :rtype: int or double
+    """
     return numerator / denominator
 
 
