@@ -1,6 +1,14 @@
-## 0.1.0
+Changelog
+=========
 
-Released on 2016-10-02
+Newt release
+------------
+
+- Added very basic documentation: http://django-modern-rpc.rtfd.io/
+- 'system.listMethods' is now supported
+
+Release 0.1.0 (2016-10-02)
+--------------------------
 
 - First version with very basic features:
     + Works with Python 2.7, 3.3, 3.4 (Django 1.8 only) and 3.5
