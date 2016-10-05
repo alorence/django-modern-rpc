@@ -108,37 +108,6 @@ def test_xrpc_invalid_request(live_server):
     assert code == RPC_INVALID_REQUEST
 
 
-def test_xrpc_invalid_request2(live_server):
-    invalid_payload = '''<?xml version="1.0"?>
-<methodCall>
-    <methodName>add</methodName>
-    <params>
-        <param>
-            <value><float>2.41</float></value>
-        </param>
-        <param>
-            <value><int>84</int></value>
-        </param>
-    </params>
-</methodCall>'''
-    headers = {'content-type': 'text/xml'}
-    response = requests.post(live_server.url + '/all-rpc/', data=invalid_payload, headers=headers)
-
-    tree = ET.fromstring(response.content)
-    members = tree.find('fault').find('value').find('struct')
-
-    code, message = '', ''
-    for member in members:
-        if member.find('name').text == 'faultCode':
-            code = int(member.find('value').find('int').text)
-        elif member.find('name').text == 'faultString':
-            message = member.find('value').find('string').text
-
-    assert 'Invalid request' in message
-    assert 'unknown tag' in message
-    assert code == RPC_INVALID_REQUEST
-
-
 def test_xrpc_parse_error(live_server):
     invalid_payload = '''<?xml version="1.0"?>
 <methodCall>
