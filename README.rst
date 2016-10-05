@@ -23,16 +23,19 @@ Features
 
 The project is in active development, so all the features are not yet
 implemented. The list of available features is:
+
 - XML-RPC & JSON-RPC support
 - Usual errors are correctly reported to user according to the standard
 - Multi-entry point, with specific methods and protocol attached
+- Supported system methods:
+
+  - system.listMethods()
 
 -----------------------------
 Features planned to implement
 -----------------------------
 
-- System introspection methods (listMethods(), methodHelp(),
-  methodSignature(), etc.)
+- System introspection methods (methodHelp(),  methodSignature(), etc.)
 - Multi-call
 
 ------------
