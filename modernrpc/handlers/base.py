@@ -2,7 +2,7 @@
 import logging
 
 from modernrpc.core import get_method
-from modernrpc.exceptions import RPCUnknownMethod, RPCInvalidRequest
+from modernrpc.exceptions import RPCUnknownMethod, RPCInvalidRequest, RPCInvalidParams
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +28,11 @@ class RPCHandler(object):
         if not method:
             raise RPCUnknownMethod(method_name)
 
-        return method(*params)
+        try:
+            return method(*params)
+        except TypeError as e:
+            raise RPCInvalidParams(str(e))
+
 
     @staticmethod
     def valid_content_types():
