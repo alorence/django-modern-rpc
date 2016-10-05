@@ -1,16 +1,19 @@
 # coding: utf-8
-try:
-    # Python 3
-    import xmlrpc.client as xmlrpc_module
-except ImportError:
-    # Python 2
-    import xmlrpclib as xmlrpc_module
-
 import logging
 
 from django.http.response import HttpResponse
 
+from modernrpc.exceptions import RPCParseError, RPCInvalidRequest
 from modernrpc.handlers.base import RPCHandler
+
+try:
+    # Python 3
+    import xmlrpc.client as xmlrpc_module
+    from xmlrpc.client import ResponseError
+except ImportError:
+    # Python 2
+    import xmlrpclib as xmlrpc_module
+    from xmlrpclib import ResponseError
 
 logger = logging.getLogger(__name__)
 XMLRPC = '__xml_rpc'
@@ -29,7 +32,15 @@ class XMLRPCHandler(RPCHandler):
         ]
 
     def loads(self, data):
-        return xmlrpc_module.loads(data)
+        try:
+            return xmlrpc_module.loads(data)
+        except ResponseError as e:
+            raise RPCInvalidRequest(e)
+        except Exception as e:
+            # Depending on the concrete parser used in loads, we can't determine wich exception can be raised during
+            # XML loading. So we catch the generic Exception and a RpcParseError, since the error is mostly related
+            # to request XML parsing.
+            raise RPCParseError(e)
 
     def dumps(self, obj):
 
@@ -46,10 +57,14 @@ class XMLRPCHandler(RPCHandler):
         return self.marshaller.dumps([obj])
 
     def parse_request(self):
-        encoding = self.request.encoding or 'utf-8'
 
+        encoding = self.request.encoding or 'utf-8'
         data = self.request.body.decode(encoding)
+
         params, method_name = self.loads(data)
+
+        if method_name is None:
+            raise RPCInvalidRequest('Missing methodName')
 
         return method_name, params
 

@@ -36,6 +36,9 @@ RPC_METHOD_NOT_FOUND = -32601
 RPC_INVALID_PARAMS = -32602
 RPC_INTERNAL_ERROR = -32603
 
+RPC_CUSTOM_ERROR_BASE = -32099
+RPC_CUSTOM_ERROR_MAX = -32000
+
 
 class RPCException(Exception):
 
@@ -47,14 +50,14 @@ class RPCException(Exception):
 class RPCParseError(RPCException):
 
     def __init__(self, message=''):
-        err_msg = 'Parse error, unable to read the request. {}'.format(message)
+        err_msg = 'Parse error, unable to read the request; {}'.format(message)
         super(RPCParseError, self).__init__(RPC_PARSE_ERROR, err_msg)
 
 
 class RPCInvalidRequest(RPCException):
 
     def __init__(self, message=''):
-        err_msg = 'Parse error, unable to read the request. {}'.format(message)
+        err_msg = 'Invalid request, {}'.format(message)
         super(RPCInvalidRequest, self).__init__(RPC_INVALID_RESQUEST, err_msg)
 
 
@@ -68,7 +71,7 @@ class RPCUnknownMethod(RPCException):
 class RPCInvalidParams(RPCException):
 
     def __init__(self, message=''):
-        err_msg = 'Invalid parameters. {}'.format(message)
+        err_msg = 'Invalid parameters, {}'.format(message)
         super(RPCInvalidParams, self).__init__(RPC_INVALID_PARAMS, err_msg)
 
 

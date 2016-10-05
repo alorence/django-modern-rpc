@@ -1,4 +1,5 @@
 from modernrpc.core import rpc_method
+from modernrpc.exceptions import RPCException, RPC_CUSTOM_ERROR_BASE
 
 
 @rpc_method()
@@ -7,12 +8,14 @@ def add(a, b):
 
 
 @rpc_method()
-def basic_types():
-    return {
-        'bool': True,
-        'int': 42,
-        'float': 51.2,
-        'string': 'abcde',
-        'list': [1, 2, 3],
-        'struct': {'a': 6, 'b': 21},
-    }
+def divide(numerator, denominator):
+    return numerator / denominator
+
+
+class MyCustomException(RPCException):
+    pass
+
+
+@rpc_method()
+def raise_custom_exception():
+    raise MyCustomException(RPC_CUSTOM_ERROR_BASE + 5, 'This is a test error')

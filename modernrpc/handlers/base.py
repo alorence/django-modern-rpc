@@ -33,7 +33,6 @@ class RPCHandler(object):
         except TypeError as e:
             raise RPCInvalidParams(str(e))
 
-
     @staticmethod
     def valid_content_types():
         raise NotImplementedError("You must override valid_content_types()")
