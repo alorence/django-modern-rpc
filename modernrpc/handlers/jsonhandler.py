@@ -1,7 +1,13 @@
 # coding: utf-8
 import json
+import logging
 
+from django.http.response import HttpResponse
+from django.utils.module_loading import import_string
+
+from modernrpc import modernrpc_settings
 from modernrpc.exceptions import RPCInternalError, RPCInvalidRequest, RPCException, RPCParseError
+from modernrpc.handlers.base import RPCHandler
 
 try:
     # Python 3
@@ -10,20 +16,15 @@ except ImportError:
     # Python 2: json.loads will raise a ValueError when loading json
     JSONDecodeError = ValueError
 
-from django.http.response import HttpResponse
-from django.utils.module_loading import import_string
-
-from modernrpc import modernrpc_settings
-
-from modernrpc.handlers.base import RPCHandler
-
+logger = logging.getLogger(__name__)
 JSONRPC = '__json_rpc'
 
 
 class JSONRPCHandler(RPCHandler):
 
-    def __init__(self, entry_point):
-        super(JSONRPCHandler, self).__init__(entry_point, JSONRPC)
+    def __init__(self, request, entry_point):
+        super(JSONRPCHandler, self).__init__(request, entry_point, JSONRPC)
+        self.request_id = None
 
     @staticmethod
     def valid_content_types():
@@ -44,20 +45,18 @@ class JSONRPCHandler(RPCHandler):
         except Exception:
             raise RPCInternalError('Unable to serialize result as valid JSON')
 
-    def handle(self, request):
-
-        request_id = None
+    def handle(self):
 
         try:
-            encoding = request.encoding or 'utf-8'
-            data = request.body.decode(encoding)
+            encoding = self.request.encoding or 'utf-8'
+            data = self.request.body.decode(encoding)
             body = self.loads(data)
 
             if not isinstance(body, dict):
                 raise RPCParseError('Invalid request: the object must be a struct')
 
             if 'id' in body:
-                request_id = body['id']
+                self.request_id = body['id']
             else:
                 raise RPCInvalidRequest('Missing parameter "id"')
 
@@ -73,12 +72,12 @@ class JSONRPCHandler(RPCHandler):
 
             result = self.call_method(body['method'], body['params'])
 
-            return self.result_success(result, request_id)
+            return self.result_success(result, self.request_id)
 
         except RPCException as e:
-            return self.result_error(e, request_id)
+            return self.result_error(e)
         except Exception as e:
-            return self.result_error(RPCInternalError(str(e)), request_id)
+            return self.result_error(RPCInternalError(str(e)))
 
     @staticmethod
     def json_http_response(data):
@@ -94,17 +93,14 @@ class JSONRPCHandler(RPCHandler):
         }
         return self.json_http_response(self.dumps(result))
 
-    def result_error(self, exception, request_id=None, additional_data=None):
+    def result_error(self, exception):
         result = {
-            'id': request_id,
+            'id': self.request_id,
             'jsonrpc': '2.0',
             'error': {
                 'code': exception.code,
                 'message': exception.message,
             }
         }
-
-        if additional_data:
-            result['error']['data'] = json.dumps(additional_data)
 
         return self.json_http_response(self.dumps(result))

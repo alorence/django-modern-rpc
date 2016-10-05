@@ -9,9 +9,10 @@ logger = logging.getLogger(__name__)
 
 class RPCHandler(object):
 
-    def __init__(self, entry_point, protocol):
-        self.protocol = protocol
+    def __init__(self, request, entry_point, protocol):
+        self.request = request
         self.entry_point = entry_point
+        self.protocol = protocol
 
     def loads(self, data):
         raise NotImplementedError("You must override loads()")
@@ -33,13 +34,13 @@ class RPCHandler(object):
     def valid_content_types():
         raise NotImplementedError("You must override valid_content_types()")
 
-    def can_handle(self, request):
+    def can_handle(self):
         try:
             # Django 1.10
-            content_type = request.content_type
+            content_type = self.request.content_type
         except AttributeError:
             # Django up to 1.9
-            content_type = request.META['CONTENT_TYPE']
+            content_type = self.request.META['CONTENT_TYPE']
 
         if not content_type:
             raise RPCInvalidRequest('Missing header: Content-Type')
@@ -48,5 +49,5 @@ class RPCHandler(object):
         logger.debug('Check if handler for {} can handle the request: {}'.format(self.protocol, result))
         return result
 
-    def handle(self, request):
+    def handle(self):
         raise NotImplementedError("You must override handle()")

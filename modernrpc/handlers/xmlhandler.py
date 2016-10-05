@@ -10,15 +10,16 @@ from django.http.response import HttpResponse
 
 from modernrpc.exceptions import RPCInternalError, RPCException
 from modernrpc.handlers.base import RPCHandler
+import logging
 
+logger = logging.getLogger(__name__)
 XMLRPC = '__xml_rpc'
 
 
 class XMLRPCHandler(RPCHandler):
 
-    def __init__(self, entry_point):
-        super(XMLRPCHandler, self).__init__(entry_point, XMLRPC)
-
+    def __init__(self, request, entry_point):
+        super(XMLRPCHandler, self).__init__(request, entry_point, XMLRPC)
         self.marshaller = xmlrpc_module.Marshaller()
 
     @staticmethod
@@ -44,12 +45,12 @@ class XMLRPCHandler(RPCHandler):
         # For any type to dump, we need to give a list of only 1 element:
         return self.marshaller.dumps([obj])
 
-    def handle(self, request):
+    def handle(self):
 
         try:
-            encoding = request.encoding or 'utf-8'
+            encoding = self.request.encoding or 'utf-8'
 
-            data = request.body.decode(encoding)
+            data = self.request.body.decode(encoding)
             params, method_name = self.loads(data)
 
             result = self.call_method(method_name, params)
