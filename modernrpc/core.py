@@ -75,6 +75,11 @@ def register_method(function, name=None, entry_point=ALL, protocol=ALL):
         name = getattr(function, '__name__')
     logger.debug('Register method {}'.format(name))
 
+    if name and name.startswith('rpc.'):
+        raise ImproperlyConfigured('According to RPC standard, method names starting with "rpc." are reserved for '
+                                   'system extensions and must not be used. See '
+                                   'http://www.jsonrpc.org/specification#extensions for more information.')
+
     # Encapsulate the function in a RPCMethod object
     method = RPCMethod(function, name, entry_point, protocol)
 
