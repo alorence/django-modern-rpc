@@ -1,11 +1,15 @@
 Changelog
 =========
 
-Next release
-------------
+Release 0.2.0 (2016-10-05)
+--------------------------
 
 - Added very basic documentation: http://django-modern-rpc.rtfd.io/
 - 'system.listMethods' is now supported
+- 'system.methodSignature' is now supported
+- Error reporting has been improved. Correct error codes and messages are returned on usual fail cause.
+  See module modernrpc.exceptions for more information.
+- Many unit tests have been added to increase test coverage of the library
 
 Release 0.1.0 (2016-10-02)
 --------------------------

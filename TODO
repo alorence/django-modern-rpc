@@ -1,3 +1,3 @@
- - Implements system special methods: system.methodSignature, multi call, etc.
+ - Implements system special methods: multi call, etc.
  - Document all code
  - Allow server to show documentation of supported methods, including method signatures

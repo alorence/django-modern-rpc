@@ -30,12 +30,13 @@ implemented. The list of available features is:
 - Supported system methods:
 
   - system.listMethods()
+  - system.methodSignature()
 
 -----------------------------
 Features planned to implement
 -----------------------------
 
-- System introspection methods (methodHelp(),  methodSignature(), etc.)
+- System introspection methods (methodHelp(), etc.)
 - Multi-call
 
 ------------
