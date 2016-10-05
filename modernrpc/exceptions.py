@@ -31,7 +31,7 @@ This leaves the remainder of the space available for application defined errors.
 """
 
 RPC_PARSE_ERROR = -32700
-RPC_INVALID_RESQUEST = -32600
+RPC_INVALID_REQUEST = -32600
 RPC_METHOD_NOT_FOUND = -32601
 RPC_INVALID_PARAMS = -32602
 RPC_INTERNAL_ERROR = -32603
@@ -58,7 +58,7 @@ class RPCInvalidRequest(RPCException):
 
     def __init__(self, message=''):
         err_msg = 'Invalid request, {}'.format(message)
-        super(RPCInvalidRequest, self).__init__(RPC_INVALID_RESQUEST, err_msg)
+        super(RPCInvalidRequest, self).__init__(RPC_INVALID_REQUEST, err_msg)
 
 
 class RPCUnknownMethod(RPCException):

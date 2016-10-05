@@ -2,7 +2,7 @@
 import pytest
 import requests
 
-from modernrpc.exceptions import RPC_INVALID_RESQUEST, RPC_METHOD_NOT_FOUND, RPC_PARSE_ERROR, RPC_INVALID_PARAMS, \
+from modernrpc.exceptions import RPC_INVALID_REQUEST, RPC_METHOD_NOT_FOUND, RPC_PARSE_ERROR, RPC_INVALID_PARAMS, \
     RPC_CUSTOM_ERROR_BASE, RPC_CUSTOM_ERROR_MAX, RPC_INTERNAL_ERROR
 
 try:
@@ -105,7 +105,7 @@ def test_xrpc_invalid_request(live_server):
 
     assert 'Invalid request' in message
     assert 'Missing methodName' in message
-    assert code == RPC_INVALID_RESQUEST
+    assert code == RPC_INVALID_REQUEST
 
 
 def test_xrpc_invalid_request2(live_server):
@@ -136,7 +136,7 @@ def test_xrpc_invalid_request2(live_server):
 
     assert 'Invalid request' in message
     assert 'unknown tag' in message
-    assert code == RPC_INVALID_RESQUEST
+    assert code == RPC_INVALID_REQUEST
 
 
 def test_xrpc_parse_error(live_server):

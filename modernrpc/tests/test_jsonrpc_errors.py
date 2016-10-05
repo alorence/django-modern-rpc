@@ -3,7 +3,7 @@ import json
 
 import requests
 
-from modernrpc.exceptions import RPC_INVALID_RESQUEST, RPC_METHOD_NOT_FOUND, RPC_PARSE_ERROR, RPC_INVALID_PARAMS, \
+from modernrpc.exceptions import RPC_INVALID_REQUEST, RPC_METHOD_NOT_FOUND, RPC_PARSE_ERROR, RPC_INVALID_PARAMS, \
     RPC_CUSTOM_ERROR_BASE, RPC_CUSTOM_ERROR_MAX, RPC_INTERNAL_ERROR
 from modernrpc.tests import send_jsonrpc_request
 
@@ -41,7 +41,7 @@ def test_jsrpc_call_bad_request(live_server):
 
     assert 'Invalid request' in error['message']
     assert 'id' in error['message']
-    assert error['code'] == RPC_INVALID_RESQUEST
+    assert error['code'] == RPC_INVALID_REQUEST
 
 
 def test_jsrpc_invalid_request(live_server):
