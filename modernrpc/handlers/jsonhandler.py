@@ -45,39 +45,31 @@ class JSONRPCHandler(RPCHandler):
         except Exception:
             raise RPCInternalError('Unable to serialize result as valid JSON')
 
-    def handle(self):
+    def parse_request(self):
 
-        try:
-            encoding = self.request.encoding or 'utf-8'
-            data = self.request.body.decode(encoding)
-            body = self.loads(data)
+        encoding = self.request.encoding or 'utf-8'
+        data = self.request.body.decode(encoding)
+        body = self.loads(data)
 
-            if not isinstance(body, dict):
-                raise RPCParseError('Invalid request: the object must be a struct')
+        if not isinstance(body, dict):
+            raise RPCParseError('Invalid request: the object must be a struct')
 
-            if 'id' in body:
-                self.request_id = body['id']
-            else:
-                raise RPCInvalidRequest('Missing parameter "id"')
+        if 'id' in body:
+            self.request_id = body['id']
+        else:
+            raise RPCInvalidRequest('Missing parameter "id"')
 
-            if 'jsonrpc' not in body:
-                raise RPCInvalidRequest('Missing parameter "jsonrpc"')
-            elif 'method' not in body:
-                raise RPCInvalidRequest('Missing parameter "method"')
-            elif 'params' not in body:
-                raise RPCInvalidRequest('Missing parameter "params"')
+        if 'jsonrpc' not in body:
+            raise RPCInvalidRequest('Missing parameter "jsonrpc"')
+        elif 'method' not in body:
+            raise RPCInvalidRequest('Missing parameter "method"')
+        elif 'params' not in body:
+            raise RPCInvalidRequest('Missing parameter "params"')
 
-            if body['jsonrpc'] != '2.0':
-                raise RPCInvalidRequest('Invalid request. The attribute "jsonrpc" must contains "2.0"')
+        if body['jsonrpc'] != '2.0':
+            raise RPCInvalidRequest('Invalid request. The attribute "jsonrpc" must contains "2.0"')
 
-            result = self.call_method(body['method'], body['params'])
-
-            return self.result_success(result, self.request_id)
-
-        except RPCException as e:
-            return self.result_error(e)
-        except Exception as e:
-            return self.result_error(RPCInternalError(str(e)))
+        return body['method'], body['params']
 
     @staticmethod
     def json_http_response(data):
@@ -85,9 +77,9 @@ class JSONRPCHandler(RPCHandler):
         response['Content-Type'] = 'application/json'
         return response
 
-    def result_success(self, data, request_id):
+    def result_success(self, data):
         result = {
-            'id': request_id,
+            'id': self.request_id,
             'jsonrpc': '2.0',
             'result': data,
         }

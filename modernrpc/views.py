@@ -7,7 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
 from modernrpc.core import ALL
-from modernrpc.exceptions import RPCInternalError
+from modernrpc.exceptions import RPCInternalError, RPCException
 from modernrpc.handlers import JSONRPCHandler, XMLRPCHandler
 
 logger = logging.getLogger(__name__)
@@ -51,6 +51,17 @@ class RPCEntryPoint(View):
             handlers.append(handler)
 
             if handler.can_handle():
-                return handler.handle()
+                try:
+
+                    method, params = handler.parse_request()
+
+                    result = handler.call_method(method, params)
+
+                    return handler.result_success(result)
+
+                except RPCException as e:
+                    return handler.result_error(e)
+                except Exception as e:
+                    return handler.result_error(RPCInternalError(str(e)))
 
         return handlers[0].result_error(RPCInternalError('Unknown error'))

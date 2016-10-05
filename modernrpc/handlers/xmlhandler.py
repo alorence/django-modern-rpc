@@ -45,21 +45,14 @@ class XMLRPCHandler(RPCHandler):
         # For any type to dump, we need to give a list of only 1 element:
         return self.marshaller.dumps([obj])
 
-    def handle(self):
+    def parse_request(self):
+        encoding = self.request.encoding or 'utf-8'
 
-        try:
-            encoding = self.request.encoding or 'utf-8'
+        data = self.request.body.decode(encoding)
+        params, method_name = self.loads(data)
 
-            data = self.request.body.decode(encoding)
-            params, method_name = self.loads(data)
+        return method_name, params
 
-            result = self.call_method(method_name, params)
-
-            return self.result_success(result)
-        except RPCException as e:
-            return self.result_error(e)
-        except Exception as e:
-            return self.result_error(RPCInternalError(str(e)))
 
     @staticmethod
     def xml_http_response(data):
