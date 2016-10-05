@@ -74,7 +74,9 @@ def test_jsrpc_invalid_params(live_server):
     error = response['error']
 
     assert 'Invalid parameters' in error['message']
-    assert "1 required positional argument" in error['message']
+    # Python2: takes exactly 2 arguments (1 given)
+    # Python3: 1 required positional argument
+    assert "argument" in error['message']
     assert error['code'] == RPC_INVALID_PARAMS
 
 
@@ -89,7 +91,9 @@ def test_jsrpc_invalid_params2(live_server):
     error = response['error']
 
     assert 'Invalid parameters' in error['message']
-    assert "takes 2 positional arguments but 3 were given" in error['message']
+    # Python2: takes exactly 2 arguments (3 given)
+    # Python3: takes 2 positional arguments but 3 were given
+    assert "arguments" in error['message']
     assert error['code'] == RPC_INVALID_PARAMS
 
 
@@ -115,6 +119,8 @@ def test_jsrpc_divide_by_zero(live_server):
     assert 'result' not in response
     error = response['error']
 
-    assert "division by zero" in error['message']
     assert 'Internal error' in error['message']
+    # Python2: integer division or modulo by zero
+    # Python3: division by zero
+    assert "by zero" in error['message']
     assert error['code'] == RPC_INTERNAL_ERROR

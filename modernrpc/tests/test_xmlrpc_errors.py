@@ -36,7 +36,9 @@ def test_xrpc_invalid_params(live_server):
         client.add(42)
 
         assert 'Invalid parameters' in e.faultString
-        assert '1 required positional argument' in e.faultString
+        # Python2: takes exactly 2 arguments (1 given)
+        # Python3: 1 required positional argument
+        assert 'argument' in e.faultString
         assert e.faultCode == RPC_INVALID_PARAMS
 
 
@@ -48,7 +50,9 @@ def test_xrpc_invalid_params2(live_server):
         client.add(42, -51, 98)
 
         assert 'Invalid parameters' in e.faultString
-        assert 'takes 2 positional arguments but 3 were given' in e.faultString
+        # Python2: takes exactly 2 arguments (3 given)
+        # Python3: takes 2 positional arguments but 3 were given
+        assert 'arguments' in e.faultString
         assert e.faultCode == RPC_INVALID_PARAMS
 
 
@@ -71,7 +75,9 @@ def test_xrpc_divide_by_zero(live_server):
         client.divide(42, 0)
 
         assert 'Internal error' in e.faultString
-        assert 'division by zero' in e.faultString
+        # Python2: integer division or modulo by zero
+        # Python3: division by zero
+        assert 'by zero' in e.faultString
         assert e.faultCode == RPC_INTERNAL_ERROR
 
 
