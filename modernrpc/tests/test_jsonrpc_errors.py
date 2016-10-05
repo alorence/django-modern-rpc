@@ -11,10 +11,11 @@ from modernrpc.tests import send_jsonrpc_request
 def test_jsrpc_call_unknown_method(live_server):
 
     method = "non_existing_medthod"
-    response = send_jsonrpc_request(live_server.url + '/all-rpc/', method)
+    response = send_jsonrpc_request(live_server.url + '/all-rpc/', method, req_id=51)
 
     assert 'error' in response
     assert 'result' not in response
+    assert response['id'] == 51
     error = response['error']
 
     assert 'Method not found: ' + method in error['message']
@@ -35,6 +36,7 @@ def test_jsrpc_call_bad_request(live_server):
 
     assert 'error' in response
     assert 'result' not in response
+    assert response['id'] is None
     error = response['error']
 
     assert 'Invalid request' in error['message']
@@ -49,13 +51,15 @@ def test_jsrpc_invalid_request(live_server):
             "method": "add",
             "params": [},
             "jsonrpc": "2.0",
-            "id": 42,
+            "id": 74,
     '''
     headers = {'content-type': 'application/json'}
     response = requests.post(live_server.url + '/all-rpc/', data=invalid_json_payload, headers=headers).json()
 
     assert 'error' in response
     assert 'result' not in response
+    # On ParseError, JSOn has not been properly deserialized, so the request ID can't be given to error response"
+    assert response['id'] is None
     error = response['error']
 
     assert 'Parse error' in error['message']
@@ -67,10 +71,11 @@ def test_jsrpc_invalid_params(live_server):
 
     method = "add"
     params = [42]
-    response = send_jsonrpc_request(live_server.url + '/all-rpc/', method, params)
+    response = send_jsonrpc_request(live_server.url + '/all-rpc/', method, params, req_id=-12)
 
     assert 'error' in response
     assert 'result' not in response
+    assert response['id'] == -12
     error = response['error']
 
     assert 'Invalid parameters' in error['message']
@@ -84,10 +89,11 @@ def test_jsrpc_invalid_params2(live_server):
 
     method = "add"
     params = [42, -51, 98]
-    response = send_jsonrpc_request(live_server.url + '/all-rpc/', method, params)
+    response = send_jsonrpc_request(live_server.url + '/all-rpc/', method, params, req_id=51)
 
     assert 'error' in response
     assert 'result' not in response
+    assert response['id'] == 51
     error = response['error']
 
     assert 'Invalid parameters' in error['message']
@@ -100,10 +106,11 @@ def test_jsrpc_invalid_params2(live_server):
 def test_jsrpc_internal_error(live_server):
     method = "raise_custom_exception"
     params = []
-    response = send_jsonrpc_request(live_server.url + '/all-rpc/', method, params)
+    response = send_jsonrpc_request(live_server.url + '/all-rpc/', method, params, req_id=22)
 
     assert 'error' in response
     assert 'result' not in response
+    assert response['id'] == 22
     error = response['error']
 
     assert "This is a test error" in error['message']
@@ -113,10 +120,11 @@ def test_jsrpc_internal_error(live_server):
 def test_jsrpc_divide_by_zero(live_server):
     method = "divide"
     params = [42, 0]
-    response = send_jsonrpc_request(live_server.url + '/all-rpc/', method, params)
+    response = send_jsonrpc_request(live_server.url + '/all-rpc/', method, params, req_id=44)
 
     assert 'error' in response
     assert 'result' not in response
+    assert response['id'] == 44
     error = response['error']
 
     assert 'Internal error' in error['message']

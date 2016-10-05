@@ -16,9 +16,11 @@ def test_basic_add(live_server):
 def test_jsrpc_list_methods(live_server):
 
     method = 'system.listMethods'
-    response = send_jsonrpc_request(live_server.url + '/all-rpc/', method)
+    response = send_jsonrpc_request(live_server.url + '/all-rpc/', method, req_id=64)
 
+    assert 'error' not in response
     assert 'result' in response
+    assert response['id'] == 64
     result = response['result']
 
     assert type(result) == list
@@ -29,7 +31,9 @@ def test_jsrpc_list_methods(live_server):
 def test_get_signature(live_server):
 
     response = send_jsonrpc_request(live_server.url + '/all-rpc/', 'system.getSignature', ["add"], req_id=51)
+    assert 'error' not in response
     assert 'result' in response
+    assert response['id'] == 51
 
     signature = response['result']
     # This one doesn not have any docstring defined
@@ -37,7 +41,9 @@ def test_get_signature(live_server):
     assert len(signature) == 0
 
     response = send_jsonrpc_request(live_server.url + '/all-rpc/', 'system.getSignature', ["divide"], req_id=43)
+    assert 'error' not in response
     assert 'result' in response
+    assert response['id'] == 43
 
     signature = response['result']
     # Return type + 2 parameters = 3 elements in the signature
