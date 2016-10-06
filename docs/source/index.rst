@@ -1,4 +1,4 @@
-Django-moder-rpc
+Django-modern-rpc
 ================
 
 Overview
