@@ -4,10 +4,9 @@ django-modern-rpc
 
 |TravisStatus|_ |RTDBadge|_
 
-    **Important note**: This project is under development, and is not ready for production environment.
-    You are free to install and test it and provide feedback or make pull
-    request if you want to add a feature, report a bug or try to resolve
-    one of them.
+    **Disclaimer**: This project is under development, and is not ready for production. You are free to install and
+    test it, provide feedback (report issues or make pull requests) but there is no guarantee that the module is free
+    of bugs. In addition, all planned features have not been implemented yet.
 
 -----------
 Information
@@ -21,7 +20,7 @@ It supports JSON-RPC and XML-RPC requests under python 2.7, 3.3, 3.4,
 Features
 --------
 
-The project is in active development, so all the features are not yet
+The project is under active development, so all the features are not yet
 implemented. The list of available features is:
 
 - XML-RPC & JSON-RPC support
