@@ -20,8 +20,13 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath('.'))
-sys.path.insert(1, os.path.abspath(os.path.join(os.path.abspath('.'), '../..')))
+current_dir = os.path.abspath('.')
+root_dir = os.path.abspath(os.path.join(current_dir, '../..'))
+modernrpc_module_path = os.path.abspath(os.path.join(root_dir, 'modernrpc'))
+
+sys.path.insert(0, current_dir)
+sys.path.insert(1, root_dir)
+sys.path.insert(2, modernrpc_module_path)
 
 # -- General configuration ------------------------------------------------
 
@@ -34,6 +39,7 @@ sys.path.insert(1, os.path.abspath(os.path.join(os.path.abspath('.'), '../..')))
 # ones.
 extensions = [
     'sphinx.ext.viewcode',
+    'sphinx.ext.autodoc',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
