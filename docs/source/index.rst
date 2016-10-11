@@ -1,5 +1,5 @@
 Django-modern-rpc
-================
+=================
 
 Overview
 --------
@@ -23,7 +23,8 @@ The main features of the project are:
 
    install_and_config
    configuration
-   exceptions
+   error_handling
+   rpc_view
 
 
 Indices and tables

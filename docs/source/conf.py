@@ -19,6 +19,7 @@
 
 import os
 import sys
+from django.conf import settings
 
 current_dir = os.path.abspath('.')
 root_dir = os.path.abspath(os.path.join(current_dir, '../..'))
@@ -27,6 +28,9 @@ modernrpc_module_path = os.path.abspath(os.path.join(root_dir, 'modernrpc'))
 sys.path.insert(0, current_dir)
 sys.path.insert(1, root_dir)
 sys.path.insert(2, modernrpc_module_path)
+
+# This avoid errors when importing modules in docstring
+settings.configure()
 
 # -- General configuration ------------------------------------------------
 

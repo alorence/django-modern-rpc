@@ -49,6 +49,7 @@ class RPCMethod(object):
     def __call__(self, *args, **kwargs):
         """
         Call the function encapsulated by the current instance
+
         :param args:
         :param kwargs:
         :return:

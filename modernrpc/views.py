@@ -10,6 +10,8 @@ from modernrpc.core import get_all_methods, ALL, get_method
 from modernrpc.exceptions import RPCInternalError, RPCException, RPCUnknownMethod, RPCInvalidParams
 from modernrpc.handlers import JSONRPCHandler, XMLRPCHandler
 
+DEFAULT_ENTRYPOINT_NAME = '__default_entry_point___'
+
 SYSTEM_LIST_METHODS = 'system.listMethods'
 SYSTEM_GET_SIGNATURE = 'system.getSignature'
 
@@ -17,10 +19,12 @@ logger = logging.getLogger(__name__)
 
 
 class RPCEntryPoint(View):
-
+    """
+    This is the main entry point class. It inherits standard Django View class.
+    """
     type = ''
 
-    def __init__(self, entry_point="default", protocol=ALL, **kwargs):
+    def __init__(self, entry_point=DEFAULT_ENTRYPOINT_NAME, protocol=ALL, **kwargs):
         super(RPCEntryPoint, self).__init__(**kwargs)
 
         if not self.get_handler_classes():
@@ -43,6 +47,14 @@ class RPCEntryPoint(View):
         ]
 
     def post(self, request, *args, **kwargs):
+        """
+        Handle any XML-RPC or JSON-RPC request.
+
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
 
         logger.debug('RPC request received on entry point "{}"'.format(self.entry_point))
 
@@ -73,7 +85,17 @@ class RPCEntryPoint(View):
         return handlers[0].result_error(RPCInternalError('Unknown error'))
 
     def call_system_method(self, handler, method_name, params):
+        """
+        Call a pre-defined system method
 
+        :param handler: The handler that decoded RPC call
+        :param method_name: The name of the system method to call
+        :param params: Optional arguments to given with the RPC call
+        :type handler: RPCHandler
+        :type method_name: str
+        :type params: list
+        :return: Various type, depending on the method called
+        """
         if method_name == SYSTEM_LIST_METHODS:
 
             methods = [
