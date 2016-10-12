@@ -3,23 +3,21 @@ from __future__ import print_function
 
 import subprocess
 
-import pytest
+
+def fail_on_error(return_code):
+    if return_code:
+        print('Failed !')
+        exit(return_code)
+    else:
+        print('Success !')
 
 
 if __name__ == '__main__':
 
-    return_codes = []
-
-    print('Running py.test')
-    ret = pytest.main()
-    print('py.test failed' if ret else 'py.test passed')
-    return_codes.append(ret)
+    print('Running py.test & coverage analyze')
+    subprocess.call(['coverage run --source modernrpc pytest .'])
 
     print('Running flake8')
-    ret = subprocess.call(['flake8'])
-    print('flake8 failed' if ret else 'flake8 passed')
-    return_codes.append(ret)
+    fail_on_error(subprocess.call(['flake8']))
 
-    print('')
-
-    exit(0 if all([x == 0 for x in return_codes]) else 1)
+    exit(0)
