@@ -4,6 +4,11 @@ Changelog
 Next release (current development)
 ----------------------------------
 
+- [...]
+
+Release 0.2.1 (2016-10-12)
+--------------------------
+
 - Project is now configured to report tests coverage. See https://coveralls.io/github/alorence/django-modern-rpc
 - Some documentation have been added, to cover more features of the library.
   See http://django-modern-rpc.readthedocs.io/en/latest/
