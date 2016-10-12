@@ -27,6 +27,7 @@ The main features of the project are:
    methods_registration
    configuration
    error_handling
+   changelog
    contribute
 
 
