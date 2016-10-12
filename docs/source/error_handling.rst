@@ -7,7 +7,7 @@ Error handling
 Pre-defined error codes and exceptions
 --------------------------------------
 
-.. automodule:: exceptions
+.. automodule:: modernrpc.exceptions
    :members:
 
 Customize error handling

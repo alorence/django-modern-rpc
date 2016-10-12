@@ -68,5 +68,5 @@ methods to be available to 1 or more specific entry points.
 Class reference
 ===============
 
-.. autoclass:: views.RPCEntryPoint
+.. autoclass:: modernrpc.views.RPCEntryPoint
    :members:

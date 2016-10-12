@@ -93,7 +93,16 @@ def get_method(name, entry_point, protocol):
 
 
 def register_method(function, name=None, entry_point=ALL, protocol=ALL):
-    """Register a RPC method"""
+    """
+    Register a function to be available as RPC method.
+
+    All arguments but ``function`` are optional
+
+    :param function: The python function to register
+    :param name: Used as RPC method name instead of original function name
+    :param entry_point: Default: ALL. Used to limit usage of the RPC method for a specific set of entry points
+    :param protocol: Default: ALL. Used to limit usage of the RPC method for a specific protocol (JSONRPC or XMLRPC)
+    """
     # Define the external name of the function
     if not name:
         name = getattr(function, '__name__')
@@ -139,6 +148,15 @@ def get_all_methods(entry_point=ALL, protocol=ALL):
 
 
 def rpc_method(**kwargs):
+    """
+    Decorator used to define any global function as RPC method.
+
+    All arguments are optional
+
+    :param name: Used as RPC method name instead of original function name
+    :param entry_point: Default: ALL. Used to limit usage of the RPC method for a specific set of entry points
+    :param protocol: Default: ALL. Used to limit usage of the RPC method for a specific protocol (JSONRPC or XMLRPC)
+    """
 
     def __register(function):
 

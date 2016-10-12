@@ -102,6 +102,6 @@ Both ``@rpc_method()`` decorator and ``register_method()`` have the same argumen
 Functions reference
 ===================
 
-.. autofunction:: core.register_method
+.. autofunction:: modernrpc.core.register_method
 
-.. autofunction:: core.rpc_method
+.. autofunction:: modernrpc.core.rpc_method
