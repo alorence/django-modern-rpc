@@ -2,6 +2,16 @@
 django-modern-rpc
 =================
 
+.. image:: https://travis-ci.org/alorence/django-modern-rpc.svg?branch=master
+   :target: https://travis-ci.org/alorence/django-modern-rpc
+
+.. image:: https://coveralls.io/repos/github/alorence/django-modern-rpc/badge.svg?branch=master
+   :target: https://coveralls.io/github/alorence/django-modern-rpc?branch=master
+
+
+.. image:: https://readthedocs.org/projects/django-modern-rpc/badge/?version=latest
+   :target: http://django-modern-rpc.readthedocs.io/en/latest/
+
 |TravisStatus|_ |RTDBadge|_
 
     **Disclaimer**: This project is under development, and is not ready for production. You are free to install and
@@ -99,9 +109,3 @@ Now, you can call the function add from a client:
     print(client.add(2, 3))
 
     # Returns: 5
-
-.. |TravisStatus| image:: https://travis-ci.org/alorence/django-modern-rpc.svg?branch=master
-.. _TravisStatus: https://travis-ci.org/alorence/django-modern-rpc
-
-.. |RTDBadge| image:: https://img.shields.io/badge/docs-latest-brightgreen.svg?style=flat
-.. _RTDBadge: http://django-modern-rpc.readthedocs.io/en/latest/
