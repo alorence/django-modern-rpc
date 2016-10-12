@@ -10,7 +10,7 @@ from modernrpc.core import get_all_methods, ALL, get_method
 from modernrpc.exceptions import RPCInternalError, RPCException, RPCUnknownMethod, RPCInvalidParams
 from modernrpc.handlers import JSONRPCHandler, XMLRPCHandler
 
-DEFAULT_ENTRYPOINT_NAME = '__default_entry_point___'
+DEFAULT_ENTRYPOINT_NAME = '__default_entry_point__'
 
 SYSTEM_LIST_METHODS = 'system.listMethods'
 SYSTEM_GET_SIGNATURE = 'system.getSignature'
@@ -22,7 +22,6 @@ class RPCEntryPoint(View):
     """
     This is the main entry point class. It inherits standard Django View class.
     """
-    type = ''
 
     def __init__(self, entry_point=DEFAULT_ENTRYPOINT_NAME, protocol=ALL, **kwargs):
         super(RPCEntryPoint, self).__init__(**kwargs)

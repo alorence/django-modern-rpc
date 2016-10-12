@@ -41,18 +41,18 @@ The error codes values are defined in:
 - http://www.jsonrpc.org/specification#error_object for JSON-RPC
 - http://xmlrpc-epi.sourceforge.net/specs/rfc.fault_codes.php for XML-RPC
 
-Pre-defined exceptions uses the following error codes:
+Pre-defined exceptions uses the following error codes::
 
-- RPC_PARSE_ERROR = -32700
-- RPC_INVALID_REQUEST = -32600
-- RPC_METHOD_NOT_FOUND = -32601
-- RPC_INVALID_PARAMS = -32602
-- RPC_INTERNAL_ERROR = -32603
+    RPC_PARSE_ERROR = -32700
+    RPC_INVALID_REQUEST = -32600
+    RPC_METHOD_NOT_FOUND = -32601
+    RPC_INVALID_PARAMS = -32602
+    RPC_INTERNAL_ERROR = -32603
 
-- RPC_CUSTOM_ERROR_BASE = -32099
-    Can be used as minimal value for any custom error returned by the server
-- RPC_CUSTOM_ERROR_MAX = -32000
-    Can be used as maximal value for any custom error returned by the server
+    # Used as minimal value for any custom error returned by the server
+    RPC_CUSTOM_ERROR_BASE = -32099
+    # Used as maximal value for any custom error returned by the server
+    RPC_CUSTOM_ERROR_MAX = -32000
 
 """
 
@@ -62,7 +62,9 @@ RPC_METHOD_NOT_FOUND = -32601
 RPC_INVALID_PARAMS = -32602
 RPC_INTERNAL_ERROR = -32603
 
+# Used as minimal value for any custom error returned by the server
 RPC_CUSTOM_ERROR_BASE = -32099
+# Used as maximal value for any custom error returned by the server
 RPC_CUSTOM_ERROR_MAX = -32000
 
 
@@ -85,13 +87,13 @@ class RPCParseError(RPCException):
 
 class RPCInvalidRequest(RPCException):
     """Raised by handlers if incoming JSON or XML data is not a valid JSON-RPC or XML-RPC data."""
-    def __init__(self, message=''):
+    def __init__(self, message=""):
         err_msg = 'Invalid request, {}'.format(message)
         super(RPCInvalidRequest, self).__init__(RPC_INVALID_REQUEST, err_msg)
 
 
 class RPCUnknownMethod(RPCException):
-    """Raised by handlers if in RPC request, the method called is not defined for the current entry point and protocol."""
+    """Raised by handlers the RPC method called is not defined for the current entry point and protocol."""
     def __init__(self, name):
         err_msg = 'Method not found: {}'.format(name)
         super(RPCUnknownMethod, self).__init__(RPC_METHOD_NOT_FOUND, err_msg)
@@ -99,7 +101,7 @@ class RPCUnknownMethod(RPCException):
 
 class RPCInvalidParams(RPCException):
     """Raised by handlers if the RPC method's params does not match the parameters in RPC request"""
-    def __init__(self, message=''):
+    def __init__(self, message=""):
         err_msg = 'Invalid parameters, {}'.format(message)
         super(RPCInvalidParams, self).__init__(RPC_INVALID_PARAMS, err_msg)
 

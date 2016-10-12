@@ -35,6 +35,7 @@ class RPCMethod(object):
     def parse_docstring(self, content):
         if content is None:
             return
+
         lines = content.split('\n')
         for line in lines:
             sline = line.strip()

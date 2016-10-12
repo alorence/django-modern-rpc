@@ -11,6 +11,7 @@ def add(a, b):
 def divide(numerator, denominator):
     """
     Divide a numerator by a denominator
+
     :param numerator:
     :param denominator:
     :type numerator: int or double

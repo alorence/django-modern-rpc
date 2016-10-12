@@ -2,6 +2,7 @@
 def func_a():
     """
     Does nothing...
+
     :return:
     :rtype: string
     """
@@ -11,6 +12,7 @@ def func_a():
 def func_b():
     """
     Not very useful, but...
+
     :return:
     :rtype: string
     """
@@ -20,6 +22,7 @@ def func_b():
 def func_c():
     """
     May be improved in the future...
+
     :return:
     :rtype: string
     """
