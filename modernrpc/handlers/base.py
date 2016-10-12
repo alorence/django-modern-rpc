@@ -39,6 +39,7 @@ class RPCHandler(object):
         raise NotImplementedError("You must override valid_content_types()")
 
     def can_handle(self):
+        # Get the content-type header from incoming request. Method differs depending on current Django version
         try:
             # Django 1.10
             content_type = self.request.content_type
@@ -47,6 +48,7 @@ class RPCHandler(object):
             content_type = self.request.META['CONTENT_TYPE']
 
         if not content_type:
+            # We don't accept a request with missing Content-Type request
             raise RPCInvalidRequest('Missing header: Content-Type')
 
         result = content_type.lower() in self.valid_content_types()

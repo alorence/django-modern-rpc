@@ -36,7 +36,8 @@ class JSONRPCHandler(RPCHandler):
 
     def loads(self, data):
         try:
-            return json.loads(data)
+            decoder = import_string(modernrpc_settings.JSONRPC_DEFAULT_DECODER)
+            return json.loads(data, cls=decoder)
         except JSONDecodeError as e:
             raise RPCParseError(str(e))
 
