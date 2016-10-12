@@ -12,11 +12,9 @@ django-modern-rpc
 .. image:: https://readthedocs.org/projects/django-modern-rpc/badge/?version=latest
    :target: http://django-modern-rpc.readthedocs.io/en/latest/
 
-|TravisStatus|_ |RTDBadge|_
-
-    **Disclaimer**: This project is under development, and is not ready for production. You are free to install and
-    test it, provide feedback (report issues or make pull requests) but there is no guarantee that the module is free
-    of bugs. In addition, all planned features have not been implemented yet.
+.. note:: This project is under development, and is not ready for production. You are free to install and
+   test it, provide feedback (report issues or make pull requests) but there is no guarantee that the module is free
+   of bugs. In addition, all planned features have not been implemented yet.
 
 -----------
 Information
