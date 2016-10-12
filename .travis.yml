@@ -25,9 +25,15 @@ matrix:
 install:
 - pip install -q Django==$DJANGO_VERSION && echo "Django $$DJANGO_VERSION installed"
 - pip install -v -r requirements.txt
+- pip install -q coveralls
 
 # command to run tests
-script: python run_tests.py
+script:
+- py.test --cov=modernrpc .
+- flake8
+
+after_success:
+- coveralls
 
 # Deployment on PyPi
 deploy:

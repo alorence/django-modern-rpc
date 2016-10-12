@@ -13,7 +13,7 @@ except ImportError:
     import xmlrpclib as xmlrpc_module
 
 
-def test_basic_add(live_server):
+def test_xrpc_basic_add(live_server):
     client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
     assert client.add(2, 3) == 5
 
@@ -28,7 +28,7 @@ def test_xrpc_list_methods(live_server):
     assert len(result) > 1
 
 
-def test_get_signature(live_server):
+def test_xrpc_get_signature(live_server):
 
     client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
 

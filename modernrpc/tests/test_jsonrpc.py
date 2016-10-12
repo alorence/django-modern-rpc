@@ -3,7 +3,7 @@ from modernrpc.exceptions import RPC_METHOD_NOT_FOUND
 from modernrpc.tests import send_jsonrpc_request
 
 
-def test_basic_add(live_server):
+def test_jsrpc_basic_add(live_server):
 
     response = send_jsonrpc_request(live_server.url + '/all-rpc/', 'add', [2, 3], req_id=45)
     assert 'error' not in response
@@ -29,7 +29,7 @@ def test_jsrpc_list_methods(live_server):
     assert len(result) > 1
 
 
-def test_get_signature(live_server):
+def test_jsrpc_system_get_signature(live_server):
 
     response = send_jsonrpc_request(live_server.url + '/all-rpc/', 'system.getSignature', ["add"], req_id=51)
     assert 'error' not in response
