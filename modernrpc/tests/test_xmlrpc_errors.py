@@ -21,64 +21,64 @@ def test_xrpc_call_unknown_method(live_server):
 
     client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
 
-    with pytest.raises(xmlrpc_module.Fault) as e:
+    with pytest.raises(xmlrpc_module.Fault) as excinfo:
         client.non_existing_medthod()
 
-        assert 'Method not found: non_existing_medthod' in e.faultString
-        assert e.faultCode == RPC_METHOD_NOT_FOUND
+    assert 'Method not found: non_existing_medthod' in excinfo.value.faultString
+    assert excinfo.value.faultCode == RPC_METHOD_NOT_FOUND
 
 
 def test_xrpc_invalid_params(live_server):
 
     client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
 
-    with pytest.raises(xmlrpc_module.Fault) as e:
+    with pytest.raises(xmlrpc_module.Fault) as excinfo:
         client.add(42)
 
-        assert 'Invalid parameters' in e.faultString
-        # Python2: takes exactly 2 arguments (1 given)
-        # Python3: 1 required positional argument
-        assert 'argument' in e.faultString
-        assert e.faultCode == RPC_INVALID_PARAMS
+    assert 'Invalid parameters' in excinfo.value.faultString
+    # Python2: takes exactly 2 arguments (1 given)
+    # Python3: 1 required positional argument
+    assert 'argument' in excinfo.value.faultString
+    assert excinfo.value.faultCode == RPC_INVALID_PARAMS
 
 
 def test_xrpc_invalid_params2(live_server):
 
     client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
 
-    with pytest.raises(xmlrpc_module.Fault) as e:
+    with pytest.raises(xmlrpc_module.Fault) as excinfo:
         client.add(42, -51, 98)
 
-        assert 'Invalid parameters' in e.faultString
-        # Python2: takes exactly 2 arguments (3 given)
-        # Python3: takes 2 positional arguments but 3 were given
-        assert 'arguments' in e.faultString
-        assert e.faultCode == RPC_INVALID_PARAMS
+    assert 'Invalid parameters' in excinfo.value.faultString
+    # Python2: takes exactly 2 arguments (3 given)
+    # Python3: takes 2 positional arguments but 3 were given
+    assert 'arguments' in excinfo.value.faultString
+    assert excinfo.value.faultCode == RPC_INVALID_PARAMS
 
 
 def test_xrpc_internal_error(live_server):
 
     client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
 
-    with pytest.raises(xmlrpc_module.Fault) as e:
+    with pytest.raises(xmlrpc_module.Fault) as excinfo:
         client.raise_custom_exception()
 
-        assert 'This is a test error' in e.faultString
-        assert RPC_CUSTOM_ERROR_BASE <= e.faultCode <= RPC_CUSTOM_ERROR_MAX
+    assert 'This is a test error' in excinfo.value.faultString
+    assert RPC_CUSTOM_ERROR_BASE <= excinfo.value.faultCode <= RPC_CUSTOM_ERROR_MAX
 
 
 def test_xrpc_divide_by_zero(live_server):
 
     client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
 
-    with pytest.raises(xmlrpc_module.Fault) as e:
+    with pytest.raises(xmlrpc_module.Fault) as excinfo:
         client.divide(42, 0)
 
-        assert 'Internal error' in e.faultString
-        # Python2: integer division or modulo by zero
-        # Python3: division by zero
-        assert 'by zero' in e.faultString
-        assert e.faultCode == RPC_INTERNAL_ERROR
+    assert 'Internal error' in excinfo.value.faultString
+    # Python2: integer division or modulo by zero
+    # Python3: division by zero
+    assert 'by zero' in excinfo.value.faultString
+    assert excinfo.value.faultCode == RPC_INTERNAL_ERROR
 
 
 def test_xrpc_invalid_request(live_server):

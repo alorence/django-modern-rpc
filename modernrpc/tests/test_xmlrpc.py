@@ -58,12 +58,12 @@ def test_xrpc_only_method(live_server):
     result = client.method_y()
     assert result == 'XML only'
 
-    with pytest.raises(xmlrpc_module.Fault) as e:
+    with pytest.raises(xmlrpc_module.Fault) as excinfo:
         # method_x is available only via JSON-RPC
         client.method_x()
 
-        assert 'Method not found: non_existing_medthod' in e.faultString
-        assert e.faultCode == RPC_METHOD_NOT_FOUND
+    assert 'Method not found: method_x' in excinfo.value.faultString
+    assert excinfo.value.faultCode == RPC_METHOD_NOT_FOUND
 
 
 def test_jsrpc_only_internal_error(live_server):

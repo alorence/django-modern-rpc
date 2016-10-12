@@ -1,6 +1,8 @@
 # coding: utf-8
 import pytest
 
+from modernrpc.exceptions import RPC_INTERNAL_ERROR
+
 try:
     # Python 3
     import xmlrpc.client as xmlrpc_module
@@ -27,11 +29,11 @@ def test_xrpc_null(live_server):
 
     client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
 
-    with pytest.raises(xmlrpc_module.Fault) as e:
+    with pytest.raises(xmlrpc_module.Fault) as excinfo:
         client.get_null()
 
-        assert e.faultCode == -32603
-        assert 'cannot marshal None unless allow_none is enabled' in e.faultString
+    assert excinfo.value.faultCode == RPC_INTERNAL_ERROR
+    assert 'cannot marshal None unless allow_none is enabled' in excinfo.value.faultString
 
 
 def test_xrpc_numeric(live_server):
