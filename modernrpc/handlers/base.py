@@ -9,10 +9,11 @@ logger = logging.getLogger(__name__)
 
 class RPCHandler(object):
 
-    def __init__(self, request, entry_point, protocol):
+    protocol = None
+
+    def __init__(self, request, entry_point):
         self.request = request
         self.entry_point = entry_point
-        self.protocol = protocol
 
     def loads(self, data):
         raise NotImplementedError("You must override loads()")

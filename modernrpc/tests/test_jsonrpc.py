@@ -1,4 +1,5 @@
 # coding: utf-8
+from modernrpc.exceptions import RPC_METHOD_NOT_FOUND
 from modernrpc.tests import send_jsonrpc_request
 
 
@@ -52,3 +53,41 @@ def test_get_signature(live_server):
     assert signature[0] == 'int or double'
     assert signature[1] == 'int or double'
     assert signature[2] == 'int or double'
+
+
+def test_jsrpc_only_method(live_server):
+
+    response = send_jsonrpc_request(live_server.url + '/json-only/', 'system.listMethods', req_id=94)
+    assert 'error' not in response
+    assert 'result' in response
+    assert response['id'] == 94
+
+    methods_list = response['result']
+    assert 'method_x' in methods_list
+    assert 'method_y' not in methods_list
+
+    # method_x is available only via JSON-RPC
+    response = send_jsonrpc_request(live_server.url + '/json-only/', 'method_x', req_id=78)
+    assert 'error' not in response
+    assert 'result' in response
+    assert response['id'] == 78
+
+    result = response['result']
+    assert result == 'JSON only'
+
+    # method_y is available only via XML-RPC
+    response = send_jsonrpc_request(live_server.url + '/json-only/', 'method_y', req_id=321)
+    assert 'error' in response
+    assert 'result' not in response
+    assert response['id'] == 321
+
+    error = response['error']
+
+    assert 'Method not found: method_y' in error['message']
+    assert error['code'] == RPC_METHOD_NOT_FOUND
+
+
+def test_xrpc_only_internal_error(live_server):
+
+    response = send_jsonrpc_request(live_server.url + '/xml-only/', 'system.listMethods', return_json=False)
+    assert 'Unable to handle your request. Please ensure you called the right entry point' in str(response.content)

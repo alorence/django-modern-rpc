@@ -22,8 +22,10 @@ JSONRPC = '__json_rpc'
 
 class JSONRPCHandler(RPCHandler):
 
+    protocol = JSONRPC
+
     def __init__(self, request, entry_point):
-        super(JSONRPCHandler, self).__init__(request, entry_point, JSONRPC)
+        super(JSONRPCHandler, self).__init__(request, entry_point)
         self.request_id = None
 
     @staticmethod

@@ -2,6 +2,7 @@
 import logging
 
 from django.core.exceptions import ImproperlyConfigured
+from django.http.response import HttpResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
@@ -23,14 +24,14 @@ class RPCEntryPoint(View):
     This is the main entry point class. It inherits standard Django View class.
     """
 
-    def __init__(self, entry_point=DEFAULT_ENTRYPOINT_NAME, protocol=ALL, **kwargs):
+    entry_point = DEFAULT_ENTRYPOINT_NAME
+    protocol = ALL
+
+    def __init__(self, **kwargs):
         super(RPCEntryPoint, self).__init__(**kwargs)
 
         if not self.get_handler_classes():
             raise ImproperlyConfigured("At least 1 handler must be instantiated.")
-
-        self.entry_point = entry_point
-        self.protocol = protocol
         logger.debug('Create "{}" RPCEntryPoint view'.format(self.entry_point))
 
     # This disable CRSF validation for POST requests
@@ -38,12 +39,13 @@ class RPCEntryPoint(View):
     def dispatch(self, request, *args, **kwargs):
         return super(RPCEntryPoint, self).dispatch(request, *args, **kwargs)
 
-    @staticmethod
-    def get_handler_classes():
-        return [
-            JSONRPCHandler,
-            XMLRPCHandler
-        ]
+    def get_handler_classes(self):
+
+        default_hdlr_classes = [JSONRPCHandler, XMLRPCHandler]
+        if self.protocol == ALL:
+            return default_hdlr_classes
+        else:
+            return [cls for cls in default_hdlr_classes if cls.protocol == self.protocol]
 
     def post(self, request, *args, **kwargs):
         """
@@ -81,7 +83,8 @@ class RPCEntryPoint(View):
                 except Exception as e:
                     return handler.result_error(RPCInternalError(str(e)))
 
-        return handlers[0].result_error(RPCInternalError('Unknown error'))
+        return HttpResponse('Unable to handle your request. Please ensure you called the right entry point. If not, '
+                            'this could be a server error.')
 
     def call_system_method(self, handler, method_name, params):
         """

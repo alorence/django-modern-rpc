@@ -1,4 +1,9 @@
 # coding: utf-8
+import xml
+
+import pytest
+
+from modernrpc.exceptions import RPC_METHOD_NOT_FOUND
 
 try:
     # Python 3
@@ -39,3 +44,36 @@ def test_get_signature(live_server):
     assert signature[0] == 'int or double'
     assert signature[1] == 'int or double'
     assert signature[2] == 'int or double'
+
+
+def test_xrpc_only_method(live_server):
+
+    client = xmlrpc_module.ServerProxy(live_server.url + '/xml-only/')
+
+    methods_list = client.system.listMethods()
+    assert 'method_x' not in methods_list
+    assert 'method_y' in methods_list
+
+    # method_y is available only via XML-RPC
+    result = client.method_y()
+    assert result == 'XML only'
+
+    with pytest.raises(xmlrpc_module.Fault) as e:
+        # method_x is available only via JSON-RPC
+        client.method_x()
+
+        assert 'Method not found: non_existing_medthod' in e.faultString
+        assert e.faultCode == RPC_METHOD_NOT_FOUND
+
+
+def test_jsrpc_only_internal_error(live_server):
+
+    client = xmlrpc_module.ServerProxy(live_server.url + '/json-only/')
+
+    with pytest.raises(xml.parsers.expat.ExpatError) as excinfo:
+        # There is no method available via this entry point. The entry point cannot handle the request.
+        # The returned error message cannot be encapsulated in a proper XML-RPC response (since the entry point is not
+        # configured to handle and respond via the protocol). The returned error message is RAW, so xmlrpc cannot parse
+        # it and generate an ExpatError
+        client.system.listMethods()
+    assert 'syntax error' in str(excinfo.value)
