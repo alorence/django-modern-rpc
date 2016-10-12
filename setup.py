@@ -3,6 +3,7 @@ from setuptools import setup, find_packages
 
 import modernrpc
 
+
 setup(
     name='django-modern-rpc',
     version=modernrpc.__version__,
