@@ -12,13 +12,13 @@ def test_redundant_names():
     register_method(func_a)
 
     # We try to register another function, with an existing name => error
-    with pytest.raises(ImproperlyConfigured) as e:
+    with pytest.raises(ImproperlyConfigured) as excinfo:
         register_method(func_b, 'func_a')
-        assert 'func_a has already been registered' in e.value
+    assert 'func_a has already been registered' in str(excinfo.value)
 
 
 def test_reserved_names():
 
-    with pytest.raises(ImproperlyConfigured) as e:
+    with pytest.raises(ImproperlyConfigured) as excinfo:
         register_method(func_c(), 'rpc.func_c')
-        assert 'method names starting with "rpc." are reserved' in e.value
+    assert 'method names starting with "rpc." are reserved' in str(excinfo.value)
