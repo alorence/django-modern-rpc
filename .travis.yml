@@ -29,7 +29,7 @@ install:
 
 # command to run tests
 script:
-- pytest --cov=modernrpc .
+- py.test --cov=modernrpc .
 - flake8
 
 after_success:
