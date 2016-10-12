@@ -10,7 +10,7 @@ from modernrpc.tests import send_jsonrpc_request
 
 def test_jsrpc_call_unknown_method(live_server):
 
-    method = "non_existing_medthod"
+    method = "non_existing_method"
     response = send_jsonrpc_request(live_server.url + '/all-rpc/', method, req_id=51)
 
     assert 'error' in response

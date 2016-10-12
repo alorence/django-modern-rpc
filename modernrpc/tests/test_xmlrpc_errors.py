@@ -22,9 +22,9 @@ def test_xrpc_call_unknown_method(live_server):
     client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
 
     with pytest.raises(xmlrpc_module.Fault) as excinfo:
-        client.non_existing_medthod()
+        client.non_existing_method()
 
-    assert 'Method not found: non_existing_medthod' in excinfo.value.faultString
+    assert 'Method not found: non_existing_method' in excinfo.value.faultString
     assert excinfo.value.faultCode == RPC_METHOD_NOT_FOUND
 
 
