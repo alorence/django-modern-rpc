@@ -1,1 +1,3 @@
 include *.rst
+prune testsite
+prune modernrpc/tests

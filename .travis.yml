@@ -26,7 +26,6 @@ install:
 - pip install -q Django==$DJANGO_VERSION && echo "Django $$DJANGO_VERSION installed"
 - pip install -v -r requirements.txt
 - pip install -q coveralls
-- pip install setuptools>=28
 
 # command to run tests
 script:

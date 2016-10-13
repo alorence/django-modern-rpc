@@ -1,10 +1,15 @@
 Changelog
 =========
 
+Release 0.2.3 (2016-10-13)
+--------------------------
+
+- Useless tests & testsite packages have been removed from Pypi distributions (binary & source)
+
 Release 0.2.2 (2016-10-13)
 --------------------------
 
-- Useless tests packages have been removed from, Pypi distributions (binary & source)
+- Useless tests packages have been removed from Pypi distributions (binary & source)
 
 Release 0.2.1 (2016-10-12)
 --------------------------
