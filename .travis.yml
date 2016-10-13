@@ -26,6 +26,7 @@ install:
 - pip install -q Django==$DJANGO_VERSION && echo "Django $$DJANGO_VERSION installed"
 - pip install -v -r requirements.txt
 - pip install -q coveralls
+- pip install setuptools>=28
 
 # command to run tests
 script:
@@ -41,7 +42,9 @@ deploy:
   user: alorence
   password:
     secure: l3hmlkkATAAIzuqFtJmWM4Qvfh11dVsCXlOYvlZrjSGh5g/1JIzRzqK0iWmXxD9L4V5R3tniY/jQxj9v2dWqdUBil4LnR4RR1QTaxTibRkwzIz+kOqBWc/KH7FerKpplOfU3mgS37prmIiD+ysM7iRM5cGes5VBjNVnPF2LkJ+eGJR6gijLaNGgXFQ1YW1K65VIUXO0rrzn95MTnNSF0uVR4fg96/3gTRTChp6FORHO82JAClsgEz4mpbnUrnwREbX71nbQ0sIDIHMYLckYQ3txhV07GcFG1z6N5nX+dQvhimLDPdy8ru+w01SO0e5assQltjBAz069Mw6mk2YIKkOq4pplSPMzunBMn6CDy3nY9eCeDVvm/CCRhUS6PrOSLd71ihWWvMnfC8eN/qWkf03GL0rT36gWBjRiPmZjKpGUyZZdxDHka6WN9PeABA0RSDQxL7+dsGXby7nvcfjaqerBfpsVR/AvruZIyiRUEic/HsYgPHhyzdehIonPA/wSJ8wooUc181FwoUQzFks2pSU0XIOPa/TfGneLZgbRKd/oVOj4Vp8DygXuyIbI44G36E5F3Ka3aQhRP+0DRSIoqapNOiAgdBFNqlo8sZUDYBA88M/w++5feDh7prgdTsEIw/oK4Zhspqf+opSTz9X/+vSMuLJXCzneDYm7sFOtwQPE=
-  on:
-    tags: true
   distributions: sdist bdist_wheel
   repo: alorence/django-modern-rpc
+  on:
+    tags: true
+    python: 3.5
+    condition: $DJANGO_VERSION = "1.10.*"

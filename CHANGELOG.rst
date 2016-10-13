@@ -1,10 +1,10 @@
 Changelog
 =========
 
-Next release (current development)
-----------------------------------
+Release 0.2.2 (2016-10-13)
+--------------------------
 
-- [...]
+- Useless tests packages have been removed from, Pypi distributions (binary & source)
 
 Release 0.2.1 (2016-10-12)
 --------------------------
@@ -45,4 +45,3 @@ Release 0.1.0 (2016-10-02)
   * There is no way to provide documentation in HTML form
   * The library itself doesn't have any documentation (appart from
     README.md)
-   
