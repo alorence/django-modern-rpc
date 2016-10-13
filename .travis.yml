@@ -23,9 +23,9 @@ matrix:
 
 # command to install Django (not in requirements.txt to control version to install)
 install:
-- pip install -q Django==$DJANGO_VERSION && echo "Django $$DJANGO_VERSION installed"
-- pip install -v -r requirements.txt
-- pip install -q coveralls
+- pip install Django==$DJANGO_VERSION
+- pip install -r requirements.txt
+- pip install coveralls
 
 # command to run tests
 script:
