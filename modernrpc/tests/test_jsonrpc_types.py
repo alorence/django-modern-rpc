@@ -104,6 +104,20 @@ def test_jsrpc_bytes(live_server):
         assert response['error']['code'] == RPC_INTERNAL_ERROR
 
 
+def test_jsrpc_date(live_server):
+
+    response = send_jsonrpc_request(live_server.url + '/all-rpc/', 'get_date')
+
+    assert 'error' not in response
+    assert 'result' in response
+
+    result = response['result']
+    # Unlike XML-RPC, JSON transport does not store value types.
+    # Dates are transmitted as string in ISO 8601 format:
+    assert '1987-06-02' in result
+    assert '08:45:00' in result
+
+
 def test_jsrpc_list(live_server):
 
     response = send_jsonrpc_request(live_server.url + '/all-rpc/', 'get_list')
