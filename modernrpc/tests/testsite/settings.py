@@ -1,13 +1,13 @@
 DEBUG = True
 ALLOWED_HOSTS = ['*']
-SECRET_KEY = 'we_dont_care'
+SECRET_KEY = 'dummy'
 ROOT_URLCONF = 'testsite.urls'
 
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'moder_rpc.sqlite3',
+        'NAME': 'modern_rpc.sqlite3',
     },
 }
 
@@ -18,9 +18,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.contenttypes',
 
-    'modernrpc',
-
-    'rpc_methods_stub',
+    'testsite.rpc_methods_stub',
 )
 
 TEMPLATES = [

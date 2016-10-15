@@ -30,7 +30,7 @@ setup(
     author='Antoine Lorence',
     author_email='antoine.lorence@gmail.com',
     url='https://github.com/alorence/django-modern-rpc',
-    packages=find_packages(exclude=['testsite', 'testsite.*', 'modernrpc.tests', 'modernrpc.tests.*']),
+    packages=find_packages(exclude=['modernrpc.tests', 'modernrpc.tests.*']),
     classifiers=[
         "Programming Language :: Python",
         "Development Status :: 3 - Alpha",
