@@ -1,6 +1,16 @@
 Changelog
 =========
 
+Current development
+-------------------
+
+- Settings variables have been renamed to limit conflicts with other libraries. In the future, all settings will have
+  the same prefix.
+
+  * ``JSONRPC_DEFAULT_DECODER`` becomes ``MODERNRPC_JSON_DECODER``
+  * ``JSONRPC_DEFAULT_ENCODER`` becomes ``MODERNRPC_JSON_ENCODER``
+  See https:/alorence/django-modern-rpc/blob/master/modernrpc/modernrpc_settings.py for more details
+
 Release 0.2.3 (2016-10-13)
 --------------------------
 

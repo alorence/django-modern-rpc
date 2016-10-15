@@ -36,14 +36,14 @@ class JSONRPCHandler(RPCHandler):
 
     def loads(self, data):
         try:
-            decoder = import_string(modernrpc_settings.JSONRPC_DEFAULT_DECODER)
+            decoder = import_string(modernrpc_settings.MODERNRPC_JSON_DECODER)
             return json.loads(data, cls=decoder)
         except JSONDecodeError as e:
             raise RPCParseError(str(e))
 
     def dumps(self, obj):
         try:
-            encoder = import_string(modernrpc_settings.JSONRPC_DEFAULT_ENCODER)
+            encoder = import_string(modernrpc_settings.MODERNRPC_JSON_ENCODER)
             return json.dumps(obj, cls=encoder)
         except Exception:
             raise RPCInternalError('Unable to serialize result as valid JSON')
