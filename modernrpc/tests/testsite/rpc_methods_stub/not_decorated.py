@@ -3,27 +3,21 @@ def func_a():
     """
     Does nothing...
 
-    :return:
-    :rtype: string
     """
-    return 'a'
+    pass
 
 
 def func_b():
     """
     Not very useful, but...
 
-    :return:
-    :rtype: string
     """
-    return 'b'
+    pass
 
 
 def func_c():
     """
     May be improved in the future...
 
-    :return:
-    :rtype: string
     """
-    return 'c'
+    pass

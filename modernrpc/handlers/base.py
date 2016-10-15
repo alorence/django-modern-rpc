@@ -43,3 +43,9 @@ class RPCHandler(object):
 
     def parse_request(self):
         raise NotImplementedError("You must override parse_request()")
+
+    def result_success(self, data):
+        raise NotImplementedError("You must override result_success()")
+
+    def result_error(self, exception):
+        raise NotImplementedError("You must override result_error()")
