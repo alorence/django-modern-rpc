@@ -1,3 +1,5 @@
+import datetime
+
 from modernrpc.core import rpc_method
 
 
@@ -39,6 +41,11 @@ def get_string():
 @rpc_method()
 def get_byte():
     return b"abcde"
+
+
+@rpc_method()
+def get_date():
+    return datetime.datetime(1987, 6, 2, 8, 45, 00)
 
 
 @rpc_method()

@@ -1,4 +1,5 @@
 # coding: utf-8
+import datetime
 import pytest
 
 from modernrpc.exceptions import RPC_INTERNAL_ERROR
@@ -70,6 +71,34 @@ def test_jsrpc_bytes(live_server):
     result = client.get_byte()
 
     assert result == b'abcde'
+
+
+def test_xrpc_date(live_server):
+
+    client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
+    result = client.get_date()
+
+    assert isinstance(result, xmlrpc_module.DateTime)
+    assert '19870602' in str(result)
+    assert '08:45:00' in str(result)
+
+    try:
+        # Python 3
+        client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/', use_builtin_types=True)
+    except TypeError:
+        # Python 3
+        client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/', use_datetime=True)
+
+    result = client.get_date()
+
+    assert isinstance(result, datetime.datetime)
+
+    assert result.year == 1987
+    assert result.month == 6
+    assert result.day == 2
+    assert result.hour == 8
+    assert result.minute == 45
+    assert result.second == 0
 
 
 def test_xrpc_list(live_server):
