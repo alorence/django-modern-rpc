@@ -182,7 +182,7 @@ def get_all_methods(entry_point=ALL, protocol=ALL):
     ]
 
 
-def rpc_method(**kwargs):
+def rpc_method(name=None, entry_point=ALL, protocol=ALL):
     """
     Decorator used to define any global function as RPC method.
 
@@ -194,13 +194,7 @@ def rpc_method(**kwargs):
     """
 
     def __register(function):
-
-        name = kwargs.get('name')
-        entry_point = kwargs.get('entry_point', ALL)
-        protocol = kwargs.get('protocol', ALL)
-
         register_method(function, name, entry_point, protocol)
-
         return function
 
     return __register
