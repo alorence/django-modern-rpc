@@ -209,8 +209,8 @@ def __system_listMethods(**kwargs):
     return names
 
 
-@rpc_method(name='system.getSignature')
-def __system_getSignature(method_name, **kwargs):
+@rpc_method(name='system.methodSignature')
+def __system_methodSignature(method_name, **kwargs):
 
     entry_point = kwargs.get(MODERNRPC_ENTRY_POINT_PARAM_NAME)
     protocol = kwargs.get(MODERNRPC_PROTOCOL_PARAM_NAME)

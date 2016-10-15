@@ -31,7 +31,7 @@ def test_jsrpc_list_methods(live_server):
 
 def test_jsrpc_system_get_signature(live_server):
 
-    response = send_jsonrpc_request(live_server.url + '/all-rpc/', 'system.getSignature', ["add"], req_id=51)
+    response = send_jsonrpc_request(live_server.url + '/all-rpc/', 'system.methodSignature', ["add"], req_id=51)
     assert 'error' not in response
     assert 'result' in response
     assert response['id'] == 51
@@ -41,7 +41,7 @@ def test_jsrpc_system_get_signature(live_server):
     assert type(signature) == list
     assert len(signature) == 0
 
-    response = send_jsonrpc_request(live_server.url + '/all-rpc/', 'system.getSignature', ["divide"], req_id=43)
+    response = send_jsonrpc_request(live_server.url + '/all-rpc/', 'system.methodSignature', ["divide"], req_id=43)
     assert 'error' not in response
     assert 'result' in response
     assert response['id'] == 43

@@ -32,12 +32,12 @@ def test_xrpc_get_signature(live_server):
 
     client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
 
-    signature = client.system.getSignature('add')
+    signature = client.system.methodSignature('add')
     # This one doesn not have any docstring defined
     assert type(signature) == list
     assert len(signature) == 0
 
-    signature = client.system.getSignature('divide')
+    signature = client.system.methodSignature('divide')
     # Return type + 2 parameters = 3 elements in the signature
     assert type(signature) == list
     assert len(signature) == 3
