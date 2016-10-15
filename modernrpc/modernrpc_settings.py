@@ -11,3 +11,11 @@ MODERNRPC_JSON_ENCODER = getattr(settings, 'MODERNRPC_JSON_ENCODER', 'django.cor
 MODERNRPC_REQUEST_PARAM_NAME = getattr(settings, 'MODERNRPC_REQUEST_PARAM_NAME', 'request')
 MODERNRPC_PROTOCOL_PARAM_NAME = getattr(settings, 'MODERNRPC_PROTOCOL_PARAM_NAME', 'rpc_protocol')
 MODERNRPC_ENTRY_POINT_PARAM_NAME = getattr(settings, 'MODERNRPC_ENTRY_POINT_PARAM_NAME', 'entry_point')
+
+
+MODERNRPC_HANDLERS = getattr(settings, 'MODERNRPC_HANDLERS', [
+    'modernrpc.handlers.JSONRPCHandler',
+    'modernrpc.handlers.XMLRPCHandler',
+])
+
+DEFAULT_ENTRYPOINT_NAME = getattr(settings, 'DEFAULT_ENTRYPOINT_NAME', '__default_entry_point__')

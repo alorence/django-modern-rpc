@@ -4,14 +4,13 @@ import logging
 from django.core.exceptions import ImproperlyConfigured
 from django.http.response import HttpResponse
 from django.utils.decorators import method_decorator
+from django.utils.module_loading import import_string
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
 from modernrpc.core import ALL, get_method
 from modernrpc.exceptions import RPCInternalError, RPCException, RPCUnknownMethod, RPCInvalidParams
-from modernrpc.handlers import JSONRPCHandler, XMLRPCHandler
-
-DEFAULT_ENTRYPOINT_NAME = '__default_entry_point__'
+from modernrpc.modernrpc_settings import MODERNRPC_HANDLERS, DEFAULT_ENTRYPOINT_NAME
 
 logger = logging.getLogger(__name__)
 
@@ -38,11 +37,11 @@ class RPCEntryPoint(View):
 
     def get_handler_classes(self):
 
-        default_hdlr_classes = [JSONRPCHandler, XMLRPCHandler]
+        handler_classes = [import_string(handler_cls) for handler_cls in MODERNRPC_HANDLERS]
         if self.protocol == ALL:
-            return default_hdlr_classes
+            return handler_classes
         else:
-            return [cls for cls in default_hdlr_classes if cls.protocol == self.protocol]
+            return [cls for cls in handler_classes if cls.protocol == self.protocol]
 
     def post(self, request, *args, **kwargs):
         """
