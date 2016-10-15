@@ -231,5 +231,5 @@ def __system_methodHelp(method_name, **kwargs):
 
     method = get_method(method_name, entry_point, protocol)
     if method is None:
-        raise RPCInvalidParams('The method {} is not found in the system. Unable to retrieve signature.')
+        raise RPCInvalidParams('The method {} is not found in the system. Unable to retrieve method help.')
     return method.help_text

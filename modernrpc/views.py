@@ -56,11 +56,9 @@ class RPCEntryPoint(View):
 
         logger.debug('RPC request received on entry point "{}"'.format(self.entry_point))
 
-        handlers = []
         for handler_cls in self.get_handler_classes():
 
             handler = handler_cls(request, self.entry_point)
-            handlers.append(handler)
 
             if handler.can_handle():
                 try:
