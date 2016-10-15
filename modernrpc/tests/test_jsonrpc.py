@@ -55,6 +55,26 @@ def test_jsrpc_system_get_signature(live_server):
     assert signature[2] == 'int or double'
 
 
+def test_jsrpc_method_help(live_server):
+
+    response = send_jsonrpc_request(live_server.url + '/all-rpc/', 'system.methodHelp', ["add"], req_id=54)
+    assert 'error' not in response
+    assert 'result' in response
+    assert response['id'] == 54
+
+    help = response['result']
+    assert type(help) == str
+    assert help == ''
+
+    response = send_jsonrpc_request(live_server.url + '/all-rpc/', 'system.methodHelp', ["divide"], req_id=54)
+    assert 'error' not in response
+    assert 'result' in response
+    assert response['id'] == 54
+
+    help = response['result']
+    assert 'Divide a numerator by a denominator' in help
+
+
 def test_jsrpc_only_method(live_server):
 
     response = send_jsonrpc_request(live_server.url + '/json-only/', 'system.listMethods', req_id=94)

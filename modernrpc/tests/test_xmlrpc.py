@@ -33,7 +33,7 @@ def test_xrpc_get_signature(live_server):
     client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
 
     signature = client.system.methodSignature('add')
-    # This one doesn not have any docstring defined
+    # This one does not have any docstring defined
     assert type(signature) == list
     assert len(signature) == 0
 
@@ -44,6 +44,18 @@ def test_xrpc_get_signature(live_server):
     assert signature[0] == 'int or double'
     assert signature[1] == 'int or double'
     assert signature[2] == 'int or double'
+
+
+def test_xrpc_method_help(live_server):
+
+    client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
+
+    help = client.system.methodHelp('add')
+    assert type(help) == str
+    assert help == ''
+
+    help = client.system.methodHelp('divide')
+    assert 'Divide a numerator by a denominator' in help
 
 
 def test_xrpc_only_method(live_server):
