@@ -1,4 +1,5 @@
 # coding: utf-8
+import sys
 from modernrpc.exceptions import RPC_METHOD_NOT_FOUND
 from modernrpc.tests import send_jsonrpc_request
 
@@ -63,7 +64,10 @@ def test_jsrpc_method_help(live_server):
     assert response['id'] == 54
 
     help = response['result']
-    assert type(help) == str
+    if sys.version_info < (3, 0):
+        assert type(help) == unicode
+    else:
+        assert type(help) == str
     assert help == ''
 
     response = send_jsonrpc_request(live_server.url + '/all-rpc/', 'system.methodHelp', ["divide"], req_id=54)
