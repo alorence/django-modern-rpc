@@ -17,6 +17,7 @@ RPC_REGISTRY_KEY = '__rpc_registry__'
 DEFAULT_REGISTRY_TIMEOUT = None
 ALL = "__all__"
 
+PARAM_REXP = r':param [\w]+:\s?(.+)'
 PARAM_TYPE_REXP = r':type [\w]+:\s?(.+)'
 RETURN_TYPE_REXP = r':rtype:\s?(.+)'
 
@@ -34,7 +35,7 @@ class RPCMethod(object):
             self.protocol = protocol
 
         self.signature = []
-        self.doc_text = ''
+        self.help_text = ''
         self.parse_docstring(function.__doc__)
 
         self.accept_kwargs = inspect.func_accepts_kwargs(function)
@@ -54,12 +55,19 @@ class RPCMethod(object):
         for line in lines:
             sline = line.strip()
 
+            param_match = re.match(PARAM_REXP, sline)
             type_match = re.match(PARAM_TYPE_REXP, sline)
             return_match = re.match(RETURN_TYPE_REXP, sline)
-            if type_match:
+            if param_match:
+                # Do nothing vor now
+                pass
+            elif type_match:
                 self.signature.append(type_match.group(1))
             elif return_match:
                 self.signature.insert(0, return_match.group(1))
+            else:
+                # Add the line to help text
+                self.help_text += line
 
     def __call__(self, request, entry_point, protocol, *args):
         """
@@ -219,3 +227,15 @@ def __system_methodSignature(method_name, **kwargs):
     if method is None:
         raise RPCInvalidParams('The method {} is not found in the system. Unable to retrieve signature.')
     return method.signature
+
+
+@rpc_method(name='system.methodHelp')
+def __system_methodHelp(method_name, **kwargs):
+
+    entry_point = kwargs.get(MODERNRPC_ENTRY_POINT_PARAM_NAME)
+    protocol = kwargs.get(MODERNRPC_PROTOCOL_PARAM_NAME)
+
+    method = get_method(method_name, entry_point, protocol)
+    if method is None:
+        raise RPCInvalidParams('The method {} is not found in the system. Unable to retrieve signature.')
+    return method.help_text
