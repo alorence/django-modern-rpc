@@ -65,7 +65,7 @@ def test_jsrpc_method_help(live_server):
 
     help = response['result']
     if sys.version_info < (3, 0):
-        assert type(help) == unicode
+        assert type(help) == unicode  # noqa: F821
     else:
         assert type(help) == str
     assert help == ''
