@@ -7,14 +7,11 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
-from modernrpc.core import get_all_methods, ALL, get_method
+from modernrpc.core import ALL, get_method
 from modernrpc.exceptions import RPCInternalError, RPCException, RPCUnknownMethod, RPCInvalidParams
 from modernrpc.handlers import JSONRPCHandler, XMLRPCHandler
 
 DEFAULT_ENTRYPOINT_NAME = '__default_entry_point__'
-
-SYSTEM_LIST_METHODS = 'system.listMethods'
-SYSTEM_GET_SIGNATURE = 'system.getSignature'
 
 logger = logging.getLogger(__name__)
 
@@ -70,11 +67,15 @@ class RPCEntryPoint(View):
 
                     method, params = handler.parse_request()
 
-                    if method.startswith('system.'):
-                        result = self.call_system_method(handler, method, params)
-                        return handler.result_success(result)
+                    func = get_method(method, self.entry_point, self.protocol)
 
-                    result = handler.call_method(method, params)
+                    if not func:
+                        raise RPCUnknownMethod(method)
+
+                    try:
+                        result = func(request, self.entry_point, self.protocol, *params)
+                    except TypeError as e:
+                        raise RPCInvalidParams(str(e))
 
                     return handler.result_success(result)
 
@@ -85,34 +86,3 @@ class RPCEntryPoint(View):
 
         return HttpResponse('Unable to handle your request. Please ensure you called the right entry point. If not, '
                             'this could be a server error.')
-
-    def call_system_method(self, handler, method_name, params):
-        """
-        Call a pre-defined system method
-
-        :param handler: The handler that decoded RPC call
-        :param method_name: The name of the system method to call
-        :param params: Optional arguments to given with the RPC call
-        :type handler: RPCHandler
-        :type method_name: str
-        :type params: list
-        :return: Various type, depending on the method called
-        """
-        if method_name == SYSTEM_LIST_METHODS:
-
-            methods = [
-                SYSTEM_LIST_METHODS,
-                SYSTEM_GET_SIGNATURE,
-            ]
-            methods += get_all_methods(self.entry_point, handler.protocol)
-
-            return methods
-
-        elif method_name == SYSTEM_GET_SIGNATURE:
-            method_name = params[0]
-            method = get_method(method_name, self.entry_point, handler.protocol)
-            if method is None:
-                raise RPCInvalidParams('The method {} is not found in the system. Unable to retrieve signature.')
-            return method.signature
-
-        raise RPCUnknownMethod(method_name)

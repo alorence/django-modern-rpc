@@ -1,8 +1,7 @@
 # coding: utf-8
 import logging
 
-from modernrpc.core import get_method
-from modernrpc.exceptions import RPCUnknownMethod, RPCInvalidRequest, RPCInvalidParams
+from modernrpc.exceptions import RPCInvalidRequest
 
 logger = logging.getLogger(__name__)
 
@@ -20,19 +19,6 @@ class RPCHandler(object):
 
     def dumps(self, obj):
         raise NotImplementedError("You must override dumps()")
-
-    def get_method(self, method_name):
-        return get_method(method_name, self.entry_point, self.protocol)
-
-    def call_method(self, method_name, params):
-        method = self.get_method(method_name)
-        if not method:
-            raise RPCUnknownMethod(method_name)
-
-        try:
-            return method(*params)
-        except TypeError as e:
-            raise RPCInvalidParams(str(e))
 
     @staticmethod
     def valid_content_types():

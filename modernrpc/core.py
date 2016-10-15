@@ -5,6 +5,11 @@ import re
 
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
+from django.utils import inspect
+
+from modernrpc.exceptions import RPCInvalidParams
+from modernrpc.modernrpc_settings import MODERNRPC_ENTRY_POINT_PARAM_NAME, MODERNRPC_PROTOCOL_PARAM_NAME, \
+    MODERNRPC_REQUEST_PARAM_NAME
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +37,15 @@ class RPCMethod(object):
         self.doc_text = ''
         self.parse_docstring(function.__doc__)
 
+        self.accept_kwargs = inspect.func_accepts_kwargs(function)
+
+        # This may be useful in the future
+        # self.args, self.varargs, self.varkw, self.defaults = inspect.getargspec(function)
+
+    @property
+    def name(self):
+        return self.external_name
+
     def parse_docstring(self, content):
         if content is None:
             return
@@ -47,7 +61,7 @@ class RPCMethod(object):
             elif return_match:
                 self.signature.insert(0, return_match.group(1))
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, request, entry_point, protocol, *args):
         """
         Call the function encapsulated by the current instance
 
@@ -55,8 +69,21 @@ class RPCMethod(object):
         :param kwargs:
         :return:
         """
+        # Try to load the method address
         module = importlib.import_module(self.module)
         func = getattr(module, self.func_name)
+
+        # By default, no keyword arguments are givend to the method...
+        kwargs = {}
+        # ...except when the method explicitly declared a **kwargs param
+        if self.accept_kwargs:
+            kwargs.update({
+                MODERNRPC_REQUEST_PARAM_NAME: request,
+                MODERNRPC_ENTRY_POINT_PARAM_NAME: entry_point,
+                MODERNRPC_PROTOCOL_PARAM_NAME: protocol,
+            })
+
+        # Call the rpc method, as standard python function
         return func(*args, **kwargs)
 
     def __eq__(self, other):
@@ -143,7 +170,7 @@ def get_all_methods(entry_point=ALL, protocol=ALL):
     registry = cache.get(RPC_REGISTRY_KEY, default={})
 
     return [
-        method_name for method_name, method in registry.items() if method.is_valid_for(entry_point, protocol)
+        method for method in registry.values() if method.is_valid_for(entry_point, protocol)
     ]
 
 
@@ -169,3 +196,26 @@ def rpc_method(**kwargs):
         return function
 
     return __register
+
+
+@rpc_method(name='system.listMethods')
+def __system_listMethods(**kwargs):
+
+    entry_point = kwargs.get(MODERNRPC_ENTRY_POINT_PARAM_NAME)
+    protocol = kwargs.get(MODERNRPC_PROTOCOL_PARAM_NAME)
+
+    names = [method.name for method in get_all_methods(entry_point, protocol)]
+
+    return names
+
+
+@rpc_method(name='system.getSignature')
+def __system_getSignature(method_name, **kwargs):
+
+    entry_point = kwargs.get(MODERNRPC_ENTRY_POINT_PARAM_NAME)
+    protocol = kwargs.get(MODERNRPC_PROTOCOL_PARAM_NAME)
+
+    method = get_method(method_name, entry_point, protocol)
+    if method is None:
+        raise RPCInvalidParams('The method {} is not found in the system. Unable to retrieve signature.')
+    return method.signature
