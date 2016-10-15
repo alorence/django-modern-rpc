@@ -65,7 +65,7 @@ def test_xrpc_string(live_server):
     assert result == 'abcde'
 
 
-def test_jsrpc_bytes(live_server):
+def test_xrpc_bytes(live_server):
 
     client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
     result = client.get_byte()
@@ -110,7 +110,7 @@ def test_xrpc_list(live_server):
     assert result == [1, 2, 3, ]
 
 
-def test_jsrpc_struct(live_server):
+def test_xrpc_struct(live_server):
 
     client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
     result = client.get_struct()
