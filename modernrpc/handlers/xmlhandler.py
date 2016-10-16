@@ -35,7 +35,10 @@ class XMLRPCHandler(RPCHandler):
 
     def loads(self, data):
         try:
-            return xmlrpc_module.loads(data)
+            try:
+                return xmlrpc_module.loads(data, use_builtin_types=True)
+            except TypeError:
+                return xmlrpc_module.loads(data, use_datetime=True)
         except ResponseError as e:
             raise RPCInvalidRequest(e)
         except Exception as e:

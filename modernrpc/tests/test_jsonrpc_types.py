@@ -1,6 +1,7 @@
 # coding: utf-8
 import sys
 
+import datetime
 import pytest
 from _pytest.compat import NoneType
 
@@ -96,6 +97,19 @@ def test_jsrpc_date(live_server):
     # Dates are transmitted as string in ISO 8601 format:
     assert '1987-06-02' in result
     assert '08:45:00' in result
+
+
+def test_jsrpc_date_2(live_server):
+    client = ServerProxy(live_server.url + '/all-rpc/')
+    date = datetime.datetime(1990, 1, 1, 0, 0, 0)
+    result = client.get_date_type(date)
+
+    # Since data type are not included in JSON-RPC request, dates are transmitter as string
+    # to the server. The decoded type depends on the Python version used
+    if sys.version_info < (3, 0):
+        assert 'unicode' in result
+    else:
+        assert 'str' in result
 
 
 def test_jsrpc_list(live_server):

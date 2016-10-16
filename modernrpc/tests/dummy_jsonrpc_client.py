@@ -6,6 +6,7 @@ This class is used to simplify tests definition
 import json
 import random
 
+import django
 import pytest
 import requests
 
@@ -49,7 +50,7 @@ class ServerProxy:
             "jsonrpc": "2.0",
             "id": random.randint(1, 1000),
         }
-        req_data = json.dumps(payload)
+        req_data = json.dumps(payload, cls=django.core.serializers.json.DjangoJSONEncoder)
         response = requests.post(self.url, data=req_data, headers=headers).json()
 
         if 'error' in response:

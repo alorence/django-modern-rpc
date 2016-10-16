@@ -49,6 +49,11 @@ def get_date():
 
 
 @rpc_method()
+def get_date_type(date):
+    return str(type(date))
+
+
+@rpc_method()
 def get_list():
     return [1, 2, 3]
 

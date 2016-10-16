@@ -101,6 +101,15 @@ def test_xrpc_date(live_server):
     assert result.second == 0
 
 
+def test_xrpc_date_2(live_server):
+
+    date = datetime.datetime(1990, 1, 1, 0, 0, 0)
+
+    client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
+    result = client.get_date_type(date)
+    assert 'datetime.datetime' in result
+
+
 def test_xrpc_list(live_server):
 
     client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
