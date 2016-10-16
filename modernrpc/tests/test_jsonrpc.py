@@ -1,53 +1,42 @@
 # coding: utf-8
 import sys
+from json.decoder import JSONDecodeError
+
+import pytest
+
+from dummy_jsonrpc_client import ServerProxy, JsonRpcFault
 from modernrpc.exceptions import RPC_METHOD_NOT_FOUND
-from modernrpc.tests import send_jsonrpc_request
 
 
 def test_jsrpc_basic_add(live_server):
 
-    response = send_jsonrpc_request(live_server.url + '/all-rpc/', 'add', [2, 3], req_id=45)
-    assert 'error' not in response
-    assert 'result' in response
+    client = ServerProxy(live_server.url + '/all-rpc/')
 
-    assert response['id'] == 45
-    assert response['jsonrpc'] == '2.0'
-    assert response['result'] == 5
+    result = client.add(2, 3)
+    assert result == 5
 
 
 def test_jsrpc_list_methods(live_server):
 
-    method = 'system.listMethods'
-    response = send_jsonrpc_request(live_server.url + '/all-rpc/', method, req_id=64)
+    client = ServerProxy(live_server.url + '/all-rpc/')
 
-    assert 'error' not in response
-    assert 'result' in response
-    assert response['id'] == 64
-    result = response['result']
+    result = client.system.listMethods()
 
     assert type(result) == list
-    assert method in result
     assert len(result) > 1
+    assert 'system.listMethods' in result
 
 
 def test_jsrpc_system_get_signature(live_server):
 
-    response = send_jsonrpc_request(live_server.url + '/all-rpc/', 'system.methodSignature', ["add"], req_id=51)
-    assert 'error' not in response
-    assert 'result' in response
-    assert response['id'] == 51
+    client = ServerProxy(live_server.url + '/all-rpc/')
 
-    signature = response['result']
+    signature = client.system.methodSignature("add")
     # This one doesn not have any docstring defined
     assert type(signature) == list
     assert len(signature) == 0
 
-    response = send_jsonrpc_request(live_server.url + '/all-rpc/', 'system.methodSignature', ["divide"], req_id=43)
-    assert 'error' not in response
-    assert 'result' in response
-    assert response['id'] == 43
-
-    signature = response['result']
+    signature = client.system.methodSignature("divide")
     # Return type + 2 parameters = 3 elements in the signature
     assert type(signature) == list
     assert len(signature) == 3
@@ -58,60 +47,42 @@ def test_jsrpc_system_get_signature(live_server):
 
 def test_jsrpc_method_help(live_server):
 
-    response = send_jsonrpc_request(live_server.url + '/all-rpc/', 'system.methodHelp', ["add"], req_id=54)
-    assert 'error' not in response
-    assert 'result' in response
-    assert response['id'] == 54
+    client = ServerProxy(live_server.url + '/all-rpc/')
 
-    help = response['result']
+    help_text = client.system.methodHelp("add")
     if sys.version_info < (3, 0):
-        assert type(help) == unicode  # noqa: F821
+        assert type(help_text) == unicode  # noqa: F821
+
     else:
-        assert type(help) == str
-    assert help == ''
+        assert type(help_text) == str
+    assert help_text == ''
 
-    response = send_jsonrpc_request(live_server.url + '/all-rpc/', 'system.methodHelp', ["divide"], req_id=54)
-    assert 'error' not in response
-    assert 'result' in response
-    assert response['id'] == 54
-
-    help = response['result']
-    assert 'Divide a numerator by a denominator' in help
+    help_text = client.system.methodHelp("divide")
+    assert 'Divide a numerator by a denominator' in help_text
 
 
 def test_jsrpc_only_method(live_server):
 
-    response = send_jsonrpc_request(live_server.url + '/json-only/', 'system.listMethods', req_id=94)
-    assert 'error' not in response
-    assert 'result' in response
-    assert response['id'] == 94
+    client = ServerProxy(live_server.url + '/json-only/')
 
-    methods_list = response['result']
+    methods_list = client.system.listMethods()
     assert 'method_x' in methods_list
     assert 'method_y' not in methods_list
 
-    # method_x is available only via JSON-RPC
-    response = send_jsonrpc_request(live_server.url + '/json-only/', 'method_x', req_id=78)
-    assert 'error' not in response
-    assert 'result' in response
-    assert response['id'] == 78
-
-    result = response['result']
+    result = client.method_x()
     assert result == 'JSON only'
 
     # method_y is available only via XML-RPC
-    response = send_jsonrpc_request(live_server.url + '/json-only/', 'method_y', req_id=321)
-    assert 'error' in response
-    assert 'result' not in response
-    assert response['id'] == 321
+    with pytest.raises(JsonRpcFault) as excinfo:
+        client.method_y()
 
-    error = response['error']
-
-    assert 'Method not found: method_y' in error['message']
-    assert error['code'] == RPC_METHOD_NOT_FOUND
+    assert 'Method not found: method_y' in excinfo.value.faultString
+    assert excinfo.value.faultCode == RPC_METHOD_NOT_FOUND
 
 
 def test_xrpc_only_internal_error(live_server):
 
-    response = send_jsonrpc_request(live_server.url + '/xml-only/', 'system.listMethods', return_json=False)
-    assert 'Unable to handle your request. Please ensure you called the right entry point' in str(response.content)
+    client = ServerProxy(live_server.url + '/xml-only/')
+    with pytest.raises(JSONDecodeError) as excinfo:
+        client.system.listMethods()
+    assert 'Expecting value: line 1 column 1 (char 0)' in str(excinfo)

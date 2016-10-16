@@ -1,25 +1,23 @@
 # coding: utf-8
 import json
 
+import pytest
 import requests
 
+from dummy_jsonrpc_client import ServerProxy, JsonRpcFault
 from modernrpc.exceptions import RPC_INVALID_REQUEST, RPC_METHOD_NOT_FOUND, RPC_PARSE_ERROR, RPC_INVALID_PARAMS, \
     RPC_CUSTOM_ERROR_BASE, RPC_CUSTOM_ERROR_MAX, RPC_INTERNAL_ERROR
-from modernrpc.tests import send_jsonrpc_request
 
 
 def test_jsrpc_call_unknown_method(live_server):
 
-    method = "non_existing_method"
-    response = send_jsonrpc_request(live_server.url + '/all-rpc/', method, req_id=51)
+    client = ServerProxy(live_server.url + '/all-rpc/')
 
-    assert 'error' in response
-    assert 'result' not in response
-    assert response['id'] == 51
-    error = response['error']
+    with pytest.raises(JsonRpcFault) as excinfo:
+        client.non_existing_method()
 
-    assert 'Method not found: ' + method in error['message']
-    assert error['code'] == RPC_METHOD_NOT_FOUND
+    assert 'Method not found: non_existing_method' in excinfo.value.faultString
+    assert excinfo.value.faultCode == RPC_METHOD_NOT_FOUND
 
 
 def test_jsrpc_call_bad_request(live_server):
@@ -69,66 +67,52 @@ def test_jsrpc_invalid_request(live_server):
 
 def test_jsrpc_invalid_params(live_server):
 
-    method = "add"
-    params = [42]
-    response = send_jsonrpc_request(live_server.url + '/all-rpc/', method, params, req_id=-12)
+    client = ServerProxy(live_server.url + '/all-rpc/')
 
-    assert 'error' in response
-    assert 'result' not in response
-    assert response['id'] == -12
-    error = response['error']
+    with pytest.raises(JsonRpcFault) as excinfo:
+        client.add(42)
 
-    assert 'Invalid parameters' in error['message']
+    assert 'Invalid parameters' in excinfo.value.faultString
     # Python2: takes exactly 2 arguments (1 given)
     # Python3: 1 required positional argument
-    assert "argument" in error['message']
-    assert error['code'] == RPC_INVALID_PARAMS
+    assert 'argument' in excinfo.value.faultString
+    assert excinfo.value.faultCode == RPC_INVALID_PARAMS
 
 
 def test_jsrpc_invalid_params2(live_server):
 
-    method = "add"
-    params = [42, -51, 98]
-    response = send_jsonrpc_request(live_server.url + '/all-rpc/', method, params, req_id=51)
+    client = ServerProxy(live_server.url + '/all-rpc/')
 
-    assert 'error' in response
-    assert 'result' not in response
-    assert response['id'] == 51
-    error = response['error']
+    with pytest.raises(JsonRpcFault) as excinfo:
+        client.add(42, -51, 98)
 
-    assert 'Invalid parameters' in error['message']
+    assert 'Invalid parameters' in excinfo.value.faultString
     # Python2: takes exactly 2 arguments (3 given)
     # Python3: takes 2 positional arguments but 3 were given
-    assert "arguments" in error['message']
-    assert error['code'] == RPC_INVALID_PARAMS
+    assert 'arguments' in excinfo.value.faultString
+    assert excinfo.value.faultCode == RPC_INVALID_PARAMS
 
 
 def test_jsrpc_internal_error(live_server):
-    method = "raise_custom_exception"
-    params = []
-    response = send_jsonrpc_request(live_server.url + '/all-rpc/', method, params, req_id=22)
 
-    assert 'error' in response
-    assert 'result' not in response
-    assert response['id'] == 22
-    error = response['error']
+    client = ServerProxy(live_server.url + '/all-rpc/')
 
-    assert "This is a test error" in error['message']
-    assert RPC_CUSTOM_ERROR_BASE <= error['code'] <= RPC_CUSTOM_ERROR_MAX
+    with pytest.raises(JsonRpcFault) as excinfo:
+        client.raise_custom_exception()
+
+    assert 'This is a test error' in excinfo.value.faultString
+    assert RPC_CUSTOM_ERROR_BASE <= excinfo.value.faultCode <= RPC_CUSTOM_ERROR_MAX
 
 
 def test_jsrpc_divide_by_zero(live_server):
-    method = "divide"
-    params = [42, 0]
-    response = send_jsonrpc_request(live_server.url + '/all-rpc/', method, params, req_id=44)
 
-    assert 'error' in response
-    assert 'result' not in response
-    assert response['id'] == 44
-    error = response['error']
+    client = ServerProxy(live_server.url + '/all-rpc/')
 
-    assert 'Internal error' in error['message']
+    with pytest.raises(JsonRpcFault) as excinfo:
+        client.divide(42, 0)
+
+    assert 'Internal error' in excinfo.value.faultString
     # Python2: integer division or modulo by zero
     # Python3: division by zero
-    assert "by zero" in error['message']
-    assert error['code'] == RPC_INTERNAL_ERROR
+    assert 'by zero' in excinfo.value.faultString
+    assert excinfo.value.faultCode == RPC_INTERNAL_ERROR
