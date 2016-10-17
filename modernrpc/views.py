@@ -10,7 +10,7 @@ from django.views.generic import View
 
 from modernrpc.core import ALL, get_method
 from modernrpc.exceptions import RPCInternalError, RPCException, RPCUnknownMethod, RPCInvalidParams
-from modernrpc.modernrpc_settings import MODERNRPC_HANDLERS, DEFAULT_ENTRYPOINT_NAME
+from modernrpc.modernrpc_settings import MODERNRPC_HANDLERS, MODERNRPC_DEFAULT_ENTRYPOINT_NAME
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +20,7 @@ class RPCEntryPoint(View):
     This is the main entry point class. It inherits standard Django View class.
     """
 
-    entry_point = DEFAULT_ENTRYPOINT_NAME
+    entry_point = MODERNRPC_DEFAULT_ENTRYPOINT_NAME
     protocol = ALL
 
     def __init__(self, **kwargs):

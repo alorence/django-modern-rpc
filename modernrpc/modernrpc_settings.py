@@ -18,4 +18,5 @@ MODERNRPC_HANDLERS = getattr(settings, 'MODERNRPC_HANDLERS', [
     'modernrpc.handlers.XMLRPCHandler',
 ])
 
-DEFAULT_ENTRYPOINT_NAME = getattr(settings, 'DEFAULT_ENTRYPOINT_NAME', '__default_entry_point__')
+MODERNRPC_DEFAULT_ENTRYPOINT_NAME = getattr(settings, 'MODERNRPC_DEFAULT_ENTRYPOINT_NAME', '__default_entry_point__')
+
