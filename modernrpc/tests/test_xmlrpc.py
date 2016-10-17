@@ -50,12 +50,12 @@ def test_xrpc_method_help(live_server):
 
     client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
 
-    help = client.system.methodHelp('add')
-    assert type(help) == str
+    help_msg = client.system.methodHelp('add')
+    assert type(help_msg) == str
     assert help == ''
 
-    help = client.system.methodHelp('divide')
-    assert 'Divide a numerator by a denominator' in help
+    help_msg = client.system.methodHelp('divide')
+    assert 'Divide a numerator by a denominator' in help_msg
 
 
 def test_xrpc_only_method(live_server):
