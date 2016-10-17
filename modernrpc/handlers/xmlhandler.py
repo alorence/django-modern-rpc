@@ -5,6 +5,7 @@ from django.http.response import HttpResponse
 
 from modernrpc.exceptions import RPCParseError, RPCInvalidRequest
 from modernrpc.handlers.base import RPCHandler
+from modernrpc.modernrpc_settings import MODERNRPC_XML_USE_BUILTIN_TYPES
 
 try:
     # Python 3
@@ -36,9 +37,9 @@ class XMLRPCHandler(RPCHandler):
     def loads(self, data):
         try:
             try:
-                return xmlrpc_module.loads(data, use_builtin_types=True)
+                return xmlrpc_module.loads(data, use_builtin_types=MODERNRPC_XML_USE_BUILTIN_TYPES)
             except TypeError:
-                return xmlrpc_module.loads(data, use_datetime=True)
+                return xmlrpc_module.loads(data, use_datetime=MODERNRPC_XML_USE_BUILTIN_TYPES)
         except ResponseError as e:
             raise RPCInvalidRequest(e)
         except Exception as e:
