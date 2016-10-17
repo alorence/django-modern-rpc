@@ -110,6 +110,26 @@ def test_xrpc_date_2(live_server):
     assert 'datetime.datetime' in result
 
 
+def test_xrpc_date_3(live_server):
+
+    try:
+        # Python 3
+        client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/', use_builtin_types=True)
+    except TypeError:
+        # Python 3
+        client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/', use_datetime=True)
+    date = datetime.datetime(2000, 6, 3, 0, 0, 0)
+    result = client.add_one_month(date)
+
+    # JSON-RPC will transmit the input argument and the result as standard string
+    assert result.year == 2000
+    assert result.month == 7
+    assert result.day == 4
+    assert result.hour == 0
+    assert result.minute == 0
+    assert result.second == 0
+
+
 def test_xrpc_list(live_server):
 
     client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')

@@ -54,7 +54,7 @@ def test_jsrpc_string(live_server):
     client = ServerProxy(live_server.url + '/all-rpc/')
     result = client.get_string()
 
-    # Unlike XML-RPC, JSON-RPC always return a unicode string.That means the type of the result value is
+    # Unlike XML-RPC, JSON-RPC always return a unicode string. That means the type of the result value is
     # 'unicode' in Python 2 and 'str' in python 3. This may be addressed in the future
     try:
         # Python 2
@@ -83,7 +83,7 @@ def test_jsrpc_bytes(live_server):
 
         # Python 3: JSON cannot transport a bytearray
         with pytest.raises(JsonRpcFault) as excinfo:
-            result = client.get_byte()
+            client.get_byte()
 
         assert excinfo.value.faultCode == RPC_INTERNAL_ERROR
 
@@ -110,6 +110,16 @@ def test_jsrpc_date_2(live_server):
         assert 'unicode' in result
     else:
         assert 'str' in result
+
+
+def test_jsrpc_date_3(live_server):
+
+    client = ServerProxy(live_server.url + '/all-rpc/')
+    date = datetime.datetime(2000, 6, 3, 0, 0, 0)
+    result = client.add_one_month(date)
+
+    # JSON-RPC will transmit the input argument and the result as standard string
+    assert '2000-07-04' in result
 
 
 def test_jsrpc_list(live_server):

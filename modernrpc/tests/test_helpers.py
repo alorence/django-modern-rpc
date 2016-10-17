@@ -54,5 +54,5 @@ def test_get_builtin_date_invalid():
     date1 = get_builtin_date("2016-16-04T21:54:00")
     assert date1 is None
 
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(ValueError):
         get_builtin_date("2016-16-04T21:54:00", raise_exception=True)
