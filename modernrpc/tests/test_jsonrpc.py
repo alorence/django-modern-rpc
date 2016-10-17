@@ -3,11 +3,9 @@ import sys
 try:
     # Python 3
     from json.decoder import JSONDecodeError
-    JsonDecodeErrorMessage = 'Expecting value: line 1 column 1 (char 0)'
 except ImportError:
     # Python 2: json.loads will raise a ValueError when loading json
     JSONDecodeError = ValueError
-    JsonDecodeErrorMessage = "ValueError: No JSON object could be decoded"
 
 import pytest
 
@@ -90,10 +88,9 @@ def test_jsrpc_only_method(live_server):
 def test_xrpc_only_internal_error(live_server):
 
     client = ServerProxy(live_server.url + '/xml-only/')
-    with pytest.raises(JSONDecodeError) as excinfo:
+    with pytest.raises(JSONDecodeError):
         # There is no method available via this entry point. The entry point cannot handle the request.
-        # The returned error message cannot be encapsulated in a proper XML-RPC response (since the entry point is not
-        # configured to handle and respond via the protocol). The returned error message is RAW, so xmlrpc cannot parse
-        # it and generate a JSONDecodeError, or a ValueError in python 2
+        # The returned error message cannot be encapsulated in a proper JSON-RPC response (since the entry
+        # point is not configured to handle and respond via this protocol). The returned error message is RAW,
+        # so JSON-RPC cannot parse it and generate a JSONDecodeError, or a ValueError in python 2
         client.system.listMethods()
-    assert JsonDecodeErrorMessage in str(excinfo)

@@ -84,8 +84,8 @@ def test_jsrpc_only_internal_error(live_server):
 
     with pytest.raises(xml.parsers.expat.ExpatError) as excinfo:
         # There is no method available via this entry point. The entry point cannot handle the request.
-        # The returned error message cannot be encapsulated in a proper XML-RPC response (since the entry point is not
-        # configured to handle and respond via the protocol). The returned error message is RAW, so xmlrpc cannot parse
-        # it and generate an ExpatError
+        # The returned error message cannot be encapsulated in a proper XML-RPC response (since the entry
+        # point is not configured to handle and respond via the protocol). The returned error message is RAW,
+        # so XML-RPC cannot parse it and generate an ExpatError
         client.system.listMethods()
     assert 'syntax error' in str(excinfo.value)
