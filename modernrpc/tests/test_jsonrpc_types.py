@@ -3,7 +3,6 @@ import sys
 
 import datetime
 import pytest
-from _pytest.compat import NoneType
 
 from dummy_jsonrpc_client import ServerProxy, JsonRpcFault
 from modernrpc.exceptions import RPC_INTERNAL_ERROR
@@ -28,7 +27,6 @@ def test_jsrpc_null(live_server):
     client = ServerProxy(live_server.url + '/all-rpc/')
 
     result = client.get_null()
-    assert type(result) == NoneType
     assert result is None
 
 
