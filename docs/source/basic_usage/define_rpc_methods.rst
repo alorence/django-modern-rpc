@@ -17,18 +17,17 @@ http://xmlrpc.scripting.com/spec.html.
 The most basic python types are encoded and decoded from/to automatically. That means you can use them directly
 in your methods, and returns it as results. These types are:
 
-==============    =============   ============
-Python types      JSON-RPC type   XML-RPC type
-==============    =============   ============
-bool              boolean         boolean
-int               int             int
-float             double          double
-str or unicode    string          string
-byte or str
-dict              struct          struct
-datetime*         string          dateTime.iso8601
-                                  base64
-==============    =============   ============
+=================    ================    ==================
+XML-RPC type         JSON-RPC type       Python type
+=================    ================    ==================
+boolean              boolean             bool
+int                  int                 int
+double               double              float
+string               string              bytearray, str or unicode
+struct               struct              dict
+dateTime.iso8601     string              datetime*
+base64               *Not supported*     Binary
+=================    ================    ==================
 
 DateTime support
 ----------------
