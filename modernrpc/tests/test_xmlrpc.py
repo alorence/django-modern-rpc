@@ -52,7 +52,7 @@ def test_xrpc_method_help(live_server):
 
     help_msg = client.system.methodHelp('add')
     assert type(help_msg) == str
-    assert help == ''
+    assert help_msg == ''
 
     help_msg = client.system.methodHelp('divide')
     assert 'Divide a numerator by a denominator' in help_msg
