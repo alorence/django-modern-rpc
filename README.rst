@@ -87,4 +87,4 @@ Now, you can call the RPC method ``add`` from a client:
     >>> print(client.add(2, 3))
     5
 
-To get more information, please read `the full documenation <http://django-modern-rpc.readthedocs.io>`_.
+To get more information, please read `the full documentation <http://django-modern-rpc.readthedocs.io>`_.

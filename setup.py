@@ -25,7 +25,7 @@ def find_version(*file_paths):
 setup(
     name='django-modern-rpc',
     version=find_version("modernrpc", "__init__.py"),
-    description='Simple and modern RPC Server for Django',
+    description='Simple and modern JSON-RPC and XML-RPC server implementation for Django',
     long_description=read('README.rst'),
     author='Antoine Lorence',
     author_email='antoine.lorence@gmail.com',
