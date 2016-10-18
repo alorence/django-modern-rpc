@@ -4,8 +4,8 @@ Quick start
 
 Start using django-modern-rpc in a minute, following these simple steps.
 
-Install package in your environment
-===================================
+Installation
+============
 
 Use pip::
 
@@ -57,4 +57,4 @@ You can import your function in many ways. For example, in the ``__init__.py`` o
    from rpc_app.rpc_methods import add
 
 .. note::
-   There in another method to register your RPC methods. It is fully documented in :doc:`methods_registration`.
+   There in another ways to register your RPC methods. For more information, please read :doc:`methods_registration`.
