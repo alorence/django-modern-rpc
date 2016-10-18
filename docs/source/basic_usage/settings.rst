@@ -1,6 +1,6 @@
-=============
-Configuration
-=============
+========
+Settings
+========
 
 In your project's settings, you can override some variable to customize behavior of django-modern-rpc.
 

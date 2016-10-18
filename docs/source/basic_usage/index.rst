@@ -8,5 +8,5 @@ Basic usage
    define_rpc_methods
    methods_registration
    rpc_view
-   configuration
+   settings
    error_handling
