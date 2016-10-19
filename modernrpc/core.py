@@ -47,6 +47,9 @@ class RPCMethod(object):
     def name(self):
         return self.external_name
 
+    def __repr__(self):
+        return 'RPC Method ' + self.name
+
     def parse_docstring(self, content):
         if content is None:
             return
@@ -69,12 +72,13 @@ class RPCMethod(object):
                 # Add the line to help text
                 self.help_text += line
 
-    def __call__(self, request, entry_point, protocol, *args):
+    def execute(self, request, entry_point, protocol, *args):
         """
         Call the function encapsulated by the current instance
 
-        :param args:
-        :param kwargs:
+        :param request:
+        :param entry_point:
+        :param protocol:
         :return:
         """
         # Try to load the method address
@@ -110,6 +114,16 @@ class RPCMethod(object):
 
     def is_valid_for(self, entry_point, protocol):
         return self.available_for_entry_point(entry_point) and self.available_for_type(protocol)
+
+
+def get_all_methods(entry_point=ALL, protocol=ALL):
+    """Return a list of all methods in the registry supported by the given entry_point / protocol pair"""
+    # Get the current RPC registry from internal cache
+    registry = cache.get(RPC_REGISTRY_KEY, default={})
+
+    return [
+        method for method in registry.values() if method.is_valid_for(entry_point, protocol)
+    ]
 
 
 def get_method(name, entry_point, protocol):
@@ -170,16 +184,6 @@ def register_method(function, name=None, entry_point=ALL, protocol=ALL):
     registry[method.external_name] = method
     # Update the registry in internal cache
     cache.set(RPC_REGISTRY_KEY, registry, timeout=DEFAULT_REGISTRY_TIMEOUT)
-
-
-def get_all_methods(entry_point=ALL, protocol=ALL):
-    """Return a list of all methods in the registry supported by the given entry_point / protocol pair"""
-    # Get the current RPC registry from internal cache
-    registry = cache.get(RPC_REGISTRY_KEY, default={})
-
-    return [
-        method for method in registry.values() if method.is_valid_for(entry_point, protocol)
-    ]
 
 
 def rpc_method(name=None, entry_point=ALL, protocol=ALL):

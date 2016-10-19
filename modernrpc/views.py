@@ -64,13 +64,13 @@ class RPCEntryPoint(View):
 
                     method, params = handler.parse_request()
 
-                    func = get_method(method, self.entry_point, self.protocol)
+                    rpc_method = get_method(method, self.entry_point, self.protocol)
 
-                    if not func:
+                    if not rpc_method:
                         raise RPCUnknownMethod(method)
 
                     try:
-                        result = func(request, self.entry_point, self.protocol, *params)
+                        result = rpc_method.execute(request, self.entry_point, self.protocol, *params)
                     except TypeError as e:
                         raise RPCInvalidParams(str(e))
 
