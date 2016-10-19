@@ -116,13 +116,18 @@ class RPCMethod(object):
         return self.available_for_entry_point(entry_point) and self.available_for_type(protocol)
 
 
-def get_all_methods(entry_point=ALL, protocol=ALL):
+def get_all_methods(entry_point=ALL, protocol=ALL, sort_methods=False):
     """Return a list of all methods in the registry supported by the given entry_point / protocol pair"""
     # Get the current RPC registry from internal cache
     registry = cache.get(RPC_REGISTRY_KEY, default={})
 
+    if sort_methods:
+        methods = [method for (_, method) in sorted(registry.items())]
+    else:
+        methods = registry.values()
+
     return [
-        method for method in registry.values() if method.is_valid_for(entry_point, protocol)
+        method for method in methods if method.is_valid_for(entry_point, protocol)
     ]
 
 
