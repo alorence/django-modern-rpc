@@ -3,7 +3,6 @@ import logging
 
 from django.core.exceptions import ImproperlyConfigured
 from django.http.response import HttpResponse
-from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.utils.module_loading import import_string
 from django.views.decorators.csrf import csrf_exempt

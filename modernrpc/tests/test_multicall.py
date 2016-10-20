@@ -1,5 +1,4 @@
 # coding: utf-8
-import xml
 
 import pytest
 

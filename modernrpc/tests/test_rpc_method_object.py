@@ -1,5 +1,5 @@
 # coding: utf-8
-from modernrpc.core import RPCMethod, ALL
+from modernrpc.core import RPCMethod
 from modernrpc.handlers import XMLRPC, JSONRPC
 from modernrpc.modernrpc_settings import MODERNRPC_DEFAULT_ENTRYPOINT_NAME
 
