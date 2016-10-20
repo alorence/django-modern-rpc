@@ -32,10 +32,7 @@ class RPCMethod(object):
         self.func_name = function.__name__
         self.external_name = external_name
         self.entry_point = entry_point
-        if protocol != ALL and not isinstance(protocol, list):
-            self.protocol = [protocol]
-        else:
-            self.protocol = protocol
+        self.protocol = protocol
 
         self.signature = []
         self.help_text = ''
@@ -99,14 +96,22 @@ class RPCMethod(object):
             self.entry_point == other.entry_point and \
             self.protocol == other.protocol
 
-    def available_for_type(self, protocol):
-        return self.protocol == ALL or protocol in self.protocol
+    def available_for_protocol(self, protocol):
+        if self.protocol == ALL:
+            return True
+        else:
+            valid_protocols = self.protocol if isinstance(self.protocol, list) else [self.protocol]
+            return protocol in valid_protocols
 
     def available_for_entry_point(self, entry_point):
-        return self.entry_point == ALL or entry_point == self.entry_point
+        if self.entry_point == ALL:
+            return True
+        else:
+            valid_entry_points = self.entry_point if isinstance(self.entry_point, list) else [self.entry_point]
+            return entry_point in valid_entry_points
 
     def is_valid_for(self, entry_point, protocol):
-        return self.available_for_entry_point(entry_point) and self.available_for_type(protocol)
+        return self.available_for_entry_point(entry_point) and self.available_for_protocol(protocol)
 
 
 def get_all_methods(entry_point=ALL, protocol=ALL, sort_methods=False):

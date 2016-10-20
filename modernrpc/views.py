@@ -65,7 +65,8 @@ class RPCEntryPoint(TemplateView):
         if self.protocol == ALL:
             return handler_classes
         else:
-            return [cls for cls in handler_classes if cls.protocol == self.protocol]
+            valid_protocols = self.protocol if isinstance(self.protocol, list) else [self.protocol]
+            return [cls for cls in handler_classes if cls.protocol in valid_protocols]
 
     def post(self, request, *args, **kwargs):
         """
@@ -88,7 +89,7 @@ class RPCEntryPoint(TemplateView):
 
                     method, params = handler.parse_request()
 
-                    rpc_method = get_method(method, self.entry_point, self.protocol)
+                    rpc_method = get_method(method, self.entry_point, handler_cls.protocol)
 
                     if not rpc_method:
                         raise RPCUnknownMethod(method)
