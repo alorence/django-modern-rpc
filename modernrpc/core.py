@@ -7,7 +7,8 @@ from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import inspect
 
-from modernrpc.exceptions import RPCInvalidParams
+from modernrpc.exceptions import RPCInvalidParams, RPCUnknownMethod, RPCException, RPC_INTERNAL_ERROR
+from modernrpc.handlers import XMLRPC
 
 logger = logging.getLogger(__name__)
 
@@ -240,3 +241,46 @@ def __system_methodHelp(method_name, **kwargs):
     if method is None:
         raise RPCInvalidParams('The method {} is not found in the system. Unable to retrieve method help.')
     return method.help_text
+
+
+@rpc_method(name='system.multicall', protocol=XMLRPC)
+def __system_multiCall(calls, **kwargs):
+    """
+    Call multiple RPC methods at once.
+
+    :param calls: An array of struct like {"methodName": string, "params": array }
+    :param kwargs:
+    :return:
+    """
+    if not isinstance(calls, list):
+        raise RPCInvalidParams('method_names must be a list')
+
+    entry_point = kwargs.get(ENTRY_POINT_KEY)
+    protocol = kwargs.get(PROTOCOL_KEY)
+
+    results = []
+    for call in calls:
+        method_name, params = call['methodName'], call['params']
+        method = get_method(method_name, entry_point, protocol)
+
+        try:
+            if not method:
+                raise RPCUnknownMethod(method_name)
+
+            result = method.execute(*params, **kwargs)
+            # From https://mirrors.talideon.com/articles/multicall.html:
+            # "Notice that regular return values are always nested inside a one-element array. This allows you to
+            # return structs from functions without confusing them with faults."
+            results.append([result])
+        except RPCException as e:
+            results.append({
+                'faultCode': e.code,
+                'faultString': e.message,
+            })
+        except Exception as e:
+            results.append({
+                'faultCode': RPC_INTERNAL_ERROR,
+                'faultString': str(e),
+            })
+
+    return results

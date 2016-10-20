@@ -1,6 +1,11 @@
 Changelog
 =========
 
+Current development
+-------------------
+- HTML documentation automatically generated for an entry point
+- 'system.multicall' is now supported
+
 Release 0.3.0 (2016-10-18)
 --------------------------
 - Settings variables have been renamed to limit conflicts with other libraries. In the future, all settings will have

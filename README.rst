@@ -30,13 +30,14 @@ and its API is subject to modifications. Currently supported features are:
   - system.listMethods()
   - system.methodSignature()
   - system.methodHelp()
+  - system.multicall() (XML-RPC only, using specification from https://mirrors.talideon.com/articles/multicall.html)
 
 ----------------------------
 Features not yet implemented
 ----------------------------
 
-- Multi-call. Will probably uses specifications from https://mirrors.talideon.com/articles/multicall.html
-- Methods documentation generated as configurable HTML page
+- Multi-call for JSON-RPC
+- Methods documentation generated as HTML page
 - Built-in support for request authentications
 
 -----------
