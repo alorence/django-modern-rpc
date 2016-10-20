@@ -7,13 +7,6 @@ MODERNRPC_JSON_DECODER = getattr(settings, 'MODERNRPC_JSON_DECODER', 'json.decod
 #: Override this to use a different JSON deserializer when encoding JSON-RPC response
 MODERNRPC_JSON_ENCODER = getattr(settings, 'MODERNRPC_JSON_ENCODER', 'django.core.serializers.json.DjangoJSONEncoder')
 
-#: Override these to change the key used in kwars for request object
-MODERNRPC_REQUEST_PARAM_NAME = getattr(settings, 'MODERNRPC_REQUEST_PARAM_NAME', 'request')
-#: Override these to change the key used in kwars for protocol string
-MODERNRPC_PROTOCOL_PARAM_NAME = getattr(settings, 'MODERNRPC_PROTOCOL_PARAM_NAME', 'rpc_protocol')
-#: Override these to change the key used in kwars for entry point name
-MODERNRPC_ENTRY_POINT_PARAM_NAME = getattr(settings, 'MODERNRPC_ENTRY_POINT_PARAM_NAME', 'entry_point')
-
 #: Override these to change the key used in kwars for entry point name
 MODERNRPC_HANDLERS = getattr(settings, 'MODERNRPC_HANDLERS', [
     'modernrpc.handlers.JSONRPCHandler',

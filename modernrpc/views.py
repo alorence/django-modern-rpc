@@ -94,7 +94,13 @@ class RPCEntryPoint(TemplateView):
                         raise RPCUnknownMethod(method)
 
                     try:
-                        result = rpc_method.execute(request, self.entry_point, self.protocol, *params)
+                        kwargs = {
+                            'request': request,
+                            'entry_point': self.entry_point,
+                            'protocol': self.protocol,
+                            'handler': handler,
+                        }
+                        result = rpc_method.execute(*params, **kwargs)
                     except TypeError as e:
                         raise RPCInvalidParams(str(e))
 

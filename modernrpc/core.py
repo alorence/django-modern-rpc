@@ -8,14 +8,17 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils import inspect
 
 from modernrpc.exceptions import RPCInvalidParams
-from modernrpc.modernrpc_settings import MODERNRPC_ENTRY_POINT_PARAM_NAME, MODERNRPC_PROTOCOL_PARAM_NAME, \
-    MODERNRPC_REQUEST_PARAM_NAME
 
 logger = logging.getLogger(__name__)
 
 RPC_REGISTRY_KEY = '__rpc_registry__'
 DEFAULT_REGISTRY_TIMEOUT = None
 ALL = "__all__"
+
+REQUEST_KEY = 'request'
+ENTRY_POINT_KEY = 'entry_point'
+PROTOCOL_KEY = 'protocol'
+HANDLER_KEY = 'handler'
 
 PARAM_REXP = r':param [\w]+:\s?(.+)'
 PARAM_TYPE_REXP = r':type [\w]+:\s?(.+)'
@@ -72,31 +75,21 @@ class RPCMethod(object):
                 # Add the line to help text
                 self.help_text += line
 
-    def execute(self, request, entry_point, protocol, *args):
+    def execute(self, *args, **kwargs):
         """
         Call the function encapsulated by the current instance
 
-        :param request:
-        :param entry_point:
-        :param protocol:
         :return:
         """
         # Try to load the method address
         module = importlib.import_module(self.module)
         func = getattr(module, self.func_name)
 
-        # By default, no keyword arguments are givend to the method...
-        kwargs = {}
-        # ...except when the method explicitly declared a **kwargs param
-        if self.accept_kwargs:
-            kwargs.update({
-                MODERNRPC_REQUEST_PARAM_NAME: request,
-                MODERNRPC_ENTRY_POINT_PARAM_NAME: entry_point,
-                MODERNRPC_PROTOCOL_PARAM_NAME: protocol,
-            })
-
         # Call the rpc method, as standard python function
-        return func(*args, **kwargs)
+        if self.accept_kwargs:
+            return func(*args, **kwargs)
+        else:
+            return func(*args)
 
     def __eq__(self, other):
         return \
@@ -212,8 +205,8 @@ def rpc_method(name=None, entry_point=ALL, protocol=ALL):
 @rpc_method(name='system.listMethods')
 def __system_listMethods(**kwargs):
 
-    entry_point = kwargs.get(MODERNRPC_ENTRY_POINT_PARAM_NAME)
-    protocol = kwargs.get(MODERNRPC_PROTOCOL_PARAM_NAME)
+    entry_point = kwargs.get(ENTRY_POINT_KEY)
+    protocol = kwargs.get(PROTOCOL_KEY)
 
     names = [method.name for method in get_all_methods(entry_point, protocol)]
 
@@ -223,8 +216,8 @@ def __system_listMethods(**kwargs):
 @rpc_method(name='system.methodSignature')
 def __system_methodSignature(method_name, **kwargs):
 
-    entry_point = kwargs.get(MODERNRPC_ENTRY_POINT_PARAM_NAME)
-    protocol = kwargs.get(MODERNRPC_PROTOCOL_PARAM_NAME)
+    entry_point = kwargs.get(ENTRY_POINT_KEY)
+    protocol = kwargs.get(PROTOCOL_KEY)
 
     method = get_method(method_name, entry_point, protocol)
     if method is None:
@@ -235,8 +228,8 @@ def __system_methodSignature(method_name, **kwargs):
 @rpc_method(name='system.methodHelp')
 def __system_methodHelp(method_name, **kwargs):
 
-    entry_point = kwargs.get(MODERNRPC_ENTRY_POINT_PARAM_NAME)
-    protocol = kwargs.get(MODERNRPC_PROTOCOL_PARAM_NAME)
+    entry_point = kwargs.get(ENTRY_POINT_KEY)
+    protocol = kwargs.get(PROTOCOL_KEY)
 
     method = get_method(method_name, entry_point, protocol)
     if method is None:
