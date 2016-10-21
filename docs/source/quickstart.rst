@@ -29,7 +29,8 @@ An entry point is the URL used by clients to call your RPC methods. Declare as f
         url(r'^rpc/', RPCEntryPoint.as_view()),
     ]
 
-For more information on entry point declaration and configuration, please read :doc:`the full documentation <rpc_view>`.
+For more information on entry point declaration and configuration, please read :doc:`the full
+documentation <basic_usage/rpc_view>`.
 
 Register your methods
 =====================
@@ -57,4 +58,5 @@ You can import your function in many ways. For example, in the ``__init__.py`` o
    from rpc_app.rpc_methods import add
 
 .. note::
-   There in another ways to register your RPC methods. For more information, please read :doc:`methods_registration`.
+   There in another ways to register your RPC methods. For more information, please
+   read :doc:`basic_usage/methods_registration`.

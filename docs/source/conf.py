@@ -21,6 +21,14 @@ import os
 import sys
 from django.conf import settings
 
+try:
+    import sphinx_rtd_theme
+    html_theme = "sphinx_rtd_theme"
+except ImportError:
+    # Use ReadTheDocs default theme only if it is installed.
+    # Simply installit via ``pip install sphinx_rtd_theme``
+    pass
+
 current_dir = os.path.abspath('.')
 root_dir = os.path.abspath(os.path.join(current_dir, '../..'))
 
