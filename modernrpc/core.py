@@ -131,14 +131,14 @@ class RPCMethod(object):
             self.protocol == other.protocol
 
     def available_for_protocol(self, protocol):
-        if self.protocol == ALL:
+        if self.protocol == ALL or protocol == ALL:
             return True
         else:
             valid_protocols = self.protocol if isinstance(self.protocol, list) else [self.protocol]
             return protocol in valid_protocols
 
     def available_for_entry_point(self, entry_point):
-        if self.entry_point == ALL:
+        if self.entry_point == ALL or entry_point == ALL:
             return True
         else:
             valid_entry_points = self.entry_point if isinstance(self.entry_point, list) else [self.entry_point]
