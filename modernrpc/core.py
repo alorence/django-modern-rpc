@@ -7,6 +7,7 @@ from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import inspect
 
+from modernrpc import modernrpc_settings
 from modernrpc.exceptions import RPCInvalidParams, RPCUnknownMethod, RPCException, RPC_INTERNAL_ERROR
 from modernrpc.handlers import XMLRPC
 
@@ -21,9 +22,10 @@ ENTRY_POINT_KEY = 'entry_point'
 PROTOCOL_KEY = 'protocol'
 HANDLER_KEY = 'handler'
 
-PARAM_REXP = r':param [\w]+:\s?(.+)'
-PARAM_TYPE_REXP = r':type [\w]+:\s?(.+)'
-RETURN_TYPE_REXP = r':rtype:\s?(.+)'
+PARAM_REXP = r':param ([\w]+):\s?(.*)'
+RETURN_REXP = r':return:\s?(.*)'
+PARAM_TYPE_REXP = r':type ([\w]+):\s?(.*)'
+RETURN_TYPE_REXP = r':rtype:\s?(.*)'
 
 
 class RPCMethod(object):
@@ -36,9 +38,13 @@ class RPCMethod(object):
         self.protocol = protocol
 
         self.signature = []
-        self.help_text = ''
+        self.args = inspect.get_func_args(function)
+        self.html_doc = ''
+        self.args_doc = {}
+        self.return_doc = {}
         self.parse_docstring(function.__doc__)
 
+        # Flag the method to accept additional kwargs dict
         self.accept_kwargs = inspect.func_accepts_kwargs(function)
 
         # This may be useful in the future
@@ -55,23 +61,63 @@ class RPCMethod(object):
         if content is None:
             return
 
+        raw_docstring = ''
         lines = content.split('\n')
         for line in lines:
             sline = line.strip()
 
             param_match = re.match(PARAM_REXP, sline)
-            type_match = re.match(PARAM_TYPE_REXP, sline)
-            return_match = re.match(RETURN_TYPE_REXP, sline)
+            return_match = re.match(RETURN_REXP, sline)
+            param_type_match = re.match(PARAM_TYPE_REXP, sline)
+            return_type_match = re.match(RETURN_TYPE_REXP, sline)
+
             if param_match:
-                # Do nothing vor now
-                pass
-            elif type_match:
-                self.signature.append(type_match.group(1))
+                param_name, description = param_match.group(1, 2)
+                doc = self.args_doc.get(param_name, {})
+                doc['text'] = description
+                self.args_doc[param_name] = doc
+            elif param_type_match:
+                param_name, param_type = param_type_match.group(1, 2)
+                doc = self.args_doc.get(param_name, {})
+                doc['type'] = param_type
+                self.args_doc[param_name] = doc
+                self.signature.append(param_type)
             elif return_match:
-                self.signature.insert(0, return_match.group(1))
+                return_description = return_match.group(1)
+                self.return_doc['text'] = return_description
+            elif return_type_match:
+                return_description = return_type_match.group(1)
+                self.return_doc['type'] = return_description
+                self.signature.insert(0, return_description)
             else:
                 # Add the line to help text
-                self.help_text += line
+                raw_docstring += line + '\n'
+
+        if modernrpc_settings.MODERNRPC_DOC_FORMAT.lower() in ('rst', 'reStructred', 'reStructuredText'):
+            from docutils.core import publish_parts
+            self.html_doc = publish_parts(raw_docstring, writer_name='html')
+        elif modernrpc_settings.MODERNRPC_DOC_FORMAT.lower() in ('md', 'markdown'):
+            import markdown
+            self.html_doc = markdown.markdown(raw_docstring)
+        else:
+            self.html_doc = "<p>{}</p>".format(raw_docstring.replace('\n\n', '</p><p>'))
+
+    # Helpers to make tests in template easier
+    def is_doc_available(self):
+        """Returns True if a textual documentation is available for this method"""
+        return bool(self.html_doc)
+
+    def is_return_doc_available(self):
+        """Returns True if this method's return is documented"""
+        return bool(self.return_doc and (self.return_doc.get('text') or self.return_doc.get('type')))
+
+    def is_args_doc_available(self):
+        """Returns True if any of the method's arguments is documented"""
+        return self.args_doc
+
+    def is_any_doc_available(self):
+        """Returns True if there is a textual documentation or a documentation on arguments or return of the method."""
+        return self.is_args_doc_available() or self.is_return_doc_available() or self.is_doc_available()
 
     def execute(self, *args, **kwargs):
         """
@@ -155,6 +201,11 @@ def register_method(function, name=None, entry_point=ALL, protocol=ALL):
     :param name: Used as RPC method name instead of original function name
     :param entry_point: Default: ALL. Used to limit usage of the RPC method for a specific set of entry points
     :param protocol: Default: ALL. Used to limit usage of the RPC method for a specific protocol (JSONRPC or XMLRPC)
+    :type function: func
+    :type name: str
+    :type entry_point: str
+    :type protocol: str
+    :return: None
     """
     # Define the external name of the function
     if not name:
@@ -199,6 +250,9 @@ def rpc_method(name=None, entry_point=ALL, protocol=ALL):
     :param name: Used as RPC method name instead of original function name
     :param entry_point: Default: ALL. Used to limit usage of the RPC method for a specific set of entry points
     :param protocol: Default: ALL. Used to limit usage of the RPC method for a specific protocol (JSONRPC or XMLRPC)
+    :type name: str
+    :type entry_point: str
+    :type protocol: str
     """
 
     def __register(function):

@@ -19,3 +19,5 @@ MODERNRPC_DEFAULT_ENTRYPOINT_NAME = getattr(settings, 'MODERNRPC_DEFAULT_ENTRYPO
 #: Set to False if you want to manipulate dates with DateTime class from Python XML RPC builtin lib.
 #: If set to True, dates will be passed as datetime to the RPC function.
 MODERNRPC_XML_USE_BUILTIN_TYPES = getattr(settings, 'MODERNRPC_XML_USE_BUILTIN_TYPES', True)
+
+MODERNRPC_DOC_FORMAT = getattr(settings, 'MODERNRPC_DOC_FORMAT', '')

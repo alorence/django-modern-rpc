@@ -1,0 +1,69 @@
+<div class="card">
+    <div class="card-header" role="tab" id="heading_{{ method.name|slugify }}">
+        <h5 class="mb-0">
+            <a data-toggle="collapse" data-parent="#accordion"
+               href="#collapse_{{ method.name|slugify }}"
+               aria-expanded="true"
+               aria-controls="collapse_{{ method.name|slugify }}">
+                {{ method.name }}({{ method.args | join:", " }})
+            </a>
+        </h5>
+    </div>
+    <div id="collapse_{{ method.name|slugify }}"
+         class="collapse"
+         role="tabpanel"
+         aria-labelledby="heading_{{ method.name|slugify }}">
+
+        <div class="card-block">
+
+            {{ method.html_doc | safe }}
+
+            {% if method.is_args_doc_available %}
+
+            <div class="col-md-2">
+                <p><strong>Parameters:</strong></p>
+            </div>
+
+            <div class="col-md-10">
+                <ul>
+                    {% for name, param_help in method.args_doc.items %}
+                    <li>
+                        <strong>{{ name }}</strong>
+                        {% if param_help.type %}
+                        ({{ param_help.type }})
+                        {% endif %}
+                        -
+                        {{ param_help.text }}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            {% endif %}
+
+            {% if method.is_return_doc_available %}
+
+            <div class="col-md-2">
+                <p><strong>Returns:</strong></p>
+            </div>
+
+            <div class="col-md-10">
+                <ul class="">
+                    <li>
+                    {% if method.return_doc.type %}
+                    {{ method.return_doc.type }}
+                    {% endif %}
+                    -
+                    {{ method.return_doc.text }}
+                    </li>
+                </ul>
+            </div>
+            {% endif %}
+
+
+            {% if not method.is_any_doc_available %}
+                <p><em>No documentation available yet</em></p>
+            {% endif %}
+        </div>
+    </div>
+</div>
