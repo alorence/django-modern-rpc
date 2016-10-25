@@ -274,7 +274,7 @@ def __system_listMethods(**kwargs):
     entry_point = kwargs.get(ENTRY_POINT_KEY)
     protocol = kwargs.get(PROTOCOL_KEY)
 
-    names = [method.name for method in get_all_methods(entry_point, protocol)]
+    names = [method.name for method in get_all_methods(entry_point, protocol, sort_methods=True)]
 
     return names
 
