@@ -18,6 +18,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.contenttypes',
 
+    'modernrpc',
+
     'testsite.rpc_methods_stub',
 )
 
