@@ -73,11 +73,15 @@ class RPCMethod(object):
 
             if param_match:
                 param_name, description = param_match.group(1, 2)
+                if param_name == 'kwargs':
+                    continue
                 doc = self.args_doc.get(param_name, {})
                 doc['text'] = description
                 self.args_doc[param_name] = doc
             elif param_type_match:
                 param_name, param_type = param_type_match.group(1, 2)
+                if param_name == 'kwargs':
+                    continue
                 doc = self.args_doc.get(param_name, {})
                 doc['type'] = param_type
                 self.args_doc[param_name] = doc
