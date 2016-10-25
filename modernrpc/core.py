@@ -9,7 +9,7 @@ from django.utils import inspect
 
 from modernrpc import modernrpc_settings
 from modernrpc.exceptions import RPCInvalidParams, RPCUnknownMethod, RPCException, RPC_INTERNAL_ERROR
-from modernrpc.handlers import XMLRPC
+from modernrpc.handlers import XMLRPC, JSONRPC
 
 logger = logging.getLogger(__name__)
 
@@ -102,23 +102,6 @@ class RPCMethod(object):
         else:
             self.html_doc = "<p>{}</p>".format(raw_docstring.replace('\n\n', '</p><p>'))
 
-    # Helpers to make tests in template easier
-    def is_doc_available(self):
-        """Returns True if a textual documentation is available for this method"""
-        return bool(self.html_doc)
-
-    def is_return_doc_available(self):
-        """Returns True if this method's return is documented"""
-        return bool(self.return_doc and (self.return_doc.get('text') or self.return_doc.get('type')))
-
-    def is_args_doc_available(self):
-        """Returns True if any of the method's arguments is documented"""
-        return self.args_doc
-
-    def is_any_doc_available(self):
-        """Returns True if there is a textual documentation or a documentation on arguments or return of the method."""
-        return self.is_args_doc_available() or self.is_return_doc_available() or self.is_doc_available()
-
     def execute(self, *args, **kwargs):
         """
         Call the function encapsulated by the current instance
@@ -159,6 +142,29 @@ class RPCMethod(object):
 
     def is_valid_for(self, entry_point, protocol):
         return self.available_for_entry_point(entry_point) and self.available_for_protocol(protocol)
+
+    # Helpers to make tests in template easier
+    def is_doc_available(self):
+        """Returns True if a textual documentation is available for this method"""
+        return bool(self.html_doc)
+
+    def is_return_doc_available(self):
+        """Returns True if this method's return is documented"""
+        return bool(self.return_doc and (self.return_doc.get('text') or self.return_doc.get('type')))
+
+    def is_args_doc_available(self):
+        """Returns True if any of the method's arguments is documented"""
+        return self.args_doc
+
+    def is_any_doc_available(self):
+        """Returns True if there is a textual documentation or a documentation on arguments or return of the method."""
+        return self.is_args_doc_available() or self.is_return_doc_available() or self.is_doc_available()
+
+    def is_available_in_json_rpc(self):
+        return self.available_for_protocol(JSONRPC)
+
+    def is_available_in_xml_rpc(self):
+        return self.available_for_protocol(XMLRPC)
 
 
 def get_all_methods(entry_point=ALL, protocol=ALL, sort_methods=False):

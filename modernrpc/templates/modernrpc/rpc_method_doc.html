@@ -1,5 +1,15 @@
 <div class="card">
     <div class="card-header" role="tab" id="heading_{{ method.name|slugify }}">
+
+        <div class="float-md-right clearfix">
+            {% if method.is_available_in_json_rpc %}
+            <span class="tag tag-pill tag-default">JSON-RPC</span>
+            {% endif %}
+            {% if method.is_available_in_xml_rpc %}
+            <span class="tag tag-pill tag-default">XML-RPC</span>
+            {% endif %}
+        </div>
+
         <h5 class="mb-0">
             <a data-toggle="collapse" data-parent="#accordion"
                href="#collapse_{{ method.name|slugify }}"
