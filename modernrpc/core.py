@@ -72,10 +72,11 @@ class RPCMethod(object):
         :return: The parsed method description
         :rtype: str
         """
-        if content is None:
-            return
-
         raw_docstring = ''
+
+        if content is None:
+            return raw_docstring
+
         lines = content.split('\n')
         for line in lines:
             sline = line.strip()
@@ -118,6 +119,10 @@ class RPCMethod(object):
         return raw_docstring
 
     def to_html(self, docstring):
+
+        if not docstring:
+            return ''
+
         if modernrpc_settings.MODERNRPC_DOC_FORMAT.lower() in ('rst', 'reStructred', 'reStructuredText'):
             from docutils.core import publish_parts
             return publish_parts(docstring, writer_name='html')
