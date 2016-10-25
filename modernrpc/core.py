@@ -37,18 +37,21 @@ class RPCMethod(object):
         self.entry_point = entry_point
         self.protocol = protocol
 
+        # Contains the signature of the method, as returned by "system.methodSignature"
         self.signature = []
-        self.args = inspect.get_func_args(function)
+        # Contains the method's docstring, in HTML form
         self.html_doc = ''
+        # Contains doc about argumetns and their type
         self.args_doc = {}
+        # Contains doc about return type and return value
         self.return_doc = {}
-        self.parse_docstring(function.__doc__)
+
+        self.args = inspect.get_func_args(function)
+        raw_docstring = self.parse_docstring(function.__doc__)
+        self.html_doc = self.to_html(raw_docstring)
 
         # Flag the method to accept additional kwargs dict
         self.accept_kwargs = inspect.func_accepts_kwargs(function)
-
-        # This may be useful in the future
-        # self.args, self.varargs, self.varkw, self.defaults = inspect.getargspec(function)
 
     @property
     def name(self):
@@ -58,6 +61,17 @@ class RPCMethod(object):
         return 'RPC Method ' + self.name
 
     def parse_docstring(self, content):
+        """
+        Parse the given full docstring, and extract method description, arguments, and return documentation.
+
+        This method try to find arguments description and types, and put the information in "args_doc" and "signature"
+        members. Also parse return type and description, and put the information in "return_doc" member.
+        All other lines are added to the returned string
+        :param content: The full docstring
+        :type content: str
+        :return: The parsed method description
+        :rtype: str
+        """
         if content is None:
             return
 
@@ -78,6 +92,7 @@ class RPCMethod(object):
                 doc = self.args_doc.get(param_name, {})
                 doc['text'] = description
                 self.args_doc[param_name] = doc
+
             elif param_type_match:
                 param_name, param_type = param_type_match.group(1, 2)
                 if param_name == 'kwargs':
@@ -86,25 +101,31 @@ class RPCMethod(object):
                 doc['type'] = param_type
                 self.args_doc[param_name] = doc
                 self.signature.append(param_type)
+
             elif return_match:
                 return_description = return_match.group(1)
                 self.return_doc['text'] = return_description
+
             elif return_type_match:
                 return_description = return_type_match.group(1)
                 self.return_doc['type'] = return_description
                 self.signature.insert(0, return_description)
+
             else:
                 # Add the line to help text
                 raw_docstring += line + '\n'
 
+        return raw_docstring
+
+    def to_html(self, docstring):
         if modernrpc_settings.MODERNRPC_DOC_FORMAT.lower() in ('rst', 'reStructred', 'reStructuredText'):
             from docutils.core import publish_parts
-            self.html_doc = publish_parts(raw_docstring, writer_name='html')
+            return publish_parts(docstring, writer_name='html')
         elif modernrpc_settings.MODERNRPC_DOC_FORMAT.lower() in ('md', 'markdown'):
             import markdown
-            self.html_doc = markdown.markdown(raw_docstring)
+            return markdown.markdown(docstring)
         else:
-            self.html_doc = "<p>{}</p>".format(raw_docstring.replace('\n\n', '</p><p>'))
+            return "<p>{}</p>".format(docstring.replace('\n\n', '</p><p>'))
 
     def execute(self, *args, **kwargs):
         """
