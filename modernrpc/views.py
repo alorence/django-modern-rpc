@@ -83,33 +83,33 @@ class RPCEntryPoint(TemplateView):
 
             handler = handler_cls(request, self.entry_point)
 
-            if handler.can_handle():
+            try:
+                if not handler.can_handle():
+                    continue
+
+                method, params = handler.parse_request()
+                rpc_method = get_method(method, self.entry_point, handler_cls.protocol)
+
+                if not rpc_method:
+                    raise RPCUnknownMethod(method)
+
                 try:
+                    kwargs = {
+                        'request': request,
+                        'entry_point': self.entry_point,
+                        'protocol': self.protocol,
+                        'handler': handler,
+                    }
+                    result = rpc_method.execute(*params, **kwargs)
+                except TypeError as e:
+                    raise RPCInvalidParams(str(e))
 
-                    method, params = handler.parse_request()
+                return handler.result_success(result)
 
-                    rpc_method = get_method(method, self.entry_point, handler_cls.protocol)
-
-                    if not rpc_method:
-                        raise RPCUnknownMethod(method)
-
-                    try:
-                        kwargs = {
-                            'request': request,
-                            'entry_point': self.entry_point,
-                            'protocol': self.protocol,
-                            'handler': handler,
-                        }
-                        result = rpc_method.execute(*params, **kwargs)
-                    except TypeError as e:
-                        raise RPCInvalidParams(str(e))
-
-                    return handler.result_success(result)
-
-                except RPCException as e:
-                    return handler.result_error(e)
-                except Exception as e:
-                    return handler.result_error(RPCInternalError(str(e)))
+            except RPCException as e:
+                return handler.result_error(e)
+            except Exception as e:
+                return handler.result_error(RPCInternalError(str(e)))
 
         return HttpResponse('Unable to handle your request. Please ensure you called the right entry point. If not, '
                             'this could be a server error.')

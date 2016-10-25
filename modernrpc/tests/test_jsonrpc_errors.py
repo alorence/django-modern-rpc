@@ -42,6 +42,25 @@ def test_jsrpc_call_bad_request(live_server):
     assert error['code'] == RPC_INVALID_REQUEST
 
 
+def test_jsrpc_no_content_type(live_server):
+    payload = {
+        "method": "add",
+        "params": [5, 6],
+        "jsonrpc": "2.0",
+        "id": 51,
+    }
+    req_data = json.dumps(payload)
+    headers = {'content-type': ''}
+    response = requests.post(live_server.url + '/all-rpc/', data=req_data, headers=headers).json()
+
+    assert 'error' in response
+    assert 'result' not in response
+    assert response['id'] is None
+    error = response['error']
+    assert 'Missing header' in error['message']
+    assert error['code'] == RPC_INVALID_REQUEST
+
+
 def test_jsrpc_invalid_request(live_server):
     # Closing } is missing from this payload
     invalid_json_payload = '''

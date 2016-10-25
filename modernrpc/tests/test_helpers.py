@@ -1,8 +1,10 @@
+# coding: utf-8
 import datetime
 
 import pytest
 
 from modernrpc.helpers import get_builtin_date
+
 try:
     # Python 3
     import xmlrpc.client as xmlrpc_module
