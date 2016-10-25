@@ -1,7 +1,18 @@
 <div class="card">
     <div class="card-header" role="tab" id="heading_{{ method.name|slugify }}">
 
-        <div class="float-md-right clearfix">
+        <div class="col-xs-8">
+            <h5 class="mb-0">
+                <a data-toggle="collapse" data-parent="#accordion"
+                   href="#collapse_{{ method.name|slugify }}"
+                   aria-expanded="true"
+                   aria-controls="collapse_{{ method.name|slugify }}">
+                    {{ method.name }}({{ method.args | join:", " }})
+                </a>
+            </h5>
+        </div>
+
+        <div class="col-xs-4 text-xs-right">
             {% if method.is_available_in_json_rpc %}
             <span class="tag tag-pill tag-default">JSON-RPC</span>
             {% endif %}
@@ -10,14 +21,6 @@
             {% endif %}
         </div>
 
-        <h5 class="mb-0">
-            <a data-toggle="collapse" data-parent="#accordion"
-               href="#collapse_{{ method.name|slugify }}"
-               aria-expanded="true"
-               aria-controls="collapse_{{ method.name|slugify }}">
-                {{ method.name }}({{ method.args | join:", " }})
-            </a>
-        </h5>
     </div>
     <div id="collapse_{{ method.name|slugify }}"
          class="collapse"

@@ -22,7 +22,7 @@ import sys
 from django.conf import settings
 
 try:
-    import sphinx_rtd_theme
+    import sphinx_rtd_theme  # noqa: F401
     html_theme = "sphinx_rtd_theme"
 except ImportError:
     # Use ReadTheDocs default theme only if it is installed.
