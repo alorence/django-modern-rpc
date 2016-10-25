@@ -84,7 +84,7 @@ Now, you can call the RPC method ``add`` from a client:
 .. code:: python
 
     >>> from xmlrpc.client import ServerProxy
-    >>> client = ServerProxy('http://127.0.0.1:8000/all-rpc/')
+    >>> client = ServerProxy('http://127.0.0.1:8000/rpc/')
     >>> print(client.add(2, 3))
     5
 
