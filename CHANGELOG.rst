@@ -1,6 +1,10 @@
 Changelog
 =========
 
+Release 0.3.2 (2016-10-26)
+--------------------------
+- Include missing templates in pypi distribution packages
+
 Release 0.3.1 (2016-10-26)
 --------------------------
 - HTML documentation automatically generated for an entry point

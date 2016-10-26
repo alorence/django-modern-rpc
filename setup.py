@@ -31,6 +31,8 @@ setup(
     author_email='antoine.lorence@gmail.com',
     url='https://github.com/alorence/django-modern-rpc',
     packages=find_packages(exclude=['modernrpc.tests', 'modernrpc.tests.*']),
+    # Files included in sdist (using MANIFEST.in) will also be included in bdist*
+    include_package_data=True,
     classifiers=[
         "Programming Language :: Python",
         "Development Status :: 3 - Alpha",
