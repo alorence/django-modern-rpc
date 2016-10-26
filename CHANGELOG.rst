@@ -1,10 +1,11 @@
 Changelog
 =========
 
-Current development
--------------------
+Release 0.3.1 (2016-10-26)
+--------------------------
 - HTML documentation automatically generated for an entry point
-- 'system.multicall' is now supported
+- 'system.multicall' is now supported, only in XML-RPC
+- Many tests added
 
 Release 0.3.0 (2016-10-18)
 --------------------------
