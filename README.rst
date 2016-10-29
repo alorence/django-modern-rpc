@@ -11,6 +11,9 @@ django-modern-rpc
 .. image:: https://readthedocs.org/projects/django-modern-rpc/badge/?version=latest
    :target: http://django-modern-rpc.readthedocs.io/en/latest/
 
+.. image:: https://img.shields.io/badge/demo-online-green.svg
+   :target: http://modernrpc.herokuapp.com/
+
 -----------
 Description
 -----------
