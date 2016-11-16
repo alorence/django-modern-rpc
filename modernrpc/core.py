@@ -256,35 +256,6 @@ def unregister_rpc_method(method_name):
     cache.set(RPC_REGISTRY_KEY, registry, timeout=DEFAULT_REGISTRY_TIMEOUT)
 
 
-def register_method(function, name=None, entry_point=ALL, protocol=ALL):
-    """
-    Register a function to be available as RPC method.
-
-    All arguments but ``function`` are optional
-
-    :param function: The python function to register
-    :param name: Used as RPC method name instead of original function name
-    :param entry_point: Default: ALL. Used to limit usage of the RPC method for a specific set of entry points
-    :param protocol: Default: ALL. Used to limit usage of the RPC method for a specific protocol (JSONRPC or XMLRPC)
-    :type function: func
-    :type name: str
-    :type entry_point: str
-    :type protocol: str
-    :return: None
-    """
-
-    warnings.warn('"register_method" is deprecated and will be removed in a future version.\nUse settings.'
-                  'MODERNRPC_ENTRY_POINTS_MODULES to declare modules containing RPC method, and decorate each method '
-                  'with @rpc_method. Refer\nto the documentation for more info.', DeprecationWarning, stacklevel=2)
-
-    function.modernrpc_enabled = True
-    function.modernrpc_name = name or function.__name__
-    function.modernrpc_entry_point = entry_point
-    function.modernrpc_protocol = protocol
-
-    register_rpc_method(function)
-
-
 def register_rpc_method(function):
     """
     Register a function to be available as RPC method.
@@ -368,3 +339,33 @@ def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL):
         return decorator
     # If @rpc_method() is used with parenthesis (with or without arguments)
     return decorated(func)
+
+
+# Deprecated method: will be removed in version 1.0
+def register_method(function, name=None, entry_point=ALL, protocol=ALL):
+    """
+    Register a function to be available as RPC method.
+
+    All arguments but ``function`` are optional
+
+    :param function: The python function to register
+    :param name: Used as RPC method name instead of original function name
+    :param entry_point: Default: ALL. Used to limit usage of the RPC method for a specific set of entry points
+    :param protocol: Default: ALL. Used to limit usage of the RPC method for a specific protocol (JSONRPC or XMLRPC)
+    :type function: func
+    :type name: str
+    :type entry_point: str
+    :type protocol: str
+    :return: None
+    """
+
+    warnings.warn('"register_method" is deprecated and will be removed in a future version.\nUse settings.'
+                  'MODERNRPC_ENTRY_POINTS_MODULES to declare modules containing RPC method, and decorate each method '
+                  'with @rpc_method. Refer\nto the documentation for more info.', DeprecationWarning, stacklevel=2)
+
+    function.modernrpc_enabled = True
+    function.modernrpc_name = name or function.__name__
+    function.modernrpc_entry_point = entry_point
+    function.modernrpc_protocol = protocol
+
+    register_rpc_method(function)
