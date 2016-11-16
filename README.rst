@@ -8,7 +8,7 @@ django-modern-rpc
 .. image:: https://coveralls.io/repos/github/alorence/django-modern-rpc/badge.svg?branch=master
    :target: https://coveralls.io/github/alorence/django-modern-rpc?branch=master
 
-.. image:: https://readthedocs.org/projects/django-modern-rpc/badge/
+.. image:: https://readthedocs.org/projects/django-modern-rpc/badge/?version=release_0.3.2
    :target: http://django-modern-rpc.readthedocs.io/
 
 .. image:: https://img.shields.io/badge/demo-online-green.svg
