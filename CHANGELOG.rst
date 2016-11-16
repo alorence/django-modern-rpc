@@ -1,6 +1,10 @@
 Changelog
 =========
 
+Current development
+-------------------
+- API change: new unified way to register methods. Documentation in progress
+
 Release 0.3.2 (2016-10-26)
 --------------------------
 - Include missing templates in pypi distribution packages
