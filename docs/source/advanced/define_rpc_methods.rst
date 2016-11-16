@@ -2,8 +2,8 @@
 Define your RPC methods
 =======================
 
-Any python global function can be :doc:`turned to be an RPC method<methods_registration>`. In that document,
-we will just see how does such methods should be declared
+Any python global function can be :doc:`turned to be an RPC method<../basic_usage/methods_registration>`.
+In this page, we will just see how does such methods should be declared
 
 Supported types
 ---------------

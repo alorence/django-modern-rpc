@@ -71,7 +71,7 @@ def test_jsrpc_bytes(live_server):
     if sys.version_info < (3, 0):
 
         # Python 2: no problem, returned result is a standard string...
-        result = client.get_byte()
+        result = client.get_bytes()
 
         # ... but json.loads will convert that string into an unicode object
         assert type(result) == unicode  # noqa: F821

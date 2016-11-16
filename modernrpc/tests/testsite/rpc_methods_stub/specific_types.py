@@ -39,7 +39,7 @@ def get_string():
 
 
 @rpc_method()
-def get_byte():
+def get_bytes():
     return b"abcde"
 
 

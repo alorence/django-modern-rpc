@@ -30,6 +30,7 @@ Project's main features are:
 
    quickstart
    basic_usage/index
+   advanced/index
    contribute
    changelog
 

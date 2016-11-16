@@ -68,7 +68,7 @@ def test_xrpc_string(live_server):
 def test_xrpc_bytes(live_server):
 
     client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
-    result = client.get_byte()
+    result = client.get_bytes()
 
     assert result == b'abcde'
 

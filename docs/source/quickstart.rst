@@ -7,9 +7,24 @@ Start using django-modern-rpc in a minute, following these simple steps.
 Installation
 ============
 
-Use pip::
+Use pip to install the package in your environment::
 
    pip install django-modern-rpc
+
+
+Configuration
+=============
+
+Add the library to your Django applications, in your ``settings.py``:
+
+.. code:: python
+
+    INSTALLED_APPS = [
+        #...
+        'modernrpc',
+        #...
+    ]
+
 
 Create an entry point
 =====================
@@ -32,31 +47,37 @@ An entry point is the URL used by clients to call your RPC methods. Declare as f
 For more information on entry point declaration and configuration, please read :doc:`the full
 documentation <basic_usage/rpc_view>`.
 
-Register your methods
-=====================
+Write and register your methods
+===============================
 
-Now, you must indicates to django-modern-rpc which methods in your code must be available via RPC calls.
-There is various way to achieve this:
-
-.. code:: python
-
-   # In myproject/rpc_app/rpc_methods.py
-   from modernrpc.core import rpc_method
-
-   @rpc_method()
-   def add(a, b):
-       return a + b
-
-This solution is quick, but you need to ensure the method is actually imported somewhere in your code. If it isn't,
-the decorator rpc_method() is never called and your method will not be available to RPC calls.
-
-You can import your function in many ways. For example, in the ``__init__.py`` of your app:
+Now, you must indicates to django-modern-rpc which methods in your code must be available via RPC calls. Use the
+decorator ``@rpc_method`` to mark any python function as RPC method
 
 .. code:: python
 
-   # In myproject/rpc_app/__init__.py
-   from rpc_app.rpc_methods import add
+    # In myproject/rpc_app/rpc_methods.py
+    from modernrpc.core import rpc_method
 
-.. note::
-   There in another ways to register your RPC methods. For more information, please
-   read :doc:`basic_usage/methods_registration`.
+    @rpc_method
+    def add(a, b):
+        return a + b
+
+
+Declare your RPC methods modules
+================================
+
+Django-modern-rpc will automatically register functions marked as RPC method. The only hint you have to provide is a
+list of modules containg such methods. In your ``settings.py``:
+
+
+.. code:: python
+
+    MODERNRPC_ENTRY_POINTS_MODULES = [
+        'rpc_app.rpc_methods'
+    ]
+
+That's all !
+============
+
+Your application is ready to receive XML-RPC or JSON-RPC call. The entry point URL is ``http://yourwebsite.com/rpc/``
+but you can customize it to fit your needs.
