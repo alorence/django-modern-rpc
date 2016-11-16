@@ -81,7 +81,7 @@ def test_jsrpc_bytes(live_server):
 
         # Python 3: JSON cannot transport a bytearray
         with pytest.raises(JsonRpcFault) as excinfo:
-            client.get_byte()
+            client.get_bytes()
 
         assert excinfo.value.faultCode == RPC_INTERNAL_ERROR
 
