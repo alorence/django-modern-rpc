@@ -4,6 +4,8 @@ Changelog
 Current development
 -------------------
 - API change: new unified way to register methods. Documentation in progress
+- Bugfix: when django use a persistent cache (Redis, memcached, etc.), ensure the registry is up-to-date
+  with current sources at startup
 
 Release 0.3.2 (2016-10-26)
 --------------------------

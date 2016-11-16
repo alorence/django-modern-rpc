@@ -198,6 +198,21 @@ class RPCMethod(object):
         return self.available_for_protocol(XMLRPC)
 
 
+def get_all_method_names(entry_point=ALL, protocol=ALL, sort_methods=False):
+    """"""
+    # Get the current RPC registry from internal cache
+    registry = cache.get(RPC_REGISTRY_KEY, default={})
+
+    method_namess = [
+        name for name, method in registry.items() if method.is_valid_for(entry_point, protocol)
+    ]
+
+    if sort_methods:
+        method_namess = sorted(method_namess)
+
+    return method_namess
+
+
 def get_all_methods(entry_point=ALL, protocol=ALL, sort_methods=False):
     """Return a list of all methods in the registry supported by the given entry_point / protocol pair"""
     # Get the current RPC registry from internal cache
@@ -226,6 +241,19 @@ def get_method(name, entry_point, protocol):
             return method
 
     return None
+
+
+def unregister_rpc_method(method_name):
+    """Remove a method from registry"""
+    # Get the current RPC registry from internal cache
+    registry = cache.get(RPC_REGISTRY_KEY, default={})
+
+    if method_name in registry:
+        logger.debug('Unregister RPC method {}'.format(method_name))
+        del registry[method_name]
+
+    # Update the registry in internal cache
+    cache.set(RPC_REGISTRY_KEY, registry, timeout=DEFAULT_REGISTRY_TIMEOUT)
 
 
 def register_method(function, name=None, entry_point=ALL, protocol=ALL):
@@ -264,6 +292,7 @@ def register_rpc_method(function):
     The given function will be inspected to find external_name, protocol and entry_point values set by the decorator
     @rpc_method.
     :param function: A function previously decorated using @rpc_method
+    :return: The name of registered method
     """
     if not getattr(function, 'modernrpc_enabled', False):
         raise ImproperlyConfigured('Error: trying to register {} as RPC method, but it has not been decorated.'
@@ -271,7 +300,7 @@ def register_rpc_method(function):
 
     # Define the external name of the function
     name = getattr(function, 'modernrpc_name', function.__name__)
-    logger.debug('Register method {}'.format(name))
+    logger.debug('Register RPC method {}'.format(name))
 
     if name.startswith('rpc.'):
         raise ImproperlyConfigured('According to RPC standard, method names starting with "rpc." are reserved for '
@@ -292,7 +321,7 @@ def register_rpc_method(function):
         # Trying to register many times the same function is OK, because if a method is decorated
         # with @rpc_method(), it could be imported in different places of the code
         if method == registry[method.external_name]:
-            return
+            return method.external_name
         # But if we try to use the same name to register 2 different methods, we
         # must inform the developer there is an error in the code
         else:
@@ -301,8 +330,11 @@ def register_rpc_method(function):
 
     # Store the method
     registry[method.external_name] = method
+
     # Update the registry in internal cache
     cache.set(RPC_REGISTRY_KEY, registry, timeout=DEFAULT_REGISTRY_TIMEOUT)
+
+    return method.external_name
 
 
 def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL):

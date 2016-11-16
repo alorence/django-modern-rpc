@@ -6,7 +6,7 @@ from importlib import import_module
 from django.apps import AppConfig
 from django.core.exceptions import ImproperlyConfigured
 
-from modernrpc.core import register_rpc_method
+from modernrpc.core import register_rpc_method, get_all_method_names, unregister_rpc_method
 from modernrpc.modernrpc_settings import MODERNRPC_ENTRY_POINTS_MODULES
 
 logger = logging.getLogger(__name__)
@@ -20,6 +20,12 @@ class ModernRpcConfig(AppConfig):
     def ready(self):
 
         if MODERNRPC_ENTRY_POINTS_MODULES:
+
+            # When project use a persistant cache (Redis, memcached, etc.) the cache is not always flushed
+            # when django project is restarted. As a result, we may have a registry with a list of methods
+            # from the last run.
+            methods_before_lookup = get_all_method_names()
+
             modules_to_scan = MODERNRPC_ENTRY_POINTS_MODULES
             # Add internal system methods to the registry
             modules_to_scan.append('modernrpc.system_methods')
@@ -36,7 +42,14 @@ class ModernRpcConfig(AppConfig):
 
                 for _, func in inspect.getmembers(module, inspect.isfunction):
                     if getattr(func, 'modernrpc_enabled', False):
-                        register_rpc_method(func)
+                        registered_name = register_rpc_method(func)
+                        methods_before_lookup.remove(registered_name)
+
+            # Some rpc methods stored in the registry from the last run were not registered this session.
+            # That means a RPC method has been deleted from the code (or the decorator has been removed)
+            # In such case, we must remove the function from the registry
+            for useless_method in methods_before_lookup:
+                unregister_rpc_method(useless_method)
 
         else:
             raise ImproperlyConfigured("Please declare which modules contains your RPC entry points, using "
