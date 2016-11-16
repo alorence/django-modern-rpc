@@ -20,7 +20,7 @@ def test_redundant_names():
 def test_reserved_names():
 
     with pytest.raises(ImproperlyConfigured) as excinfo:
-        register_method(func_c(), 'rpc.func_c')
+        register_method(func_c, 'rpc.func_c')
     assert 'method names starting with "rpc." are reserved' in str(excinfo.value)
 
 

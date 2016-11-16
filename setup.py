@@ -22,6 +22,7 @@ def find_version(*file_paths):
         return version_match.group(1)
     raise RuntimeError("Unable to find version string.")
 
+
 setup(
     name='django-modern-rpc',
     version=find_version("modernrpc", "__init__.py"),
