@@ -5,8 +5,6 @@ import warnings
 from importlib import import_module
 
 from django.apps import AppConfig
-from django.core.exceptions import ImproperlyConfigured
-
 from modernrpc.core import register_rpc_method, get_all_method_names, unregister_rpc_method
 from modernrpc.modernrpc_settings import MODERNRPC_METHODS_MODULES
 
