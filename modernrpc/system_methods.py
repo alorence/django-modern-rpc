@@ -4,6 +4,8 @@ from modernrpc.exceptions import RPCInvalidParams, RPCUnknownMethod, RPCExceptio
 from modernrpc.handlers import XMLRPC
 
 
+# TODO: add missing docstring for system methods
+
 @rpc_method(name='system.listMethods')
 def __system_listMethods(**kwargs):
 
