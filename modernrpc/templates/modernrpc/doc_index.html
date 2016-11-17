@@ -16,14 +16,8 @@
     <div class="container">
 
         <h2>RPC Methods</h2>
+        {% include 'modernrpc/doc_accordion_method_list.html' %}
 
-        <div id="accordion" role="tablist" aria-multiselectable="true">
-
-            {% for method in methods %}
-                {% include 'modernrpc/rpc_method_doc.html' %}
-            {% endfor %}
-
-        </div> <!-- /accordion -->
     </div> <!-- /container -->
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"

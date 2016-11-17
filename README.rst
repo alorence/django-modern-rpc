@@ -40,7 +40,6 @@ Features not yet implemented
 ----------------------------
 
 - Multi-call for JSON-RPC
-- Methods documentation generated as HTML page
 - Built-in support for request authentications
 
 -----------
