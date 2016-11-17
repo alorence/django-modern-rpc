@@ -49,8 +49,9 @@ def get_date():
 
 
 @rpc_method()
-def get_date_type(date):
-    return str(type(date))
+def get_data_type(data):
+    """Return a string representation type of input argument"""
+    return str(type(data))
 
 
 @rpc_method()

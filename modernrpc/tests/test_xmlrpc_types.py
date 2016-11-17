@@ -1,7 +1,8 @@
 # coding: utf-8
 import datetime
-import pytest
+import re
 
+import pytest
 from modernrpc.exceptions import RPC_INTERNAL_ERROR
 
 try:
@@ -65,6 +66,16 @@ def test_xrpc_string(live_server):
     assert result == 'abcde'
 
 
+def test_xrpc_input_string(live_server):
+
+    client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
+    result = client.get_data_type('abcd')
+
+    # Python 2 : "<type 'str'>"
+    # Python 3 : "<class 'str'>"
+    assert re.match(r"<(class|type) 'str'>", result)
+
+
 def test_xrpc_bytes(live_server):
 
     client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
@@ -106,8 +117,11 @@ def test_xrpc_date_2(live_server):
     date = datetime.datetime(1990, 1, 1, 0, 0, 0)
 
     client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
-    result = client.get_date_type(date)
-    assert 'datetime.datetime' in result
+    result = client.get_data_type(date)
+
+    # Python 2 : "<type 'datetime.datetime'>"
+    # Python 3 : "<class 'datetime.datetime'>"
+    assert re.match(r"<(class|type) 'datetime.datetime'>", result)
 
 
 def test_xrpc_date_3(live_server):

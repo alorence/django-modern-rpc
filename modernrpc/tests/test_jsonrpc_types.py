@@ -1,9 +1,9 @@
 # coding: utf-8
+import datetime
+import re
 import sys
 
-import datetime
 import pytest
-
 from dummy_jsonrpc_client import ServerProxy, JsonRpcFault
 from modernrpc.exceptions import RPC_INTERNAL_ERROR
 
@@ -64,6 +64,15 @@ def test_jsrpc_string(live_server):
     assert type(result) == type(expected)
 
 
+def text_jsrpc_input_string(live_server):
+    client = ServerProxy(live_server.url + '/all-rpc/')
+    result = client.get_data_type('abcd')
+
+    # Python 2 : "<type 'str'>"
+    # Python 3 : "<class 'str'>"
+    assert re.match(r"<(class|type) 'str'>", result)
+
+
 def test_jsrpc_bytes(live_server):
 
     client = ServerProxy(live_server.url + '/all-rpc/')
@@ -100,14 +109,16 @@ def test_jsrpc_date(live_server):
 def test_jsrpc_date_2(live_server):
     client = ServerProxy(live_server.url + '/all-rpc/')
     date = datetime.datetime(1990, 1, 1, 0, 0, 0)
-    result = client.get_date_type(date)
+    result = client.get_data_type(date)
 
     # Since data type are not included in JSON-RPC request, dates are transmitter as string
     # to the server. The decoded type depends on the Python version used
     if sys.version_info < (3, 0):
-        assert 'unicode' in result
+        # Python 2 : "<type 'unicode'>"
+        assert "<type 'unicode'>" == result
     else:
-        assert 'str' in result
+        # Python 3 : "<class 'str'>"
+        assert "<class 'str'>" == result
 
 
 def test_jsrpc_date_3(live_server):
