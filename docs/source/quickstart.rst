@@ -72,7 +72,7 @@ list of modules containg such methods. In your ``settings.py``:
 
 .. code:: python
 
-    MODERNRPC_ENTRY_POINTS_MODULES = [
+    MODERNRPC_METHODS_MODULES = [
         'rpc_app.rpc_methods'
     ]
 

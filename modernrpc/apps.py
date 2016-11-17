@@ -8,7 +8,7 @@ from django.apps import AppConfig
 from django.core.exceptions import ImproperlyConfigured
 
 from modernrpc.core import register_rpc_method, get_all_method_names, unregister_rpc_method
-from modernrpc.modernrpc_settings import MODERNRPC_ENTRY_POINTS_MODULES
+from modernrpc.modernrpc_settings import MODERNRPC_METHODS_MODULES
 
 logger = logging.getLogger(__name__)
 
@@ -20,14 +20,14 @@ class ModernRpcConfig(AppConfig):
 
     def ready(self):
 
-        if MODERNRPC_ENTRY_POINTS_MODULES:
+        if MODERNRPC_METHODS_MODULES:
 
             # When project use a persistant cache (Redis, memcached, etc.) the cache is not always flushed
             # when django project is restarted. As a result, we may have a registry with a list of methods
             # from the last run.
             methods_before_lookup = get_all_method_names()
 
-            modules_to_scan = MODERNRPC_ENTRY_POINTS_MODULES
+            modules_to_scan = MODERNRPC_METHODS_MODULES
             # Add internal system methods to the registry
             modules_to_scan.append('modernrpc.system_methods')
 
@@ -37,7 +37,7 @@ class ModernRpcConfig(AppConfig):
                     module = import_module(module_name)
 
                 except ImportError:
-                    logger.warning('Unable to load module "{}". Please check MODERNRPC_ENTRY_POINTS_MODULES for invalid'
+                    logger.warning('Unable to load module "{}". Please check MODERNRPC_METHODS_MODULES for invalid'
                                    ' names'.format(module_name))
                     continue
 
@@ -57,6 +57,6 @@ class ModernRpcConfig(AppConfig):
                 unregister_rpc_method(useless_method)
 
         else:
-            warnings.warn("MODERNRPC_ENTRY_POINTS_MODULES is not set. Django-modern-rpc is not able to lookup for RPC "
-                          "methos in your code. Please define settings.MODERNRPC_ENTRY_POINTS_MODULES to indicate "
+            warnings.warn("MODERNRPC_METHODS_MODULES is not set. Django-modern-rpc is not able to lookup for RPC "
+                          "methos in your code. Please define settings.MODERNRPC_METHODS_MODULES to indicate "
                           "the modules that contains your methods.", category=Warning)

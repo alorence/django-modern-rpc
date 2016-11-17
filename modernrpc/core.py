@@ -363,7 +363,7 @@ def register_method(function, name=None, entry_point=ALL, protocol=ALL):
     """
 
     warnings.warn('"register_method" is deprecated and will be removed in a future version.\nUse settings.'
-                  'MODERNRPC_ENTRY_POINTS_MODULES to declare modules containing RPC method, and decorate each method '
+                  'MODERNRPC_METHODS_MODULES to declare modules containing RPC method, and decorate each method '
                   'with @rpc_method. Refer\nto the documentation for more info.', DeprecationWarning, stacklevel=2)
 
     function.modernrpc_enabled = True

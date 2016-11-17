@@ -56,7 +56,7 @@ MEDIA_URL = '/'
 STATIC_ROOT = ''
 STATIC_URL = '/'
 
-MODERNRPC_ENTRY_POINTS_MODULES = [
+MODERNRPC_METHODS_MODULES = [
     'testsite.rpc_methods_stub.generic',
     'testsite.rpc_methods_stub.specific_types',
     'testsite.rpc_methods_stub.specific_protocol',

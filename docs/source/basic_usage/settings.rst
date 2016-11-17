@@ -6,7 +6,7 @@ In your project's settings, you can override some variable to customize behavior
 
 Basic configuration
 ===================
-.. autodata:: modernrpc.modernrpc_settings.MODERNRPC_ENTRY_POINTS_MODULES
+.. autodata:: modernrpc.modernrpc_settings.MODERNRPC_METHODS_MODULES
 
 JSON Serialization and deserialization
 ======================================

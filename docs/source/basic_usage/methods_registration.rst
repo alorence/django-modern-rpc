@@ -24,16 +24,16 @@ via RPC calls.
 Declare the modules containing RPC methods
 ==========================================
 
-In your ``settings.py``, add the variable ``MODERNRPC_ENTRY_POINTS_MODULES`` to define the list of modules containing
+In your ``settings.py``, add the variable ``MODERNRPC_METHODS_MODULES`` to define the list of modules containing
 decorated RPC methods. In our example, the only RPC method is ``add()``, declared in ``myproject/rpc_app/rpc_methods.py``.
 
 .. code:: python
 
-   MODERNRPC_ENTRY_POINTS_MODULES = [
+   MODERNRPC_METHODS_MODULES = [
        'rpc_app.rpc_methods'
    ]
 
-At startup, django-modern-rpc will lookup all modules listed in ``MODERNRPC_ENTRY_POINTS_MODULES``, and will register
+At startup, django-modern-rpc will lookup all modules listed in ``MODERNRPC_METHODS_MODULES``, and will register
 all functions in those modules that have been decorated with ``@rpc_method``.
 
 Configure the registration
