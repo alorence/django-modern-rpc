@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Current development
--------------------
+Release 0.4.0 (2016-11-17)
+--------------------------
 - API change: new unified way to register methods. Documentation in progress
 - API change: XMl-RPC handler will now correctly handle None values by default. This behavior can be configured using
   MODERNRPC_XMLRPC_ALLOW_NONE setting.
