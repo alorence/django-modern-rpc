@@ -6,6 +6,5 @@ Basic usage
    :maxdepth: 2
 
    methods_registration
-   rpc_view
+   entry_point_configuration
    settings
-   error_handling

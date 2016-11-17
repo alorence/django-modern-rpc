@@ -6,3 +6,5 @@ Advanced configuration
    :maxdepth: 2
 
    define_rpc_methods
+   data_types_support
+   error_handling
