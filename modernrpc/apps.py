@@ -1,6 +1,7 @@
 # coding: utf-8
 import inspect
 import logging
+import warnings
 from importlib import import_module
 
 from django.apps import AppConfig
@@ -56,5 +57,6 @@ class ModernRpcConfig(AppConfig):
                 unregister_rpc_method(useless_method)
 
         else:
-            raise ImproperlyConfigured("Please declare which modules contains your RPC entry points, using "
-                                       "MODERNRPC_ENTRY_POINTS_MODULES setting")
+            warnings.warn("MODERNRPC_ENTRY_POINTS_MODULES is not set. Django-modern-rpc is not able to lookup for RPC "
+                          "methos in your code. Please define settings.MODERNRPC_ENTRY_POINTS_MODULES to indicate "
+                          "the modules that contains your methods.", category=Warning)
