@@ -20,9 +20,13 @@ MODERNRPC_DEFAULT_ENTRYPOINT_NAME = getattr(settings, 'MODERNRPC_DEFAULT_ENTRYPO
 #: If set to True, dates will be passed as datetime to the RPC function.
 MODERNRPC_XML_USE_BUILTIN_TYPES = getattr(settings, 'MODERNRPC_XML_USE_BUILTIN_TYPES', True)
 
+#: Configure the format of the docstring used to document your RPC methods. Possible values are: '', 'rst' or 'md'
 MODERNRPC_DOC_FORMAT = getattr(settings, 'MODERNRPC_DOC_FORMAT', '')
 
+#: Set the list of python modules that must be looked up to find RPC methods
 MODERNRPC_ENTRY_POINTS_MODULES = getattr(settings, 'MODERNRPC_ENTRY_POINTS_MODULES', [])
 
+#: Set to False if you want to raise an exception when a None value is passed to XML encoder
 MODERNRPC_XMLRPC_ALLOW_NONE = getattr(settings, 'MODERNRPC_XMLRPC_ALLOW_NONE', True)
+#: Configure the default encoding used by XML encoder
 MODERNRPC_XMLRPC_DEFAULT_ENCODING = getattr(settings, 'MODERNRPC_XMLRPC_DEFAULT_ENCODING', None)

@@ -7,7 +7,7 @@ There is many way to contribute to project development.
 Report issues, suggest enhancements
 ===================================
 
-If you find a bug, ask question about configuration or suggest an improveemnt to the project, fell free to use
+If you find a bug, want to ask question about configuration or suggest an improvemnt to the project, feel free to use
 `the issue tracker <https://github.com/alorence/django-modern-rpc/issues>`_. You will need a GitHub account.
 
 Submit a pull request

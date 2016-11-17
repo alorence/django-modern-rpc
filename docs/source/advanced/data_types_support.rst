@@ -36,8 +36,8 @@ XML-RPC transport define a type to handle dates and date/times: ``dateTime.iso86
 
  - Input date (RPC method argument)
 
-   - If ``settings.MODERNRPC_XML_USE_BUILTIN_TYPES = True``, the date will be converted to ``datetime.datetime``
-   - If ``settings.MODERNRPC_XML_USE_BUILTIN_TYPES = True``, the date will be converted to ``xmlrpc.client.DateTime``
+   - If ``settings.MODERNRPC_XML_USE_BUILTIN_TYPES = True (default)``, the date will be converted to ``datetime.datetime``
+   - If ``settings.MODERNRPC_XML_USE_BUILTIN_TYPES = False``, the date will be converted to ``xmlrpc.client.DateTime``
      (Python 3) or ``xmlrpclib.DateTime`` (Python 2)
 
  - Output date (RPC method return type)
@@ -58,7 +58,7 @@ The behavior of default encoder and decoder classes is:
  - Output date (RPC method return type)
 
    - ``datetime.datetime`` objects will be automatically converted to string (format ISO 8601), so JSON-RPC clients
-     will be able to handle it as usual.
+     will be able to handle it as usual. This behavior is due to the use of ``DjangoJSONEncoder`` as default encoder.
 
 If you need to customize behavior of JSON encoder and/or decoder, you can specify another classes in ``settings.py``::
 
