@@ -24,7 +24,7 @@ def test_xrpc_bool(live_server):
     assert result is False
 
 
-def test_xrpc_null(settings, live_server):
+def test_xrpc_null(live_server):
 
     client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
     assert client.get_null() is None

@@ -4,6 +4,8 @@ Changelog
 Current development
 -------------------
 - API change: new unified way to register methods. Documentation in progress
+- API change: XMl-RPC handler will now correctly handle None values by default. This behavior can be configured using
+  MODERNRPC_XMLRPC_ALLOW_NONE setting.
 - Bugfix: when django use a persistent cache (Redis, memcached, etc.), ensure the registry is up-to-date
   with current sources at startup
 
