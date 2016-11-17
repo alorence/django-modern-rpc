@@ -49,7 +49,6 @@ Quick start
 
     pip install django-modern-rpc
 
-
 2. Add it to your Django applications, in ``settings.py``:
 
 .. code:: python
@@ -84,7 +83,7 @@ Quick start
     def add(a, b):
         return a + b
 
-5. Declare the list of python modules containing your RPC methods:
+5. Declare the list of python modules containing your RPC methods, in ``settings.py``:
 
 .. code:: python
 
