@@ -37,9 +37,7 @@ class RPCHandler(object):
             # We don't accept a request with missing Content-Type request
             raise RPCInvalidRequest('Missing header: Content-Type')
 
-        result = content_type.lower() in self.valid_content_types()
-        logger.debug('Check if handler for {} can parse_request the request: {}'.format(self.protocol, result))
-        return result
+        return content_type.lower() in self.valid_content_types()
 
     def parse_request(self):
         raise NotImplementedError("You must override parse_request()")

@@ -176,7 +176,7 @@ class RPCMethod(object):
     def is_valid_for(self, entry_point, protocol):
         return self.available_for_entry_point(entry_point) and self.available_for_protocol(protocol)
 
-    # Helpers to make tests in template easier
+    # Helpers to simplify templates generation
     def is_doc_available(self):
         """Returns True if a textual documentation is available for this method"""
         return bool(self.html_doc)
@@ -273,6 +273,7 @@ def register_rpc_method(function):
 
     # Define the external name of the function
     name = getattr(function, 'modernrpc_name', function.__name__)
+
     logger.debug('Register RPC method {}'.format(name))
 
     if name.startswith('rpc.'):

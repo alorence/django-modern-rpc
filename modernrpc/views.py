@@ -87,11 +87,16 @@ class RPCEntryPoint(TemplateView):
                 if not handler.can_handle():
                     continue
 
+                logger.debug('Request will be handled by {}'.format(handler_cls.__name__))
+
                 method, params = handler.parse_request()
                 rpc_method = get_method(method, self.entry_point, handler_cls.protocol)
 
                 if not rpc_method:
+                    logger.warning('Unknown RPC method: {}'.format(method))
                     raise RPCUnknownMethod(method)
+
+                logger.debug('RPC method {} will be executed'.format(method))
 
                 try:
                     kwargs = {
@@ -100,8 +105,12 @@ class RPCEntryPoint(TemplateView):
                         'protocol': self.protocol,
                         'handler': handler,
                     }
+
                     result = rpc_method.execute(*params, **kwargs)
+
                 except TypeError as e:
+                    # If given arguments cannot be passed correctly to python function,
+                    # raise an Invalid Params exceptions
                     raise RPCInvalidParams(str(e))
 
                 return handler.result_success(result)
@@ -110,6 +119,8 @@ class RPCEntryPoint(TemplateView):
                 return handler.result_error(e)
             except Exception as e:
                 return handler.result_error(RPCInternalError(str(e)))
+
+        logger.error('Received a request impossible to handle with available handlers.')
 
         return HttpResponse('Unable to handle your request. Please ensure you called the right entry point. If not, '
                             'this could be a server error.')
