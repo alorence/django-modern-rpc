@@ -11,14 +11,14 @@ except ImportError:
 
 def get_builtin_date(date, format="%Y-%m-%dT%H:%M:%S", raise_exception=False):
     """
-    Try to convert a date to a builtin instance of datetime.datetime.
-    The input date can be a str, a datetime.datetime or a xmlrpc.client.Datetime instance. The returned object
-    is a datetime.datetime.
+    Try to convert a date to a builtin instance of ``datetime.datetime``.
+    The input date can be a ``str``, a ``datetime.datetime``, a ``xmlrpc.client.Datetime`` or a ``xmlrpclib.Datetime``
+    instance. The returned object is a ``datetime.datetime``.
 
     :param date: The date object to convert.
     :param format: If the given date is a str, format is passed to strptime to parse it
     :param raise_exception: If set to true, an exception will be raised when the input str can't be parsed properly.
-    :return: A valid datetime.datetime instance
+    :return: A valid ``datetime.datetime`` instance
     """
     if isinstance(date, datetime.datetime):
         # Default XML-RPC handler is configured to decode dateTime.iso8601 type

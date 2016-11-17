@@ -17,19 +17,14 @@ Basic types
 
 The basic types are handled the same way in all Python versions and with the 2 supported protocol.
 Those types are:
- - bool
- - int
- - float
+
+- bool
+- int
+- float
+- str
 
 If a RPC method return one of these types or take it as argument, the behavior is the same in JSON-RPC and in XML-RPC,
 no matter what version of Python you use in your project. You shouldn't face any issue when working with those types.
-
-String types
-------------
-
-Both JSON-RPC and XML-RPC are able to transport strings.
-
-In general,
 
 Date types
 ----------
@@ -37,7 +32,18 @@ Date types
 In XML-RPC
 ^^^^^^^^^^
 
-TBD
+XML-RPC transport define a type to handle dates and date/times: ``dateTime.iso8601``. Conversion is done as follow:
+
+ - Input date (RPC method argument)
+
+   - If ``settings.MODERNRPC_XML_USE_BUILTIN_TYPES = True``, the date will be converted to ``datetime.datetime``
+   - If ``settings.MODERNRPC_XML_USE_BUILTIN_TYPES = True``, the date will be converted to ``xmlrpc.client.DateTime``
+     (Python 3) or ``xmlrpclib.DateTime`` (Python 2)
+
+ - Output date (RPC method return type)
+
+   - Any object of type ``datetime.datetime`` or ``xmlrpclib.DateTime/xmlrpc.client.DateTime`` will be converted to
+     ``dateTime.iso8601`` (in XML response)
 
 In JSON-RPC
 ^^^^^^^^^^^
@@ -45,15 +51,39 @@ In JSON-RPC
 JSON transport has no specific support of dates, they are represented as string on format ISO 8601.
 The behavior of default encoder and decoder classes is:
 
-- Decoder will not try to guess each string to convert it as a date. Dates strings are transmitted as-it. Dates in RPC
-  method arguments can be converted to datetime object using a helper. See below
-- Encoder will convert any datetime object to a string using the format ISO 8601. This ensure all common dates will be
-  represented with the same format
+ - Input date (RPC method argument)
 
-Please note you can use another classes. To do so, overrides the default values in settings::
+   - Dates are transmitted as standard string. Decoder will NOT try to recognize dates to apply specific treatments.
+
+ - Output date (RPC method return type)
+
+   - ``datetime.datetime`` objects will be automatically converted to string (format ISO 8601), so JSON-RPC clients
+     will be able to handle it as usual.
+
+If you need to customize behavior of JSON encoder and/or decoder, you can specify another classes in ``settings.py``::
 
     MODERNRPC_JSON_DECODER = 'json.decoder.JSONDecoder'
     MODERNRPC_JSON_ENCODER = 'django.core.serializers.json.DjangoJSONEncoder'
+
+Using helper to handle all cases
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+As you probably noticed, when you receive a date value in your RPC method, the object can be of different types. To
+make sure you can work with dates in a unified manner, django-modern-rpc defines a helper which help you to retrieve a
+``datetime.datetime`` object from any date value:
+
+.. autofunction:: modernrpc.helpers.get_builtin_date
+
+Here is an usage example:
+
+.. code:: python
+
+   from modernrpc.helpers import get_builtin_date
+
+   @rpc_method()
+   def add_one_month(date):
+       """Adds 31 days to the given date, and returns the result."""
+       return get_builtin_date(date) + datetime.timedelta(days=31)
 
 List and structures
 -------------------
@@ -78,4 +108,11 @@ can contain another *struct* or a *list*, etc.
 null and NoneType
 -----------------
 
-TBD
+By default, both JSON-RPC and XML-RPC handlers will be able to return ``None`` or to take a None value as argument.
+The XML handler will convert such values to ``<nil/>`` special argument. Since this type is not part of the original
+specification, some XML-RPC clients may misunderstand this value. If you prefer respect the original standard, simply
+define in your ``settings.py``::
+
+   MODERNRPC_XMLRPC_ALLOW_NONE = False
+
+As a result, the XML handler will raise a ``TypeError`` when trying to serialize a response containing a ``None`` value.
