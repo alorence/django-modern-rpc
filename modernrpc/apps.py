@@ -43,7 +43,11 @@ class ModernRpcConfig(AppConfig):
                 for _, func in inspect.getmembers(module, inspect.isfunction):
                     if getattr(func, 'modernrpc_enabled', False):
                         registered_name = register_rpc_method(func)
-                        methods_before_lookup.remove(registered_name)
+                        try:
+                            # Ensure method is not listed in methods_before_lookup after registration
+                            methods_before_lookup.remove(registered_name)
+                        except ValueError:
+                            pass
 
             # Some rpc methods stored in the registry from the last run were not registered this session.
             # That means a RPC method has been deleted from the code (or the decorator has been removed)
