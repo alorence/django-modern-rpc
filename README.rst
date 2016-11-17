@@ -49,24 +49,16 @@ Quick start
 
     pip install django-modern-rpc
 
-2. Decorate the methods you want to make available via RPC calls:
+
+2. Add it to your Django applications, in ``settings.py``:
 
 .. code:: python
 
-    # In myproject/rpc_app/rpc_methods.py
-    from modernrpc.core import rpc_method
-
-    @rpc_method()
-    def add(a, b):
-        return a + b
-
-and make sure these functions are imported at Django startup. A simple
-way to do this is to import them in your app's module:
-
-.. code:: python
-
-    # In myproject/rpc_app/__init__.py
-    from rpc_app.rpc_methods import add
+    INSTALLED_APPS = [
+        #...
+        'modernrpc',
+        #...
+    ]
 
 3. Declare an entry point, a view which will generate a correct RPC response depending on the incoming request:
 
@@ -78,7 +70,26 @@ way to do this is to import them in your app's module:
     from modernrpc.views import RPCEntryPoint
 
     urlpatterns = [
-        url(r'^rpc/', RPCEntryPoint.as_view(), name="rpc_entry_point"),
+        url(r'^rpc/', RPCEntryPoint.as_view()),
+    ]
+
+4. Decorate the methods you want to make available via RPC calls:
+
+.. code:: python
+
+    # In myproject/rpc_app/rpc_methods.py
+    from modernrpc.core import rpc_method
+
+    @rpc_method
+    def add(a, b):
+        return a + b
+
+5. Declare the list of python modules containing your RPC methods:
+
+.. code:: python
+
+    MODERNRPC_ENTRY_POINTS_MODULES = [
+        'rpc_app.rpc_methods'
     ]
 
 Now, you can call the RPC method ``add`` from a client:
