@@ -1,6 +1,10 @@
 Changelog
 =========
 
+Current development
+-------------------
+- Method arguments documentation keep the same order as defined in docstring
+
 Release 0.4.0 (2016-11-17)
 --------------------------
 - API change: new unified way to register methods. Documentation in progress

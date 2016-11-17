@@ -1,7 +1,7 @@
 # coding: utf-8
 import pytest
 
-from modernrpc.core import RPCMethod, get_all_methods
+from modernrpc.core import RPCMethod, get_all_methods, get_method, ALL
 from modernrpc.handlers import XMLRPC, JSONRPC
 from modernrpc.modernrpc_settings import MODERNRPC_DEFAULT_ENTRYPOINT_NAME
 from testsite.rpc_methods_stub.not_decorated import full_documented_method
@@ -81,3 +81,13 @@ def test_get_methods():
     for m in methods:
         if m not in sorted_methods:
             pytest.fail('Found a method ({}) not referenced in sorted_methods'.format(m))
+
+
+def test_arguments_order():
+
+    method = get_method("divide", ALL, ALL)
+
+    args_names = list(method.args_doc.keys())
+    # We want to make sure arguments doc is stored with the same order method parameters are defined
+    assert args_names[0] == 'numerator'
+    assert args_names[1] == 'denominator'

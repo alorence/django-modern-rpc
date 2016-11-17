@@ -1,4 +1,5 @@
 # coding: utf-8
+import collections
 import importlib
 import logging
 import re
@@ -42,8 +43,9 @@ class RPCMethod(object):
         self.signature = []
         # Contains the method's docstring, in HTML form
         self.html_doc = ''
-        # Contains doc about argumetns and their type
-        self.args_doc = {}
+        # Contains doc about argumetns and their type. We store this in an ordered dict, so the args documentation
+        # keep the order defined in docstring
+        self.args_doc = collections.OrderedDict()
         # Contains doc about return type and return value
         self.return_doc = {}
 
