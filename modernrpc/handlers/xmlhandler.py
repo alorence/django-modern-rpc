@@ -5,7 +5,8 @@ from django.http.response import HttpResponse
 
 from modernrpc.exceptions import RPCParseError, RPCInvalidRequest
 from modernrpc.handlers.base import RPCHandler
-from modernrpc.modernrpc_settings import MODERNRPC_XML_USE_BUILTIN_TYPES
+from modernrpc.modernrpc_settings import MODERNRPC_XML_USE_BUILTIN_TYPES, MODERNRPC_XMLRPC_ALLOW_NONE, \
+    MODERNRPC_XMLRPC_DEFAULT_ENCODING
 
 try:
     # Python 3
@@ -26,7 +27,8 @@ class XMLRPCHandler(RPCHandler):
 
     def __init__(self, request, entry_point):
         super(XMLRPCHandler, self).__init__(request, entry_point)
-        self.marshaller = xmlrpc_module.Marshaller()
+        self.marshaller = xmlrpc_module.Marshaller(encoding=MODERNRPC_XMLRPC_DEFAULT_ENCODING,
+                                                   allow_none=MODERNRPC_XMLRPC_ALLOW_NONE)
 
     @staticmethod
     def valid_content_types():

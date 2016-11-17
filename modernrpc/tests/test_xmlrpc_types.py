@@ -2,9 +2,6 @@
 import datetime
 import re
 
-import pytest
-from modernrpc.exceptions import RPC_INTERNAL_ERROR
-
 try:
     # Python 3
     import xmlrpc.client as xmlrpc_module
@@ -27,15 +24,10 @@ def test_xrpc_bool(live_server):
     assert result is False
 
 
-def test_xrpc_null(live_server):
+def test_xrpc_null(settings, live_server):
 
     client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
-
-    with pytest.raises(xmlrpc_module.Fault) as excinfo:
-        client.get_null()
-
-    assert excinfo.value.faultCode == RPC_INTERNAL_ERROR
-    assert 'cannot marshal None unless allow_none is enabled' in excinfo.value.faultString
+    assert client.get_null() is None
 
 
 def test_xrpc_numeric(live_server):
