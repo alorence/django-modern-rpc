@@ -1,11 +1,15 @@
 Changelog
 =========
 
+Current development
+-------------------
+- Various performance improvements
+- Better use of logging framework (python builtin) to report errors & exceptions from library and RPC methods
+
 Release 0.4.1 (2016-11-17)
 --------------------------
 - Method arguments documentation keep the same order as defined in docstring
-- API change: MODERNRPC_ENTRY_POINTS_MODULES  settings have been renamed to MODERNRPC_METHODS_MODULES. The original was
-  confusing for most users.
+- API change: MODERNRPC_ENTRY_POINTS_MODULES setting have been renamed to MODERNRPC_METHODS_MODULES.
 - A simple warning is displayed when MODERNRPC_METHODS_MODULES is not set, instead of a radical ImproperlyConfigured
   exception.
 - Some traces have been added to allow debugging in the module easily. It uses the builtin logging framework.
