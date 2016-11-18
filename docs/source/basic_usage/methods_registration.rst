@@ -62,7 +62,8 @@ You can also change this behavior by setting arguments to the decorator:
 
 ``entry_point = ALL``
   Set the entry_point argument to one or more str value to ensure the method will be available only via calls to
-  corresponding entry point name. Fore more information, please check the documentation about :doc:`rpc_view`.
+  corresponding entry point name. Fore more information, please check the documentation about
+  :doc:`entry_point_configuration`.
   Example::
 
    @rpc_method(entry_point='apiV2')
