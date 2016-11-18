@@ -5,7 +5,7 @@ import pytest
 
 from modernrpc.exceptions import RPCException
 from modernrpc.handlers.base import RPCHandler
-from modernrpc.modernrpc_settings import MODERNRPC_DEFAULT_ENTRYPOINT_NAME
+from modernrpc.config import MODERNRPC_DEFAULT_ENTRYPOINT_NAME
 from testsite.rpc_methods_stub.not_decorated import full_documented_method, func_a, func_b, func_c
 
 

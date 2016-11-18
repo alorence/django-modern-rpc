@@ -9,7 +9,7 @@ from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import inspect
 
-from modernrpc import modernrpc_settings
+from modernrpc import config
 from modernrpc.handlers import XMLRPC, JSONRPC
 
 logger = logging.getLogger(__name__)
@@ -136,10 +136,10 @@ class RPCMethod(object):
         if not docstring:
             return ''
 
-        if modernrpc_settings.MODERNRPC_DOC_FORMAT.lower() in ('rst', 'reStructred', 'reStructuredText'):
+        if config.MODERNRPC_DOC_FORMAT.lower() in ('rst', 'reStructred', 'reStructuredText'):
             from docutils.core import publish_parts
             return publish_parts(docstring, writer_name='html')
-        elif modernrpc_settings.MODERNRPC_DOC_FORMAT.lower() in ('md', 'markdown'):
+        elif config.MODERNRPC_DOC_FORMAT.lower() in ('md', 'markdown'):
             import markdown
             return markdown.markdown(docstring)
         else:

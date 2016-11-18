@@ -3,7 +3,7 @@ import pytest
 
 from modernrpc.core import RPCMethod, get_all_methods, get_method, ALL
 from modernrpc.handlers import XMLRPC, JSONRPC
-from modernrpc.modernrpc_settings import MODERNRPC_DEFAULT_ENTRYPOINT_NAME
+from modernrpc.config import MODERNRPC_DEFAULT_ENTRYPOINT_NAME
 from testsite.rpc_methods_stub.not_decorated import full_documented_method
 
 

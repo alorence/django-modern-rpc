@@ -10,7 +10,7 @@ from django.views.generic.base import TemplateView
 
 from modernrpc.core import ALL, get_method, get_all_methods, REQUEST_KEY, ENTRY_POINT_KEY, PROTOCOL_KEY, HANDLER_KEY
 from modernrpc.exceptions import RPCInternalError, RPCException, RPCUnknownMethod, RPCInvalidParams
-from modernrpc.modernrpc_settings import MODERNRPC_HANDLERS, MODERNRPC_DEFAULT_ENTRYPOINT_NAME
+from modernrpc.config import MODERNRPC_HANDLERS, MODERNRPC_DEFAULT_ENTRYPOINT_NAME
 
 logger = logging.getLogger(__name__)
 

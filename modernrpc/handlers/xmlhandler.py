@@ -5,7 +5,7 @@ from django.http.response import HttpResponse
 
 from modernrpc.exceptions import RPCParseError, RPCInvalidRequest
 from modernrpc.handlers.base import RPCHandler
-from modernrpc.modernrpc_settings import MODERNRPC_XML_USE_BUILTIN_TYPES, MODERNRPC_XMLRPC_ALLOW_NONE, \
+from modernrpc.config import MODERNRPC_XML_USE_BUILTIN_TYPES, MODERNRPC_XMLRPC_ALLOW_NONE, \
     MODERNRPC_XMLRPC_DEFAULT_ENCODING
 
 try:

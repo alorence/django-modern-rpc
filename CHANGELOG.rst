@@ -36,7 +36,7 @@ Release 0.3.0 (2016-10-18)
   * ``JSONRPC_DEFAULT_DECODER`` becomes ``MODERNRPC_JSON_DECODER``
   * ``JSONRPC_DEFAULT_ENCODER`` becomes ``MODERNRPC_JSON_ENCODER``
 
-  See https:/alorence/django-modern-rpc/blob/master/modernrpc/modernrpc_settings.py for more details
+  See https:/alorence/django-modern-rpc/blob/master/modernrpc/config.py for more details
 - Many other settings added, to make the library more configurable. See
   http://django-modern-rpc.readthedocs.io/en/latest/basic_usage/settings.html
 - RPC methods can now declare the special ``**kwargs`` parameter. The dict will contain information about current

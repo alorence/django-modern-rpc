@@ -6,7 +6,7 @@ from importlib import import_module
 
 from django.apps import AppConfig
 from modernrpc.core import register_rpc_method, get_all_method_names, unregister_rpc_method
-from modernrpc.modernrpc_settings import MODERNRPC_METHODS_MODULES
+from modernrpc.config import MODERNRPC_METHODS_MODULES
 
 logger = logging.getLogger(__name__)
 
