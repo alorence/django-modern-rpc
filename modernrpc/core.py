@@ -24,11 +24,6 @@ ENTRY_POINT_KEY = 'entry_point'
 PROTOCOL_KEY = 'protocol'
 HANDLER_KEY = 'handler'
 
-PARAM_REXP = r':param ([\w]+):\s?(.*)'
-RETURN_REXP = r':return:\s?(.*)'
-PARAM_TYPE_REXP = r':type ([\w]+):\s?(.*)'
-RETURN_TYPE_REXP = r':rtype:\s?(.*)'
-
 
 class RPCMethod(object):
 
@@ -81,14 +76,17 @@ class RPCMethod(object):
             return raw_docstring
 
         lines = content.split('\n')
+
+        # Define regular expression used to parse docstring
+        PARAM_REXP = r':param ([\w]+):\s?(.*)'
+        RETURN_REXP = r':return:\s?(.*)'
+        PARAM_TYPE_REXP = r':type ([\w]+):\s?(.*)'
+        RETURN_TYPE_REXP = r':rtype:\s?(.*)'
+
         for line in lines:
-            sline = line.strip()
+            stripped_line = line.strip()
 
-            param_match = re.match(PARAM_REXP, sline)
-            return_match = re.match(RETURN_REXP, sline)
-            param_type_match = re.match(PARAM_TYPE_REXP, sline)
-            return_type_match = re.match(RETURN_TYPE_REXP, sline)
-
+            param_match = re.match(PARAM_REXP, stripped_line)
             if param_match:
                 param_name, description = param_match.group(1, 2)
                 if param_name == 'kwargs':
@@ -96,8 +94,10 @@ class RPCMethod(object):
                 doc = self.args_doc.get(param_name, {})
                 doc['text'] = description
                 self.args_doc[param_name] = doc
+                continue
 
-            elif param_type_match:
+            param_type_match = re.match(PARAM_TYPE_REXP, stripped_line)
+            if param_type_match:
                 param_name, param_type = param_type_match.group(1, 2)
                 if param_name == 'kwargs':
                     continue
@@ -105,19 +105,24 @@ class RPCMethod(object):
                 doc['type'] = param_type
                 self.args_doc[param_name] = doc
                 self.signature.append(param_type)
+                continue
 
-            elif return_match:
+            return_match = re.match(RETURN_REXP, stripped_line)
+            if return_match:
                 return_description = return_match.group(1)
                 self.return_doc['text'] = return_description
+                continue
 
-            elif return_type_match:
+            return_type_match = re.match(RETURN_TYPE_REXP, stripped_line)
+            if return_type_match:
                 return_description = return_type_match.group(1)
                 self.return_doc['type'] = return_description
                 self.signature.insert(0, return_description)
+                continue
 
-            else:
-                # Add the line to help text
-                raw_docstring += line + '\n'
+            # Line doesn't match with known args/return regular expression,
+            # add the line to raw help text
+            raw_docstring += line + '\n'
 
         return raw_docstring
 
