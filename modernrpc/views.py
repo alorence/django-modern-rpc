@@ -32,7 +32,7 @@ class RPCEntryPoint(TemplateView):
 
         if not self.get_handler_classes():
             raise ImproperlyConfigured("At least 1 handler must be instantiated.")
-        logger.debug('Create "{}" RPCEntryPoint view'.format(self.entry_point))
+        logger.debug('RPC entry point "{}" initialized'.format(self.entry_point))
 
     # This disable CRSF validation for POST requests
     @method_decorator(csrf_exempt)
@@ -99,6 +99,7 @@ class RPCEntryPoint(TemplateView):
                 logger.debug('RPC method {} will be executed'.format(method))
 
                 try:
+                    # If the RPC method needs to access some internals:
                     kwargs = {
                         'request': request,
                         'entry_point': self.entry_point,
@@ -106,6 +107,7 @@ class RPCEntryPoint(TemplateView):
                         'handler': handler,
                     }
 
+                    # Call the python function associated with the RPC method name
                     result = rpc_method.execute(*params, **kwargs)
 
                 except TypeError as e:
@@ -116,8 +118,11 @@ class RPCEntryPoint(TemplateView):
                 return handler.result_success(result)
 
             except RPCException as e:
+                logger.warning('RPC exception raised: {}'.format(str(e)))
                 return handler.result_error(e)
+
             except Exception as e:
+                logger.error('Exception raised from an RPC method: {}'.format(str(e)))
                 return handler.result_error(RPCInternalError(str(e)))
 
         logger.error('Received a request impossible to handle with available handlers.')
