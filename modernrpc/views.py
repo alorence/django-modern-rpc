@@ -8,7 +8,7 @@ from django.utils.module_loading import import_string
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import TemplateView
 
-from modernrpc.core import ALL, get_method, get_all_methods
+from modernrpc.core import ALL, get_method, get_all_methods, REQUEST_KEY, ENTRY_POINT_KEY, PROTOCOL_KEY, HANDLER_KEY
 from modernrpc.exceptions import RPCInternalError, RPCException, RPCUnknownMethod, RPCInvalidParams
 from modernrpc.modernrpc_settings import MODERNRPC_HANDLERS, MODERNRPC_DEFAULT_ENTRYPOINT_NAME
 
@@ -101,10 +101,10 @@ class RPCEntryPoint(TemplateView):
                 try:
                     # If the RPC method needs to access some internals:
                     kwargs = {
-                        'request': request,
-                        'entry_point': self.entry_point,
-                        'protocol': self.protocol,
-                        'handler': handler,
+                        REQUEST_KEY: request,
+                        ENTRY_POINT_KEY: self.entry_point,
+                        PROTOCOL_KEY: self.protocol,
+                        HANDLER_KEY: handler,
                     }
 
                     # Call the python function associated with the RPC method name

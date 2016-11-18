@@ -15,14 +15,19 @@ from modernrpc.handlers import XMLRPC, JSONRPC
 logger = logging.getLogger(__name__)
 warnings.simplefilter('once', DeprecationWarning)
 
+# The registry key in current cache
 RPC_REGISTRY_KEY = '__rpc_registry__'
+# Timeout set to registry in cache
 DEFAULT_REGISTRY_TIMEOUT = None
-ALL = "__all__"
 
+# Keys used in kwargs dict given to RPC methods
 REQUEST_KEY = 'request'
 ENTRY_POINT_KEY = 'entry_point'
 PROTOCOL_KEY = 'protocol'
 HANDLER_KEY = 'handler'
+
+# Special constant meaning "all protocols" or "all entry points"
+ALL = "__all__"
 
 
 class RPCMethod(object):
