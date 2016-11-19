@@ -90,3 +90,24 @@ def test_arguments_order():
     # We want to make sure arguments doc is stored with the same order method parameters are defined
     assert args_names[0] == 'numerator'
     assert args_names[1] == 'denominator'
+
+
+def my_documented_method():
+    """*italic*, **strong**, normal text"""
+    return 111
+
+
+def test_html_documentation_markdown(settings):
+
+    settings.MODERNRPC_DOC_FORMAT = 'md'
+
+    method = RPCMethod(my_documented_method, "dummy_name")
+    assert '<em>italic</em>, <strong>strong</strong>, normal text' in method.html_doc
+
+
+def test_html_documentation_reST(settings):
+
+    settings.MODERNRPC_DOC_FORMAT = 'rst'
+
+    method = RPCMethod(my_documented_method, "dummy_name")
+    assert '<em>italic</em>, <strong>strong</strong>, normal text' in method.html_doc

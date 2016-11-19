@@ -3,3 +3,5 @@ pytest-django
 pytest-pythonpath
 pytest-cov
 requests
+markdown
+docutils

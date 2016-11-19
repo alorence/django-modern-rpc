@@ -138,7 +138,7 @@ class RPCMethod(object):
 
         if settings.MODERNRPC_DOC_FORMAT.lower() in ('rst', 'reStructred', 'reStructuredText'):
             from docutils.core import publish_parts
-            return publish_parts(docstring, writer_name='html')
+            return publish_parts(docstring, writer_name='html')['body']
         elif settings.MODERNRPC_DOC_FORMAT.lower() in ('md', 'markdown'):
             import markdown
             return markdown.markdown(docstring)
