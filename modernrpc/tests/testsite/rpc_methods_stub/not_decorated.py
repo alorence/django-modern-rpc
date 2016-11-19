@@ -35,3 +35,7 @@ def full_documented_method(name, birth_date, sex):
     :return: A string representation of given arguments
     """
     return '{} ({}) born on {}'.format(name, str(sex), str(birth_date))
+
+
+def another_not_decorated():
+    return 54

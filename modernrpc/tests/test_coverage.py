@@ -6,7 +6,8 @@ from modernrpc.config import settings
 from modernrpc.exceptions import RPCException
 from modernrpc.handlers.base import RPCHandler
 from testsite.rpc_methods_stub.generic import existing_but_not_decorated
-from testsite.rpc_methods_stub.not_decorated import full_documented_method, func_a, func_b, func_c
+from testsite.rpc_methods_stub.not_decorated import full_documented_method, func_a, func_b, func_c, \
+    another_not_decorated
 
 
 class MyBadHandler(RPCHandler):
@@ -21,6 +22,7 @@ def test_not_called_functions():
     func_c()
     full_documented_method('john', datetime.datetime.now(), 'Male')
     existing_but_not_decorated()
+    another_not_decorated()
     assert True
 
 

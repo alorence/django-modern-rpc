@@ -4,7 +4,8 @@ from django.core.exceptions import ImproperlyConfigured
 
 from modernrpc.core import register_method, rpc_method, register_rpc_method, get_all_method_names, \
     unregister_rpc_method, get_all_methods
-from testsite.rpc_methods_stub.not_decorated import func_a, func_b, func_c, full_documented_method
+from testsite.rpc_methods_stub.not_decorated import func_a, func_b, func_c, full_documented_method, \
+    another_not_decorated
 
 try:
     # Python 3
@@ -66,7 +67,7 @@ def test_manual_registration():
 def test_wrong_manual_registration():
     # Trying to register a not decorated method with the latest version raises an ImproperlyConfigured exception
     with pytest.raises(ImproperlyConfigured) as excp:
-        register_rpc_method(func_a)
+        register_rpc_method(another_not_decorated)
 
 
 def test_method_names_list():
