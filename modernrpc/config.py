@@ -1,6 +1,5 @@
 # coding: utf-8
 import django.conf
-import sys
 
 
 class DefaultValues(object):
@@ -44,4 +43,3 @@ class SettingsWrapper(object):
 
 
 settings = SettingsWrapper()
-#sys.modules[__name__] = SettingsWrapper()

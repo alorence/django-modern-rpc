@@ -66,7 +66,7 @@ def test_manual_registration():
 
 def test_wrong_manual_registration():
     # Trying to register a not decorated method with the latest version raises an ImproperlyConfigured exception
-    with pytest.raises(ImproperlyConfigured) as excp:
+    with pytest.raises(ImproperlyConfigured):
         register_rpc_method(another_not_decorated)
 
 
