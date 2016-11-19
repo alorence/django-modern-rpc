@@ -39,3 +39,8 @@ def raise_custom_exception():
 def add_one_month(date):
     """Adds 31 days to the given date, and returns the result."""
     return get_builtin_date(date) + datetime.timedelta(days=31)
+
+
+def existing_but_not_decorated():
+    """This function help to validate only methods with decorator are effectively added to the registry"""
+    return 42 * 42

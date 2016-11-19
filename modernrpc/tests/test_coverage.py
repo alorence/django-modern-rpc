@@ -2,10 +2,10 @@
 import datetime
 
 import pytest
-
+from modernrpc.config import MODERNRPC_DEFAULT_ENTRYPOINT_NAME
 from modernrpc.exceptions import RPCException
 from modernrpc.handlers.base import RPCHandler
-from modernrpc.config import MODERNRPC_DEFAULT_ENTRYPOINT_NAME
+from testsite.rpc_methods_stub.generic import existing_but_not_decorated
 from testsite.rpc_methods_stub.not_decorated import full_documented_method, func_a, func_b, func_c
 
 
@@ -20,6 +20,8 @@ def test_not_called_functions():
     func_b()
     func_c()
     full_documented_method('john', datetime.datetime.now(), 'Male')
+    existing_but_not_decorated()
+    assert True
 
 
 def test_bad_handler_definition(rf):
