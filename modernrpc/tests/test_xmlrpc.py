@@ -2,7 +2,6 @@
 import xml
 
 import pytest
-
 from modernrpc.exceptions import RPC_METHOD_NOT_FOUND
 
 try:
@@ -45,6 +44,9 @@ def test_xrpc_get_signature(live_server):
     assert signature[1] == 'int or double'
     assert signature[2] == 'int or double'
 
+    with pytest.raises(xmlrpc_module.Fault):
+        client.system.methodSignature('inexistant_method')
+
 
 def test_xrpc_method_help(live_server):
 
@@ -56,6 +58,9 @@ def test_xrpc_method_help(live_server):
 
     help_msg = client.system.methodHelp('divide')
     assert 'Divide a numerator by a denominator' in help_msg
+
+    with pytest.raises(xmlrpc_module.Fault):
+        client.system.methodHelp('inexistant_method')
 
 
 def test_xrpc_only_method(live_server):

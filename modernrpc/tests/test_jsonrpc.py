@@ -49,6 +49,9 @@ def test_jsrpc_system_get_signature(live_server):
     assert signature[1] == 'int or double'
     assert signature[2] == 'int or double'
 
+    with pytest.raises(JsonRpcFault):
+        client.system.methodSignature('inexistant_method')
+
 
 def test_jsrpc_method_help(live_server):
 
@@ -64,6 +67,9 @@ def test_jsrpc_method_help(live_server):
 
     help_text = client.system.methodHelp("divide")
     assert 'Divide a numerator by a denominator' in help_text
+
+    with pytest.raises(JsonRpcFault):
+        client.system.methodSignature('inexistant_method')
 
 
 def test_jsrpc_only_method(live_server):

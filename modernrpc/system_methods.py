@@ -47,7 +47,9 @@ def __system_multiCall(calls, **kwargs):
     Call multiple RPC methods at once.
 
     :param calls: An array of struct like {"methodName": string, "params": array }
-    :param kwargs:
+    :param kwargs: Internal data
+    :type calls: list
+    :type kwargs: dict
     :return:
     """
     if not isinstance(calls, list):

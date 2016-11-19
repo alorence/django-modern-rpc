@@ -43,6 +43,11 @@ def test_method_jsonrpc_only():
     assert m.is_available_in_json_rpc()
 
 
+def test_method_repr():
+    m = RPCMethod(dummy_function, 'dummy_name', protocol=JSONRPC)
+    assert 'dummy_name' in repr(m)
+
+
 def test_method_available_for_entry_point():
     m = RPCMethod(dummy_function, 'dummy_name', entry_point='my_entry_point')
 
