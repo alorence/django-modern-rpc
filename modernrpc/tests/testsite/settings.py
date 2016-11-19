@@ -60,4 +60,7 @@ MODERNRPC_METHODS_MODULES = [
     'testsite.rpc_methods_stub.generic',
     'testsite.rpc_methods_stub.specific_types',
     'testsite.rpc_methods_stub.specific_protocol',
+    # We add a non existant module, so auto-registering will print a warning
+    # This increase the coverage ratio in apps.py
+    'inexistant.module',
 ]
