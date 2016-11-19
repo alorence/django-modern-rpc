@@ -2,7 +2,7 @@
 import datetime
 
 import pytest
-from modernrpc.config import MODERNRPC_DEFAULT_ENTRYPOINT_NAME
+from modernrpc.config import settings
 from modernrpc.exceptions import RPCException
 from modernrpc.handlers.base import RPCHandler
 from testsite.rpc_methods_stub.generic import existing_but_not_decorated
@@ -28,7 +28,7 @@ def test_bad_handler_definition(rf):
 
     request = rf.get('/rpc')
 
-    h = MyBadHandler(request, MODERNRPC_DEFAULT_ENTRYPOINT_NAME)
+    h = MyBadHandler(request, settings.MODERNRPC_DEFAULT_ENTRYPOINT_NAME)
     with pytest.raises(NotImplementedError):
         h.loads("")
     with pytest.raises(NotImplementedError):

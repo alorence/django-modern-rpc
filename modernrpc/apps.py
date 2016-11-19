@@ -6,7 +6,7 @@ from importlib import import_module
 
 from django.apps import AppConfig
 from modernrpc.core import register_rpc_method, get_all_method_names, unregister_rpc_method
-from modernrpc.config import MODERNRPC_METHODS_MODULES
+from modernrpc.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -18,14 +18,14 @@ class ModernRpcConfig(AppConfig):
 
     def ready(self):
 
-        if MODERNRPC_METHODS_MODULES:
+        if settings.MODERNRPC_METHODS_MODULES:
 
             # When project use a persistant cache (Redis, memcached, etc.) the cache is not always flushed
             # when django project is restarted. As a result, we may have a registry with a list of methods
             # from the last run.
             methods_before_lookup = get_all_method_names()
 
-            modules_to_scan = MODERNRPC_METHODS_MODULES
+            modules_to_scan = settings.MODERNRPC_METHODS_MODULES
             # Add internal system methods to the registry
             modules_to_scan.append('modernrpc.system_methods')
 

@@ -2,8 +2,8 @@
 import pytest
 from django.core.exceptions import ImproperlyConfigured
 
-from modernrpc.core import register_method, rpc_method, register_rpc_method, get_all_method_names, unregister_rpc_method, \
-    get_all_methods
+from modernrpc.core import register_method, rpc_method, register_rpc_method, get_all_method_names, \
+    unregister_rpc_method, get_all_methods
 from testsite.rpc_methods_stub.not_decorated import func_a, func_b, func_c, full_documented_method
 
 try:

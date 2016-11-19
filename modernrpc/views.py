@@ -10,7 +10,7 @@ from django.views.generic.base import TemplateView
 
 from modernrpc.core import ALL, get_method, get_all_methods, REQUEST_KEY, ENTRY_POINT_KEY, PROTOCOL_KEY, HANDLER_KEY
 from modernrpc.exceptions import RPCInternalError, RPCException, RPCUnknownMethod, RPCInvalidParams
-from modernrpc.config import MODERNRPC_HANDLERS, MODERNRPC_DEFAULT_ENTRYPOINT_NAME
+from modernrpc.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ class RPCEntryPoint(TemplateView):
 
     template_name = 'modernrpc/doc_index.html'
 
-    entry_point = MODERNRPC_DEFAULT_ENTRYPOINT_NAME
+    entry_point = settings.MODERNRPC_DEFAULT_ENTRYPOINT_NAME
     protocol = ALL
     enable_doc = False
     enable_rpc = True
@@ -60,7 +60,7 @@ class RPCEntryPoint(TemplateView):
 
     def get_handler_classes(self):
 
-        handler_classes = [import_string(handler_cls) for handler_cls in MODERNRPC_HANDLERS]
+        handler_classes = [import_string(handler_cls) for handler_cls in settings.MODERNRPC_HANDLERS]
         if self.protocol == ALL:
             return handler_classes
         else:

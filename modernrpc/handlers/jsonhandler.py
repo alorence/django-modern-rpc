@@ -5,7 +5,7 @@ import logging
 from django.http.response import HttpResponse
 from django.utils.module_loading import import_string
 
-from modernrpc import config
+from modernrpc.config import settings
 from modernrpc.exceptions import RPCInternalError, RPCInvalidRequest, RPCParseError
 from modernrpc.handlers.base import RPCHandler
 
@@ -36,14 +36,14 @@ class JSONRPCHandler(RPCHandler):
 
     def loads(self, data):
         try:
-            decoder = import_string(config.MODERNRPC_JSON_DECODER)
+            decoder = import_string(settings.MODERNRPC_JSON_DECODER)
             return json.loads(data, cls=decoder)
         except JSONDecodeError as e:
             raise RPCParseError(str(e))
 
     def dumps(self, obj):
         try:
-            encoder = import_string(config.MODERNRPC_JSON_ENCODER)
+            encoder = import_string(settings.MODERNRPC_JSON_ENCODER)
             return json.dumps(obj, cls=encoder)
         except Exception:
             raise RPCInternalError('Unable to serialize result as valid JSON')

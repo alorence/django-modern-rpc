@@ -1,9 +1,8 @@
 # coding: utf-8
 import pytest
-
+from modernrpc.config import settings
 from modernrpc.core import RPCMethod, get_all_methods, get_method, ALL
 from modernrpc.handlers import XMLRPC, JSONRPC
-from modernrpc.config import MODERNRPC_DEFAULT_ENTRYPOINT_NAME
 from testsite.rpc_methods_stub.not_decorated import full_documented_method
 
 
@@ -15,7 +14,7 @@ def test_method_always_available():
 
     m = RPCMethod(dummy_function, 'dummy_name')
 
-    assert m.available_for_entry_point(MODERNRPC_DEFAULT_ENTRYPOINT_NAME)
+    assert m.available_for_entry_point(settings.MODERNRPC_DEFAULT_ENTRYPOINT_NAME)
     assert m.available_for_entry_point('random_entry_point')
 
     assert m.available_for_protocol(XMLRPC)
@@ -47,7 +46,7 @@ def test_method_jsonrpc_only():
 def test_method_available_for_entry_point():
     m = RPCMethod(dummy_function, 'dummy_name', entry_point='my_entry_point')
 
-    assert not m.available_for_entry_point(MODERNRPC_DEFAULT_ENTRYPOINT_NAME)
+    assert not m.available_for_entry_point(settings.MODERNRPC_DEFAULT_ENTRYPOINT_NAME)
     assert m.available_for_entry_point('my_entry_point')
 
 
