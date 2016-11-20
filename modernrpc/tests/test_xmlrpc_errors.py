@@ -1,13 +1,11 @@
 # coding: utf-8
+import xml.etree.cElementTree as ET
+
 import pytest
 import requests
 from django.utils.six.moves import xmlrpc_client
 from modernrpc.exceptions import RPC_INVALID_REQUEST, RPC_METHOD_NOT_FOUND, RPC_PARSE_ERROR, RPC_INVALID_PARAMS, \
     RPC_CUSTOM_ERROR_BASE, RPC_CUSTOM_ERROR_MAX, RPC_INTERNAL_ERROR
-try:
-    import xml.etree.cElementTree as ET
-except ImportError:
-    import xml.etree.ElementTree as ET
 
 
 def test_xrpc_call_unknown_method(live_server):
