@@ -45,7 +45,9 @@ Features not yet implemented
 -----------
 Quick start
 -----------
-1. Install the library using pip::
+1. Install the library using pip:
+
+.. code:: bash
 
     pip install django-modern-rpc
 

@@ -1,10 +1,14 @@
 Changelog
 =========
 
-Current development
--------------------
+Release 0.4.2 (2016-11-20)
+--------------------------
 - Various performance improvements
 - Better use of logging framework (python builtin) to report errors & exceptions from library and RPC methods
+- Rewritten docstring parser. Markdown and reStructured formatters are still supported to generate HTML documentation
+  for RPC methods. They now have unit tests to validate their behavior.
+- @rpc_method decorator can be used with or without parenthesis (and this feature is tested)
+- System methods have been documented
 
 Release 0.4.1 (2016-11-17)
 --------------------------
