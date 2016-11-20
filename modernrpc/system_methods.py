@@ -4,11 +4,9 @@ from modernrpc.exceptions import RPCInvalidParams, RPCUnknownMethod, RPCExceptio
 from modernrpc.handlers import XMLRPC
 
 
-# TODO: add missing docstring for system methods
-
 @rpc_method(name='system.listMethods')
 def __system_listMethods(**kwargs):
-
+    """Returns a list of all methods available in the current entry point"""
     entry_point = kwargs.get(ENTRY_POINT_KEY)
     protocol = kwargs.get(PROTOCOL_KEY)
 
@@ -19,7 +17,16 @@ def __system_listMethods(**kwargs):
 
 @rpc_method(name='system.methodSignature')
 def __system_methodSignature(method_name, **kwargs):
+    """
+    Returns an array describing the signature of the given method name.
 
+    The result is an array with:
+     - Return type as first elements
+     - Types of method arguments from element 1 to N
+    :param method_name: Name of a method available for current entry point (and protocol)
+    :param kwargs:
+    :return: An array describing types of return values and method arguments
+    """
     entry_point = kwargs.get(ENTRY_POINT_KEY)
     protocol = kwargs.get(PROTOCOL_KEY)
 
@@ -31,7 +38,13 @@ def __system_methodSignature(method_name, **kwargs):
 
 @rpc_method(name='system.methodHelp')
 def __system_methodHelp(method_name, **kwargs):
+    """
+    Returns the documentation of the given method name.
 
+    :param method_name: Name of a method available for current entry point (and protocol)
+    :param kwargs:
+    :return: Documentation text for the RPC method
+    """
     entry_point = kwargs.get(ENTRY_POINT_KEY)
     protocol = kwargs.get(PROTOCOL_KEY)
 
@@ -72,6 +85,7 @@ def __system_multiCall(calls, **kwargs):
             # "Notice that regular return values are always nested inside a one-element array. This allows you to
             # return structs from functions without confusing them with faults."
             results.append([result])
+
         except RPCException as e:
             results.append({
                 'faultCode': e.code,

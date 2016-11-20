@@ -153,7 +153,7 @@ class RPCMethod(object):
             import markdown
             return markdown.markdown(docstring)
 
-        return "<p>{}</p>".format(docstring.replace('\n\n', '</p><p>'))
+        return "<p>{}</p>".format(docstring.replace('\n\n', '</p><p>').replace('\n', '<br/'))
 
     def execute(self, *args, **kwargs):
         """
@@ -357,8 +357,8 @@ def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL):
 
     # If @rpc_method is used without any argument nor parenthesis
     if func is None:
-        def decorator(func):
-            return decorated(func)
+        def decorator(f):
+            return decorated(f)
         return decorator
     # If @rpc_method() is used with parenthesis (with or without arguments)
     return decorated(func)
