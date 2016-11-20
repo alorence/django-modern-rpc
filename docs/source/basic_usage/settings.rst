@@ -2,18 +2,19 @@
 Settings
 ========
 
-In your project's settings, you can override some variable to customize behavior of django-modern-rpc.
+Django-modern-rpc behavior can be customized by defining some values in global ``settings.py``.
+This page show the list of variables and their default values.
 
 Basic configuration
 ===================
-.. autodata:: modernrpc.config.MODERNRPC_METHODS_MODULES
+.. autoattribute:: modernrpc.config.DefaultValues.MODERNRPC_METHODS_MODULES
 
 JSON Serialization and deserialization
 ======================================
 You can configure how JSON-RPC handler will serialize and unserialize data:
 
-.. autodata:: modernrpc.config.MODERNRPC_JSON_DECODER
-.. autodata:: modernrpc.config.MODERNRPC_JSON_ENCODER
+.. autoattribute:: modernrpc.config.DefaultValues.MODERNRPC_JSON_DECODER
+.. autoattribute:: modernrpc.config.DefaultValues.MODERNRPC_JSON_ENCODER
 
 Internally, the default `JSON encoder used is provided by Django <https://github.com/django/django/blob/master/django/core/serializers/json.py#L90>`_,
 it improves the builtin python encoder behavior::
@@ -22,15 +23,15 @@ it improves the builtin python encoder behavior::
 
 XML serialization and deserialization
 =====================================
-.. autodata:: modernrpc.config.MODERNRPC_XMLRPC_ALLOW_NONE
-.. autodata:: modernrpc.config.MODERNRPC_XMLRPC_DEFAULT_ENCODING
-.. autodata:: modernrpc.config.MODERNRPC_XML_USE_BUILTIN_TYPES
+.. autoattribute:: modernrpc.config.DefaultValues.MODERNRPC_XMLRPC_ALLOW_NONE
+.. autoattribute:: modernrpc.config.DefaultValues.MODERNRPC_XMLRPC_DEFAULT_ENCODING
+.. autoattribute:: modernrpc.config.DefaultValues.MODERNRPC_XML_USE_BUILTIN_TYPES
 
-Update handler classes
-======================
-.. autodata:: modernrpc.config.MODERNRPC_HANDLERS
+RPC entry point configuration
+=============================
+.. autoattribute:: modernrpc.config.DefaultValues.MODERNRPC_HANDLERS
+.. autoattribute:: modernrpc.config.DefaultValues.MODERNRPC_DEFAULT_ENTRYPOINT_NAME
 
 Other settings available
 ========================
-.. autodata:: modernrpc.config.MODERNRPC_DEFAULT_ENTRYPOINT_NAME
-.. autodata:: modernrpc.config.MODERNRPC_DOC_FORMAT
+.. autoattribute:: modernrpc.config.DefaultValues.MODERNRPC_DOC_FORMAT
