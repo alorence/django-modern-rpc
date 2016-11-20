@@ -55,9 +55,8 @@ class RPCMethod(object):
         self.accept_kwargs = inspect.func_accepts_kwargs(function)
 
         # Docstring parsing
-        self.raw_docstring = ''
-        self.html_doc = ''
-        self.parse_docstring(function.__doc__)
+        self.raw_docstring = self.parse_docstring(function.__doc__)
+        self.html_doc = self.raw_docstring_to_html(self.raw_docstring)
 
     @property
     def name(self):
@@ -82,6 +81,7 @@ class RPCMethod(object):
         if not content:
             return
 
+        raw_docstring = ''
         # We use the helper defined in django admindocs app to remove indentation chars from docstring,
         # and parse it as title, body, metadata. We don't use metadata for now.
         docstring = trim_docstring(content)
@@ -97,7 +97,7 @@ class RPCMethod(object):
 
             # Empty line
             if not line:
-                self.raw_docstring += '\n'
+                raw_docstring += '\n'
                 continue
 
             param_match = re.match(PARAM_REXP, line)
@@ -136,18 +136,24 @@ class RPCMethod(object):
 
             # Line doesn't match with known args/return regular expression,
             # add the line to raw help text
-            self.raw_docstring += line + '\n'
+            raw_docstring += line + '\n'
+        return raw_docstring
+
+    @staticmethod
+    def raw_docstring_to_html(docstring):
+
+        if not docstring:
+            return ''
 
         if settings.MODERNRPC_DOC_FORMAT.lower() in ('rst', 'reStructred', 'reStructuredText'):
             from docutils.core import publish_parts
-            self.html_doc = publish_parts(self.raw_docstring, writer_name='html')['body']
+            return publish_parts(docstring, writer_name='html')['body']
 
         elif settings.MODERNRPC_DOC_FORMAT.lower() in ('md', 'markdown'):
             import markdown
-            self.html_doc = markdown.markdown(self.raw_docstring)
+            return markdown.markdown(docstring)
 
-        else:
-            self.html_doc = "<p>{}</p>".format(self.raw_docstring.replace('\n\n', '</p><p>'))
+        return "<p>{}</p>".format(docstring.replace('\n\n', '</p><p>'))
 
     def execute(self, *args, **kwargs):
         """
