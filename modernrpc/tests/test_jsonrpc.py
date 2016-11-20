@@ -1,16 +1,16 @@
 # coding: utf-8
 import sys
+
+import pytest
+from dummy_jsonrpc_client import ServerProxy, JsonRpcFault
+from modernrpc.exceptions import RPC_METHOD_NOT_FOUND
+
 try:
     # Python 3
     from json.decoder import JSONDecodeError
 except ImportError:
     # Python 2: json.loads will raise a ValueError when loading json
     JSONDecodeError = ValueError
-
-import pytest
-
-from dummy_jsonrpc_client import ServerProxy, JsonRpcFault
-from modernrpc.exceptions import RPC_METHOD_NOT_FOUND
 
 
 def test_jsrpc_basic_add(live_server):

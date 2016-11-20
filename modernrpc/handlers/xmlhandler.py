@@ -2,19 +2,10 @@
 import logging
 
 from django.http.response import HttpResponse
-
+from django.utils.six.moves import xmlrpc_client
+from modernrpc.config import settings
 from modernrpc.exceptions import RPCParseError, RPCInvalidRequest
 from modernrpc.handlers.base import RPCHandler
-from modernrpc.config import settings
-
-try:
-    # Python 3
-    import xmlrpc.client as xmlrpc_module
-    from xmlrpc.client import ResponseError
-except ImportError:
-    # Python 2
-    import xmlrpclib as xmlrpc_module
-    from xmlrpclib import ResponseError
 
 logger = logging.getLogger(__name__)
 XMLRPC = '__xml_rpc'
@@ -26,7 +17,7 @@ class XMLRPCHandler(RPCHandler):
 
     def __init__(self, request, entry_point):
         super(XMLRPCHandler, self).__init__(request, entry_point)
-        self.marshaller = xmlrpc_module.Marshaller(encoding=settings.MODERNRPC_XMLRPC_DEFAULT_ENCODING,
+        self.marshaller = xmlrpc_client.Marshaller(encoding=settings.MODERNRPC_XMLRPC_DEFAULT_ENCODING,
                                                    allow_none=settings.MODERNRPC_XMLRPC_ALLOW_NONE)
 
     @staticmethod
@@ -38,10 +29,10 @@ class XMLRPCHandler(RPCHandler):
     def loads(self, data):
         try:
             try:
-                return xmlrpc_module.loads(data, use_builtin_types=settings.MODERNRPC_XML_USE_BUILTIN_TYPES)
+                return xmlrpc_client.loads(data, use_builtin_types=settings.MODERNRPC_XML_USE_BUILTIN_TYPES)
             except TypeError:
-                return xmlrpc_module.loads(data, use_datetime=settings.MODERNRPC_XML_USE_BUILTIN_TYPES)
-        except ResponseError as e:
+                return xmlrpc_client.loads(data, use_datetime=settings.MODERNRPC_XML_USE_BUILTIN_TYPES)
+        except xmlrpc_client.ResponseError as e:
             raise RPCInvalidRequest(e)
         except Exception as e:
             # Depending on the concrete parser used in loads, we can't determine wich exception can be raised during
@@ -52,7 +43,7 @@ class XMLRPCHandler(RPCHandler):
     def dumps(self, obj):
 
         # Marshaller has a specific handling of Fault instance. It is given without modification
-        if isinstance(obj, xmlrpc_module.Fault):
+        if isinstance(obj, xmlrpc_client.Fault):
             return self.marshaller.dumps(obj)
 
         # xmlrpc.client.Marshaller (or the Python equivalent) expects a list of objects to dumps.
@@ -94,7 +85,7 @@ class XMLRPCHandler(RPCHandler):
 
         raw_response = '<?xml version="1.0"?>'
         raw_response += '<methodResponse>'
-        raw_response += self.dumps(xmlrpc_module.Fault(exception.code, exception.message))
+        raw_response += self.dumps(xmlrpc_client.Fault(exception.code, exception.message))
         raw_response += '</methodResponse>'
 
         return self.xml_http_response(raw_response)

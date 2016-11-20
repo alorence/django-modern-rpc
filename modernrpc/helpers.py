@@ -1,12 +1,6 @@
 # coding: utf-8
 import datetime
-
-try:
-    # Python 3
-    import xmlrpc.client as xmlrpc_module
-except ImportError:
-    # Python 2
-    import xmlrpclib as xmlrpc_module
+from django.utils.six.moves import xmlrpc_client
 
 
 def get_builtin_date(date, format="%Y-%m-%dT%H:%M:%S", raise_exception=False):
@@ -24,7 +18,7 @@ def get_builtin_date(date, format="%Y-%m-%dT%H:%M:%S", raise_exception=False):
         # Default XML-RPC handler is configured to decode dateTime.iso8601 type
         # to builtin datetime.datetim instance
         return date
-    elif isinstance(date, xmlrpc_module.DateTime):
+    elif isinstance(date, xmlrpc_client.DateTime):
         # If constant MODERNRPC_XML_USE_BUILTIN_TYPES has been set to True
         # in django settings, the date is decoded as DateTime object
         return datetime.datetime.strptime(date.value, "%Y%m%dT%H:%M:%S")

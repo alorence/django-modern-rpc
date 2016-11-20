@@ -1,18 +1,11 @@
 # coding: utf-8
 import pytest
 from django.core.exceptions import ImproperlyConfigured
-
+from django.utils.six.moves import xmlrpc_client
 from modernrpc.core import register_method, rpc_method, register_rpc_method, get_all_method_names, \
     unregister_rpc_method, get_all_methods
 from testsite.rpc_methods_stub.not_decorated import func_a, func_b, func_c, full_documented_method, \
     another_not_decorated
-
-try:
-    # Python 3
-    import xmlrpc.client as xmlrpc_module
-except ImportError:
-    # Python 2
-    import xmlrpclib as xmlrpc_module
 
 
 def test_redundant_names():
@@ -40,12 +33,12 @@ def test_register_twice():
 
 
 def test_not_registered(live_server):
-    client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
+    client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
     result = client.system.listMethods()
 
     assert 'existing_but_not_decorated' not in result
 
-    with pytest.raises(xmlrpc_module.Fault) as excinfo:
+    with pytest.raises(xmlrpc_client.Fault) as excinfo:
         client.existing_but_not_decorated()
     assert "Method not found: existing_but_not_decorated" in str(excinfo.value)
 

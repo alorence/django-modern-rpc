@@ -2,17 +2,12 @@
 import datetime
 import re
 
-try:
-    # Python 3
-    import xmlrpc.client as xmlrpc_module
-except ImportError:
-    # Python 2
-    import xmlrpclib as xmlrpc_module
+from django.utils.six.moves import xmlrpc_client
 
 
 def test_xrpc_bool(live_server):
 
-    client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
+    client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
     result = client.get_true()
 
     assert type(result) == bool
@@ -26,13 +21,13 @@ def test_xrpc_bool(live_server):
 
 def test_xrpc_null(live_server):
 
-    client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
+    client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
     assert client.get_null() is None
 
 
 def test_xrpc_numeric(live_server):
 
-    client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
+    client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
 
     result = client.get_int()
     assert type(result) == int
@@ -49,7 +44,7 @@ def test_xrpc_numeric(live_server):
 
 def test_xrpc_string(live_server):
 
-    client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
+    client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
     result = client.get_string()
 
     # Unlike JSON-RPC, XML-RPC always return a str. That means the result is unicode
@@ -60,7 +55,7 @@ def test_xrpc_string(live_server):
 
 def test_xrpc_input_string(live_server):
 
-    client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
+    client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
     result = client.get_data_type('abcd')
 
     # Python 2 : "<type 'str'>"
@@ -70,7 +65,7 @@ def test_xrpc_input_string(live_server):
 
 def test_xrpc_bytes(live_server):
 
-    client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
+    client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
     result = client.get_bytes()
 
     assert result == b'abcde'
@@ -78,19 +73,19 @@ def test_xrpc_bytes(live_server):
 
 def test_xrpc_date(live_server):
 
-    client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
+    client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
     result = client.get_date()
 
-    assert isinstance(result, xmlrpc_module.DateTime)
+    assert isinstance(result, xmlrpc_client.DateTime)
     assert '19870602' in str(result)
     assert '08:45:00' in str(result)
 
     try:
         # Python 3
-        client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/', use_builtin_types=True)
+        client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/', use_builtin_types=True)
     except TypeError:
         # Python 3
-        client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/', use_datetime=True)
+        client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/', use_datetime=True)
 
     result = client.get_date()
 
@@ -108,7 +103,7 @@ def test_xrpc_date_2(live_server):
 
     date = datetime.datetime(1990, 1, 1, 0, 0, 0)
 
-    client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
+    client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
     result = client.get_data_type(date)
 
     # Python 2 : "<type 'datetime.datetime'>"
@@ -120,10 +115,10 @@ def test_xrpc_date_3(live_server):
 
     try:
         # Python 3
-        client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/', use_builtin_types=True)
+        client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/', use_builtin_types=True)
     except TypeError:
         # Python 3
-        client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/', use_datetime=True)
+        client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/', use_datetime=True)
     date = datetime.datetime(2000, 6, 3, 0, 0, 0)
     result = client.add_one_month(date)
 
@@ -138,7 +133,7 @@ def test_xrpc_date_3(live_server):
 
 def test_xrpc_list(live_server):
 
-    client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
+    client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
     result = client.get_list()
 
     assert type(result) == list
@@ -147,7 +142,7 @@ def test_xrpc_list(live_server):
 
 def test_xrpc_struct(live_server):
 
-    client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
+    client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
     result = client.get_struct()
 
     assert type(result) == dict

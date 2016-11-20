@@ -1,27 +1,20 @@
 # coding: utf-8
 import pytest
 import requests
-
+from django.utils.six.moves import xmlrpc_client
 from modernrpc.exceptions import RPC_INVALID_REQUEST, RPC_METHOD_NOT_FOUND, RPC_PARSE_ERROR, RPC_INVALID_PARAMS, \
     RPC_CUSTOM_ERROR_BASE, RPC_CUSTOM_ERROR_MAX, RPC_INTERNAL_ERROR
-
 try:
     import xml.etree.cElementTree as ET
 except ImportError:
     import xml.etree.ElementTree as ET
-try:
-    # Python 3
-    import xmlrpc.client as xmlrpc_module
-except ImportError:
-    # Python 2
-    import xmlrpclib as xmlrpc_module
 
 
 def test_xrpc_call_unknown_method(live_server):
 
-    client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
+    client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
 
-    with pytest.raises(xmlrpc_module.Fault) as excinfo:
+    with pytest.raises(xmlrpc_client.Fault) as excinfo:
         client.non_existing_method()
 
     assert 'Method not found: non_existing_method' in excinfo.value.faultString
@@ -30,9 +23,9 @@ def test_xrpc_call_unknown_method(live_server):
 
 def test_xrpc_invalid_params(live_server):
 
-    client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
+    client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
 
-    with pytest.raises(xmlrpc_module.Fault) as excinfo:
+    with pytest.raises(xmlrpc_client.Fault) as excinfo:
         client.add(42)
 
     assert 'Invalid parameters' in excinfo.value.faultString
@@ -44,9 +37,9 @@ def test_xrpc_invalid_params(live_server):
 
 def test_xrpc_invalid_params2(live_server):
 
-    client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
+    client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
 
-    with pytest.raises(xmlrpc_module.Fault) as excinfo:
+    with pytest.raises(xmlrpc_client.Fault) as excinfo:
         client.add(42, -51, 98)
 
     assert 'Invalid parameters' in excinfo.value.faultString
@@ -58,9 +51,9 @@ def test_xrpc_invalid_params2(live_server):
 
 def test_xrpc_internal_error(live_server):
 
-    client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
+    client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
 
-    with pytest.raises(xmlrpc_module.Fault) as excinfo:
+    with pytest.raises(xmlrpc_client.Fault) as excinfo:
         client.raise_custom_exception()
 
     assert 'This is a test error' in excinfo.value.faultString
@@ -69,9 +62,9 @@ def test_xrpc_internal_error(live_server):
 
 def test_xrpc_divide_by_zero(live_server):
 
-    client = xmlrpc_module.ServerProxy(live_server.url + '/all-rpc/')
+    client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
 
-    with pytest.raises(xmlrpc_module.Fault) as excinfo:
+    with pytest.raises(xmlrpc_client.Fault) as excinfo:
         client.divide(42, 0)
 
     assert 'Internal error' in excinfo.value.faultString
