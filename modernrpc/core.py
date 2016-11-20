@@ -5,10 +5,10 @@ import logging
 import re
 import warnings
 
+from django.contrib.admindocs.utils import trim_docstring
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import inspect
-
 from modernrpc.config import settings
 from modernrpc.handlers import XMLRPC, JSONRPC
 
@@ -50,11 +50,14 @@ class RPCMethod(object):
         self.return_doc = {}
 
         self.args = inspect.get_func_args(function)
-        raw_docstring = self.parse_docstring(function.__doc__)
-        self.html_doc = self.to_html(raw_docstring)
 
         # Flag the method to accept additional kwargs dict
         self.accept_kwargs = inspect.func_accepts_kwargs(function)
+
+        # Docstring parsing
+        self.raw_docstring = ''
+        self.html_doc = ''
+        self.parse_docstring(function.__doc__)
 
     @property
     def name(self):
@@ -75,23 +78,29 @@ class RPCMethod(object):
         :return: The parsed method description
         :rtype: str
         """
-        raw_docstring = ''
 
-        if content is None:
-            return raw_docstring
+        if not content:
+            return
 
-        lines = content.split('\n')
+        # We use the helper defined in django admindocs app to remove indentation chars from docstring,
+        # and parse it as title, body, metadata. We don't use metadata for now.
+        docstring = trim_docstring(content)
 
         # Define regular expression used to parse docstring
-        PARAM_REXP = r':param ([\w]+):\s?(.*)'
-        RETURN_REXP = r':return:\s?(.*)'
-        PARAM_TYPE_REXP = r':type ([\w]+):\s?(.*)'
-        RETURN_TYPE_REXP = r':rtype:\s?(.*)'
+        PARAM_REXP = r'^:param ([\w]+):\s?(.*)'
+        RETURN_REXP = r'^:return:\s?(.*)'
+        PARAM_TYPE_REXP = r'^:type ([\w]+):\s?(.*)'
+        RETURN_TYPE_REXP = r'^:rtype:\s?(.*)'
 
+        lines = docstring.split('\n')
         for line in lines:
-            stripped_line = line.strip()
 
-            param_match = re.match(PARAM_REXP, stripped_line)
+            # Empty line
+            if not line:
+                self.raw_docstring += '\n'
+                continue
+
+            param_match = re.match(PARAM_REXP, line)
             if param_match:
                 param_name, description = param_match.group(1, 2)
                 if param_name == 'kwargs':
@@ -101,7 +110,7 @@ class RPCMethod(object):
                 self.args_doc[param_name] = doc
                 continue
 
-            param_type_match = re.match(PARAM_TYPE_REXP, stripped_line)
+            param_type_match = re.match(PARAM_TYPE_REXP, line)
             if param_type_match:
                 param_name, param_type = param_type_match.group(1, 2)
                 if param_name == 'kwargs':
@@ -112,13 +121,13 @@ class RPCMethod(object):
                 self.signature.append(param_type)
                 continue
 
-            return_match = re.match(RETURN_REXP, stripped_line)
+            return_match = re.match(RETURN_REXP, line)
             if return_match:
                 return_description = return_match.group(1)
                 self.return_doc['text'] = return_description
                 continue
 
-            return_type_match = re.match(RETURN_TYPE_REXP, stripped_line)
+            return_type_match = re.match(RETURN_TYPE_REXP, line)
             if return_type_match:
                 return_description = return_type_match.group(1)
                 self.return_doc['type'] = return_description
@@ -127,23 +136,18 @@ class RPCMethod(object):
 
             # Line doesn't match with known args/return regular expression,
             # add the line to raw help text
-            raw_docstring += line + '\n'
-
-        return raw_docstring
-
-    def to_html(self, docstring):
-
-        if not docstring:
-            return ''
+            self.raw_docstring += line + '\n'
 
         if settings.MODERNRPC_DOC_FORMAT.lower() in ('rst', 'reStructred', 'reStructuredText'):
             from docutils.core import publish_parts
-            return publish_parts(docstring, writer_name='html')['body']
+            self.html_doc = publish_parts(self.raw_docstring, writer_name='html')['body']
+
         elif settings.MODERNRPC_DOC_FORMAT.lower() in ('md', 'markdown'):
             import markdown
-            return markdown.markdown(docstring)
+            self.html_doc = markdown.markdown(self.raw_docstring)
+
         else:
-            return "<p>{}</p>".format(docstring.replace('\n\n', '</p><p>'))
+            self.html_doc = "<p>{}</p>".format(self.raw_docstring.replace('\n\n', '</p><p>'))
 
     def execute(self, *args, **kwargs):
         """

@@ -97,22 +97,60 @@ def test_arguments_order():
     assert args_names[1] == 'denominator'
 
 
-def my_documented_method():
+def single_line_documented():
     """*italic*, **strong**, normal text"""
     return 111
+
+
+def multi_line_documented_1():
+    """
+    This method has multi-lines documentation.
+
+    The content is indented when raw ``__doc__`` attribute function is read.
+    The indentation should not interfere with semantic interpretation of the docstring.
+    """
+    return 111
+
+
+def multi_line_documented_2():
+    """
+    This method has *multi-lines* **documentation**.
+
+    Here is a quote block:
+
+        abcdef 123456
+
+    """
+    return "abc"
 
 
 def test_html_documentation_markdown(settings):
 
     settings.MODERNRPC_DOC_FORMAT = 'md'
 
-    method = RPCMethod(my_documented_method, "dummy_name")
+    method = RPCMethod(single_line_documented, "dummy_name")
     assert '<em>italic</em>, <strong>strong</strong>, normal text' in method.html_doc
+
+    method = RPCMethod(multi_line_documented_1, "dummy_name_2")
+    assert '<blockquote>' not in method.html_doc
+
+    method = RPCMethod(multi_line_documented_2, "dummy_name_4")
+    assert '<em>multi-lines</em>' in method.html_doc.replace('\n', '')
+    assert '<strong>documentation</strong>' in method.html_doc.replace('\n', '')
+    assert '<pre><code>abcdef 123456</code></pre>' in method.html_doc.replace('\n', '')
 
 
 def test_html_documentation_reST(settings):
 
     settings.MODERNRPC_DOC_FORMAT = 'rst'
 
-    method = RPCMethod(my_documented_method, "dummy_name")
+    method = RPCMethod(single_line_documented, "dummy_name")
     assert '<em>italic</em>, <strong>strong</strong>, normal text' in method.html_doc
+
+    method = RPCMethod(multi_line_documented_1, "dummy_name_1")
+    assert '<blockquote>' not in method.html_doc
+
+    method = RPCMethod(multi_line_documented_2, "dummy_name_3")
+    assert '<em>multi-lines</em>' in method.html_doc.replace('\n', '')
+    assert '<strong>documentation</strong>' in method.html_doc.replace('\n', '')
+    assert '<blockquote>abcdef 123456</blockquote>' in method.html_doc.replace('\n', '')
