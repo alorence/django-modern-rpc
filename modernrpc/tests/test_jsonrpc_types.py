@@ -1,9 +1,10 @@
 # coding: utf-8
 import datetime
-import re
 import sys
 
+import django.utils.six as six
 import pytest
+from django.utils.six import text_type
 from dummy_jsonrpc_client import ServerProxy, JsonRpcFault
 from modernrpc.exceptions import RPC_INTERNAL_ERROR
 
@@ -54,23 +55,22 @@ def test_jsrpc_string(live_server):
 
     # Unlike XML-RPC, JSON-RPC always return a unicode string. That means the type of the result value is
     # 'unicode' in Python 2 and 'str' in python 3. This may be addressed in the future
-    try:
-        # Python 2
-        expected = unicode('abcde')
-    except NameError:
-        # Python 3
-        expected = 'abcde'
+    expected = text_type('abcde')
+
     assert result == expected
     assert type(result) == type(expected)
 
 
-def text_jsrpc_input_string(live_server):
+def test_jsrpc_input_string(live_server):
     client = ServerProxy(live_server.url + '/all-rpc/')
     result = client.get_data_type('abcd')
 
-    # Python 2 : "<type 'str'>"
+    # Python 2 : "<type 'unicode'>"
     # Python 3 : "<class 'str'>"
-    assert re.match(r"<(class|type) 'str'>", result)
+    if six.PY2:
+        assert "<type 'unicode'>" == result
+    else:
+        assert "<class 'str'>" == result
 
 
 def test_jsrpc_bytes(live_server):
@@ -83,7 +83,7 @@ def test_jsrpc_bytes(live_server):
         result = client.get_bytes()
 
         # ... but json.loads will convert that string into an unicode object
-        assert type(result) == unicode  # noqa: F821
+        assert type(result) == text_type
         assert result == 'abcde'
 
     else:
