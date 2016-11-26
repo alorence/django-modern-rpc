@@ -1,12 +1,7 @@
 # coding: utf-8
-import datetime
-import sys
-
-import django.utils.six as six
 import pytest
-from django.utils.six import text_type
+
 from dummy_jsonrpc_client import ServerProxy, ProtocolError
-from modernrpc.exceptions import RPC_INTERNAL_ERROR
 
 
 def test_user_logged(live_server, django_user_model):
