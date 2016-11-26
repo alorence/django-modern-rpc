@@ -18,3 +18,9 @@ def superuser_required(x):
 @rpc_method
 def delete_user_perm_required(x):
     return x
+
+
+@permissions_required(permissions=['auth.delete_user', 'auth.add_user', 'auth.change_user'])
+@rpc_method
+def delete_user_perms_required(x):
+    return x

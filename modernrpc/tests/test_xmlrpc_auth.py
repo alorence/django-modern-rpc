@@ -67,3 +67,36 @@ def test_xrpc_user_has_single_permission(live_server, django_user_model):
     # Now John Doe can call the method
     client = xmlrpc_client.ServerProxy(johndoe_auth_url)
     client.delete_user_perm_required(5)
+
+
+def test_xrpc_user_has_multiple_permissions(live_server, django_user_model):
+
+    jd = django_user_model.objects.create_user('johndoe', email='jd@example.com', password='123456')
+    django_user_model.objects.create_superuser('admin', email='admin@example.com', password='123456')
+
+    orig_url = live_server.url + '/all-rpc/'
+    johndoe_auth_url = orig_url.replace('http://', 'http://johndoe:123456@')
+    admin_auth_url = orig_url.replace('http://', 'http://admin:123456@')
+
+    # Passing superuser credential always works
+    client = xmlrpc_client.ServerProxy(admin_auth_url)
+    assert client.delete_user_perms_required(5) == 5
+
+    # John Doe doesn't have permission to execute the method...
+    with pytest.raises(xmlrpc_client.ProtocolError):
+        client = xmlrpc_client.ServerProxy(johndoe_auth_url)
+        client.delete_user_perms_required(5)
+
+    # Add 1 permission...
+    jd.user_permissions.add(Permission.objects.get_by_natural_key('delete_user', 'auth', 'user'))
+
+    # ... is still not sufficient
+    with pytest.raises(xmlrpc_client.ProtocolError):
+        client = xmlrpc_client.ServerProxy(johndoe_auth_url)
+        client.delete_user_perms_required(5)
+
+    jd.user_permissions.add(Permission.objects.get_by_natural_key('add_user', 'auth', 'user'))
+    jd.user_permissions.add(Permission.objects.get_by_natural_key('change_user', 'auth', 'user'))
+
+    client = xmlrpc_client.ServerProxy(johndoe_auth_url)
+    assert client.delete_user_perms_required(5) == 5
