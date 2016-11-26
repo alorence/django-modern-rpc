@@ -27,7 +27,7 @@ def check_user_is_logged(user):
 
 def check_user_is_admin(user):
     if user:
-        return user.is_admin()
+        return user.is_superuser
     return False
 
 
@@ -47,6 +47,21 @@ def login_required(func=None):
 
     def decorated(function):
         return user_pass_test(function, check_user_is_logged)
+
+    # If @rpc_method is used without any argument nor parenthesis
+    if func is None:
+        def decorator(f):
+            return decorated(f)
+        return decorator
+
+    # If @rpc_method() is used with parenthesis (with or without arguments)
+    return decorated(func)
+
+
+def superuser_required(func=None):
+
+    def decorated(function):
+        return user_pass_test(function, check_user_is_admin)
 
     # If @rpc_method is used without any argument nor parenthesis
     if func is None:
