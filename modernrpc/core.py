@@ -1,4 +1,5 @@
 # coding: utf-8
+import base64
 import collections
 import importlib
 import logging
@@ -6,9 +7,11 @@ import re
 import warnings
 
 from django.contrib.admindocs.utils import trim_docstring
+from django.contrib.auth import authenticate
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import inspect
+
 from modernrpc.config import settings
 from modernrpc.handlers import XMLRPC, JSONRPC
 
@@ -159,13 +162,33 @@ class RPCMethod(object):
         module = importlib.import_module(self.module)
         func = getattr(module, self.func_name)
 
+        # By default, let the AuthenticationMiddleware do the job
+        user = request.user
+
+        if user.is_anonymous():
+            # This was grabbed from https://www.djangosnippets.org/snippets/243/
+            # Thanks to http://stackoverflow.com/a/1087736/1887976
+            if 'HTTP_AUTHORIZATION' in request.META:
+                auth = request.META['HTTP_AUTHORIZATION'].split()
+                if len(auth) == 2:
+                    # NOTE: We are only support basic authentication for now.
+                    if auth[0].lower() == "basic":
+                        uname, passwd = base64.b64decode(auth[1]).decode('utf-8').split(':')
+                        user = authenticate(username=uname, password=passwd)
+
         check_function = getattr(func, 'modernrpc_auth_check_function', None)
 
         if not check_function:
             return True
 
         check_params = getattr(func, 'modernrpc_auth_check_params', None)
-        return check_function(request.user, *check_params)
+        if check_params:
+            if isinstance(check_params, list):
+                return check_function(user, *check_params)
+            else:
+                check_params = [check_params]
+                return check_function(user, *check_params)
+        return check_function(user)
 
     def execute(self, *args, **kwargs):
         """
