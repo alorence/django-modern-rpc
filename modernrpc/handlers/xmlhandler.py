@@ -67,8 +67,8 @@ class XMLRPCHandler(RPCHandler):
         return method_name, params
 
     @staticmethod
-    def xml_http_response(data):
-        response = HttpResponse(data)
+    def xml_http_response(data, http_response_cls=HttpResponse):
+        response = http_response_cls(data)
         response['Content-Type'] = 'text/xml'
         return response
 
@@ -81,11 +81,11 @@ class XMLRPCHandler(RPCHandler):
 
         return self.xml_http_response(raw_response)
 
-    def result_error(self, exception):
+    def result_error(self, exception, http_response_cls=HttpResponse):
 
         raw_response = '<?xml version="1.0"?>'
         raw_response += '<methodResponse>'
         raw_response += self.dumps(xmlrpc_client.Fault(exception.code, exception.message))
         raw_response += '</methodResponse>'
 
-        return self.xml_http_response(raw_response)
+        return self.xml_http_response(raw_response, http_response_cls=http_response_cls)

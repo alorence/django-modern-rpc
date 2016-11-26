@@ -155,6 +155,18 @@ class RPCMethod(object):
 
         return "<p>{}</p>".format(docstring.replace('\n\n', '</p><p>').replace('\n', '<br/'))
 
+    def check_permissions(self, request):
+        module = importlib.import_module(self.module)
+        func = getattr(module, self.func_name)
+
+        check_function = getattr(func, 'modernrpc_auth_check_function', None)
+
+        if not check_function:
+            return True
+
+        check_params = getattr(func, 'modernrpc_auth_check_params', None)
+        return check_function(request.user, *check_params)
+
     def execute(self, *args, **kwargs):
         """
         Call the function encapsulated by the current instance

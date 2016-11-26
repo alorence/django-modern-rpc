@@ -75,8 +75,8 @@ class JSONRPCHandler(RPCHandler):
         return body['method'], body['params']
 
     @staticmethod
-    def json_http_response(data):
-        response = HttpResponse(data)
+    def json_http_response(data, http_response_cls=HttpResponse):
+        response = http_response_cls(data)
         response['Content-Type'] = 'application/json'
         return response
 
@@ -88,7 +88,7 @@ class JSONRPCHandler(RPCHandler):
         }
         return self.json_http_response(self.dumps(result))
 
-    def result_error(self, exception):
+    def result_error(self, exception, http_response_cls=HttpResponse):
         result = {
             'id': self.request_id,
             'jsonrpc': '2.0',
@@ -98,4 +98,4 @@ class JSONRPCHandler(RPCHandler):
             }
         }
 
-        return self.json_http_response(self.dumps(result))
+        return self.json_http_response(self.dumps(result), http_response_cls=http_response_cls)
