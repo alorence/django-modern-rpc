@@ -45,13 +45,13 @@ Features not yet implemented
 -----------
 Quick start
 -----------
-1. Install the library using pip:
+#. Install the library using pip:
 
 .. code:: bash
 
     pip install django-modern-rpc
 
-2. Add it to your Django applications, in ``settings.py``:
+#. Add it to your Django applications, in ``settings.py``:
 
 .. code:: python
 
@@ -61,7 +61,7 @@ Quick start
         #...
     ]
 
-3. Declare an entry point, a view which will generate a correct RPC response depending on the incoming request:
+#. Declare an entry point, a view which will generate a correct RPC response depending on the incoming request:
 
 .. code:: python
 
@@ -74,7 +74,7 @@ Quick start
         url(r'^rpc/', RPCEntryPoint.as_view()),
     ]
 
-4. Decorate the methods you want to make available via RPC calls:
+#. Decorate the methods you want to make available via RPC calls:
 
 .. code:: python
 
@@ -85,7 +85,7 @@ Quick start
     def add(a, b):
         return a + b
 
-5. Declare the list of python modules containing your RPC methods, in ``settings.py``:
+#. Declare the list of python modules containing your RPC methods, in ``settings.py``:
 
 .. code:: python
 
