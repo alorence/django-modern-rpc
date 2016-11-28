@@ -74,7 +74,7 @@ def superuser_required(func=None):
     return decorated(func)
 
 
-def permissions_required(func, permissions):
+def permissions_required(permissions):
     def decorated(function):
         if not permissions:
             raise ImproperlyConfigured('When using @permissions_required() decorator, you must provide the '
@@ -85,5 +85,4 @@ def permissions_required(func, permissions):
 
         return user_pass_test(function, check_user_has_perm, [permissions])
 
-    # If @rpc_method() is used with parenthesis (with or without arguments)
-    return decorated(func)
+    return decorated
