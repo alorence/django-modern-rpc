@@ -39,7 +39,6 @@ def login_required(func=None):
     return decorated(func)
 
 
-
 def check_user_is_superuser(user):
     return user is not None and user.is_superuser
 
