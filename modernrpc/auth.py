@@ -21,27 +21,19 @@ def user_pass_test(func=None, test_function=None, params=None):
 
 
 def check_user_is_logged(user):
-    if user:
-        return not user.is_anonymous()
-    return False
+    return user.is not None and not user.is_anonymous()
 
 
 def check_user_is_admin(user):
-    if user:
-        return user.is_superuser
-    return False
+    return user is not None and user.is_superuser
 
 
 def check_user_has_perm(user, perm):
-    if user:
-        return user.has_perm(perm)
-    return False
+    return user is not None and user.has_perm(perm)
 
 
 def check_user_has_perms(user, perms):
-    if user:
-        return user.has_perms(perms)
-    return False
+    return user is not None and user.has_perms(perms)
 
 
 def login_required(func=None):
