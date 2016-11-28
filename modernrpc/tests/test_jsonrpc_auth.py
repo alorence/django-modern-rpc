@@ -1,6 +1,5 @@
 # coding: utf-8
 import pytest
-from django.contrib.auth.models import Permission
 
 from dummy_jsonrpc_client import ServerProxy, ProtocolError
 
@@ -37,7 +36,7 @@ def test_jsrpc_user_is_admin(live_server, django_user_model):
         client.superuser_required(4)
 
 
-def test_jsrpc_user_has_single_permission(live_server, django_user_model):
+def test_jsrpc_user_has_single_permission(live_server, django_user_model, auth_permissions):
 
     jd = django_user_model.objects.create_user('johndoe', email='jd@example.com', password='123456')
     django_user_model.objects.create_superuser('admin', email='admin@example.com', password='123456')
@@ -52,14 +51,17 @@ def test_jsrpc_user_has_single_permission(live_server, django_user_model):
         client.delete_user_perm_required(5)
 
     # ...until we give him the right permission
-    jd.user_permissions.add(Permission.objects.get_by_natural_key('delete_user', 'auth', 'user'))
+    delete_user_perm = auth_permissions[0]
+    jd.user_permissions.add(delete_user_perm)
 
     # Now John Doe can call the method
     client = ServerProxy(live_server.url + '/all-rpc/', 'johndoe', '123456')
     client.delete_user_perm_required(5)
 
+    jd.user_permissions.clear()
 
-def test_jsrpc_user_has_multiple_permissions(live_server, django_user_model):
+
+def test_jsrpc_user_has_multiple_permissions(live_server, django_user_model, auth_permissions):
 
     jd = django_user_model.objects.create_user('johndoe', email='jd@example.com', password='123456')
     django_user_model.objects.create_superuser('admin', email='admin@example.com', password='123456')
@@ -74,15 +76,16 @@ def test_jsrpc_user_has_multiple_permissions(live_server, django_user_model):
         client.delete_user_perms_required(5)
 
     # Add 1 permission...
-    jd.user_permissions.add(Permission.objects.get_by_natural_key('delete_user', 'auth', 'user'))
+    jd.user_permissions.add(auth_permissions[0])
 
     # ... is still not sufficient
     with pytest.raises(ProtocolError):
         client = ServerProxy(live_server.url + '/all-rpc/', 'johndoe', '123456')
         client.delete_user_perms_required(5)
 
-    jd.user_permissions.add(Permission.objects.get_by_natural_key('add_user', 'auth', 'user'))
-    jd.user_permissions.add(Permission.objects.get_by_natural_key('change_user', 'auth', 'user'))
+    jd.user_permissions.add(auth_permissions[1], auth_permissions[2])
 
     client = ServerProxy(live_server.url + '/all-rpc/', 'johndoe', '123456')
     assert client.delete_user_perms_required(5) == 5
+
+    jd.user_permissions.clear()
