@@ -21,7 +21,7 @@ def user_pass_test(func=None, test_function=None, params=None):
 
 
 def check_user_is_logged(user):
-    return user.is not None and not user.is_anonymous()
+    return user is not None and not user.is_anonymous()
 
 
 def check_user_is_admin(user):
