@@ -1,7 +1,7 @@
 # coding: utf-8
 
 
-def user_pass_test(func=None, test_function=None, params=None):
+def user_pass_test(func, test_function, params=None):
     """Decorator. Specify an RPC method is only available to logged user validating the given test_function"""
 
     def decorated(function):
@@ -9,13 +9,6 @@ def user_pass_test(func=None, test_function=None, params=None):
         function.modernrpc_auth_check_params = params
         return function
 
-    # If @user_pass_test is used without any argument nor parenthesis
-    if func is None:
-        def decorator(f):
-            return decorated(f)
-        return decorator
-
-    # If @user_pass_test() is used with parenthesis (with or without arguments)
     return decorated(func)
 
 
