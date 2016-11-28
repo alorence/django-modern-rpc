@@ -23,17 +23,17 @@ def test_jsrpc_user_is_admin(live_server, django_user_model):
 
     client = ServerProxy(live_server.url + '/all-rpc/', login='admin', password='123456')
     # Admin is OK
-    assert client.superuser_required(5) == 15
+    assert client.logged_superuser_required(5) == 15
 
     with pytest.raises(ProtocolError):
         # JohnDoe don't have sufficient permissions
         client = ServerProxy(live_server.url + '/all-rpc/', login='johndoe', password='123456')
-        client.superuser_required(5)
+        client.logged_superuser_required(5)
 
     with pytest.raises(ProtocolError):
         # Anonymous user don't have sufficient permissions
         client = ServerProxy(live_server.url + '/all-rpc/')
-        client.superuser_required(4)
+        client.logged_superuser_required(4)
 
 
 def test_jsrpc_user_has_single_permission(live_server, django_user_model, auth_permissions):

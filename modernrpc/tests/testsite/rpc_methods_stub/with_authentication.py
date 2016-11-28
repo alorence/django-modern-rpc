@@ -8,9 +8,23 @@ def logged_user_required(x):
     return x*x
 
 
+@login_required()
+@rpc_method
+def logged_user_required_alt(x):
+    """Alternative method, to test coverage for decorator with and without parenthesis"""
+    return x*x
+
+
 @superuser_required
 @rpc_method
-def superuser_required(x):
+def logged_superuser_required(x):
+    return x + 10
+
+
+@superuser_required()
+@rpc_method
+def logged_superuser_required_alt(x):
+    """Alternative method, to test coverage for decorator with and without parenthesis"""
     return x + 10
 
 

@@ -29,17 +29,17 @@ def test_xrpc_user_is_admin(live_server, django_user_model):
 
     client = xmlrpc_client.ServerProxy(admin_auth_url)
     # Admin is OK
-    assert client.superuser_required(5) == 15
+    assert client.logged_superuser_required(5) == 15
 
     with pytest.raises(xmlrpc_client.ProtocolError):
         # JohnDoe don't have sufficient permissions
         client = xmlrpc_client.ServerProxy(johndoe_auth_url)
-        client.superuser_required(5)
+        client.logged_superuser_required(5)
 
     with pytest.raises(xmlrpc_client.ProtocolError):
         # Anonymous user don't have sufficient permissions
         client = xmlrpc_client.ServerProxy(orig_url)
-        client.superuser_required(4)
+        client.logged_superuser_required(4)
 
 
 def test_xrpc_user_has_single_permission(live_server, django_user_model, auth_permissions):
