@@ -70,6 +70,11 @@ def test_xrpc_user_has_single_permission(live_server, django_user_model, auth_pe
 
     jd.user_permissions.clear()
 
+    with pytest.raises(xmlrpc_client.ProtocolError):
+        # Anonymous user don't have sufficient permissions
+        client = xmlrpc_client.ServerProxy(orig_url)
+        client.logged_superuser_required(4)
+
 
 def test_xrpc_user_has_multiple_permissions(live_server, django_user_model, auth_permissions):
 
@@ -103,3 +108,8 @@ def test_xrpc_user_has_multiple_permissions(live_server, django_user_model, auth
     assert client.delete_user_perms_required(5) == 5
 
     jd.user_permissions.clear()
+
+    with pytest.raises(xmlrpc_client.ProtocolError):
+        # Anonymous user don't have sufficient permissions
+        client = xmlrpc_client.ServerProxy(orig_url)
+        client.logged_superuser_required(4)

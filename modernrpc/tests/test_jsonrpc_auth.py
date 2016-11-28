@@ -60,6 +60,11 @@ def test_jsrpc_user_has_single_permission(live_server, django_user_model, auth_p
 
     jd.user_permissions.clear()
 
+    with pytest.raises(ProtocolError):
+        # Anonymous user don't have sufficient permissions
+        client = ServerProxy(live_server.url + '/all-rpc/')
+        client.logged_superuser_required(4)
+
 
 def test_jsrpc_user_has_multiple_permissions(live_server, django_user_model, auth_permissions):
 
@@ -89,3 +94,8 @@ def test_jsrpc_user_has_multiple_permissions(live_server, django_user_model, aut
     assert client.delete_user_perms_required(5) == 5
 
     jd.user_permissions.clear()
+
+    with pytest.raises(ProtocolError):
+        # Anonymous user don't have sufficient permissions
+        client = ServerProxy(live_server.url + '/all-rpc/')
+        client.logged_superuser_required(4)
