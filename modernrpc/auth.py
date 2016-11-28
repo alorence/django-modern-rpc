@@ -3,20 +3,20 @@ from django.core.exceptions import ImproperlyConfigured
 
 
 def user_pass_test(func=None, test_function=None, params=None):
+    """Decorator. Specify an RPC method is only available to logged user validating the given test_function"""
 
     def decorated(function):
-
         function.modernrpc_auth_check_function = test_function
         function.modernrpc_auth_check_params = params
         return function
 
-    # If @rpc_method is used without any argument nor parenthesis
+    # If @user_pass_test is used without any argument nor parenthesis
     if func is None:
         def decorator(f):
             return decorated(f)
         return decorator
 
-    # If @rpc_method() is used with parenthesis (with or without arguments)
+    # If @user_pass_test() is used with parenthesis (with or without arguments)
     return decorated(func)
 
 
@@ -37,36 +37,39 @@ def check_user_has_perms(user, perms):
 
 
 def login_required(func=None):
+    """Decorator. Use it to specify a RPC method is available only to logged users"""
 
     def decorated(function):
         return user_pass_test(function, check_user_is_logged)
 
-    # If @rpc_method is used without any argument nor parenthesis
+    # If @login_required is used without any argument nor parenthesis
     if func is None:
         def decorator(f):
             return decorated(f)
         return decorator
 
-    # If @rpc_method() is used with parenthesis (with or without arguments)
+    # If @login_required() is used with parenthesis
     return decorated(func)
 
 
 def superuser_required(func=None):
-
+    """Decorator. Use it to specify a RPC method is available only to logged superusers"""
     def decorated(function):
         return user_pass_test(function, check_user_is_admin)
 
-    # If @rpc_method is used without any argument nor parenthesis
+    # If @superuser_required is used without any argument nor parenthesis
     if func is None:
         def decorator(f):
             return decorated(f)
         return decorator
 
-    # If @rpc_method() is used with parenthesis (with or without arguments)
+    # If @superuser_required() is used with parenthesis
     return decorated(func)
 
 
 def permissions_required(permissions):
+    """Decorator. Use it to specify a RPC method is available only to logged users with given permissions"""
+
     def decorated(function):
         if not permissions:
             raise ImproperlyConfigured('When using @permissions_required() decorator, you must provide the '
