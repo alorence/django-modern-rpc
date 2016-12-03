@@ -89,3 +89,16 @@ def test_undefined_method():
 
     assert excinfo.value.faultCode == RPC_METHOD_NOT_FOUND
     assert "no such method" in excinfo.value.faultString
+    assert "no such method" in str(excinfo)
+
+
+def test_invalid_response():
+
+    client = ServerProxy("http://echo.jsontest.com/xxx/vvv")
+
+    with pytest.raises(JsonRpcFault) as excinfo:
+        client.invalide.method()
+
+    assert excinfo.value.faultCode == RPC_CUSTOM_ERROR_BASE
+    assert "Invalid JSON reponse" in excinfo.value.faultString
+    assert "Invalid JSON reponse" in str(excinfo)
