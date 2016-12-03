@@ -1,5 +1,7 @@
 # coding: utf-8
 
+from django.utils import six
+
 
 def user_pass_test(func, test_function, params=None):
     """Decorator. Specify an RPC method is only available to logged user validating the given test_function"""
@@ -63,11 +65,13 @@ def permissions_required(permissions):
     """Decorator. Use it to specify a RPC method is available only to logged users with given permissions"""
 
     def decorated(function):
-        if isinstance(permissions, list):
-            # Check many permissions
-            return user_pass_test(function, check_user_has_perms, [permissions])
+        if isinstance(permissions, six.string_types):
+            # Check a single permission
+            return user_pass_test(function, check_user_has_perm, [permissions])
 
-        # Check a single permission
-        return user_pass_test(function, check_user_has_perm, [permissions])
+        # Check many permissions
+        return user_pass_test(function, check_user_has_perms, [permissions])
+
+
 
     return decorated
