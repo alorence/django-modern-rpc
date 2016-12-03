@@ -171,13 +171,7 @@ def test_xrpc_superuser_in_group_A(live_server, superuser):
     assert client.in_group_A_required(4) == 4
 
 
-def test_jsrpc_superuser_in_group_A(live_server, superuser):
-
-    client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/', superuser.username, '123456')
-    assert client.in_group_A_required(4) == 4
-
-
-def test_jsrpc_anon_in_groups(live_server):
+def test_xrpc_anon_in_groups(live_server):
 
     with pytest.raises(xmlrpc_client.ProtocolError):
         # Anonymous user don't have sufficient permissions
@@ -185,7 +179,8 @@ def test_jsrpc_anon_in_groups(live_server):
         client.in_groups_AB_required(4)
 
 
-def test_jsrpc_user_in_groups(live_server, john_doe, group_A, group_B):
+def test_xrpc_user_in_groups(live_server, john_doe, group_A, group_B):
+
     orig_url = live_server.url + '/all-rpc/'
     johndoe_auth_url = orig_url.replace('http://', 'http://{}:123456@'.format(john_doe.username))
 
@@ -205,7 +200,7 @@ def test_jsrpc_user_in_groups(live_server, john_doe, group_A, group_B):
     assert client.in_groups_AB_required(4) == 4
 
 
-def test_jsrpc_superuser_in_groups(live_server, superuser):
+def test_xrpc_superuser_in_groups(live_server, superuser):
 
     orig_url = live_server.url + '/all-rpc/'
     superuser_auth_url = orig_url.replace('http://', 'http://{}:123456@'.format(superuser.username))
