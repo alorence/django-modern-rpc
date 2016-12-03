@@ -137,3 +137,35 @@ def test_jsrpc_superuser_in_group_A(live_server, superuser):
 
     client = ServerProxy(live_server.url + '/all-rpc/', superuser.username, '123456')
     assert client.in_group_A_required(4) == 4
+
+
+def test_jsrpc_anon_in_groups(live_server):
+
+    with pytest.raises(ProtocolError):
+        # Anonymous user don't have sufficient permissions
+        client = ServerProxy(live_server.url + '/all-rpc/')
+        client.in_groups_AB_required(4)
+
+
+def test_jsrpc_user_in_groups(live_server, john_doe, group_A, group_B):
+
+    with pytest.raises(ProtocolError):
+        client = ServerProxy(live_server.url + '/all-rpc/', john_doe.username, '123456')
+        client.in_groups_AB_required(4)
+
+    john_doe.groups.add(group_A)
+
+    with pytest.raises(ProtocolError):
+        client = ServerProxy(live_server.url + '/all-rpc/', john_doe.username, '123456')
+        client.in_groups_AB_required(4)
+
+    john_doe.groups.add(group_B)
+
+    client = ServerProxy(live_server.url + '/all-rpc/', john_doe.username, '123456')
+    assert client.in_groups_AB_required(4) == 4
+
+
+def test_jsrpc_superuser_in_groups(live_server, superuser):
+
+    client = ServerProxy(live_server.url + '/all-rpc/', superuser.username, '123456')
+    assert client.in_groups_AB_required(4) == 4

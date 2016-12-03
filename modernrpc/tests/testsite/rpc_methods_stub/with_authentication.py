@@ -44,3 +44,9 @@ def delete_user_perms_required(x):
 @rpc_method
 def in_group_A_required(x):
     return x
+
+
+@in_groups(groups=['A', 'B'])
+@rpc_method
+def in_groups_AB_required(x):
+    return x
