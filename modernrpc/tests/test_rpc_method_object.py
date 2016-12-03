@@ -82,9 +82,9 @@ def test_get_methods():
 
     assert methods != sorted_methods
     assert len(methods) == len(sorted_methods)
-    for m in methods:
-        if m not in sorted_methods:
-            pytest.fail('Found a method ({}) not referenced in sorted_methods'.format(m))
+    # Ensure all methods from on is referenced in other
+    assert all([method in sorted_methods for method in methods])
+    assert all([method in methods for method in sorted_methods])
 
 
 def test_arguments_order():
