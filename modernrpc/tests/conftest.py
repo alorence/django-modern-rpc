@@ -24,3 +24,13 @@ def auth_permissions(transactional_db):
                                              codename='change_user', name="Can change user")
 
     return p1, p2, p3
+
+
+@pytest.fixture
+def john_doe(django_user_model, transactional_db):
+    return django_user_model.objects.create_user('johndoe', email='jd@example.com', password='123456')
+
+
+@pytest.fixture
+def superuser(django_user_model, transactional_db):
+    return django_user_model.objects.create_superuser('admin', email='admin@example.com', password='123456')
