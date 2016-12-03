@@ -83,7 +83,8 @@ def check_user_in_group(user, group):
 
 def check_user_in_groups(user, groups):
     groups_names = [group.name if isinstance(group, Group) else group for group in groups]
-    return user.is_superuser or all(group_name in user.groups.values_list('name', flat=True) for group_name in groups_names)
+    return user.is_superuser or\
+        all(group_name in user.groups.values_list('name', flat=True) for group_name in groups_names)
 
 
 def in_groups(groups):
@@ -96,6 +97,5 @@ def in_groups(groups):
 
         # Check many permissions
         return user_pass_test(function, check_user_in_groups, [groups])
-
 
     return decorated
