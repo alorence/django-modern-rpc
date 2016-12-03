@@ -20,7 +20,7 @@ class JsonRpcFault(Exception):
         self.faultString = faultString
         self.extra = extra
 
-    def __repr__(self):
+    def __str__(self):
         return "Error {}: {}".format(self.faultCode, self.faultString)
 
 
