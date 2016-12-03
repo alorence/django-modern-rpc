@@ -109,3 +109,31 @@ def test_jsrpc_superuser_has_multiple_permissions(live_server, superuser):
     # Passing superuser credential always works
     client = ServerProxy(live_server.url + '/all-rpc/', superuser.username, '123456')
     assert client.delete_user_perms_required(5) == 5
+
+
+def test_jsrpc_anon_in_group_A(live_server):
+
+    with pytest.raises(ProtocolError):
+        # Anonymous user don't have sufficient permissions
+        client = ServerProxy(live_server.url + '/all-rpc/')
+        client.in_group_A_required(4)
+
+
+def test_jsrpc_user_in_group_A(live_server, john_doe, group_A):
+
+    with pytest.raises(ProtocolError):
+        # John Doe doesn't have permission to execute the method...
+        client = ServerProxy(live_server.url + '/all-rpc/', john_doe.username, '123456')
+        client.in_group_A_required(4)
+
+    # ...until we put him int the right group
+    john_doe.groups.add(group_A)
+
+    client = ServerProxy(live_server.url + '/all-rpc/', john_doe.username, '123456')
+    assert client.in_group_A_required(4) == 4
+
+
+def test_jsrpc_superuser_in_group_A(live_server, superuser):
+
+    client = ServerProxy(live_server.url + '/all-rpc/', superuser.username, '123456')
+    assert client.in_group_A_required(4) == 4

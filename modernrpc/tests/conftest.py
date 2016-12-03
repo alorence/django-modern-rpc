@@ -1,6 +1,6 @@
 # coding: utf-8
 import pytest
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
 
 
@@ -34,3 +34,15 @@ def john_doe(django_user_model, transactional_db):
 @pytest.fixture
 def superuser(django_user_model, transactional_db):
     return django_user_model.objects.create_superuser('admin', email='admin@example.com', password='123456')
+
+
+@pytest.fixture
+def group_A(transactional_db):
+    group, _ = Group.objects.get_or_create(name='A')
+    return group
+
+
+@pytest.fixture
+def group_B(transactional_db):
+    group, _ = Group.objects.get_or_create(name='B')
+    return group

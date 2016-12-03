@@ -1,5 +1,6 @@
 # coding: utf-8
 
+from django.contrib.auth.models import Group
 from django.utils import six
 
 
@@ -72,6 +73,29 @@ def permissions_required(permissions):
         # Check many permissions
         return user_pass_test(function, check_user_has_perms, [permissions])
 
+    return decorated
+
+
+def check_user_in_group(user, group):
+    group_name = group.name if isinstance(group, Group) else group
+    return user.is_superuser or group_name in user.groups.values_list('name', flat=True)
+
+
+def check_user_in_groups(user, groups):
+    groups_names = [group.name if isinstance(group, Group) else group for group in groups]
+    return user.is_superuser or all(group_name in user.groups.values_list('name', flat=True) for group_name in groups_names)
+
+
+def in_groups(groups):
+    """Decorator. Use it to specify a RPC method is available only to logged users with given permissions"""
+
+    def decorated(function):
+        if isinstance(groups, six.string_types):
+            # Check a single permission
+            return user_pass_test(function, check_user_in_group, [groups])
+
+        # Check many permissions
+        return user_pass_test(function, check_user_in_groups, [groups])
 
 
     return decorated

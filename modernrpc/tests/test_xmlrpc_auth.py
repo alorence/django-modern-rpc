@@ -135,3 +135,37 @@ def test_xrpc_superuser_has_multiple_permissions(live_server, superuser):
     # Passing superuser credential always works
     client = xmlrpc_client.ServerProxy(superuser_auth_url)
     assert client.delete_user_perms_required(5) == 5
+
+
+def test_xrpc_anon_in_group_A(live_server):
+
+    with pytest.raises(xmlrpc_client.ProtocolError):
+        # Anonymous user don't have sufficient permissions
+        client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
+        client.in_group_A_required(4)
+
+
+def test_xrpc_user_in_group_A(live_server, john_doe, group_A):
+
+    orig_url = live_server.url + '/all-rpc/'
+    johndoe_auth_url = orig_url.replace('http://', 'http://{}:123456@'.format(john_doe.username))
+
+    with pytest.raises(xmlrpc_client.ProtocolError):
+        # John Doe doesn't have permission to execute the method...
+        client = xmlrpc_client.ServerProxy(johndoe_auth_url)
+        client.in_group_A_required(4)
+
+    # ...until we put him int the right group
+    john_doe.groups.add(group_A)
+
+    client = xmlrpc_client.ServerProxy(johndoe_auth_url)
+    assert client.in_group_A_required(4) == 4
+
+
+def test_xrpc_superuser_in_group_A(live_server, superuser):
+
+    orig_url = live_server.url + '/all-rpc/'
+    superuser_auth_url = orig_url.replace('http://', 'http://{}:123456@'.format(superuser.username))
+
+    client = xmlrpc_client.ServerProxy(superuser_auth_url)
+    assert client.in_group_A_required(4) == 4
