@@ -1,4 +1,4 @@
-from modernrpc.auth import login_required, superuser_required, permissions_required, in_groups
+from modernrpc.auth import login_required, superuser_required, permissions_required, group_member_required
 from modernrpc.core import rpc_method
 
 
@@ -40,13 +40,13 @@ def delete_user_perms_required(x):
     return x
 
 
-@in_groups(groups='A')
+@group_member_required(groups='A')
 @rpc_method
 def in_group_A_required(x):
     return x
 
 
-@in_groups(groups=['A', 'B'])
+@group_member_required(groups=['A', 'B'])
 @rpc_method
 def in_groups_AB_required(x):
     return x

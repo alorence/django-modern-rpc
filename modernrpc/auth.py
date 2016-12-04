@@ -87,7 +87,7 @@ def check_user_in_groups(user, groups):
         all(group_name in user.groups.values_list('name', flat=True) for group_name in groups_names)
 
 
-def in_groups(groups):
+def group_member_required(groups):
     """Decorator. Use it to specify a RPC method is available only to logged users with given permissions"""
 
     def decorated(function):
