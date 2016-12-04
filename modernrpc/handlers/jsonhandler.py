@@ -55,7 +55,7 @@ class JSONRPCHandler(RPCHandler):
         body = self.loads(data)
 
         if not isinstance(body, dict):
-            raise RPCParseError('Invalid request: the object must be a struct')
+            raise RPCInvalidRequest('Payload object must be a struct')
 
         if 'id' in body:
             self.request_id = body['id']
@@ -70,7 +70,7 @@ class JSONRPCHandler(RPCHandler):
             raise RPCInvalidRequest('Missing parameter "params"')
 
         if body['jsonrpc'] != '2.0':
-            raise RPCInvalidRequest('Invalid request. The attribute "jsonrpc" must contains "2.0"')
+            raise RPCInvalidRequest('The attribute "jsonrpc" must contains "2.0"')
 
         return body['method'], body['params']
 

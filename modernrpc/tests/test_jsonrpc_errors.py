@@ -1,8 +1,10 @@
 # coding: utf-8
 import json
+import random
 
 import pytest
 import requests
+from django.core.serializers.json import DjangoJSONEncoder
 
 from dummy_jsonrpc_client import ServerProxy, JsonRpcFault
 from modernrpc.exceptions import RPC_INVALID_REQUEST, RPC_METHOD_NOT_FOUND, RPC_PARSE_ERROR, RPC_INVALID_PARAMS, \
@@ -20,26 +22,95 @@ def test_jsrpc_call_unknown_method(live_server):
     assert excinfo.value.faultCode == RPC_METHOD_NOT_FOUND
 
 
-def test_jsrpc_call_bad_request(live_server):
+def test_jsonrpc_invalid_request_0(live_server):
+
+    headers = {'content-type': 'application/json'}
+    payload = ["method", 'add', "params", [5, 6], "jsonrpc", "2.0", "id", random.randint(1, 1000)]
+    req_data = json.dumps(payload, cls=DjangoJSONEncoder)
+    response = requests.post(live_server.url + '/all-rpc/', data=req_data, headers=headers).json()
+
+    assert 'Payload object must be a struct' in response['error']['message']
+    assert RPC_INVALID_REQUEST == response['error']['code']
+
+
+def test_jsonrpc_invalid_request_1(live_server):
 
     headers = {'content-type': 'application/json'}
     payload = {
-        "method": "add",
-        "params": [],
+        # "method": 'add',
+        "params": [5, 6],
         "jsonrpc": "2.0",
-        # Missing field 'id' in this request
+        "id": random.randint(1, 1000),
     }
-    req_data = json.dumps(payload)
+    req_data = json.dumps(payload, cls=DjangoJSONEncoder)
     response = requests.post(live_server.url + '/all-rpc/', data=req_data, headers=headers).json()
 
-    assert 'error' in response
-    assert 'result' not in response
-    assert response['id'] is None
-    error = response['error']
+    assert 'Missing parameter "method"' in response['error']['message']
+    assert RPC_INVALID_REQUEST == response['error']['code']
 
-    assert 'Invalid request' in error['message']
-    assert 'id' in error['message']
-    assert error['code'] == RPC_INVALID_REQUEST
+
+def test_jsonrpc_invalid_request_2(live_server):
+
+    headers = {'content-type': 'application/json'}
+    payload = {
+        "method": 'add',
+        # "params": [5, 6],
+        "jsonrpc": "2.0",
+        "id": random.randint(1, 1000),
+    }
+    req_data = json.dumps(payload, cls=DjangoJSONEncoder)
+    response = requests.post(live_server.url + '/all-rpc/', data=req_data, headers=headers).json()
+
+    assert 'Missing parameter "params"' in response['error']['message']
+    assert RPC_INVALID_REQUEST == response['error']['code']
+
+
+def test_jsonrpc_invalid_request_3(live_server):
+
+    headers = {'content-type': 'application/json'}
+    payload = {
+        "method": 'add',
+        "params": [5, 6],
+        # "jsonrpc": "2.0",
+        "id": random.randint(1, 1000),
+    }
+    req_data = json.dumps(payload, cls=DjangoJSONEncoder)
+    response = requests.post(live_server.url + '/all-rpc/', data=req_data, headers=headers).json()
+
+    assert 'Missing parameter "jsonrpc"' in response['error']['message']
+    assert RPC_INVALID_REQUEST == response['error']['code']
+
+
+def test_jsonrpc_invalid_request_3_bis(live_server):
+
+    headers = {'content-type': 'application/json'}
+    payload = {
+        "method": 'add',
+        "params": [5, 6],
+        "jsonrpc": "1.0",
+        "id": random.randint(1, 1000),
+    }
+    req_data = json.dumps(payload, cls=DjangoJSONEncoder)
+    response = requests.post(live_server.url + '/all-rpc/', data=req_data, headers=headers).json()
+
+    assert 'The attribute "jsonrpc" must contains "2.0"' in response['error']['message']
+    assert RPC_INVALID_REQUEST == response['error']['code']
+
+
+def test_jsonrpc_invalid_request_4(live_server):
+
+    headers = {'content-type': 'application/json'}
+    payload = {
+        "method": 'add',
+        "params": [5, 6],
+        "jsonrpc": "2.0",
+        # "id": random.randint(1, 1000),
+    }
+    req_data = json.dumps(payload, cls=DjangoJSONEncoder)
+    response = requests.post(live_server.url + '/all-rpc/', data=req_data, headers=headers).json()
+
+    assert 'Missing parameter "id"' in response['error']['message']
+    assert RPC_INVALID_REQUEST == response['error']['code']
 
 
 def test_jsrpc_no_content_type(live_server):

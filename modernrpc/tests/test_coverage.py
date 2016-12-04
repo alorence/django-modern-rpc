@@ -2,6 +2,7 @@
 import datetime
 
 import pytest
+
 from modernrpc.config import settings
 from modernrpc.exceptions import RPCException
 from modernrpc.handlers.base import RPCHandler
@@ -11,10 +12,6 @@ from test_rpc_method_object import dummy_function, single_line_documented, multi
 from testsite.rpc_methods_stub.generic import existing_but_not_decorated
 from testsite.rpc_methods_stub.not_decorated import full_documented_method, func_a, func_b, func_c, \
     another_not_decorated
-
-
-class MyBadHandler(RPCHandler):
-    pass
 
 
 def test_not_called_functions():
@@ -32,6 +29,10 @@ def test_not_called_functions():
     multi_line_documented_1()
     multi_line_documented_2()
     assert True
+
+
+class MyBadHandler(RPCHandler):
+    pass
 
 
 def test_bad_handler_definition(rf):
