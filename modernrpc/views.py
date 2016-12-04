@@ -2,7 +2,7 @@
 import logging
 
 from django.core.exceptions import ImproperlyConfigured
-from django.http.response import HttpResponse
+from django.http.response import HttpResponse, HttpResponseForbidden
 from django.utils.decorators import method_decorator
 from django.utils.module_loading import import_string
 from django.views.decorators.csrf import csrf_exempt
@@ -95,6 +95,13 @@ class RPCEntryPoint(TemplateView):
                 if not rpc_method:
                     logger.warning('Unknown RPC method: {}'.format(method))
                     raise RPCUnknownMethod(method)
+
+                logger.debug('Check authentication / permissions for method {} and user {}'
+                             .format(method, request.user))
+
+                if not rpc_method.check_permissions(request):
+                    logger.info('')
+                    return handler.result_error(RPCInternalError('Invalid authentication'), HttpResponseForbidden)
 
                 logger.debug('RPC method {} will be executed'.format(method))
 

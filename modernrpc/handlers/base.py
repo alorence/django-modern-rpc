@@ -45,5 +45,5 @@ class RPCHandler(object):
     def result_success(self, data):
         raise NotImplementedError("You must override result_success()")
 
-    def result_error(self, exception):
+    def result_error(self, exception, http_response_cls=None):
         raise NotImplementedError("You must override result_error()")

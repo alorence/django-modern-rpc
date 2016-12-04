@@ -24,6 +24,10 @@ class JsonRpcFault(Exception):
         return "Error {}: {}".format(self.faultCode, self.faultString)
 
 
+class ProtocolError(Exception):
+    pass
+
+
 class _RpcCall:
 
     def __init__(self, send, name):
@@ -39,8 +43,10 @@ class _RpcCall:
 
 class ServerProxy:
 
-    def __init__(self, url):
+    def __init__(self, url, login=None, password=None):
         self.url = url
+        self.login = login
+        self.password = password
 
     def send_payload(self, methodName, params=None):
         headers = {'content-type': 'application/json'}
@@ -50,9 +56,16 @@ class ServerProxy:
             "jsonrpc": "2.0",
             "id": random.randint(1, 1000),
         }
+        auth = None
+        if self.login and self.password:
+            auth = (self.login, self.password)
         req_data = json.dumps(payload, cls=django.core.serializers.json.DjangoJSONEncoder)
-        response = requests.post(self.url, data=req_data, headers=headers).json()
+        result = requests.post(self.url, data=req_data, headers=headers, auth=auth)
 
+        if result.status_code != 200:
+            raise ProtocolError
+
+        response = result.json()
         if 'error' in response:
             raise JsonRpcFault(response['error']['code'], response['error']['message'])
         elif 'result' in response:

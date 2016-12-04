@@ -12,6 +12,7 @@ from test_rpc_method_object import dummy_function, single_line_documented, multi
 from testsite.rpc_methods_stub.generic import existing_but_not_decorated
 from testsite.rpc_methods_stub.not_decorated import full_documented_method, func_a, func_b, func_c, \
     another_not_decorated
+from testsite.rpc_methods_stub.with_authentication import logged_user_required_alt, logged_superuser_required_alt
 
 
 def test_not_called_functions():
@@ -28,6 +29,8 @@ def test_not_called_functions():
     single_line_documented()
     multi_line_documented_1()
     multi_line_documented_2()
+    logged_user_required_alt(20)
+    logged_superuser_required_alt(6)
     assert True
 
 
