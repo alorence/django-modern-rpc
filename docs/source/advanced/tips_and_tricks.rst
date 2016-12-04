@@ -5,21 +5,30 @@ Tips and tricks
 Access the current request
 --------------------------
 
-If at some point, if you need to access the current request object from your RPC method, simply add ``**kwargs``
-in the function arguments. The request, and some other variables will be passed through this dict to your function.
+If you need to access some environment from your RPC method, simply adds ``**kwargs`` in function parameters. When the
+function will be executed, a dict will be passed as argument, providing the following information:
+
+ - Current HTTP request, as proper Django HttpRequest instance
+ - Current protocol (JSON-RPC or XML-RPC)
+ - Current entry point name
+ - Current handler instance
+
+See the example to see how to access these values:
 
 .. code:: python
 
-    from modernrpc.settings import MODERNRPC_REQUEST_PARAM_NAME,
-                                   MODERNRPC_PROTOCOL_PARAM_NAME,
-                                   MODERNRPC_ENTRY_POINT_PARAM_NAME
+    from modernrpc.core import REQUEST_KEY, ENTRY_POINT_KEY, PROTOCOL_KEY, HANDLER_KEY
+
 
     def content_type_printer(**kwargs):
-        # The other available variables are:
-        # protocol = kwargs.get(MODERNRPC_PROTOCOL_PARAM_NAME)
-        # entry_point = kwargs.get(MODERNRPC_ENTRY_POINT_PARAM_NAME)
 
         # Get the current request
-        request = kwargs.get(MODERNRPC_REQUEST_PARAM_NAME)
+        request = kwargs.get(REQUEST_KEY)
+
+        # Other available objects are:
+        # protocol = kwargs.get(PROTOCOL_KEY)
+        # entry_point = kwargs.get(ENTRY_POINT_KEY)
+        # handler = kwargs.get(HANDLER_KEY)
+
         # Return the content-type of the current request
         return request.META.get('Content-Type', '')
