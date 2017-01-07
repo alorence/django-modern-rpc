@@ -160,18 +160,18 @@ class RPCMethod(object):
         module = importlib.import_module(self.module)
         func = getattr(module, self.func_name)
 
-        check_functions = getattr(func, 'modernrpc_auth_check_functions', None)
+        predicates = getattr(func, 'modernrpc_auth_predicates', None)
 
-        if not check_functions:
+        if not predicates:
             return True
 
-        check_params = getattr(func, 'modernrpc_auth_check_params', None)
+        predicates_params = getattr(func, 'modernrpc_auth_predicates_params', None)
 
-        if not isinstance(check_params, list):
-            check_params = [check_params]
-
-        # At least 1 of the authentication checks return True
-        return any(check_function(request, *check_params[i]) for i, check_function in enumerate(check_functions))
+        # At least 1 of the registered authentication predicate return True
+        return any(
+            predicate(request, *predicates_params[i])
+            for i, predicate in enumerate(predicates)
+        )
 
     def execute(self, *args, **kwargs):
         """
