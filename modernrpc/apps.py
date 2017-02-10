@@ -55,6 +55,7 @@ class ModernRpcConfig(AppConfig):
                 unregister_rpc_method(useless_method)
 
         else:
-            warnings.warn("MODERNRPC_METHODS_MODULES is not set. Django-modern-rpc is not able to lookup for RPC "
-                          "methos in your code. Please define settings.MODERNRPC_METHODS_MODULES to indicate "
-                          "the modules that contains your methods.", category=Warning)
+            txt = "settings.MODERNRPC_METHODS_MODULES is not set. Django-modern-rpc cannot determine which python " \
+                  "modules define your RPC methods. Please define settings.MODERNRPC_METHODS_MODULES to indicate the " \
+                  "modules that contains your methods."
+            warnings.warn(txt, category=Warning)

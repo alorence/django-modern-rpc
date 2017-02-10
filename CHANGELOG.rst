@@ -1,6 +1,10 @@
 Changelog
 =========
 
+Current development
+-------------------
+- Typo fixes
+
 Release 0.4.2 (2016-11-20)
 --------------------------
 - Various performance improvements
