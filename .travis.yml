@@ -2,6 +2,7 @@ language: python
 
 # List of Python and Django version combinations to test
 python:
+- 3.6
 - 3.5
 - 3.4
 - 3.3
