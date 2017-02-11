@@ -6,6 +6,10 @@ Current development
 - Typo fixe
 - Settings variable ``MODERNRPC_XML_USE_BUILTIN_TYPES`` is now deprecated in favor of
   ``MODERNRPC_XMLRPC_USE_BUILTIN_TYPES``
+- HTTP "Basic Auth" support: it is now possible to define RPC methods available only to specific users. The control can
+  be done on various user attributes: group, permission, superuser status, etc.
+  Added features can be used to setup any authentication method based on incoming request, if Basic Auth is not
+  sufficient.
 
 Release 0.4.2 (2016-11-20)
 --------------------------

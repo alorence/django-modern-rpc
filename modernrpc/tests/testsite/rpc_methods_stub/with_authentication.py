@@ -51,3 +51,10 @@ def in_group_A_required(x):
 @rpc_method
 def in_groups_AB_required(x):
     return x
+
+
+@http_basic_auth_permissions_required(permissions='auth.delete_user')
+@http_basic_auth_group_member_required(groups=['A', 'B'])
+@rpc_method
+def has_permission_or_in_groups(x):
+    return x
