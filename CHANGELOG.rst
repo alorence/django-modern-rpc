@@ -3,7 +3,9 @@ Changelog
 
 Current development
 -------------------
-- Typo fixes
+- Typo fixe
+- Settings variable ``MODERNRPC_XML_USE_BUILTIN_TYPES`` is now deprecated in favor of
+  ``MODERNRPC_XMLRPC_USE_BUILTIN_TYPES``
 
 Release 0.4.2 (2016-11-20)
 --------------------------

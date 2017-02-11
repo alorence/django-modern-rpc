@@ -36,9 +36,10 @@ XML-RPC transport define a type to handle dates and date/times: ``dateTime.iso86
 
  - Input date (RPC method argument)
 
-   - If ``settings.MODERNRPC_XML_USE_BUILTIN_TYPES = True (default)``, the date will be converted to ``datetime.datetime``
-   - If ``settings.MODERNRPC_XML_USE_BUILTIN_TYPES = False``, the date will be converted to ``xmlrpc.client.DateTime``
-     (Python 3) or ``xmlrpclib.DateTime`` (Python 2)
+   - If ``settings.MODERNRPC_XMLRPC_USE_BUILTIN_TYPES = True (default)``, the date will be converted to
+     ``datetime.datetime``
+   - If ``settings.MODERNRPC_XMLRPC_USE_BUILTIN_TYPES = False``, the date will be converted to
+     ``xmlrpc.client.DateTime`` (Python 3) or ``xmlrpclib.DateTime`` (Python 2)
 
  - Output date (RPC method return type)
 

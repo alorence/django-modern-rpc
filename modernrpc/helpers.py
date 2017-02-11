@@ -19,8 +19,8 @@ def get_builtin_date(date, format="%Y-%m-%dT%H:%M:%S", raise_exception=False):
         # to builtin datetime.datetim instance
         return date
     elif isinstance(date, xmlrpc_client.DateTime):
-        # If constant MODERNRPC_XML_USE_BUILTIN_TYPES has been set to True
-        # in django settings, the date is decoded as DateTime object
+        # If constant settings.MODERNRPC_XMLRPC_USE_BUILTIN_TYPES has been set to True
+        # the date is decoded as DateTime object
         return datetime.datetime.strptime(date.value, "%Y%m%dT%H:%M:%S")
     else:
         # If date is given as str (or unicode for python 2)

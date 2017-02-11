@@ -17,6 +17,7 @@ class XMLRPCHandler(RPCHandler):
 
     def __init__(self, request, entry_point):
         super(XMLRPCHandler, self).__init__(request, entry_point)
+        # Marshaller is used to dumps data into valid XML-RPC response. See self.dumps() for more info
         self.marshaller = xmlrpc_client.Marshaller(encoding=settings.MODERNRPC_XMLRPC_DEFAULT_ENCODING,
                                                    allow_none=settings.MODERNRPC_XMLRPC_ALLOW_NONE)
 
@@ -29,15 +30,17 @@ class XMLRPCHandler(RPCHandler):
     def loads(self, data):
         try:
             try:
-                return xmlrpc_client.loads(data, use_builtin_types=settings.MODERNRPC_XML_USE_BUILTIN_TYPES)
+                # Python 3
+                return xmlrpc_client.loads(data, use_builtin_types=settings.MODERNRPC_XMLRPC_USE_BUILTIN_TYPES)
             except TypeError:
-                return xmlrpc_client.loads(data, use_datetime=settings.MODERNRPC_XML_USE_BUILTIN_TYPES)
+                # Python 2
+                return xmlrpc_client.loads(data, use_datetime=settings.MODERNRPC_XMLRPC_USE_BUILTIN_TYPES)
         except xmlrpc_client.ResponseError as e:
             raise RPCInvalidRequest(e)
         except Exception as e:
-            # Depending on the concrete parser used in loads, we can't determine wich exception can be raised during
+            # Depending on the concrete parser used in loads, we can't determine which exception can be raised during
             # XML loading. So we catch the generic Exception and a RpcParseError, since the error is mostly related
-            # to request XML parsing.
+            # to XML request parsing.
             raise RPCParseError(e)
 
     def dumps(self, obj):
