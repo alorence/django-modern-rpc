@@ -5,7 +5,7 @@ import logging
 from django.http.response import HttpResponse
 from django.utils.module_loading import import_string
 
-from modernrpc.config import settings
+from modernrpc.conf import settings
 from modernrpc.exceptions import RPCInternalError, RPCInvalidRequest, RPCParseError
 from modernrpc.handlers.base import RPCHandler
 

@@ -3,7 +3,7 @@ import logging
 
 from django.http.response import HttpResponse
 from django.utils.six.moves import xmlrpc_client
-from modernrpc.config import settings
+from modernrpc.conf import settings
 from modernrpc.exceptions import RPCParseError, RPCInvalidRequest
 from modernrpc.handlers.base import RPCHandler
 

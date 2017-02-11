@@ -10,7 +10,7 @@ from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import inspect
 
-from modernrpc.config import settings
+from modernrpc.conf import settings
 from modernrpc.handlers import XMLRPC, JSONRPC
 
 logger = logging.getLogger(__name__)

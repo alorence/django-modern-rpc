@@ -3,7 +3,7 @@ import datetime
 
 import pytest
 
-from modernrpc.config import settings
+from modernrpc.conf import settings
 from modernrpc.exceptions import RPCException
 from modernrpc.handlers.base import RPCHandler
 from test_methods_register import another_dummy_method
