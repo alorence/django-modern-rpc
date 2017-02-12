@@ -1,4 +1,4 @@
-from django.conf import settings as project_settings
+from django.conf import settings as user_settings
 
 from modernrpc.conf import default_settings
 
@@ -6,7 +6,7 @@ from modernrpc.conf import default_settings
 class ModernRpcSettings:
 
     def __getattr__(self, item):
-        return getattr(project_settings, item, getattr(default_settings, item))
+        return getattr(user_settings, item, getattr(default_settings, item))
 
 
 settings = ModernRpcSettings()

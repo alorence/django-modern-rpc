@@ -4,37 +4,36 @@ from django.utils import six
 
 
 # Decorator
-def set_authentication_predicate(func, predicate, params=None):
+def set_authentication_predicate(rpc_method, predicate, params=None):
     """
-    Assign a new authentication predicate to a RPC method.
+    Assign a new authentication predicate to an RPC method.
     This is the most generic decorator used to implement authentication.
     Predicate is a standard function with the following signature:
 
     .. code:: python
 
        def my_predicate(request, *params):
-           # Do the work of authenticating client, using info from request object
-           result = True
-           return result
+           # Inspect request and extract required information
 
-    :param func:
+           if <condition>:
+               # The condition to execute the method are met
+               return True
+           return False
+
+    :param rpc_method:
     :param predicate:
     :param params:
     :return:
     """
-    def decorated(rpc_method):
+    if hasattr(rpc_method, 'modernrpc_auth_predicates'):
+        rpc_method.modernrpc_auth_predicates.append(predicate)
+        rpc_method.modernrpc_auth_predicates_params.append(params)
 
-        if hasattr(rpc_method, 'modernrpc_auth_predicates'):
-            rpc_method.modernrpc_auth_predicates.append(predicate)
-            rpc_method.modernrpc_auth_predicates_params.append(params)
+    else:
+        rpc_method.modernrpc_auth_predicates = [predicate]
+        rpc_method.modernrpc_auth_predicates_params = [params]
 
-        else:
-            rpc_method.modernrpc_auth_predicates = [predicate]
-            rpc_method.modernrpc_auth_predicates_params = [params]
-
-        return rpc_method
-
-    return decorated(func)
+    return rpc_method
 
 
 def user_is_logged(user):
