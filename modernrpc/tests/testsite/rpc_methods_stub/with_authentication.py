@@ -1,5 +1,6 @@
 from modernrpc.auth.basic import http_basic_auth_login_required, http_basic_auth_superuser_required,\
-    http_basic_auth_permissions_required, http_basic_auth_group_member_required
+    http_basic_auth_permissions_required, http_basic_auth_group_member_required, \
+    http_basic_auth_any_of_permissions_required
 from modernrpc.core import rpc_method
 
 
@@ -41,20 +42,27 @@ def delete_user_perms_required(x):
     return x
 
 
+# TODO: There no unit tests for this one yet
+@http_basic_auth_any_of_permissions_required(permissions=['auth.delete_user', 'auth.add_user', 'auth.change_user'])
+@rpc_method
+def delete_user_any_perm_required(x):
+    return x
+
+
 @http_basic_auth_group_member_required(groups='A')
 @rpc_method
 def in_group_A_required(x):
     return x
 
 
-@http_basic_auth_group_member_required(groups=['A', 'B'])
+@http_basic_auth_group_member_required(groups=['A'])
+@http_basic_auth_group_member_required(groups='B')
 @rpc_method
-def in_groups_AB_required(x):
+def in_groups_A_and_B_required(x):
     return x
 
 
-@http_basic_auth_permissions_required(permissions='auth.delete_user')
 @http_basic_auth_group_member_required(groups=['A', 'B'])
 @rpc_method
-def has_permission_or_in_groups(x):
+def in_group_A_or_B_required(x):
     return x

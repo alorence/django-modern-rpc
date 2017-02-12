@@ -33,7 +33,7 @@ def http_basic_auth_get_user(request):
             auth = request.META['HTTP_AUTHORIZATION'].split()
             if len(auth) == 2 and auth[0].lower() == "basic":
                 uname, passwd = base64.b64decode(auth[1]).decode('utf-8').split(':')
-                current_user = authenticate(username=uname, password=passwd)
+                current_user = authenticate(username=uname, password=passwd) or current_user
 
     return current_user
 
@@ -79,6 +79,21 @@ def http_basic_auth_permissions_required(permissions):
         # Check many permissions
         return auth.set_authentication_predicate(func, http_basic_auth_check_user,
                                                  [auth.user_has_perms, permissions])
+    return decorated
+
+
+# Decorator
+def http_basic_auth_any_of_permissions_required(permissions):
+    """Decorator. Use it to specify a RPC method is available only to logged users with given permissions"""
+    def decorated(func):
+        if isinstance(permissions, six.string_types):
+            # Check a single permission
+            return auth.set_authentication_predicate(func, http_basic_auth_check_user,
+                                                     [auth.user_has_any_perm, permissions])
+
+        # Check many permissions
+        return auth.set_authentication_predicate(func, http_basic_auth_check_user,
+                                                 [auth.user_has_any_perm, permissions])
     return decorated
 
 

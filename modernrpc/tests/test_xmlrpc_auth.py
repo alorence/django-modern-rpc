@@ -171,39 +171,76 @@ def test_xrpc_superuser_in_group_A(live_server, superuser):
     assert client.in_group_A_required(4) == 4
 
 
-def test_xrpc_anon_in_groups(live_server):
+def test_xrpc_anon_in_A_and_B(live_server):
 
     with pytest.raises(xmlrpc_client.ProtocolError):
         # Anonymous user don't have sufficient permissions
         client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
-        client.in_groups_AB_required(4)
+        client.in_groups_A_and_B_required(4)
 
 
-def test_xrpc_user_in_groups(live_server, john_doe, group_A, group_B):
+def test_xrpc_user_in_A_and_B(live_server, john_doe, group_A, group_B):
 
     orig_url = live_server.url + '/all-rpc/'
     johndoe_auth_url = orig_url.replace('http://', 'http://{}:123456@'.format(john_doe.username))
 
     with pytest.raises(xmlrpc_client.ProtocolError):
         client = xmlrpc_client.ServerProxy(johndoe_auth_url)
-        client.in_groups_AB_required(4)
+        client.in_groups_A_and_B_required(4)
 
     john_doe.groups.add(group_A)
 
     with pytest.raises(xmlrpc_client.ProtocolError):
         client = xmlrpc_client.ServerProxy(johndoe_auth_url)
-        client.in_groups_AB_required(4)
+        client.in_groups_A_and_B_required(4)
 
     john_doe.groups.add(group_B)
 
     client = xmlrpc_client.ServerProxy(johndoe_auth_url)
-    assert client.in_groups_AB_required(4) == 4
+    assert client.in_groups_A_and_B_required(4) == 4
 
 
-def test_xrpc_superuser_in_groups(live_server, superuser):
+def test_xrpc_superuser_in_A_and_B(live_server, superuser):
 
     orig_url = live_server.url + '/all-rpc/'
     superuser_auth_url = orig_url.replace('http://', 'http://{}:123456@'.format(superuser.username))
 
     client = xmlrpc_client.ServerProxy(superuser_auth_url)
-    assert client.in_groups_AB_required(4) == 4
+    assert client.in_groups_A_and_B_required(4) == 4
+
+
+def test_xrpc_anon_in_A_or_B(live_server):
+
+    with pytest.raises(xmlrpc_client.ProtocolError):
+        # Anonymous user don't have sufficient permissions
+        client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
+        client.in_group_A_or_B_required(4)
+
+
+def test_xrpc_user_in_A_or_B(live_server, john_doe, group_A, group_B):
+    orig_url = live_server.url + '/all-rpc/'
+    johndoe_auth_url = orig_url.replace('http://', 'http://{}:123456@'.format(john_doe.username))
+
+    client = xmlrpc_client.ServerProxy(johndoe_auth_url)
+
+    with pytest.raises(xmlrpc_client.ProtocolError):
+        client.in_group_A_or_B_required(4)
+
+    john_doe.groups.add(group_A)
+    assert client.in_group_A_or_B_required(9) == 9
+
+    john_doe.groups.clear()
+
+    with pytest.raises(xmlrpc_client.ProtocolError):
+        client.in_group_A_or_B_required(4)
+
+    john_doe.groups.add(group_B)
+    assert client.in_group_A_or_B_required(9) == 9
+
+
+def test_xrpc_superuser_in_A_or_B(live_server, superuser):
+    orig_url = live_server.url + '/all-rpc/'
+    superuser_auth_url = orig_url.replace('http://', 'http://{}:123456@'.format(superuser.username))
+
+    client = xmlrpc_client.ServerProxy(superuser_auth_url)
+    assert client.in_group_A_or_B_required(4) == 4

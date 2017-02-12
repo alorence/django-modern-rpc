@@ -52,9 +52,13 @@ def user_has_perms(user, perms):
     return user_is_superuser(user) or user.has_perms(perms)
 
 
+def user_has_any_perm(user, perms):
+    return user_is_superuser(user) or any(user_has_perm(user, perm) for perm in perms)
+
+
 def user_in_group(user, group):
     if isinstance(group, Group):
-        return user_is_superuser(user) or group in user.groups
+        return user_is_superuser(user) or group in user.groups.all()
     elif isinstance(group, six.string_types):
         return user_is_superuser(user) or group in user.groups.values_list('name', flat=True)
     raise TypeError("'group' argument must be a string or a Group instance")
