@@ -26,6 +26,9 @@ def auth_permissions(transactional_db):
     return p1, p2, p3
 
 
+COMMON_PASSWORD = '123456'
+
+
 @pytest.fixture
 def john_doe(django_user_model, transactional_db):
     return django_user_model.objects.create_user('johndoe', email='jd@example.com', password='123456')
@@ -34,6 +37,11 @@ def john_doe(django_user_model, transactional_db):
 @pytest.fixture
 def superuser(django_user_model, transactional_db):
     return django_user_model.objects.create_superuser('admin', email='admin@example.com', password='123456')
+
+
+@pytest.fixture
+def common_pwd():
+    return COMMON_PASSWORD
 
 
 @pytest.fixture
