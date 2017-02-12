@@ -373,12 +373,11 @@ def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL):
 
         return function
 
-    # If @rpc_method is used without any argument nor parenthesis
+    # If @rpc_method() is used with parenthesis (with or without argument)
     if func is None:
-        def decorator(f):
-            return decorated(f)
-        return decorator
-    # If @rpc_method() is used with parenthesis (with or without arguments)
+        return decorated
+
+    # If @rpc_method is used without parenthesis
     return decorated(func)
 
 
