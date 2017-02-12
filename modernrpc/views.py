@@ -100,7 +100,7 @@ class RPCEntryPoint(TemplateView):
                              .format(method, request.user))
 
                 if not rpc_method.check_permissions(request):
-                    logger.info('')
+                    logger.info('Call to {} disallowed by authentication system.'.format(method))
                     return handler.result_error(RPCInternalError('Invalid authentication'), HttpResponseForbidden)
 
                 logger.debug('RPC method {} will be executed'.format(method))

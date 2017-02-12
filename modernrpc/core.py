@@ -167,8 +167,8 @@ class RPCMethod(object):
 
         predicates_params = getattr(func, 'modernrpc_auth_predicates_params', None)
 
-        # At least 1 of the registered authentication predicate return True
-        return any(
+        # All registered authentication predicates must return True
+        return all(
             predicate(request, *predicates_params[i])
             for i, predicate in enumerate(predicates)
         )
