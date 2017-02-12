@@ -5,10 +5,12 @@ This class is used to simplify tests definition
 """
 import json
 import random
+from urllib.parse import urlparse
 
 import django
 import pytest
 import requests
+from requests.auth import HTTPBasicAuth
 
 from modernrpc.exceptions import RPC_CUSTOM_ERROR_BASE, RPC_METHOD_NOT_FOUND
 
@@ -43,10 +45,17 @@ class _RpcCall:
 
 class ServerProxy:
 
-    def __init__(self, url, login=None, password=None):
+    def __init__(self, url, auth_uname=None, auth_pwd=None):
         self.url = url
-        self.login = login
-        self.password = password
+
+        parsed_url = urlparse(url)
+        username = parsed_url.username or auth_uname
+        password = parsed_url.password or auth_pwd
+        self.auth = False
+        if username and password:
+            self.auth = True
+            self.username = username
+            self.password = password
 
     def send_payload(self, methodName, params=None):
         headers = {'content-type': 'application/json'}
@@ -56,10 +65,9 @@ class ServerProxy:
             "jsonrpc": "2.0",
             "id": random.randint(1, 1000),
         }
-        auth = None
-        if self.login and self.password:
-            auth = (self.login, self.password)
+        auth = HTTPBasicAuth(username=self.username, password=self.password) if self.auth else None
         req_data = json.dumps(payload, cls=django.core.serializers.json.DjangoJSONEncoder)
+
         result = requests.post(self.url, data=req_data, headers=headers, auth=auth)
 
         if result.status_code != 200:
