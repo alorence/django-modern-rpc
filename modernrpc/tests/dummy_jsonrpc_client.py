@@ -5,11 +5,11 @@ This class is used to simplify tests definition
 """
 import json
 import random
-from urllib.parse import urlparse
 
 import django
 import pytest
 import requests
+from django.utils.six.moves import urllib_parse
 from requests.auth import HTTPBasicAuth
 
 from modernrpc.exceptions import RPC_CUSTOM_ERROR_BASE, RPC_METHOD_NOT_FOUND
@@ -48,7 +48,7 @@ class ServerProxy:
     def __init__(self, url, auth_uname=None, auth_pwd=None):
         self.url = url
 
-        parsed_url = urlparse(url)
+        parsed_url = urllib_parse.urlparse(url)
         username = parsed_url.username or auth_uname
         password = parsed_url.password or auth_pwd
         self.auth = False
