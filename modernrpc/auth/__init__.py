@@ -1,5 +1,6 @@
 # coding: utf-8
 from django.contrib.auth.models import Group
+from django.utils import six
 
 
 # Decorator
@@ -53,11 +54,12 @@ def user_has_perms(user, perms):
 
 
 def user_in_group(user, group):
-    group_name = group.name if isinstance(group, Group) else group
-    return user_is_superuser(user) or group_name in user.groups.values_list('name', flat=True)
+    if isinstance(group, Group):
+        return user_is_superuser(user) or group in user.groups
+    elif isinstance(group, six.string_types):
+        return user_is_superuser(user) or group in user.groups.values_list('name', flat=True)
+    raise TypeError("group argument must be a string or a Group instance")
 
 
 def user_in_groups(user, groups):
-    groups_names = [group.name if isinstance(group, Group) else group for group in groups]
-    return user_is_superuser(user) or all(
-        group_name in user.groups.values_list('name', flat=True) for group_name in groups_names)
+    return user_is_superuser(user) or all(user_in_group(user, group) for group in groups)
