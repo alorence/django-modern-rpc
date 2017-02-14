@@ -1,6 +1,6 @@
 # coding: utf-8
 import pytest
-from django.contrib.auth.models import Permission, Group
+from django.contrib.auth.models import Permission, Group, AnonymousUser
 from django.contrib.contenttypes.models import ContentType
 
 
@@ -27,6 +27,11 @@ def auth_permissions(transactional_db):
 
 
 COMMON_PASSWORD = '123456'
+
+
+@pytest.fixture
+def anonymous_user(transactional_db):
+    return AnonymousUser()
 
 
 @pytest.fixture

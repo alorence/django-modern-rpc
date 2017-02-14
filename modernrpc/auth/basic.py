@@ -1,6 +1,7 @@
 import base64
 
 from django.contrib.auth import authenticate
+from django.contrib.auth.models import AnonymousUser
 from django.utils import six
 
 from modernrpc import auth
@@ -33,7 +34,7 @@ def http_basic_auth_get_user(request):
             auth = request.META['HTTP_AUTHORIZATION'].split()
             if len(auth) == 2 and auth[0].lower() == "basic":
                 uname, passwd = base64.b64decode(auth[1]).decode('utf-8').split(':')
-                current_user = authenticate(username=uname, password=passwd) or current_user
+                current_user = authenticate(username=uname, password=passwd) or AnonymousUser()
 
     return current_user
 

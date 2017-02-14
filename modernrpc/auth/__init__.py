@@ -37,11 +37,11 @@ def set_authentication_predicate(rpc_method, predicate, params=None):
 
 
 def user_is_logged(user):
-    return user is not None and not user.is_anonymous()
+    return not user.is_anonymous()
 
 
 def user_is_superuser(user):
-    return user is not None and user.is_superuser
+    return user.is_superuser
 
 
 def user_has_perm(user, perm):
