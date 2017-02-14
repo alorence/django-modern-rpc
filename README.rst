@@ -40,7 +40,6 @@ Features not yet implemented
 ----------------------------
 
 - Multi-call for JSON-RPC
-- Built-in support for request authentications
 
 -----------
 Quick start

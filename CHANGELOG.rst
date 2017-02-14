@@ -3,9 +3,11 @@ Changelog
 
 Current development
 -------------------
-- Typo fixe
+- Typo fixes
 - Settings variable ``MODERNRPC_XML_USE_BUILTIN_TYPES`` is now deprecated in favor of
   ``MODERNRPC_XMLRPC_USE_BUILTIN_TYPES``
+- Unit tests are now performed with python 3.6 and Django 1.11 alpha, in addition to supported environment already
+  tested. This is a first step to full support for these environments.
 - HTTP "Basic Auth" support: it is now possible to define RPC methods available only to specific users. The control can
   be done on various user attributes: group, permission, superuser status, etc.
   Added features can be used to setup any authentication method based on incoming request, if Basic Auth is not
