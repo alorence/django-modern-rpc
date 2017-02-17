@@ -43,7 +43,7 @@
                     <li>
                         <strong>{{ name }}</strong>
                         {% if param_help.type %}
-                        ({{ param_help.type }})
+                            ({{ param_help.type }})
                         {% endif %}
                         -
                         {{ param_help.text }}
@@ -64,9 +64,8 @@
                 <ul class="">
                     <li>
                     {% if method.return_doc.type %}
-                    {{ method.return_doc.type }}
+                        {{ method.return_doc.type }} -
                     {% endif %}
-                    -
                     {{ method.return_doc.text }}
                     </li>
                 </ul>
