@@ -26,6 +26,21 @@ def auth_permissions(transactional_db):
     return p1, p2, p3
 
 
+@pytest.fixture
+def add_user_perm(db):
+    return Permission.objects.get(codename='add_user')
+
+
+@pytest.fixture
+def change_user_perm(db):
+    return Permission.objects.get(codename='change_user')
+
+
+@pytest.fixture
+def delete_user_perm(db):
+    return Permission.objects.get(codename='delete_user')
+
+
 COMMON_PASSWORD = '123456'
 
 
