@@ -3,11 +3,10 @@ ALLOWED_HOSTS = ['*']
 SECRET_KEY = 'dummy'
 ROOT_URLCONF = 'testsite.urls'
 
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'modern_rpc.sqlite3',
+        'NAME': 'unused',
     },
 }
 
