@@ -60,7 +60,7 @@ def user_in_group(user, group):
     if isinstance(group, Group):
         return user_is_superuser(user) or group in user.groups.all()
     elif isinstance(group, six.string_types):
-        return user_is_superuser(user) or group in user.groups.values_list('name', flat=True)
+        return user_is_superuser(user) or user.groups.filter(name=group).exists()
     raise TypeError("'group' argument must be a string or a Group instance")
 
 
