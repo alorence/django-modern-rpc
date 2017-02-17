@@ -1,8 +1,3 @@
-import pytest
-import pytest_django
-from django.contrib.auth.models import AnonymousUser, Permission
-from django.contrib.contenttypes.models import ContentType
-
 from modernrpc.auth import user_is_logged, user_is_superuser, user_has_perm, user_has_perms, user_has_any_perm, \
     user_in_group
 
