@@ -104,7 +104,7 @@ def test_user_in_group(group_A, anonymous_user, john_doe, superuser):
     assert user_in_group(john_doe, group_A) is True
 
 
-def test_user_in_group_str( group_A, anonymous_user, john_doe, superuser):
+def test_user_in_group_str(group_A, anonymous_user, john_doe, superuser):
 
     # Superuser always virtually have permissions
     assert user_in_group(superuser, group_A.name) is True
@@ -115,4 +115,3 @@ def test_user_in_group_str( group_A, anonymous_user, john_doe, superuser):
 
     john_doe.groups.add(group_A)
     assert user_in_group(john_doe, group_A.name) is True
-
