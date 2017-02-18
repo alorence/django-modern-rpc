@@ -4,8 +4,9 @@ import xml
 
 import pytest
 from django.utils.six.moves import xmlrpc_client
+from jsonrpcclient.exceptions import ReceivedErrorResponse, ParseResponseError
+from jsonrpcclient.http_client import HTTPClient
 
-import dummy_jsonrpc_client as jsonrpc_client
 from modernrpc.exceptions import RPC_METHOD_NOT_FOUND
 
 try:
@@ -20,8 +21,8 @@ def test_basic_add(live_server):
     x_client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
     assert x_client.add(2, 3) == 5
 
-    j_client = jsonrpc_client.ServerProxy(live_server.url + '/all-rpc/')
-    assert j_client.add(2, 3) == 5
+    j_client = HTTPClient(live_server.url + '/all-rpc/')
+    assert j_client.request('add', 2, 3) == 5
 
 
 def test_list_methods(live_server):
@@ -33,8 +34,8 @@ def test_list_methods(live_server):
     assert len(result) > 1
     assert 'system.listMethods' in result
 
-    j_client = jsonrpc_client.ServerProxy(live_server.url + '/all-rpc/')
-    result = j_client.system.listMethods()
+    j_client = HTTPClient(live_server.url + '/all-rpc/')
+    result = j_client.request('system.listMethods')
 
     assert type(result) == list
     assert len(result) > 1
@@ -61,14 +62,14 @@ def test_get_signature(live_server):
     with pytest.raises(xmlrpc_client.Fault):
         x_client.system.methodSignature('inexistant_method')
 
-    j_client = jsonrpc_client.ServerProxy(live_server.url + '/all-rpc/')
+    j_client = HTTPClient(live_server.url + '/all-rpc/')
 
-    signature = j_client.system.methodSignature("add")
+    signature = j_client.request('system.methodSignature', "add")
     # This one doesn not have any docstring defined
     assert type(signature) == list
     assert len(signature) == 0
 
-    signature = j_client.system.methodSignature("divide")
+    signature = j_client.request('system.methodSignature', "divide")
     # Return type + 2 parameters = 3 elements in the signature
     assert type(signature) == list
     assert len(signature) == 3
@@ -76,8 +77,8 @@ def test_get_signature(live_server):
     assert signature[1] == 'int or double'
     assert signature[2] == 'int or double'
 
-    with pytest.raises(jsonrpc_client.JsonRpcFault):
-        j_client.system.methodSignature('inexistant_method')
+    with pytest.raises(ReceivedErrorResponse):
+        j_client.request('system.methodSignature', 'inexistant_method')
 
 
 def test_method_help(live_server):
@@ -94,9 +95,9 @@ def test_method_help(live_server):
     with pytest.raises(xmlrpc_client.Fault):
         x_client.system.methodHelp('inexistant_method')
 
-    j_client = jsonrpc_client.ServerProxy(live_server.url + '/all-rpc/')
+    j_client = HTTPClient(live_server.url + '/all-rpc/')
 
-    help_text = j_client.system.methodHelp("add")
+    help_text = j_client.request('system.methodHelp', "add")
     if sys.version_info < (3, 0):
         assert type(help_text) == unicode  # noqa: F821
 
@@ -104,11 +105,11 @@ def test_method_help(live_server):
         assert type(help_text) == str
     assert help_text == ''
 
-    help_text = j_client.system.methodHelp("divide")
+    help_text = j_client.request('system.methodHelp', "divide")
     assert 'Divide a numerator by a denominator' in help_text
 
-    with pytest.raises(jsonrpc_client.JsonRpcFault):
-        j_client.system.methodSignature('inexistant_method')
+    with pytest.raises(ReceivedErrorResponse):
+        j_client.request('system.methodSignature', 'inexistant_method')
 
 
 def test_protocol_specific_methods(live_server):
@@ -129,21 +130,21 @@ def test_protocol_specific_methods(live_server):
     assert 'Method not found: method_x' in excinfo.value.faultString
     assert excinfo.value.faultCode == RPC_METHOD_NOT_FOUND
 
-    j_client = jsonrpc_client.ServerProxy(live_server.url + '/json-only/')
+    j_client = HTTPClient(live_server.url + '/json-only/')
 
-    methods_list = j_client.system.listMethods()
+    methods_list = j_client.request('system.listMethods')
     assert 'method_x' in methods_list
     assert 'method_y' not in methods_list
 
     # method_x is available only via JSON-RPC
-    assert j_client.method_x() == 'JSON only'
+    assert j_client.request('method_x') == 'JSON only'
 
     # method_y is available only via XML-RPC
-    with pytest.raises(jsonrpc_client.JsonRpcFault) as excinfo:
-        j_client.method_y()
+    with pytest.raises(ReceivedErrorResponse) as excinfo:
+        j_client.request('method_y')
 
-    assert 'Method not found: method_y' in excinfo.value.faultString
-    assert excinfo.value.faultCode == RPC_METHOD_NOT_FOUND
+    assert 'Method not found: method_y' in excinfo.value.message
+    assert excinfo.value.code == RPC_METHOD_NOT_FOUND
 
 
 def test_protocol_specific_error(live_server):
@@ -158,10 +159,10 @@ def test_protocol_specific_error(live_server):
         x_client.system.listMethods()
     assert 'syntax error' in str(excinfo.value)
 
-    j_client = jsonrpc_client.ServerProxy(live_server.url + '/xml-only/')
-    with pytest.raises(JSONDecodeError):
+    j_client = HTTPClient(live_server.url + '/xml-only/')
+    with pytest.raises(ParseResponseError):
         # There is no method available via this entry point for JSON-RPC clients.
         # The returned error message cannot be encapsulated in a proper JSON-RPC response (since the entry
         # point is not configured to handle and respond via this protocol). The returned error message is RAW,
         # so JSON-RPC cannot parse it and generate a JSONDecodeError, or a ValueError in python 2
-        j_client.system.listMethods()
+        j_client.request('system.listMethods')
