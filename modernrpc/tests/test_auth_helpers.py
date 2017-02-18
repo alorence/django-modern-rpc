@@ -43,11 +43,11 @@ def test_user_has_perms(django_user_model, anonymous_user, john_doe, superuser, 
     ]
 
     # Superuser always virtually have permissions
-    assert user_has_perms(superuser, perms_str) is True
+    assert user_has_all_perms(superuser, perms_str) is True
 
     # Ensure permissions are correctly set by default
-    assert user_has_perms(anonymous_user, perms_str) is False
-    assert user_has_perms(john_doe, perms_str) is False
+    assert user_has_all_perms(anonymous_user, perms_str) is False
+    assert user_has_all_perms(john_doe, perms_str) is False
 
     # Set 1 permissions to normal user
     john_doe.user_permissions.add(delete_user_perm)
@@ -55,12 +55,12 @@ def test_user_has_perms(django_user_model, anonymous_user, john_doe, superuser, 
     # See https://docs.djangoproject.com/en/1.10/topics/auth/default/#permission-caching
     john_doe = django_user_model.objects.get(username=john_doe.username)
     # The user still don't have enough permissions
-    assert user_has_perms(john_doe, perms_str) is False
+    assert user_has_all_perms(john_doe, perms_str) is False
 
     # Now it's OK
     john_doe.user_permissions.add(add_user_perm)
     john_doe = django_user_model.objects.get(username=john_doe.username)
-    assert user_has_perms(john_doe, perms_str) is True
+    assert user_has_all_perms(john_doe, perms_str) is True
 
 
 def test_user_has_any_perm(django_user_model, anonymous_user, john_doe, superuser, delete_user_perm, add_user_perm):

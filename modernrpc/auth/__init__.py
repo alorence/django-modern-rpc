@@ -48,7 +48,8 @@ def user_has_perm(user, perm):
     return user_is_superuser(user) or user.has_perm(perm)
 
 
-def user_has_perms(user, perms):
+def user_has_all_perms(user, perms):
+    """Returns True if the given user have all given permissions"""
     return user_is_superuser(user) or user.has_perms(perms)
 
 
@@ -57,6 +58,7 @@ def user_has_any_perm(user, perms):
 
 
 def user_in_group(user, group):
+    """Returns True if the given user is in given group"""
     if isinstance(group, Group):
         return user_is_superuser(user) or group in user.groups.all()
     elif isinstance(group, six.string_types):
