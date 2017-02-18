@@ -11,6 +11,9 @@ django-modern-rpc
 .. image:: https://readthedocs.org/projects/django-modern-rpc/badge/?version=latest
     :target: http://django-modern-rpc.readthedocs.io/
 
+.. image:: https://badge.fury.io/py/django-modern-rpc.svg
+    :target: https://badge.fury.io/py/django-modern-rpc
+
 .. image:: https://img.shields.io/badge/demo-online-green.svg
     :target: http://modernrpc.herokuapp.com/
 
@@ -27,6 +30,8 @@ and its API is subject to modifications. Currently supported features are:
 - Django 1.8, 1.9, 1.10 and 1.11
 - Usual error handled and reported to callers
 - Multiple entry points, with specific methods and protocol attached
+- Custom authentication support
+- HTTP Basic Auth support
 - System introspection methods:
 
   - system.listMethods()
