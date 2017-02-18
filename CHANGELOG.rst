@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Current development
--------------------
+Release 0.5.0 (2017-02-18)
+--------------------------
 - Typo fixes
 - JSON-RPC 2.0 standard explicitely allows requests without 'parmas' member. This doesn't produce error anymore.
 - Setting variable ``MODERNRPC_XML_USE_BUILTIN_TYPES`` is now deprecated in favor of
