@@ -114,8 +114,8 @@ def test_jsonrpc_anon_user_auth(live_server):
     assert raises(ReceivedErrorResponse, c.request, 'all_permissions_required', 5).value.code == RPC_INTERNAL_ERROR
     assert raises(ReceivedErrorResponse, c.request, 'in_group_A_required', 5).value.code == RPC_INTERNAL_ERROR
     assert raises(ReceivedErrorResponse, c.request, 'in_groups_A_and_B_required', 5).value.code == RPC_INTERNAL_ERROR
-    assert raises(ReceivedErrorResponse, c.request, 'in_groups_A_and_B_required_alt', 5)\
-               .value.code == RPC_INTERNAL_ERROR
+    e = raises(ReceivedErrorResponse, c.request, 'in_groups_A_and_B_required_alt', 5)
+    assert e.value.code == RPC_INTERNAL_ERROR
     assert raises(ReceivedErrorResponse, c.request, 'in_group_A_or_B_required', 5).value.code == RPC_INTERNAL_ERROR
 
 
@@ -152,8 +152,8 @@ def test_jsonrpc_user_auth(live_server, john_doe, common_pwd):
     assert raises(ReceivedErrorResponse, c.request, 'all_permissions_required', 5).value.code == RPC_INTERNAL_ERROR
     assert raises(ReceivedErrorResponse, c.request, 'in_group_A_required', 5).value.code == RPC_INTERNAL_ERROR
     assert raises(ReceivedErrorResponse, c.request, 'in_groups_A_and_B_required', 5).value.code == RPC_INTERNAL_ERROR
-    assert raises(ReceivedErrorResponse, c.request, 'in_groups_A_and_B_required_alt', 5)\
-               .value.code == RPC_INTERNAL_ERROR
+    e = raises(ReceivedErrorResponse, c.request, 'in_groups_A_and_B_required_alt', 5)
+    assert e.value.code == RPC_INTERNAL_ERROR
     assert raises(ReceivedErrorResponse, c.request, 'in_group_A_or_B_required', 5).value.code == RPC_INTERNAL_ERROR
 
 
@@ -187,8 +187,8 @@ def test_jsonrpc_user_groups(live_server, john_doe, common_pwd, group_A, group_B
     assert c.request('in_group_A_or_B_required', 5) == 5
 
     assert raises(ReceivedErrorResponse, c.request, 'in_groups_A_and_B_required', 5).value.code == RPC_INTERNAL_ERROR
-    assert raises(ReceivedErrorResponse, c.request, 'in_groups_A_and_B_required_alt', 5)\
-               .value.code == RPC_INTERNAL_ERROR
+    e = raises(ReceivedErrorResponse, c.request, 'in_groups_A_and_B_required_alt', 5)
+    assert e.value.code == RPC_INTERNAL_ERROR
 
     john_doe.groups.add(group_B)
 
