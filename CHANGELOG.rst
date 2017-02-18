@@ -4,6 +4,7 @@ Changelog
 Current development
 -------------------
 - Typo fixes
+- JSON-RPC 2.0 standard explicitely allows requests without 'parmas' member. This doesn't produce error anymore.
 - Settings variable ``MODERNRPC_XML_USE_BUILTIN_TYPES`` is now deprecated in favor of
   ``MODERNRPC_XMLRPC_USE_BUILTIN_TYPES``
 - Unit tests are now performed with python 3.6 and Django 1.11 alpha, in addition to supported environment already

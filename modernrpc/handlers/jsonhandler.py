@@ -66,13 +66,11 @@ class JSONRPCHandler(RPCHandler):
             raise RPCInvalidRequest('Missing parameter "jsonrpc"')
         elif 'method' not in body:
             raise RPCInvalidRequest('Missing parameter "method"')
-        elif 'params' not in body:
-            raise RPCInvalidRequest('Missing parameter "params"')
 
         if body['jsonrpc'] != '2.0':
             raise RPCInvalidRequest('The attribute "jsonrpc" must contains "2.0"')
 
-        return body['method'], body['params']
+        return body['method'], body.get('params', [])
 
     @staticmethod
     def json_http_response(data, http_response_cls=HttpResponse):
