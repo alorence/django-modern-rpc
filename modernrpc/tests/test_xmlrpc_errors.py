@@ -1,4 +1,5 @@
 # coding: utf-8
+import json
 import xml.etree.cElementTree as ET
 
 import pytest
@@ -96,6 +97,30 @@ def test_xrpc_invalid_request(live_server):
 
     assert 'Invalid request' in message
     assert 'Missing methodName' in message
+    assert code == RPC_INVALID_REQUEST
+
+
+def test_xrpc_invalid_request_2(live_server):
+    invalid_payload = json.dumps({
+        "method": 'add',
+        "params": [5, 6],
+        "jsonrpc": "2.0",
+        "id": 42,
+    })
+    headers = {'content-type': 'text/xml'}
+    response = requests.post(live_server.url + '/all-rpc/', data=invalid_payload, headers=headers)
+
+    tree = ET.fromstring(response.content)
+    members = tree.find('fault').find('value').find('struct')
+
+    code, message = '', ''
+    for member in members:
+        if member.find('name').text == 'faultCode':
+            code = int(member.find('value').find('int').text)
+        elif member.find('name').text == 'faultString':
+            message = member.find('value').find('string').text
+
+    assert 'Invalid request' in message
     assert code == RPC_INVALID_REQUEST
 
 

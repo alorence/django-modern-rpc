@@ -50,7 +50,7 @@ def test_jsonrpc_invalid_request_1(live_server):
     assert RPC_INVALID_REQUEST == response['error']['code']
 
 
-def test_jsonrpc_invalid_request_3(live_server):
+def test_jsonrpc_invalid_request_2(live_server):
 
     headers = {'content-type': 'application/json'}
     payload = {
@@ -66,7 +66,7 @@ def test_jsonrpc_invalid_request_3(live_server):
     assert RPC_INVALID_REQUEST == response['error']['code']
 
 
-def test_jsonrpc_invalid_request_3_bis(live_server):
+def test_jsonrpc_invalid_request_3(live_server):
 
     headers = {'content-type': 'application/json'}
     payload = {
