@@ -73,6 +73,7 @@ class RPCException(Exception):
     This is the base class of all RPC exception. Custom exceptions raised by your RPC methods
     should inherits from RPCException.
     """
+
     def __init__(self, code, message):
         self.code = code
         self.message = message
@@ -80,6 +81,7 @@ class RPCException(Exception):
 
 class RPCParseError(RPCException):
     """Raised by handlers if the request can't be read as valid JSOn or XML data."""
+
     def __init__(self, message=''):
         err_msg = 'Parse error, unable to read the request; {}'.format(message)
         super(RPCParseError, self).__init__(RPC_PARSE_ERROR, err_msg)
@@ -87,6 +89,7 @@ class RPCParseError(RPCException):
 
 class RPCInvalidRequest(RPCException):
     """Raised by handlers if incoming JSON or XML data is not a valid JSON-RPC or XML-RPC data."""
+
     def __init__(self, message=""):
         err_msg = 'Invalid request, {}'.format(message)
         super(RPCInvalidRequest, self).__init__(RPC_INVALID_REQUEST, err_msg)
@@ -94,6 +97,7 @@ class RPCInvalidRequest(RPCException):
 
 class RPCUnknownMethod(RPCException):
     """Raised by handlers the RPC method called is not defined for the current entry point and protocol."""
+
     def __init__(self, name):
         err_msg = 'Method not found: {}'.format(name)
         super(RPCUnknownMethod, self).__init__(RPC_METHOD_NOT_FOUND, err_msg)
@@ -101,6 +105,7 @@ class RPCUnknownMethod(RPCException):
 
 class RPCInvalidParams(RPCException):
     """Raised by handlers if the RPC method's params does not match the parameters in RPC request"""
+
     def __init__(self, message=""):
         err_msg = 'Invalid parameters, {}'.format(message)
         super(RPCInvalidParams, self).__init__(RPC_INVALID_PARAMS, err_msg)
@@ -108,6 +113,7 @@ class RPCInvalidParams(RPCException):
 
 class RPCInternalError(RPCException):
     """Raised by handlers if any standard exception is raised during the execution of the RPC method."""
+
     def __init__(self, message):
         err_msg = 'Internal error: {}'.format(message)
         super(RPCInternalError, self).__init__(RPC_INTERNAL_ERROR, err_msg)

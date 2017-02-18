@@ -21,6 +21,7 @@ def test_xmlrpc_bool(live_server):
     assert type(result) == bool
     assert result is True
 
+
 def test_xmlrpc_bool_2(live_server):
 
     c = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
@@ -29,6 +30,7 @@ def test_xmlrpc_bool_2(live_server):
     assert type(result) == bool
     assert result is False
 
+
 def test_jsonrpc_bool(live_server):
 
     c = HTTPClient(live_server.url + '/all-rpc/')
@@ -36,6 +38,7 @@ def test_jsonrpc_bool(live_server):
 
     assert type(result) == bool
     assert result is True
+
 
 def test_jsonrpc_bool_2(live_server):
 
@@ -50,6 +53,7 @@ def test_xmlrpc_null(live_server):
 
     c = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
     assert c.get_null() is None
+
 
 def test_jsonrpc_null(live_server):
     c = HTTPClient(live_server.url + '/all-rpc/')
@@ -66,6 +70,7 @@ def test_xmlrpc_numeric(live_server):
     assert type(result) == int
     assert result == 42
 
+
 def test_xmlrpc_numeric_2(live_server):
 
     c = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
@@ -73,6 +78,7 @@ def test_xmlrpc_numeric_2(live_server):
     result = c.get_negative_int()
     assert type(result) == int
     assert result == -42
+
 
 def test_xmlrpc_numeric_3(live_server):
 
@@ -82,6 +88,7 @@ def test_xmlrpc_numeric_3(live_server):
     assert type(result) == float
     assert result == 3.14
 
+
 def test_jsonrpc_numeric(live_server):
 
     c = HTTPClient(live_server.url + '/all-rpc/')
@@ -90,6 +97,7 @@ def test_jsonrpc_numeric(live_server):
     assert type(result) == int
     assert result == 42
 
+
 def test_jsonrpc_numeric_2(live_server):
 
     c = HTTPClient(live_server.url + '/all-rpc/')
@@ -97,6 +105,7 @@ def test_jsonrpc_numeric_2(live_server):
     result = c.get_negative_int()
     assert type(result) == int
     assert result == -42
+
 
 def test_jsonrpc_numeric_3(live_server):
 
@@ -116,6 +125,7 @@ def test_xmlrpc_string(live_server):
     # in Python 3 and ASCII in Python 2. This may be addressed in the future
     assert type(result) == str
     assert result == 'abcde'
+
 
 def test_jsonrpc_string(live_server):
 
@@ -139,6 +149,7 @@ def test_xmlrpc_input_string(live_server):
     # Python 3 : "<class 'str'>"
     assert re.match(r"<(class|type) 'str'>", result)
 
+
 def test_jsonrpc_input_string(live_server):
 
     c = HTTPClient(live_server.url + '/all-rpc/')
@@ -158,6 +169,7 @@ def test_xmlrpc_bytes(live_server):
     result = c.get_bytes()
 
     assert result == b'abcde'
+
 
 def test_jsonrpc_bytes(live_server):
 
@@ -243,7 +255,6 @@ def test_xmlrpc_date_4(live_server):
     assert result.second == 0
 
 
-
 def test_jsonrpc_date(live_server):
 
     c = HTTPClient(live_server.url + '/all-rpc/')
@@ -253,6 +264,7 @@ def test_jsonrpc_date(live_server):
     # Dates are transmitted as string in ISO 8601 format:
     assert '1987-06-02' in result
     assert '08:45:00' in result
+
 
 def test_jsonrpc_date_2(live_server):
     c = HTTPClient(live_server.url + '/all-rpc/')
@@ -288,6 +300,7 @@ def test_xmlrpc_list(live_server):
     assert type(result) == list
     assert result == [1, 2, 3, ]
 
+
 def test_jsonrpc_list(live_server):
 
     c = HTTPClient(live_server.url + '/all-rpc/')
@@ -304,6 +317,7 @@ def test_xmlrpc_struct(live_server):
 
     assert type(result) == dict
     assert result == {'x': 1, 'y': 2, 'z': 3, }
+
 
 def test_jsonrpc_struct(live_server):
 
