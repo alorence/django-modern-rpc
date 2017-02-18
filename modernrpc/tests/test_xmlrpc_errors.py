@@ -121,10 +121,11 @@ def test_xrpc_invalid_request_2(live_server):
             message = member.find('value').find('string').text
 
     assert 'Invalid request' in message
+    assert 'not well-formed' in message
     assert code == RPC_INVALID_REQUEST
 
 
-def test_xrpc_parse_error(live_server):
+def test_xrpc_invalid_request_3(live_server):
     invalid_payload = '''<?xml version="1.0"?>
 <methodCall>
   <methodName>examples.getStateName</methodName
@@ -147,6 +148,6 @@ def test_xrpc_parse_error(live_server):
         elif member.find('name').text == 'faultString':
             message = member.find('value').find('string').text
 
-    assert 'Parse error' in message
-    assert 'unable to read the request' in message
-    assert code == RPC_PARSE_ERROR
+    assert 'Invalid request' in message
+    assert 'not well-formed' in message
+    assert code == RPC_INVALID_REQUEST

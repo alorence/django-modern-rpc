@@ -118,7 +118,7 @@ def test_jsrpc_no_content_type(live_server):
 
 
 def test_jsrpc_invalid_request(live_server):
-    # Closing } is missing from this payload
+    # Closing '}' is missing from this payload
     invalid_json_payload = '''
         {
             "method": "add",

@@ -1,4 +1,6 @@
 # coding: utf-8
+from pytest import raises
+
 from modernrpc.auth import user_is_logged, user_is_superuser, user_has_perm, user_has_all_perms, user_in_group,\
     user_has_any_perm, user_in_all_groups, user_in_any_group
 
@@ -90,6 +92,11 @@ def test_user_has_any_perm(django_user_model, anonymous_user, john_doe, superuse
     john_doe.user_permissions.remove(delete_user_perm)
     john_doe = django_user_model.objects.get(username=john_doe.username)
     assert user_has_any_perm(john_doe, perms_str) is True
+
+
+def test_user_in_group_invalid_args(group_A, john_doe):
+    with raises(TypeError):
+        user_in_group(john_doe, group_A.id)
 
 
 def test_user_in_group(group_A, anonymous_user, john_doe, superuser):
