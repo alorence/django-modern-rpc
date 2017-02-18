@@ -21,17 +21,19 @@ django-modern-rpc
 Description
 -----------
 
-django-modern-rpc is a free, lightweight RPC server for Django projects. The project is still under development,
-and its API is subject to modifications. Currently supported features are:
+django-modern-rpc is a free, lightweight RPC server for Django projects. The library is `available on PyPi`_.
+
+.. _`available on PyPi`: https://pypi.python.org/pypi/django-modern-rpc/
 
 - XML-RPC_ and `JSON-RPC 2.0`_ support. Please note that JSON-RPC 1.0 is not supported.
-- Automatic protocol detection based on the request's header ``Content-Type``
 - Python 2.7, 3.3, 3.4, 3.5 and 3.6
 - Django 1.8, 1.9, 1.10 and 1.11
-- Usual error handled and reported to callers
-- Multiple entry points, with specific methods and protocol attached
-- Custom authentication support
 - HTTP Basic Auth support
+- Custom authentication support
+- Automatic protocol detection based on the request's ``Content-Type``
+- High-level error handling based on exceptions
+- Multiple entry points, with specific methods and protocol attached
+- RPC Methods documentation generated automatically, based on docstrings
 - System introspection methods:
 
   - system.listMethods()
@@ -41,12 +43,6 @@ and its API is subject to modifications. Currently supported features are:
 
 .. _XML-RPC: http://xmlrpc.scripting.com/
 .. _JSON-RPC 2.0: http://www.jsonrpc.org/specification
-
-----------------------------
-Features not yet implemented
-----------------------------
-
-- Multi-call for JSON-RPC
 
 -----------
 Quick start
@@ -67,7 +63,7 @@ Quick start
         #...
     ]
 
-3. Declare an entry point, a view which will generate a correct RPC response depending on the incoming request:
+3. Declare an entry point, a view generating a correct RPC response to the incoming request:
 
 .. code:: python
 
@@ -80,7 +76,7 @@ Quick start
         url(r'^rpc/', RPCEntryPoint.as_view()),
     ]
 
-4. Decorate the methods you want to make available via RPC calls:
+4. Decorate the methods you want to provide via RPC calls:
 
 .. code:: python
 
@@ -99,15 +95,15 @@ Quick start
         'rpc_app.rpc_methods'
     ]
 
-Now, you can call the RPC method ``add`` from a client:
+Now, you can call the method ``add`` from a client:
 
 .. code:: python
 
     >>> from xmlrpc.client import ServerProxy
-    >>> client = ServerProxy('http://127.0.0.1:8000/rpc/')
+    >>> client = ServerProxy('http://localhost:8000/rpc/')
     >>> print(client.add(2, 3))
     5
 
-To get more information, please read `the full documentation`_.
+For more information, please read `the full documentation`_.
 
 .. _`the full documentation`: http://django-modern-rpc.readthedocs.io

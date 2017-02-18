@@ -14,11 +14,12 @@ Project's main features are:
 - Python 2.7, 3.3, 3.4, 3.5 and 3.6
 - Django 1.8, 1.9, 1.10 and 1.11
 - XML-RPC_ and `JSON-RPC 2.0`_ support. Please note that JSON-RPC 1.0 is not supported.
-- Automatic protocol detection based on the request's header ``Content-Type``
-- Usual error handled and reported to callers
-- Multiple entry points, with specific methods and protocol attached
-- Custom authentication support
 - HTTP Basic Auth support
+- Custom authentication support
+- Automatic protocol detection based on the request's header ``Content-Type``
+- High-level error handling based on exceptions
+- Multiple entry points, with specific methods and protocol attached
+- RPC Methods documentation generated automatically, based on docstrings
 - System introspection methods:
 
   - system.listMethods()
