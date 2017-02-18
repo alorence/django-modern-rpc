@@ -1,3 +1,4 @@
+# coding: utf-8
 from modernrpc.auth import user_is_logged, user_is_superuser, user_has_perm, user_has_all_perms, user_in_group,\
     user_has_any_perm, user_in_all_groups, user_in_any_group
 

@@ -1,8 +1,8 @@
 # coding: utf-8
-import pytest
 from django.utils.six.moves import xmlrpc_client
 from jsonrpcclient.exceptions import ReceivedErrorResponse
 from jsonrpcclient.http_client import HTTPClient
+from pytest import raises
 
 from modernrpc.exceptions import RPC_INTERNAL_ERROR
 
@@ -15,21 +15,17 @@ def test_xmlrpc_anon_user_auth(live_server):
 
     c = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
 
-    with pytest.raises(xmlrpc_client.ProtocolError) as excinfo:
-
-        c.logged_user_required(5)
-        c.logged_user_required_alt(5)
-        c.logged_superuser_required(5)
-        c.logged_superuser_required_alt(5)
-        c.delete_user_perm_required(5)
-        c.any_permission_required(5)
-        c.all_permissions_required(5)
-        c.in_group_A_required(5)
-        c.in_groups_A_and_B_required(5)
-        c.in_groups_A_and_B_required_alt(5)
-        c.in_group_A_or_B_required(5)
-
-    assert excinfo.value.errcode == 403
+    assert raises(xmlrpc_client.ProtocolError, c.logged_user_required, 5).value.errcode == 403
+    assert raises(xmlrpc_client.ProtocolError, c.logged_user_required_alt, 5).value.errcode == 403
+    assert raises(xmlrpc_client.ProtocolError, c.logged_superuser_required, 5).value.errcode == 403
+    assert raises(xmlrpc_client.ProtocolError, c.logged_superuser_required_alt, 5).value.errcode == 403
+    assert raises(xmlrpc_client.ProtocolError, c.delete_user_perm_required, 5).value.errcode == 403
+    assert raises(xmlrpc_client.ProtocolError, c.any_permission_required, 5).value.errcode == 403
+    assert raises(xmlrpc_client.ProtocolError, c.all_permissions_required, 5).value.errcode == 403
+    assert raises(xmlrpc_client.ProtocolError, c.in_group_A_required, 5).value.errcode == 403
+    assert raises(xmlrpc_client.ProtocolError, c.in_groups_A_and_B_required, 5).value.errcode == 403
+    assert raises(xmlrpc_client.ProtocolError, c.in_groups_A_and_B_required_alt, 5).value.errcode == 403
+    assert raises(xmlrpc_client.ProtocolError, c.in_group_A_or_B_required, 5).value.errcode == 403
 
 
 def test_xmlrpc_superuser_auth(live_server, superuser, common_pwd):
@@ -56,19 +52,15 @@ def test_xmlrpc_user_auth(live_server, john_doe, common_pwd):
     assert c.logged_user_required(5) == 5
     assert c.logged_user_required_alt(5) == 5
 
-    with pytest.raises(xmlrpc_client.ProtocolError) as excinfo:
-
-        c.logged_superuser_required(5)
-        c.logged_superuser_required_alt(5)
-        c.delete_user_perm_required(5)
-        c.all_permissions_required(5)
-        c.any_permission_required(5)
-        c.in_group_A_required(5)
-        c.in_groups_A_and_B_required(5)
-        c.in_groups_A_and_B_required_alt(5)
-        c.in_group_A_or_B_required(5)
-
-    assert excinfo.value.errcode == 403
+    assert raises(xmlrpc_client.ProtocolError, c.logged_superuser_required, 5).value.errcode == 403
+    assert raises(xmlrpc_client.ProtocolError, c.logged_superuser_required_alt, 5).value.errcode == 403
+    assert raises(xmlrpc_client.ProtocolError, c.delete_user_perm_required, 5).value.errcode == 403
+    assert raises(xmlrpc_client.ProtocolError, c.all_permissions_required, 5).value.errcode == 403
+    assert raises(xmlrpc_client.ProtocolError, c.any_permission_required, 5).value.errcode == 403
+    assert raises(xmlrpc_client.ProtocolError, c.in_group_A_required, 5).value.errcode == 403
+    assert raises(xmlrpc_client.ProtocolError, c.in_groups_A_and_B_required, 5).value.errcode == 403
+    assert raises(xmlrpc_client.ProtocolError, c.in_groups_A_and_B_required_alt, 5).value.errcode == 403
+    assert raises(xmlrpc_client.ProtocolError, c.in_group_A_or_B_required, 5).value.errcode == 403
 
 
 def test_xmlrpc_user_permissions(live_server, john_doe, common_pwd, delete_user_perm, add_user_perm, change_user_perm):
@@ -81,7 +73,7 @@ def test_xmlrpc_user_permissions(live_server, john_doe, common_pwd, delete_user_
     assert c.delete_user_perm_required(5) == 5
     assert c.any_permission_required(5) == 5
 
-    with pytest.raises(xmlrpc_client.ProtocolError) as excinfo:
+    with raises(xmlrpc_client.ProtocolError) as excinfo:
         c.all_permissions_required(5)
 
     assert excinfo.value.errcode == 403
@@ -100,11 +92,8 @@ def test_xmlrpc_user_groups(live_server, john_doe, common_pwd, group_A, group_B)
     assert c.in_group_A_required(5) == 5
     assert c.in_group_A_or_B_required(5) == 5
 
-    with pytest.raises(xmlrpc_client.ProtocolError) as excinfo:
-        c.in_groups_A_and_B_required(5)
-        c.in_groups_A_and_B_required_alt(5)
-
-    assert excinfo.value.errcode == 403
+    assert raises(xmlrpc_client.ProtocolError, c.in_groups_A_and_B_required, 5).value.errcode == 403
+    assert raises(xmlrpc_client.ProtocolError, c.in_groups_A_and_B_required_alt, 5).value.errcode == 403
 
     john_doe.groups.add(group_B)
 
@@ -116,21 +105,18 @@ def test_jsonrpc_anon_user_auth(live_server):
 
     c = HTTPClient(live_server.url + '/all-rpc/')
 
-    with pytest.raises(ReceivedErrorResponse) as exinfo:
-
-        c.request('logged_user_required', 5)
-        c.request('logged_user_required_alt', 5)
-        c.request('logged_superuser_required', 5)
-        c.request('logged_superuser_required_alt', 5)
-        c.request('delete_user_perm_required', 5)
-        c.request('any_permission_required', 5)
-        c.request('all_permissions_required', 5)
-        c.request('in_group_A_required', 5)
-        c.request('in_groups_A_and_B_required', 5)
-        c.request('in_groups_A_and_B_required_alt', 5)
-        c.request('in_group_A_or_B_required', 5)
-
-    assert exinfo.value.code == RPC_INTERNAL_ERROR
+    assert raises(ReceivedErrorResponse, c.request, 'logged_user_required', 5).value.code == RPC_INTERNAL_ERROR
+    assert raises(ReceivedErrorResponse, c.request, 'logged_user_required_alt', 5).value.code == RPC_INTERNAL_ERROR
+    assert raises(ReceivedErrorResponse, c.request, 'logged_superuser_required', 5).value.code == RPC_INTERNAL_ERROR
+    assert raises(ReceivedErrorResponse, c.request, 'logged_superuser_required_alt', 5).value.code == RPC_INTERNAL_ERROR
+    assert raises(ReceivedErrorResponse, c.request, 'delete_user_perm_required', 5).value.code == RPC_INTERNAL_ERROR
+    assert raises(ReceivedErrorResponse, c.request, 'any_permission_required', 5).value.code == RPC_INTERNAL_ERROR
+    assert raises(ReceivedErrorResponse, c.request, 'all_permissions_required', 5).value.code == RPC_INTERNAL_ERROR
+    assert raises(ReceivedErrorResponse, c.request, 'in_group_A_required', 5).value.code == RPC_INTERNAL_ERROR
+    assert raises(ReceivedErrorResponse, c.request, 'in_groups_A_and_B_required', 5).value.code == RPC_INTERNAL_ERROR
+    assert raises(ReceivedErrorResponse, c.request, 'in_groups_A_and_B_required_alt', 5)\
+               .value.code == RPC_INTERNAL_ERROR
+    assert raises(ReceivedErrorResponse, c.request, 'in_group_A_or_B_required', 5).value.code == RPC_INTERNAL_ERROR
 
 
 def test_jsonrpc_superuser_auth(live_server, superuser, common_pwd):
@@ -159,19 +145,16 @@ def test_jsonrpc_user_auth(live_server, john_doe, common_pwd):
     assert c.request('logged_user_required', 5) == 5
     assert c.request('logged_user_required_alt', 5) == 5
 
-    with pytest.raises(ReceivedErrorResponse) as exinfo:
-
-        c.request('logged_superuser_required', 5)
-        c.request('logged_superuser_required_alt', 5)
-        c.request('delete_user_perm_required', 5)
-        c.request('all_permissions_required', 5)
-        c.request('any_permission_required', 5)
-        c.request('in_group_A_required', 5)
-        c.request('in_groups_A_and_B_required', 5)
-        c.request('in_groups_A_and_B_required_alt', 5)
-        c.request('in_group_A_or_B_required', 5)
-
-    assert exinfo.value.code == RPC_INTERNAL_ERROR
+    assert raises(ReceivedErrorResponse, c.request, 'logged_superuser_required', 5).value.code == RPC_INTERNAL_ERROR
+    assert raises(ReceivedErrorResponse, c.request, 'logged_superuser_required_alt', 5).value.code == RPC_INTERNAL_ERROR
+    assert raises(ReceivedErrorResponse, c.request, 'delete_user_perm_required', 5).value.code == RPC_INTERNAL_ERROR
+    assert raises(ReceivedErrorResponse, c.request, 'any_permission_required', 5).value.code == RPC_INTERNAL_ERROR
+    assert raises(ReceivedErrorResponse, c.request, 'all_permissions_required', 5).value.code == RPC_INTERNAL_ERROR
+    assert raises(ReceivedErrorResponse, c.request, 'in_group_A_required', 5).value.code == RPC_INTERNAL_ERROR
+    assert raises(ReceivedErrorResponse, c.request, 'in_groups_A_and_B_required', 5).value.code == RPC_INTERNAL_ERROR
+    assert raises(ReceivedErrorResponse, c.request, 'in_groups_A_and_B_required_alt', 5)\
+               .value.code == RPC_INTERNAL_ERROR
+    assert raises(ReceivedErrorResponse, c.request, 'in_group_A_or_B_required', 5).value.code == RPC_INTERNAL_ERROR
 
 
 def test_jsonrpc_user_permissions(live_server, john_doe, common_pwd, delete_user_perm, add_user_perm, change_user_perm):
@@ -184,7 +167,7 @@ def test_jsonrpc_user_permissions(live_server, john_doe, common_pwd, delete_user
     assert c.request('delete_user_perm_required', 5) == 5
     assert c.request('any_permission_required', 5) == 5
 
-    with pytest.raises(ReceivedErrorResponse) as exinfo:
+    with raises(ReceivedErrorResponse) as exinfo:
         c.request('all_permissions_required', 5)
 
     assert exinfo.value.code == RPC_INTERNAL_ERROR
@@ -203,11 +186,9 @@ def test_jsonrpc_user_groups(live_server, john_doe, common_pwd, group_A, group_B
     assert c.request('in_group_A_required', 5) == 5
     assert c.request('in_group_A_or_B_required', 5) == 5
 
-    with pytest.raises(ReceivedErrorResponse) as excinfo:
-        c.request('in_groups_A_and_B_required', 5)
-        c.request('in_groups_A_and_B_required_alt', 5)
-
-    assert excinfo.value.code == RPC_INTERNAL_ERROR
+    assert raises(ReceivedErrorResponse, c.request, 'in_groups_A_and_B_required', 5).value.code == RPC_INTERNAL_ERROR
+    assert raises(ReceivedErrorResponse, c.request, 'in_groups_A_and_B_required_alt', 5)\
+               .value.code == RPC_INTERNAL_ERROR
 
     john_doe.groups.add(group_B)
 
