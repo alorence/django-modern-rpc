@@ -70,7 +70,7 @@ True to allow access to the method.
         return a + b
 
 HTTP Basic Authentication support
----------------------------------
+=================================
 
 django-modern-rpc comes with a builtin support for `HTTP Basic Auth`_. It provides a set of decorators to directly
 extract user information from request, and test this user against Django authentication system:

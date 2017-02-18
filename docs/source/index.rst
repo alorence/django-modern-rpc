@@ -11,10 +11,10 @@ project. It supports all major Django and Python versions.
 Project's main features are:
 
 - Simple and pythonic API
-- Python 2.7, 3.3, 3.4 and 3.5
-- Django 1.8, 1.9 and 1.10
-- XML-RPC (as described on http://xmlrpc.scripting.com/) support
-- JSON-RPC 2.0 (from http://www.jsonrpc.org/specification) support (JSON-RPC 1.0 is NOT supported)
+- Python 2.7, 3.3, 3.4, 3.5 and 3.6
+- Django 1.8, 1.9, 1.10 and 1.11
+- XML-RPC_ support
+- `JSON-RPC 2.0`_ support (JSON-RPC 1.0 is NOT supported)
 - Automatic protocol detection based on the request's header ``Content-Type``
 - Usual error handled and reported to callers
 - Multiple entry points, with specific methods and protocol attached
@@ -23,6 +23,10 @@ Project's main features are:
   - system.listMethods()
   - system.methodSignature()
   - system.methodHelp()
+  - system.multicall() (XML-RPC only, using specification from https://mirrors.talideon.com/articles/multicall.html)
+
+.. _XML-RPC: http://xmlrpc.scripting.com/
+.. _JSON-RPC 2.0: http://www.jsonrpc.org/specification
 
 .. toctree::
    :maxdepth: 3

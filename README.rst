@@ -3,16 +3,16 @@ django-modern-rpc
 =================
 
 .. image:: https://travis-ci.org/alorence/django-modern-rpc.svg?branch=master
-   :target: https://travis-ci.org/alorence/django-modern-rpc
+    :target: https://travis-ci.org/alorence/django-modern-rpc
 
 .. image:: https://coveralls.io/repos/github/alorence/django-modern-rpc/badge.svg?branch=master
-   :target: https://coveralls.io/github/alorence/django-modern-rpc?branch=master
+    :target: https://coveralls.io/github/alorence/django-modern-rpc?branch=master
 
 .. image:: https://readthedocs.org/projects/django-modern-rpc/badge/?version=latest
-   :target: http://django-modern-rpc.readthedocs.io/
+    :target: http://django-modern-rpc.readthedocs.io/
 
 .. image:: https://img.shields.io/badge/demo-online-green.svg
-   :target: http://modernrpc.herokuapp.com/
+    :target: http://modernrpc.herokuapp.com/
 
 -----------
 Description
@@ -21,19 +21,21 @@ Description
 django-modern-rpc is a free, lightweight RPC server for Django projects. The project is still under development,
 and its API is subject to modifications. Currently supported features are:
 
-- XML-RPC (as described on http://xmlrpc.scripting.com/) and JSON-RPC 2.0 (from http://www.jsonrpc.org/specification)
-  support. Please note that JSON-RPC 1.0 is not supported.
+- XML-RPC_ and `JSON-RPC 2.0`_ support. Please note that JSON-RPC 1.0 is not supported.
 - Automatic protocol detection based on the request's header ``Content-Type``
-- Python 2.7, 3.3, 3.4 and 3.5
-- Django 1.8, 1.9 and 1.10
+- Python 2.7, 3.3, 3.4, 3.5 and 3.6
+- Django 1.8, 1.9, 1.10 and 1.11
 - Usual error handled and reported to callers
-- Multi entry points, with specific methods and protocol attached
+- Multiple entry points, with specific methods and protocol attached
 - System introspection methods:
 
   - system.listMethods()
   - system.methodSignature()
   - system.methodHelp()
   - system.multicall() (XML-RPC only, using specification from https://mirrors.talideon.com/articles/multicall.html)
+
+.. _XML-RPC: http://xmlrpc.scripting.com/
+.. _JSON-RPC 2.0: http://www.jsonrpc.org/specification
 
 ----------------------------
 Features not yet implemented
@@ -44,13 +46,13 @@ Features not yet implemented
 -----------
 Quick start
 -----------
-#. Install the library using pip:
+1. Install the library using pip:
 
 .. code:: bash
 
     pip install django-modern-rpc
 
-#. Add it to your Django applications, in ``settings.py``:
+2. Add it to your Django applications, in ``settings.py``:
 
 .. code:: python
 
@@ -60,7 +62,7 @@ Quick start
         #...
     ]
 
-#. Declare an entry point, a view which will generate a correct RPC response depending on the incoming request:
+3. Declare an entry point, a view which will generate a correct RPC response depending on the incoming request:
 
 .. code:: python
 
@@ -73,7 +75,7 @@ Quick start
         url(r'^rpc/', RPCEntryPoint.as_view()),
     ]
 
-#. Decorate the methods you want to make available via RPC calls:
+4. Decorate the methods you want to make available via RPC calls:
 
 .. code:: python
 
@@ -84,7 +86,7 @@ Quick start
     def add(a, b):
         return a + b
 
-#. Declare the list of python modules containing your RPC methods, in ``settings.py``:
+5. Declare the list of python modules containing your RPC methods, in ``settings.py``:
 
 .. code:: python
 
@@ -101,4 +103,6 @@ Now, you can call the RPC method ``add`` from a client:
     >>> print(client.add(2, 3))
     5
 
-To get more information, please read `the full documentation <http://django-modern-rpc.readthedocs.io>`_.
+To get more information, please read `the full documentation`_.
+
+.. _`the full documentation`: http://django-modern-rpc.readthedocs.io
