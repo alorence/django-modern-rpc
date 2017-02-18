@@ -17,17 +17,22 @@ def test_get_builtin_date():
     assert date1.minute == 54
     assert date1.second == 0
 
-    date2 = get_builtin_date(datetime.datetime(2012, 5, 9, 23, 12, 12))
-    assert isinstance(date2, datetime.datetime)
-    assert date2.year == 2012
-    assert date2.month == 5
-    assert date2.day == 9
-    assert date2.hour == 23
-    assert date2.minute == 12
-    assert date2.second == 12
 
-    xdate = xmlrpc_client.DateTime(datetime.datetime(1954, 12, 19, 4, 44, 44))
-    date3 = get_builtin_date(xdate)
+def test_get_builtin_date_2():
+
+    date = get_builtin_date(datetime.datetime(2012, 5, 9, 23, 12, 12))
+    assert isinstance(date, datetime.datetime)
+    assert date.year == 2012
+    assert date.month == 5
+    assert date.day == 9
+    assert date.hour == 23
+    assert date.minute == 12
+    assert date.second == 12
+
+
+def test_get_builtin_date_3():
+
+    date3 = get_builtin_date(xmlrpc_client.DateTime(datetime.datetime(1954, 12, 19, 4, 44, 44)))
     assert isinstance(date3, datetime.datetime)
     assert date3.year == 1954
     assert date3.month == 12
@@ -36,11 +41,14 @@ def test_get_builtin_date():
     assert date3.minute == 44
     assert date3.second == 44
 
-    date4 = get_builtin_date("05 11 2014", "%d %m %Y")
-    assert isinstance(date3, datetime.datetime)
-    assert date4.year == 2014
-    assert date4.month == 11
-    assert date4.day == 5
+
+def test_get_builtin_date_4():
+
+    date = get_builtin_date("05 11 2014", "%d %m %Y")
+    assert isinstance(date, datetime.datetime)
+    assert date.year == 2014
+    assert date.month == 11
+    assert date.day == 5
 
 
 def test_get_builtin_date_invalid():
@@ -49,5 +57,7 @@ def test_get_builtin_date_invalid():
     date1 = get_builtin_date("2016-16-04T21:54:00")
     assert date1 is None
 
+
+def test_get_builtin_date_invalid_with_exception():
     with pytest.raises(ValueError):
         get_builtin_date("2016-16-04T21:54:00", raise_exception=True)

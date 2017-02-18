@@ -21,6 +21,7 @@ def test_method_always_available():
 
 
 def test_method_xmlrpc_only():
+
     m = RPCMethod(dummy_function, 'dummy_name', protocol=XMLRPC)
 
     assert m.available_for_protocol(XMLRPC)
@@ -32,6 +33,7 @@ def test_method_xmlrpc_only():
 
 
 def test_method_jsonrpc_only():
+
     m = RPCMethod(dummy_function, 'dummy_name', protocol=JSONRPC)
 
     assert not m.available_for_protocol(XMLRPC)
@@ -43,11 +45,13 @@ def test_method_jsonrpc_only():
 
 
 def test_method_repr():
+
     m = RPCMethod(dummy_function, 'dummy_name', protocol=JSONRPC)
     assert 'dummy_name' in repr(m)
 
 
 def test_method_available_for_entry_point():
+
     m = RPCMethod(dummy_function, 'dummy_name', entry_point='my_entry_point')
 
     assert not m.available_for_entry_point(settings.MODERNRPC_DEFAULT_ENTRYPOINT_NAME)
@@ -55,6 +59,7 @@ def test_method_available_for_entry_point():
 
 
 def test_docs_helpers():
+
     m = RPCMethod(dummy_function, 'dummy_name')
 
     # Dummy function has no documentation
@@ -65,6 +70,7 @@ def test_docs_helpers():
 
 
 def test_docs_helpers_2():
+
     m = RPCMethod(full_documented_method, 'dummy name')
 
     # Dummy function has no documentation
