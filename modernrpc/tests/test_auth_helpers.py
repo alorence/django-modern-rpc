@@ -1,5 +1,4 @@
-from modernrpc.auth import user_is_logged, user_is_superuser, user_has_perm, user_has_perms, user_has_any_perm, \
-    user_in_group
+from modernrpc.auth import *
 
 
 def test_user_is_logged(anonymous_user, john_doe, superuser):
@@ -115,3 +114,87 @@ def test_user_in_group_str(group_A, anonymous_user, john_doe, superuser):
 
     john_doe.groups.add(group_A)
     assert user_in_group(john_doe, group_A.name) is True
+
+
+def test_user_in_any_group(group_A, group_B, anonymous_user, john_doe, superuser):
+
+    groups = [group_A, group_B]
+
+    # Superuser always virtually have permissions
+    assert user_in_any_group(superuser, groups) is True
+
+    # By default, users are not in any group
+    assert user_in_any_group(anonymous_user, groups) is False
+    assert user_in_any_group(john_doe, groups) is False
+
+    john_doe.groups.add(group_A)
+    assert user_in_any_group(john_doe, groups) is True
+
+    john_doe.groups.add(group_B)
+    assert user_in_any_group(john_doe, groups) is True
+
+    john_doe.groups.clear()
+    assert user_in_any_group(john_doe, groups) is False
+
+
+def test_user_in_any_group_str(group_A, group_B, anonymous_user, john_doe, superuser):
+
+    groups = ['A', 'B']
+
+    # Superuser always virtually have permissions
+    assert user_in_any_group(superuser, groups) is True
+
+    # By default, users are not in any group
+    assert user_in_any_group(anonymous_user, groups) is False
+    assert user_in_any_group(john_doe, groups) is False
+
+    john_doe.groups.add(group_A)
+    assert user_in_any_group(john_doe, groups) is True
+
+    john_doe.groups.add(group_B)
+    assert user_in_any_group(john_doe, groups) is True
+
+    john_doe.groups.clear()
+    assert user_in_any_group(john_doe, groups) is False
+
+
+def test_user_in_all_groups(group_A, group_B, anonymous_user, john_doe, superuser):
+
+    groups = [group_A, group_B]
+
+    # Superuser always virtually have permissions
+    assert user_in_all_groups(superuser, groups) is True
+
+    # By default, users are not in any group
+    assert user_in_all_groups(anonymous_user, groups) is False
+    assert user_in_all_groups(john_doe, groups) is False
+
+    john_doe.groups.add(group_A)
+    assert user_in_all_groups(john_doe, groups) is False
+
+    john_doe.groups.add(group_B)
+    assert user_in_all_groups(john_doe, groups) is True
+
+    john_doe.groups.clear()
+    assert user_in_all_groups(john_doe, groups) is False
+
+
+def test_user_in_all_groups_str(group_A, group_B, anonymous_user, john_doe, superuser):
+
+    groups = ['A', 'B']
+
+    # Superuser always virtually have permissions
+    assert user_in_all_groups(superuser, groups) is True
+
+    # By default, users are not in any group
+    assert user_in_all_groups(anonymous_user, groups) is False
+    assert user_in_all_groups(john_doe, groups) is False
+
+    john_doe.groups.add(group_A)
+    assert user_in_all_groups(john_doe, groups) is False
+
+    john_doe.groups.add(group_B)
+    assert user_in_all_groups(john_doe, groups) is True
+
+    john_doe.groups.clear()
+    assert user_in_all_groups(john_doe, groups) is False

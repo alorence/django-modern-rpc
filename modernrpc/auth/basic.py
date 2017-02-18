@@ -108,6 +108,6 @@ def http_basic_auth_group_member_required(groups):
             return auth.set_authentication_predicate(func, http_basic_auth_check_user, [auth.user_in_group, groups])
 
         # Check user is in many group
-        return auth.set_authentication_predicate(func, http_basic_auth_check_user, [auth.user_in_groups, groups])
+        return auth.set_authentication_predicate(func, http_basic_auth_check_user, [auth.user_in_any_group, groups])
 
     return decorated
