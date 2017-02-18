@@ -37,12 +37,12 @@ class XMLRPCHandler(RPCHandler):
                 # Python 2
                 return xmlrpc_client.loads(data, use_datetime=settings.MODERNRPC_XMLRPC_USE_BUILTIN_TYPES)
         except xml.parsers.expat.ExpatError as e:
-            raise RPCInvalidRequest(e)
+            raise RPCParseError(e)
         except Exception as e:
             # Depending on the concrete parser used in loads, we can't determine which exception can be raised during
             # XML loading. So we catch the generic Exception and a RpcParseError, since the error is mostly related
             # to XML request parsing.
-            raise RPCParseError(e)
+            raise RPCInvalidRequest(e)
 
     def dumps(self, obj):
 

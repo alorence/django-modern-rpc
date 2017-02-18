@@ -7,7 +7,7 @@ import requests
 from django.utils.six.moves import xmlrpc_client
 
 from modernrpc.exceptions import RPC_INVALID_REQUEST, RPC_METHOD_NOT_FOUND, RPC_INVALID_PARAMS, \
-    RPC_CUSTOM_ERROR_BASE, RPC_CUSTOM_ERROR_MAX, RPC_INTERNAL_ERROR
+    RPC_CUSTOM_ERROR_BASE, RPC_CUSTOM_ERROR_MAX, RPC_INTERNAL_ERROR, RPC_PARSE_ERROR
 
 
 def test_xrpc_call_unknown_method(live_server):
@@ -35,7 +35,7 @@ def test_xrpc_invalid_params(live_server):
     assert excinfo.value.faultCode == RPC_INVALID_PARAMS
 
 
-def test_xrpc_invalid_params2(live_server):
+def test_xrpc_invalid_params_2(live_server):
 
     client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
 
@@ -74,14 +74,14 @@ def test_xrpc_divide_by_zero(live_server):
     assert excinfo.value.faultCode == RPC_INTERNAL_ERROR
 
 
-def test_xrpc_invalid_request(live_server):
+def test_xrpc_invalid_request_missing_method_name(live_server):
     invalid_payload = '''<?xml version="1.0"?>
 <methodCall>
-      <params>
-         <param>
-            <value><double>2.41</double></value>
-         </param>
-      </params>
+  <params>
+     <param>
+        <value><double>2.41</double></value>
+     </param>
+  </params>
 </methodCall>'''
     headers = {'content-type': 'text/xml'}
     response = requests.post(live_server.url + '/all-rpc/', data=invalid_payload, headers=headers)
@@ -101,32 +101,7 @@ def test_xrpc_invalid_request(live_server):
     assert code == RPC_INVALID_REQUEST
 
 
-def test_xrpc_invalid_request_2(live_server):
-    invalid_payload = json.dumps({
-        "method": 'add',
-        "params": [5, 6],
-        "jsonrpc": "2.0",
-        "id": 42,
-    })
-    headers = {'content-type': 'text/xml'}
-    response = requests.post(live_server.url + '/all-rpc/', data=invalid_payload, headers=headers)
-
-    tree = ET.fromstring(response.content)
-    members = tree.find('fault').find('value').find('struct')
-
-    code, message = '', ''
-    for member in members:
-        if member.find('name').text == 'faultCode':
-            code = int(member.find('value').find('int').text)
-        elif member.find('name').text == 'faultString':
-            message = member.find('value').find('string').text
-
-    assert 'Invalid request' in message
-    assert 'not well-formed' in message
-    assert code == RPC_INVALID_REQUEST
-
-
-def test_xrpc_invalid_request_3(live_server):
+def test_xrpc_invalid_xml(live_server):
     invalid_payload = '''<?xml version="1.0"?>
 <methodCall>
   <methodName>examples.getStateName</methodName
@@ -149,6 +124,59 @@ def test_xrpc_invalid_request_3(live_server):
         elif member.find('name').text == 'faultString':
             message = member.find('value').find('string').text
 
-    assert 'Invalid request' in message
+    assert 'Parse error' in message
     assert 'not well-formed' in message
-    assert code == RPC_INVALID_REQUEST
+    assert code == RPC_PARSE_ERROR
+
+
+def test_xrpc_invalid_request_json_request(live_server):
+    invalid_payload = json.dumps({
+        "method": 'add',
+        "params": [5, 6],
+        "jsonrpc": "2.0",
+        "id": 42,
+    })
+    headers = {'content-type': 'text/xml'}
+    response = requests.post(live_server.url + '/all-rpc/', data=invalid_payload, headers=headers)
+
+    tree = ET.fromstring(response.content)
+    members = tree.find('fault').find('value').find('struct')
+
+    code, message = '', ''
+    for member in members:
+        if member.find('name').text == 'faultCode':
+            code = int(member.find('value').find('int').text)
+        elif member.find('name').text == 'faultString':
+            message = member.find('value').find('string').text
+
+    assert 'Parse error' in message
+    assert 'not well-formed' in message
+    assert code == RPC_PARSE_ERROR
+
+
+def test_xrpc_invalid_request_bad_type_value(live_server):
+    invalid_payload = '''<?xml version="1.0"?>
+<methodCall>
+  <methodName>examples.getStateName</methodName
+  <params>
+     <param>
+        <value><double>2.41</double></value>
+     </param>
+  </params>
+</methodCall>'''
+    headers = {'content-type': 'text/xml'}
+    response = requests.post(live_server.url + '/all-rpc/', data=invalid_payload, headers=headers)
+
+    tree = ET.fromstring(response.content)
+    members = tree.find('fault').find('value').find('struct')
+
+    code, message = '', ''
+    for member in members:
+        if member.find('name').text == 'faultCode':
+            code = int(member.find('value').find('int').text)
+        elif member.find('name').text == 'faultString':
+            message = member.find('value').find('string').text
+
+    assert 'Parse error' in message
+    assert 'not well-formed' in message
+    assert code == RPC_PARSE_ERROR
