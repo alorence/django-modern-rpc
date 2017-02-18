@@ -39,9 +39,6 @@ class XMLRPCHandler(RPCHandler):
         except xml.parsers.expat.ExpatError as e:
             raise RPCParseError(e)
         except Exception as e:
-            # Depending on the concrete parser used in loads, we can't determine which exception can be raised during
-            # XML loading. So we catch the generic Exception and a RpcParseError, since the error is mostly related
-            # to XML request parsing.
             raise RPCInvalidRequest(e)
 
     def dumps(self, obj):
