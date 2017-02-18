@@ -2,8 +2,6 @@
 import pytest
 from django.utils.six.moves import xmlrpc_client
 from jsonrpcclient.exceptions import ReceivedErrorResponse
-
-import dummy_jsonrpc_client as jsonrpc_client
 from jsonrpcclient.http_client import HTTPClient
 
 from modernrpc.exceptions import RPC_INTERNAL_ERROR
@@ -112,7 +110,6 @@ def test_xmlrpc_user_groups(live_server, john_doe, common_pwd, group_A, group_B)
 
     assert c.in_groups_A_and_B_required(5) == 5
     assert c.in_groups_A_and_B_required_alt(5) == 5
-
 
 
 def test_jsonrpc_anon_user_auth(live_server):
