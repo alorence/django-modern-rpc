@@ -66,7 +66,7 @@ def __system_multiCall(calls, **kwargs):
     :return:
     """
     if not isinstance(calls, list):
-        raise RPCInvalidParams('method_names must be a list')
+        raise RPCInvalidParams('system.multicall first argument should be a list, {} given.'.format(type(calls)))
 
     entry_point = kwargs.get(ENTRY_POINT_KEY)
     protocol = kwargs.get(PROTOCOL_KEY)

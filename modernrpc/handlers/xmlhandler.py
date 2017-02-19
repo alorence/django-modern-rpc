@@ -47,12 +47,13 @@ class XMLRPCHandler(RPCHandler):
         if isinstance(obj, xmlrpc_client.Fault):
             return self.marshaller.dumps(obj)
 
-        # xmlrpc.client.Marshaller (or the Python equivalent) expects a list of objects to dumps.
-        # It will loop over these objects, will output a <param><value>X</value></param> for each element.
+        # xmlrpc_client.Marshaller expects a list of objects to dumps.
+        # It will output a '<params></params>' block and loops onto given objects to inject, for each one,
+        # a '<param><value><type>X</type></value></param>' block.
         # This is not the return defined in XML-RPC standard, see http://xmlrpc.scripting.com/spec.html:
         # > The body of the response is a single XML structure, a <methodResponse>, which can contain
         # > a single <params> which contains a single <param> which contains a single <value>.
-        # For any type to dump, we need to give a list of only 1 element:
+        # For any type to dump, we need to give a single element list:
         return self.marshaller.dumps([obj])
 
     def parse_request(self):

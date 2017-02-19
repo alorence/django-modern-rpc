@@ -195,3 +195,14 @@ def test_xrpc_invalid_request_bad_type_value(live_server):
 
     assert 'not well-formed' in message
     assert code == RPC_PARSE_ERROR
+
+
+def test_xrpc_invalid_multicall(live_server):
+
+    client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
+
+    with pytest.raises(xmlrpc_client.Fault) as excinfo:
+        client.system.multicall('method1')
+
+    assert 'argument should be a list' in excinfo.value.faultString
+    assert excinfo.value.faultCode == RPC_INVALID_PARAMS
