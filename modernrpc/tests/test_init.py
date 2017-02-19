@@ -16,9 +16,7 @@ def test_init_missing_method_modules_setting(settings):
 def test_init_registry_cleaning(settings):
 
     app = apps.get_app_config("modernrpc")
-
-    # Normal initialization: RPC methods from custom modules are registered
-    app.ready()
+    orig_modules_list = settings.MODERNRPC_METHODS_MODULES
 
     # Retrieve all methods defined in custom modules (not system.* methods)
     custom_rpc_methods = [m for m in get_all_method_names() if not m.startswith('system.')]
@@ -32,3 +30,7 @@ def test_init_registry_cleaning(settings):
     # Now, we should have removed all custom methods from the registry
     custom_rpc_methods = [m for m in get_all_method_names() if not m.startswith('system.')]
     assert len(custom_rpc_methods) == 0
+
+    # Restore original state for registry
+    settings.MODERNRPC_METHODS_MODULES = orig_modules_list
+    app.ready()
