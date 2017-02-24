@@ -28,3 +28,6 @@ MODERNRPC_DEFAULT_ENTRYPOINT_NAME = '__default_entry_point__'
 # Configure the format of the docstring used to document your RPC methods.
 # Possible values are: '', 'rst' or 'md'
 MODERNRPC_DOC_FORMAT = ''
+
+MODERNRPC_PY2_STR_TYPE = None
+MODERNRPC_PY2_STR_ENCODING = 'UTF-8'

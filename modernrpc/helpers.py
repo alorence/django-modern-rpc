@@ -1,6 +1,10 @@
 # coding: utf-8
 import datetime
+
+from django.utils import six
 from django.utils.six.moves import xmlrpc_client
+
+from modernrpc.conf import settings
 
 
 def get_builtin_date(date, format="%Y-%m-%dT%H:%M:%S", raise_exception=False):
@@ -32,3 +36,39 @@ def get_builtin_date(date, format="%Y-%m-%dT%H:%M:%S", raise_exception=False):
                 raise
             else:
                 return None
+
+
+def change_str_types(arg, strtype=settings.MODERNRPC_PY2_STR_TYPE):
+    assert six.PY2, "This function should be used with Python 2 only"
+
+    if not strtype:
+        return arg
+
+    if strtype == str:
+        # We want to convert from unicode to str
+        return unicode_to_str(arg)
+    elif strtype == unicode:
+        # We want to convert from str to unicode
+        return str_to_unicode(arg)
+
+    raise TypeError
+
+
+def str_to_unicode(arg):
+    if isinstance(arg, str):
+        return unicode(arg, settings.MODERNRPC_PY2_STR_ENCODING)
+    elif isinstance(arg, (list, tuple, set)):
+        return type(arg)([str_to_unicode(element) for element in arg])
+    elif isinstance(arg, dict):
+        return {k: str_to_unicode(v) for k, v in arg.iteritems()}
+    return arg
+
+
+def unicode_to_str(arg):
+    if isinstance(arg, unicode):
+        return arg.encode(settings.MODERNRPC_PY2_STR_ENCODING)
+    elif isinstance(arg, (list, tuple, set)):
+        return type(arg)([unicode_to_str(element) for element in arg])
+    elif isinstance(arg, dict):
+        return {k: unicode_to_str(v) for k, v in arg.iteritems()}
+    return arg
