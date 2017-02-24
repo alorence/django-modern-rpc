@@ -22,15 +22,6 @@ def test_xmlrpc_bool(live_server):
     assert result is True
 
 
-def test_xmlrpc_bool_2(live_server):
-
-    c = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
-    result = c.get_false()
-
-    assert type(result) == bool
-    assert result is False
-
-
 def test_jsonrpc_bool(live_server):
 
     c = HTTPClient(live_server.url + '/all-rpc/')
@@ -38,6 +29,15 @@ def test_jsonrpc_bool(live_server):
 
     assert type(result) == bool
     assert result is True
+
+
+def test_xmlrpc_bool_2(live_server):
+
+    c = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
+    result = c.get_false()
+
+    assert type(result) == bool
+    assert result is False
 
 
 def test_jsonrpc_bool_2(live_server):
@@ -62,7 +62,7 @@ def test_jsonrpc_null(live_server):
     assert result is None
 
 
-def test_xmlrpc_numeric(live_server):
+def test_xmlrpc_int(live_server):
 
     c = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
 
@@ -71,7 +71,16 @@ def test_xmlrpc_numeric(live_server):
     assert result == 42
 
 
-def test_xmlrpc_numeric_2(live_server):
+def test_jsonrpc_int(live_server):
+
+    c = HTTPClient(live_server.url + '/all-rpc/')
+
+    result = c.get_int()
+    assert type(result) == int
+    assert result == 42
+
+
+def test_xmlrpc_int_negative(live_server):
 
     c = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
 
@@ -80,7 +89,16 @@ def test_xmlrpc_numeric_2(live_server):
     assert result == -42
 
 
-def test_xmlrpc_numeric_3(live_server):
+def test_jsonrpc_int_negative(live_server):
+
+    c = HTTPClient(live_server.url + '/all-rpc/')
+
+    result = c.get_negative_int()
+    assert type(result) == int
+    assert result == -42
+
+
+def test_xmlrpc_float(live_server):
 
     c = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
 
@@ -89,25 +107,7 @@ def test_xmlrpc_numeric_3(live_server):
     assert result == 3.14
 
 
-def test_jsonrpc_numeric(live_server):
-
-    c = HTTPClient(live_server.url + '/all-rpc/')
-
-    result = c.get_int()
-    assert type(result) == int
-    assert result == 42
-
-
-def test_jsonrpc_numeric_2(live_server):
-
-    c = HTTPClient(live_server.url + '/all-rpc/')
-
-    result = c.get_negative_int()
-    assert type(result) == int
-    assert result == -42
-
-
-def test_jsonrpc_numeric_3(live_server):
+def test_jsonrpc_float(live_server):
 
     c = HTTPClient(live_server.url + '/all-rpc/')
 
