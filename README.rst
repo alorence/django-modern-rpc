@@ -66,7 +66,7 @@ Quick start
         #...
     ]
 
-3. Declare an entry point, a view generating a correct RPC response to the incoming request:
+3. Declare an entry point, a view generating correct RPC responses to incoming requests:
 
 .. code:: python
 

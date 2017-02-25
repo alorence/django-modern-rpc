@@ -9,9 +9,11 @@ from django.contrib.admindocs.utils import trim_docstring
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import inspect
+from django.utils import six
 
 from modernrpc.conf import settings
 from modernrpc.handlers import XMLRPC, JSONRPC
+from modernrpc.helpers import change_str_types
 
 logger = logging.getLogger(__name__)
 warnings.simplefilter('once', DeprecationWarning)
@@ -182,6 +184,9 @@ class RPCMethod(object):
         # Try to load the method address
         module = importlib.import_module(self.module)
         func = getattr(module, self.func_name)
+
+        if six.PY2:
+            args = change_str_types(args)
 
         # Call the rpc method, as standard python function
         if self.accept_kwargs:

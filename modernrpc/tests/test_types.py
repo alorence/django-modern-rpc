@@ -133,34 +133,30 @@ def test_jsonrpc_string(live_server):
     result = c.get_string()
 
     # Unlike XML-RPC, JSON-RPC always return a unicode string. That means the type of the result value is
-    # 'unicode' in Python 2 and 'str' in python 3. This may be addressed in the future
-    expected = text_type('abcde')
-
-    assert result == expected
-    assert type(result) == type(expected)
+    # 'unicode' in Python 2 and 'str' in python 3.
+    assert type(result) == str if six.PY3 else unicode
+    assert result == 'abcde'
 
 
 def test_xmlrpc_input_string(live_server):
 
     c = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
-    result = c.get_data_type('abcd')
 
     # Python 2 : "<type 'str'>"
     # Python 3 : "<class 'str'>"
-    assert re.match(r"<(class|type) 'str'>", result)
+    assert re.match(r"<(class|type) 'str'>", c.get_data_type('abcd'))
 
 
 def test_jsonrpc_input_string(live_server):
 
     c = HTTPClient(live_server.url + '/all-rpc/')
-    result = c.get_data_type('abcd')
 
-    # Python 2 : "<type 'unicode'>"
+    # Python 2 : "<type 'str'>"
     # Python 3 : "<class 'str'>"
-    if six.PY2:
-        assert "<type 'unicode'>" == result
-    else:
-        assert "<class 'str'>" == result
+    # By default on Python 2, json-rpc call to this method will return 'unicode'
+    # This test suite has been configured with settings.MODERNRPC_PY2_STR_TYPE = str, so
+    # arguments passed to RPC methods via XML or JSON will be converted to the same type (str in that case)
+    assert re.match(r"<(class|type) 'str'>", c.get_data_type('abcd'))
 
 
 def test_xmlrpc_bytes(live_server):
@@ -269,17 +265,14 @@ def test_jsonrpc_date(live_server):
 def test_jsonrpc_date_2(live_server):
     c = HTTPClient(live_server.url + '/all-rpc/')
     date = datetime.datetime(1990, 1, 1, 0, 0, 0)
-    # We have to convert date to ISO 8601, since JSON-RPC cannot serialize it
-    result = c.get_data_type(date.isoformat())
 
-    # Since data type are not included in JSON-RPC request, dates are transmitter as string
-    # to the server. The decoded type depends on the Python version used
-    if sys.version_info < (3, 0):
-        # Python 2 : "<type 'unicode'>"
-        assert "<type 'unicode'>" == result
-    else:
-        # Python 3 : "<class 'str'>"
-        assert "<class 'str'>" == result
+    # Since date type is not supported by JSON-RPC spec, it is transported as string
+    # to the server. By default, the decoded type depends on the Python version.
+    # Since this test suite has been configured with settings.MODERNRPC_PY2_STR_TYPE = str,
+    # the type returned will always be 'str'
+
+    # We have to convert date to ISO 8601, since JSON-RPC cannot serialize it
+    assert re.match(r"<(class|type) 'str'>", c.get_data_type(date.isoformat()))
 
 
 def test_jsonrpc_date_3(live_server):

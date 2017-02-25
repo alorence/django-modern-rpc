@@ -64,3 +64,5 @@ MODERNRPC_METHODS_MODULES = [
     # This increase the coverage ratio in apps.py
     'inexistant.module',
 ]
+
+MODERNRPC_PY2_STR_TYPE = str
