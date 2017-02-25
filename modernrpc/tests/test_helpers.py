@@ -2,11 +2,9 @@
 import datetime
 
 import pytest
-from django.utils import six
 from django.utils.six.moves import xmlrpc_client
-from pytest import raises
 
-from modernrpc.helpers import get_builtin_date, change_str_types
+from modernrpc.helpers import get_builtin_date
 
 
 def test_get_builtin_date():
@@ -64,88 +62,3 @@ def test_get_builtin_date_invalid():
 def test_get_builtin_date_invalid_with_exception():
     with pytest.raises(ValueError):
         get_builtin_date("2016-16-04T21:54:00", raise_exception=True)
-
-
-@pytest.mark.skipif(six.PY2, reason='This test if for Python 3 only')
-def test_string_upd_error_with_py3():
-    raises(AssertionError, change_str_types('123'))
-
-
-@pytest.mark.skipif(six.PY3, reason='This test if for Python 2 only')
-def test_string_upd_1():
-    assert change_str_types('abc', unicode) == u'abc'
-
-
-@pytest.mark.skipif(six.PY3, reason='This test if for Python 2 only')
-def test_string_upd_2():
-    assert change_str_types(u'abc', str) == 'abc'
-
-
-@pytest.mark.skipif(six.PY3, reason='This test if for Python 2 only')
-def test_string_upd_3():
-    in_list = [145, 964, 84, ['ghjfgh', 64], [[84, 9.254, b'trdf', 645], '456', u'784', 'sdfg']]
-    expected_out = [145, 964, 84, [u'ghjfgh', 64], [[84, 9.254, b'trdf', 645], u'456', u'784', u'sdfg']]
-    assert change_str_types(in_list, unicode) == expected_out
-
-
-@pytest.mark.skipif(six.PY3, reason='This test if for Python 2 only')
-def test_string_upd_4():
-    in_list = [145, 964, 84, [u'ghjfgh', 64], [[84, 9.254, b'trdf', 645], u'456', u'784', 'sdfg']]
-    expected_out = [145, 964, 84, ['ghjfgh', 64], [[84, 9.254, b'trdf', 645], '456', '784', 'sdfg']]
-    assert change_str_types(in_list, str) == expected_out
-
-
-@pytest.mark.skipif(six.PY3, reason='This test if for Python 2 only')
-def test_string_upd_5():
-    in_list = (145, 964, 84, ['ghjfgh', 64], [(84, 9.254, b'trdf', 645), '456', u'784', 'sdfg'])
-    expected_out = (145, 964, 84, [u'ghjfgh', 64], [(84, 9.254, b'trdf', 645), u'456', u'784', u'sdfg'])
-    assert change_str_types(in_list, unicode) == expected_out
-
-
-@pytest.mark.skipif(six.PY3, reason='This test if for Python 2 only')
-def test_string_upd_6():
-    in_list = (145, 964, 84, (u'ghjfgh', 64), ([84, 9.254, b'trdf', 645], u'456', u'784', 'sdfg'))
-    expected_out = (145, 964, 84, ('ghjfgh', 64), ([84, 9.254, b'trdf', 645], '456', '784', 'sdfg'))
-    assert change_str_types(in_list, str) == expected_out
-
-
-@pytest.mark.skipif(six.PY3, reason='This test if for Python 2 only')
-def test_string_upd_7():
-    in_dict = {
-        'a': 456,
-        'b': [84, 5.1, 'strdfg', u'trdt'],
-        'pp': {
-            'x': 32,
-            'y': ['rtg', 'poi', 'aze']
-        },
-    }
-    expected_out = {
-        'a': 456,
-        'b': [84, 5.1, u'strdfg', u'trdt'],
-        'pp': {
-            'x': 32,
-            'y': [u'rtg', u'poi', u'aze']
-        },
-    }
-    assert change_str_types(in_dict, unicode) == expected_out
-
-
-@pytest.mark.skipif(six.PY3, reason='This test if for Python 2 only')
-def test_string_upd_8():
-    in_dict = {
-        'a': 456,
-        'b': [84, 5.1, u'strdfg', u'trdt'],
-        'pp': {
-            'x': 32,
-            'y': [u'rtg', 'poi', u'aze']
-        },
-    }
-    expected_out = {
-        'a': 456,
-        'b': [84, 5.1, 'strdfg', 'trdt'],
-        'pp': {
-            'x': 32,
-            'y': ['rtg', 'poi', 'aze']
-        },
-    }
-    assert change_str_types(in_dict, str) == expected_out

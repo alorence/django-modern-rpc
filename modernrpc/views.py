@@ -34,7 +34,7 @@ class RPCEntryPoint(TemplateView):
             raise ImproperlyConfigured("At least 1 handler must be instantiated.")
         logger.debug('RPC entry point "{}" initialized'.format(self.entry_point))
 
-    # This disable CRSF validation for POST requests
+    # This disable CSRF validation for POST requests
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         """

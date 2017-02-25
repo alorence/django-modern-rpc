@@ -13,7 +13,7 @@ from django.utils import six
 
 from modernrpc.conf import settings
 from modernrpc.handlers import XMLRPC, JSONRPC
-from modernrpc.helpers import change_str_types
+from modernrpc.compat import standardize_strings
 
 logger = logging.getLogger(__name__)
 warnings.simplefilter('once', DeprecationWarning)
@@ -186,7 +186,7 @@ class RPCMethod(object):
         func = getattr(module, self.func_name)
 
         if six.PY2:
-            args = change_str_types(args)
+            args = standardize_strings(args)
 
         # Call the rpc method, as standard python function
         if self.accept_kwargs:
