@@ -89,3 +89,14 @@ def test_standardize_str_8():
         },
     }
     assert standardize_strings(in_dict, str) == expected_out
+
+
+@pytest.mark.skipif(six.PY3, reason='This test if for Python 2 only')
+def test_standardize_str_9():
+    assert standardize_strings(54, None) == 54
+
+
+@pytest.mark.skipif(six.PY3, reason='This test if for Python 2 only')
+def test_standardize_str_10():
+    with raises(TypeError):
+        assert standardize_strings("64", int)
