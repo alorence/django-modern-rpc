@@ -1,6 +1,5 @@
 # coding: utf-8
 import inspect
-import logging
 import warnings
 from importlib import import_module
 
@@ -8,8 +7,6 @@ from django.apps import AppConfig
 
 from modernrpc.conf import settings
 from modernrpc.core import register_rpc_method, get_all_method_names, unregister_rpc_method
-
-logger = logging.getLogger(__name__)
 
 
 class ModernRpcConfig(AppConfig):
@@ -36,8 +33,9 @@ class ModernRpcConfig(AppConfig):
                     module = import_module(module_name)
 
                 except ImportError:
-                    logger.warning('Unable to load module "{}". Please check MODERNRPC_METHODS_MODULES for invalid'
-                                   ' names'.format(module_name))
+                    msg = 'Unable to load module "{}" declared in settings.MODERNRPC_METHODS_MODULES. Please ensure ' \
+                          'it is available and doesn\'t contains any error'.format(module_name)
+                    warnings.warn(msg, category=Warning)
                     continue
 
                 for _, func in inspect.getmembers(module, inspect.isfunction):
