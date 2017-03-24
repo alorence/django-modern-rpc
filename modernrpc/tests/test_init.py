@@ -13,6 +13,17 @@ def test_init_missing_method_modules_setting(settings):
         app.ready()
 
 
+def test_init_import_warning(settings):
+
+    settings.MODERNRPC_METHODS_MODULES = [
+        'invalid_module'
+    ]
+    app = apps.get_app_config("modernrpc")
+
+    with pytest.warns(Warning):
+        app.ready()
+
+
 def test_init_registry_cleaning(settings):
 
     app = apps.get_app_config("modernrpc")
