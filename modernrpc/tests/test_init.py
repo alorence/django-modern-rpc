@@ -26,8 +26,10 @@ def test_init_import_warning(settings):
 
 def test_init_registry_cleaning(settings):
 
-    app = apps.get_app_config("modernrpc")
     orig_modules_list = settings.MODERNRPC_METHODS_MODULES
+
+    app = apps.get_app_config("modernrpc")
+    app.ready()
 
     # Retrieve all methods defined in custom modules (not system.* methods)
     custom_rpc_methods = [m for m in get_all_method_names() if not m.startswith('system.')]
