@@ -2,11 +2,10 @@
 Data types support
 ==================
 
-Since your RPC methods will
+JSON-RPC uses JSON to transport request and response. As a result, the supported types are limited by JSON type system,
+described in http://www.ietf.org/rfc/rfc4627.txt.
 
-JSON transport supported types are limited by JSON type system described in http://www.ietf.org/rfc/rfc4627.txt.
-
-XML-RPC specification contains explicit type information. As a consequence, more types are supported by this protocol.
+XML-RPC transport contains explicit type information. As a consequence, more types are supported by this protocol.
 Supported types are documented at http://xmlrpc.scripting.com/spec.html.
 
 In addition, Python version used in your project may change how data types are handled. Since django-modern-rpc
