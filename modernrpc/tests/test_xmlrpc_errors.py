@@ -215,5 +215,6 @@ def test_xrpc_invalid_result(live_server):
     with pytest.raises(xmlrpc_client.Fault) as excinfo:
         client.get_invalid_result()
 
-    assert 'cannot marshal' in excinfo.value.faultString
+    # We cannot test for returned error message because it is too different accross various python versions
+    # assert 'cannot marshal' in excinfo.value.faultString
     assert excinfo.value.faultCode == RPC_INTERNAL_ERROR
