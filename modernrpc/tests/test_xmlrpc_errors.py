@@ -206,3 +206,14 @@ def test_xrpc_invalid_multicall(live_server):
 
     assert 'argument should be a list' in excinfo.value.faultString
     assert excinfo.value.faultCode == RPC_INVALID_PARAMS
+
+
+def test_xrpc_invalid_result(live_server):
+
+    client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
+
+    with pytest.raises(xmlrpc_client.Fault) as excinfo:
+        client.get_invalid_result()
+
+    assert 'cannot marshal' in excinfo.value.faultString
+    assert excinfo.value.faultCode == RPC_INTERNAL_ERROR

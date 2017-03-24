@@ -47,3 +47,10 @@ def add_one_month(date):
 def existing_but_not_decorated():
     """This function help to validate only methods with decorator are effectively added to the registry"""
     return 42 * 42
+
+
+@rpc_method
+def get_invalid_result():
+    """Return an oject instance that cannot be serialized in json or xml"""
+    from django.http.response import HttpResponse
+    return HttpResponse(content='dummy')

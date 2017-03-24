@@ -191,3 +191,14 @@ def test_jsrpc_divide_by_zero(live_server):
     # Python3: division by zero
     assert 'by zero' in excinfo.value.message
     assert excinfo.value.code == RPC_INTERNAL_ERROR
+
+
+def test_jsrpc_invalid_result(live_server):
+
+    client = HTTPClient(live_server.url + '/all-rpc/')
+
+    with pytest.raises(ReceivedErrorResponse) as excinfo:
+        client.get_invalid_result()
+
+    assert 'Unable to serialize result as' in excinfo.value.message
+    assert excinfo.value.code == RPC_INTERNAL_ERROR
