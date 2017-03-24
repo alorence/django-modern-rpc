@@ -49,6 +49,8 @@ It is associated with RPC method using ``@set_authentication_predicate`` decorat
     def my_rpc_method(a, b):
         return a + b
 
+Now, the RPC method becomes unavailable to callers if User-Agent is not provided or if it has an invalid value.
+
 If your predicate takes additional arguments, simply add them as arguments of the decorator:
 
 .. code:: python
@@ -78,6 +80,11 @@ extract user information from request, and test this user against Django authent
 .. _`HTTP Basic Auth`: https://www.wikiwand.com/en/Basic_access_authentication
 
 .. code:: python
+
+    from modernrpc.auth.basic import http_basic_auth_login_required, http_basic_auth_superuser_required, \
+         http_basic_auth_permissions_required, http_basic_auth_any_of_permissions_required, \
+         http_basic_auth_group_member_required, http_basic_auth_all_groups_member_required
+    from modernrpc.core import rpc_method
 
 
     @rpc_method
