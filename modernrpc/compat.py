@@ -14,6 +14,7 @@ def generic_convert_string(v, from_type, to_type):
 
     elif isinstance(v, (list, tuple, set)):
         return type(v)([generic_convert_string(element, from_type, to_type) for element in v])
+
     elif isinstance(v, dict):
         return {k: generic_convert_string(v, from_type, to_type) for k, v in v.iteritems()}
 
@@ -29,6 +30,7 @@ def standardize_strings(arg, strtype=settings.MODERNRPC_PY2_STR_TYPE):
     if strtype == str:
         # We want to convert from unicode to str
         return generic_convert_string(arg, unicode, str)
+
     elif strtype == unicode:
         # We want to convert from str to unicode
         return generic_convert_string(arg, str, unicode)
