@@ -1,3 +1,11 @@
+# coding: utf-8
+from django.utils.six.moves import xmlrpc_client
+from jsonrpcclient.exceptions import ReceivedErrorResponse
+from jsonrpcclient.http_client import HTTPClient
+from pytest import raises
+
+from modernrpc.exceptions import RPC_INTERNAL_ERROR
+
 import pytest
 from django.utils import six
 from pytest import raises
@@ -100,3 +108,13 @@ def test_standardize_str_9():
 def test_standardize_str_10():
     with raises(TypeError):
         assert standardize_strings("64", int)
+
+
+@pytest.mark.skipif(six.PY3, reason='This test if for Python 2 only')
+def test_method_level_str_std(live_server):
+
+    jclient = HTTPClient(live_server.url + '/all-rpc/')
+    assert jclient.force_unicode_input("abcde") == "<type 'unicode'>"
+
+    xclient = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
+    assert xclient.force_unicode_input("abcde") == "<type 'unicode'>"

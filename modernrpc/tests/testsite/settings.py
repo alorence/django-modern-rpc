@@ -65,4 +65,8 @@ MODERNRPC_METHODS_MODULES = [
     'inexistant.module',
 ]
 
+from django.utils.six import PY2
+if PY2:
+    MODERNRPC_METHODS_MODULES.append('testsite.rpc_methods_stub.python2_specific')
+
 MODERNRPC_PY2_STR_TYPE = str
