@@ -118,7 +118,7 @@ class RPCEntryPoint(TemplateView):
                     result = rpc_method.execute(*params, **kwargs)
 
                 except TypeError as e:
-                    # If given arguments cannot be passed correctly to python function,
+                    # If given arguments cannot be transmitted properly to python function,
                     # raise an Invalid Params exceptions
                     raise RPCInvalidParams(str(e))
 

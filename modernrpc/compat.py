@@ -33,4 +33,4 @@ def standardize_strings(arg, strtype=settings.MODERNRPC_PY2_STR_TYPE):
         # We want to convert from str to unicode
         return generic_convert_string(arg, str, unicode)
 
-    raise TypeError
+    raise TypeError('standardize_strings() called with an invalid strtype: "{}"'.format(strtype))

@@ -366,9 +366,11 @@ def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL, str_standard
     :param name: Used as RPC method name instead of original function name
     :param entry_point: Default: ALL. Used to limit usage of the RPC method for a specific set of entry points
     :param protocol: Default: ALL. Used to limit usage of the RPC method for a specific protocol (JSONRPC or XMLRPC)
+    :param str_standardization: Default: None. Configure string standardization on python 2. Ignored on python 3.
     :type name: str
     :type entry_point: str
     :type protocol: str
+    :type str_standardization: type str or unicode
     """
 
     def decorated(function):
@@ -377,7 +379,7 @@ def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL, str_standard
         function.modernrpc_name = name or function.__name__
         function.modernrpc_entry_point = entry_point
         function.modernrpc_protocol = protocol
-        function.str_standardization = protocol
+        function.str_standardization = str_standardization
 
         return function
 
