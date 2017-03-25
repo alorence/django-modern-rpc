@@ -11,6 +11,7 @@ Release 0.5.1 (2017-03-25)
   ``unicode`` with JSON-RPC. This standardization process is disabled by default, and can be configured for the whole
   project or for specific RPC methods.
 - Tests are performed on Django 1.11rc1
+- ``modernrpc.core.register_method()`` function was deprecated since version 0.4.0 and has been removed.
 
 Release 0.5.0 (2017-02-18)
 --------------------------
