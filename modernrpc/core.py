@@ -35,12 +35,13 @@ ALL = "__all__"
 
 class RPCMethod(object):
 
-    def __init__(self, function, external_name, entry_point=ALL, protocol=ALL):
+    def __init__(self, function, external_name, entry_point=ALL, protocol=ALL, str_standardization=None):
         self.module = function.__module__
         self.func_name = function.__name__
         self.external_name = external_name
         self.entry_point = entry_point
         self.protocol = protocol
+        self.str_standardization = str_standardization
 
         # Contains the signature of the method, as returned by "system.methodSignature"
         self.signature = []
@@ -186,7 +187,7 @@ class RPCMethod(object):
         func = getattr(module, self.func_name)
 
         if six.PY2:
-            args = standardize_strings(args)
+            args = standardize_strings(args, strtype=self.str_standardization or settings.MODERNRPC_PY2_STR_TYPE)
 
         # Call the rpc method, as standard python function
         if self.accept_kwargs:
@@ -326,9 +327,10 @@ def register_rpc_method(function):
 
     entry_point = getattr(function, 'modernrpc_entry_point')
     protocol = getattr(function, 'modernrpc_protocol')
+    str_standardization = getattr(function, 'str_standardization')
 
     # Encapsulate the function in a RPCMethod object
-    method = RPCMethod(function, name, entry_point, protocol)
+    method = RPCMethod(function, name, entry_point, protocol, str_standardization)
 
     # Get the current RPC registry from internal cache
     registry = cache.get(RPC_REGISTRY_KEY, default={})
@@ -354,7 +356,7 @@ def register_rpc_method(function):
     return method.external_name
 
 
-def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL):
+def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL, str_standardization=None):
     """
     Mark a standard python function as RPC method.
 
@@ -375,6 +377,7 @@ def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL):
         function.modernrpc_name = name or function.__name__
         function.modernrpc_entry_point = entry_point
         function.modernrpc_protocol = protocol
+        function.str_standardization = protocol
 
         return function
 
