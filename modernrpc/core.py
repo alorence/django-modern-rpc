@@ -35,13 +35,17 @@ ALL = "__all__"
 
 class RPCMethod(object):
 
-    def __init__(self, function, external_name, entry_point=ALL, protocol=ALL, str_standardization=None):
+    def __init__(self, function, external_name, entry_point=ALL, protocol=ALL,
+                 str_standardization=settings.MODERNRPC_PY2_STR_TYPE,
+                 str_std_encoding=settings.MODERNRPC_PY2_STR_ENCODING):
+
         self.module = function.__module__
         self.func_name = function.__name__
         self.external_name = external_name
         self.entry_point = entry_point
         self.protocol = protocol
         self.str_standardization = str_standardization
+        self.str_std_encoding = str_std_encoding
 
         # Contains the signature of the method, as returned by "system.methodSignature"
         self.signature = []
@@ -187,7 +191,7 @@ class RPCMethod(object):
         func = getattr(module, self.func_name)
 
         if six.PY2:
-            args = standardize_strings(args, strtype=self.str_standardization or settings.MODERNRPC_PY2_STR_TYPE)
+            args = standardize_strings(args, strtype=self.str_standardization, encoding=self.str_std_encoding)
 
         # Call the rpc method, as standard python function
         if self.accept_kwargs:
@@ -356,7 +360,8 @@ def register_rpc_method(function):
     return method.external_name
 
 
-def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL, str_standardization=None):
+def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL, str_standardization=settings.MODERNRPC_PY2_STR_TYPE,
+               str_standardization_encoding=settings.MODERNRPC_PY2_STR_ENCODING):
     """
     Mark a standard python function as RPC method.
 
@@ -366,11 +371,15 @@ def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL, str_standard
     :param name: Used as RPC method name instead of original function name
     :param entry_point: Default: ALL. Used to limit usage of the RPC method for a specific set of entry points
     :param protocol: Default: ALL. Used to limit usage of the RPC method for a specific protocol (JSONRPC or XMLRPC)
-    :param str_standardization: Default: None. Configure string standardization on python 2. Ignored on python 3.
+    :param str_standardization: Default: settings.MODERNRPC_PY2_STR_TYPE. Configure string standardization on python 2.
+    Ignored on python 3.
+    :param str_standardization_encoding: Default: settings.MODERNRPC_PY2_STR_ENCODING. Configure the encoding used
+    to perform string standardization conversion
     :type name: str
     :type entry_point: str
     :type protocol: str
     :type str_standardization: type str or unicode
+    :type str_standardization_encoding: str
     """
 
     def decorated(function):
@@ -380,6 +389,7 @@ def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL, str_standard
         function.modernrpc_entry_point = entry_point
         function.modernrpc_protocol = protocol
         function.str_standardization = str_standardization
+        function.str_standardization_encoding = str_standardization_encoding
 
         return function
 
