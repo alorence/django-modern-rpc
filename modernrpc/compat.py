@@ -13,10 +13,10 @@ def generic_convert_string(v, from_type, to_type, encoding):
         return v.encode(encoding)
 
     elif isinstance(v, (list, tuple, set)):
-        return type(v)([generic_convert_string(element, from_type, to_type) for element in v])
+        return type(v)([generic_convert_string(element, from_type, to_type, encoding) for element in v])
 
     elif isinstance(v, dict):
-        return {k: generic_convert_string(v, from_type, to_type) for k, v in v.iteritems()}
+        return {k: generic_convert_string(v, from_type, to_type, encoding) for k, v in v.iteritems()}
 
     return v
 
