@@ -1,3 +1,7 @@
+# coding: utf-8
+from django.utils import six
+
+
 DEBUG = True
 ALLOWED_HOSTS = ['*']
 SECRET_KEY = 'dummy'
@@ -65,8 +69,7 @@ MODERNRPC_METHODS_MODULES = [
     'inexistant.module',
 ]
 
-from django.utils.six import PY2
-if PY2:
+if six.PY2:
     MODERNRPC_METHODS_MODULES.append('testsite.rpc_methods_stub.python2_specific')
 
 MODERNRPC_PY2_STR_TYPE = str

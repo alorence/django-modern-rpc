@@ -1,13 +1,8 @@
 # coding: utf-8
-from django.utils.six.moves import xmlrpc_client
-from jsonrpcclient.exceptions import ReceivedErrorResponse
-from jsonrpcclient.http_client import HTTPClient
-from pytest import raises
-
-from modernrpc.exceptions import RPC_INTERNAL_ERROR
-
 import pytest
 from django.utils import six
+from django.utils.six.moves import xmlrpc_client
+from jsonrpcclient.http_client import HTTPClient
 from pytest import raises
 
 from modernrpc.compat import standardize_strings

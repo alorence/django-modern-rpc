@@ -2,10 +2,10 @@
 import pytest
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.six.moves import xmlrpc_client
+
 from modernrpc.core import rpc_method, register_rpc_method, get_all_method_names, \
     unregister_rpc_method, get_all_methods
-from testsite.rpc_methods_stub.not_decorated import func_a, func_b, func_c, full_documented_method, \
-    another_not_decorated
+from testsite.rpc_methods_stub.not_decorated import another_not_decorated
 
 
 def test_not_registered(live_server):
