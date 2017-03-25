@@ -12,7 +12,7 @@ def get_builtin_date(date, format="%Y-%m-%dT%H:%M:%S", raise_exception=False):
 
     :param date: The date object to convert.
     :param format: If the given date is a str, format is passed to strptime to parse it
-    :param raise_exception: If set to true, an exception will be raised when the input str can't be parsed properly.
+    :param raise_exception: If set to True, an exception will be raised if the input string cannot be parsed
     :return: A valid ``datetime.datetime`` instance
     """
     if isinstance(date, datetime.datetime):

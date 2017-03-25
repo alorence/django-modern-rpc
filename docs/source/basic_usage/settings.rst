@@ -76,6 +76,23 @@ Default: ``True``
 
 Deprecated. Define ``MODERNRPC_XMLRPC_USE_BUILTIN_TYPES`` instead.
 
+Python 2 String standardization
+===============================
+
+``MODERNRPC_PY2_STR_TYPE``
+--------------------------
+
+Default: ``None``
+
+Define target type for :ref:`GlobalStringStandardization`.
+
+``MODERNRPC_PY2_STR_ENCODING``
+------------------------------
+
+Default: ``True``
+
+Define global encoding used in :ref:`GlobalStringStandardization`.
+
 RPC entry points configuration
 ==============================
 

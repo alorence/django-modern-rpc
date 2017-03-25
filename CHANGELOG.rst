@@ -1,6 +1,17 @@
 Changelog
 =========
 
+Release 0.5.1 (2017-03-25)
+--------------------------
+- When RPC methods are registered, if a module file contains errors, a python warning is produced. This ensure the
+  message will be displayed even if the logging system is not configured in a project (#2)
+- Python 2 strings standardization. Allow to configure an automatic conversion of incoming strings, to ensure they have
+  the same type in RPC method, no matter what protocol was used to call it. Previously, due to different behavior
+  between JSON and XML deserializers, strings were received as ``str`` when method was called via XML-RPC and as
+  ``unicode`` with JSON-RPC. This standardization process is disabled by default, and can be configured for the whole
+  project or for specific RPC methods.
+- Tests are performed on Django 1.11rc1
+
 Release 0.5.0 (2017-02-18)
 --------------------------
 - Typo fixes
