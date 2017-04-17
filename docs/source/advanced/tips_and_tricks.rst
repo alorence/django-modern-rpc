@@ -20,7 +20,7 @@ See the example to see how to access these values:
     from modernrpc.core import REQUEST_KEY, ENTRY_POINT_KEY, PROTOCOL_KEY, HANDLER_KEY
     from modernrpc.core import rpc_method
 
-    @pc_method
+    @rpc_method
     def content_type_printer(**kwargs):
 
         # Get the current request

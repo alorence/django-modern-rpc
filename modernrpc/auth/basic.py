@@ -1,7 +1,6 @@
 import base64
 
-from django.contrib.auth import authenticate
-from django.contrib.auth.models import AnonymousUser
+from django.contrib.auth import authenticate, login
 from django.utils import six
 
 from modernrpc import auth
@@ -22,21 +21,25 @@ def http_basic_auth_check_user(request, user_validation_func, *args):
 def http_basic_auth_get_user(request):
     """Inspect the given request to find a logged user. If not found, the header HTTP_AUTHORIZATION
     is read for 'Basic Auth' login and password, and try to authenticate against default UserModel.
-    Return a User instance (possibly anonymous, meaning authentication failed)"""
+    Always return a User instance (possibly anonymous, meaning authentication failed)"""
 
-    # By default, let the AuthenticationMiddleware do the job
-    current_user = getattr(request, 'user')
+    try:
+        # If standard middlewares already authenticated a user, use it
+        if not request.user.is_anonymous():
+            return request.user
+    except AttributeError:
+        pass
 
-    if not current_user or current_user.is_anonymous():
-        # This was grabbed from https://www.djangosnippets.org/snippets/243/
-        # Thanks to http://stackoverflow.com/a/1087736/1887976
-        if 'HTTP_AUTHORIZATION' in request.META:
-            auth = request.META['HTTP_AUTHORIZATION'].split()
-            if len(auth) == 2 and auth[0].lower() == "basic":
-                uname, passwd = base64.b64decode(auth[1]).decode('utf-8').split(':')
-                current_user = authenticate(username=uname, password=passwd) or AnonymousUser()
+    # This was grabbed from https://www.djangosnippets.org/snippets/243/
+    # Thanks to http://stackoverflow.com/a/1087736/1887976
+    if 'HTTP_AUTHORIZATION' in request.META:
+        auth = request.META['HTTP_AUTHORIZATION'].split()
+        if len(auth) == 2 and auth[0].lower() == "basic":
+            uname, passwd = base64.b64decode(auth[1]).decode('utf-8').split(':')
+            login(request, authenticate(username=uname, password=passwd))
 
-    return current_user
+    # In all cases, return the current request's user (may be anonymous user if no login succeed)
+    return request.user
 
 
 # Decorator

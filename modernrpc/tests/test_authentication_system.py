@@ -194,3 +194,16 @@ def test_jsonrpc_user_groups(live_server, john_doe, common_pwd, group_A, group_B
 
     assert c.request('in_groups_A_and_B_required', 5) == 5
     assert c.request('in_groups_A_and_B_required_alt', 5) == 5
+
+
+def test_http_basic_auth_user_in_request(live_server, john_doe, superuser, common_pwd):
+
+    c = HTTPClient(live_server.url + '/all-rpc/')
+    c.session.auth = (john_doe.username, common_pwd)
+
+    assert 'username: johndoe' == c.request('display_authenticated_user')
+
+    c = HTTPClient(live_server.url + '/all-rpc/')
+    c.session.auth = (superuser.username, common_pwd)
+
+    assert 'username: admin' == c.request('display_authenticated_user')
