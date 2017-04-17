@@ -6,7 +6,8 @@ import pytest
 from modernrpc.conf import settings
 from modernrpc.exceptions import RPCException
 from modernrpc.handlers.base import RPCHandler
-from test_methods_register import another_dummy_method
+from test_methods_register import another_dummy_method, another_dummy_method_2, another_dummy_method_3, \
+    another_dummy_method_4
 from test_rpc_method_object import dummy_function, single_line_documented, multi_line_documented_1, \
     multi_line_documented_2
 from testsite.rpc_methods_stub.generic import existing_but_not_decorated, another_name
@@ -25,6 +26,9 @@ def test_not_called_functions():
     existing_but_not_decorated()
     another_not_decorated()
     another_dummy_method()
+    another_dummy_method_2()
+    another_dummy_method_3()
+    another_dummy_method_4()
     dummy_function()
     single_line_documented()
     multi_line_documented_1()
