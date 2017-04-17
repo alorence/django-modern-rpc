@@ -29,6 +29,13 @@ def divide(numerator, denominator):
     return numerator / denominator
 
 
+@rpc_method(name='customized_name')
+def another_name():
+    """This one will help to test method registration
+    when name has been customized"""
+    pass
+
+
 class MyCustomException(RPCException):
     pass
 

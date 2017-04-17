@@ -36,6 +36,8 @@ def test_xmlrpc_list_methods(live_server):
     assert type(result) == list
     assert len(result) > 1
     assert 'system.listMethods' in result
+    assert 'divide' in result
+    assert 'customized_name' in result
 
 
 def test_jsonrpc_list_methods(live_server):
@@ -46,6 +48,8 @@ def test_jsonrpc_list_methods(live_server):
     assert type(result) == list
     assert len(result) > 1
     assert 'system.listMethods' in result
+    assert 'divide' in result
+    assert 'customized_name' in result
 
 
 def test_xmlrpc_get_signature(live_server):

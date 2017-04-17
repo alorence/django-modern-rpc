@@ -34,6 +34,19 @@ def test_manual_registration():
     assert 'another_dummy_method' not in get_all_method_names()
 
 
+@rpc_method(name='another_name')
+def another_dummy_method_2():
+    return 33
+
+
+def test_manual_registration_with_different_name():
+
+    register_rpc_method(another_dummy_method_2)
+    assert 'another_name' in get_all_method_names()
+
+    unregister_rpc_method('another_name')
+    assert 'another_name' not in get_all_method_names()
+
 
 @rpc_method(name='rpc.invalid.name')
 def another_dummy_method_3():
