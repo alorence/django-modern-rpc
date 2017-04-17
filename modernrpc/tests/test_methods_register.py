@@ -2,6 +2,7 @@
 import pytest
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.six.moves import xmlrpc_client
+from pytest import raises
 
 from modernrpc.core import rpc_method, register_rpc_method, get_all_method_names, \
     unregister_rpc_method, get_all_methods
@@ -31,6 +32,33 @@ def test_manual_registration():
 
     unregister_rpc_method('another_dummy_method')
     assert 'another_dummy_method' not in get_all_method_names()
+
+
+
+@rpc_method(name='rpc.invalid.name')
+def another_dummy_method_3():
+    return 42
+
+
+def test_invalid_name():
+
+    with raises(ImproperlyConfigured):
+        register_rpc_method(another_dummy_method_3)
+
+    assert 'another_name' not in get_all_method_names()
+
+
+@rpc_method(name='divide')
+def another_dummy_method_4():
+    return 42
+
+
+def test_duplicated_name():
+
+    with raises(ImproperlyConfigured):
+        register_rpc_method(another_dummy_method_3)
+
+    assert 'another_name' not in get_all_method_names()
 
 
 def test_wrong_manual_registration():
