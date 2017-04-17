@@ -1,6 +1,7 @@
 import base64
 
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import AnonymousUser
 from django.utils import six
 
 from modernrpc import auth
@@ -39,7 +40,10 @@ def http_basic_auth_get_user(request):
             login(request, authenticate(username=uname, password=passwd))
 
     # In all cases, return the current request's user (may be anonymous user if no login succeed)
-    return request.user
+    try:
+        return request.user
+    except AttributeError:
+        return AnonymousUser()
 
 
 # Decorator

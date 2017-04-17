@@ -1,8 +1,10 @@
 # coding: utf-8
+from django.http.request import HttpRequest
 from pytest import raises
 
 from modernrpc.auth import user_is_logged, user_is_superuser, user_has_perm, user_has_all_perms, user_in_group,\
     user_has_any_perm, user_in_all_groups, user_in_any_group
+from modernrpc.auth.basic import http_basic_auth_get_user
 
 
 def test_user_is_logged(anonymous_user, john_doe, superuser):
@@ -207,3 +209,15 @@ def test_user_in_all_groups_str(group_A, group_B, anonymous_user, john_doe, supe
 
     john_doe.groups.clear()
     assert user_in_all_groups(john_doe, groups) is False
+
+
+def test_http_basic_get_user():
+
+    # Basic django request, without authentication info
+    request = HttpRequest()
+
+    # Standard middlewares were not applied on this request
+    user = http_basic_auth_get_user(request)
+
+    assert user is not None
+    assert user.is_anonymous()
