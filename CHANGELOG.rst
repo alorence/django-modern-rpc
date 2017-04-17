@@ -1,6 +1,10 @@
 Changelog
 =========
 
+Current development
+-------------------
+- User instance is now correctly stored in the current request after successfull authentication [#4]
+
 Release 0.5.1 (2017-03-25)
 --------------------------
 - When RPC methods are registered, if a module file contains errors, a python warning is produced. This ensure the
