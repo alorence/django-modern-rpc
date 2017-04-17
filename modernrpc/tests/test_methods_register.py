@@ -55,9 +55,10 @@ def another_dummy_method_3():
 
 def test_invalid_name():
 
-    with raises(ImproperlyConfigured):
+    with raises(ImproperlyConfigured) as excinfo:
         register_rpc_method(another_dummy_method_3)
 
+    assert 'method names starting with "rpc." are reserved' in str(excinfo.value)
     assert 'another_name' not in get_all_method_names()
 
 
@@ -68,9 +69,10 @@ def another_dummy_method_4():
 
 def test_duplicated_name():
 
-    with raises(ImproperlyConfigured):
-        register_rpc_method(another_dummy_method_3)
+    with raises(ImproperlyConfigured) as excinfo:
+        register_rpc_method(another_dummy_method_4)
 
+    assert 'has already been registered' in str(excinfo.value)
     assert 'another_name' not in get_all_method_names()
 
 
