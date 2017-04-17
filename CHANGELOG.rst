@@ -4,6 +4,7 @@ Changelog
 Current development
 -------------------
 - User instance is now correctly stored in the current request after successfull authentication [#4]
+- Unit testing with Django 1.11 is now performed against release version (Beta and RC are not tested anymore)
 
 Release 0.5.1 (2017-03-25)
 --------------------------
