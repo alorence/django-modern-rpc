@@ -32,8 +32,8 @@ The file ``requirements.txt`` contains references to the following packages:
 
 .. literalinclude:: ../../requirements.txt
 
-Installing ``pytest-django`` will trigger ``pytest`` and all its dependencies. In addition, ``requests`` is used to
-simulate JSON-RPC calls in tests. In the future, a proper JSON-RPC library may be used.
+Installing ``pytest-django`` will trigger ``pytest`` and all its dependencies. In addition, ``requests`` and
+``jsonrpcclient`` are used in some tests. ``flake8`` is used to control code quality and respect of PEP8 standards.
 
 When all required packages are installed, you can run the tests using::
 

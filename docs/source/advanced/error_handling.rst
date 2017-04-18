@@ -4,8 +4,10 @@ Error handling
 
 .. _exceptions:
 
-Pre-defined error codes and exceptions
---------------------------------------
+RPC Error codes and pre-defined exceptions
+------------------------------------------
+
+django-modern-rpc provide exceptions to cover common errors when requests are processed.
 
 .. automodule:: modernrpc.exceptions
    :members:

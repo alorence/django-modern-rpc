@@ -20,16 +20,14 @@ Add the library to your Django applications, in your ``settings.py``:
 .. code:: python
 
     INSTALLED_APPS = [
-        #...
+        ...
         'modernrpc',
-        #...
     ]
-
 
 Create an entry point
 =====================
 
-An entry point is the URL used by clients to call your RPC methods. Declare as follow:
+An entry point is the URL used by clients to call your RPC methods. Declare it as follow:
 
 .. code:: python
 
@@ -44,14 +42,14 @@ An entry point is the URL used by clients to call your RPC methods. Declare as f
         url(r'^rpc/', RPCEntryPoint.as_view()),
     ]
 
-For more information on entry point declaration and configuration, please read :doc:`the full
-documentation <basic_usage/entry_point_configuration>`.
+Entry points behavior can be customized with some arguments. Read the page :doc:`Entry Points configuration
+<basic_usage/entry_point_configuration>` for more information.
 
 Write and register your methods
 ===============================
 
-Now, you must indicates to django-modern-rpc which methods in your code must be available via RPC calls. Use the
-decorator ``@rpc_method`` to mark any python function as RPC method
+In the next step, you will declare which global functions should be available for remote calls. Use ``@rpc_method``
+decorator to simply indicates those methods.
 
 .. code:: python
 
@@ -62,13 +60,15 @@ decorator ``@rpc_method`` to mark any python function as RPC method
     def add(a, b):
         return a + b
 
+``@rpc_method`` behavior can be customized with some arguments. Read the page :ref:`Configure the registration
+<rpc_method_options>` for more information.
 
 Declare your RPC methods modules
 ================================
 
-Django-modern-rpc will automatically register functions marked as RPC method. The only hint you have to provide is a
-list of modules containg such methods. In your ``settings.py``:
-
+Django-modern-rpc will automatically register functions decorated with ``@rpc_method``, but needs a hint to locate them.
+Declare ``MODERNRPC_METHODS_MODULES`` in your settings to indicate one or more python module where your RPC methods
+are defined.
 
 .. code:: python
 
@@ -79,5 +79,5 @@ list of modules containg such methods. In your ``settings.py``:
 That's all !
 ============
 
-Your application is ready to receive XML-RPC or JSON-RPC call. The entry point URL is ``http://yourwebsite.com/rpc/``
+Your application is ready to receive XML-RPC or JSON-RPC calls. The entry point URL is ``http://yourwebsite.com/rpc/``
 but you can customize it to fit your needs.

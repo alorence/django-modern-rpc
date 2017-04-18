@@ -69,12 +69,8 @@ class RPCEntryPoint(TemplateView):
 
     def post(self, request, *args, **kwargs):
         """
-        Handle any XML-RPC or JSON-RPC request.
-
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
+        Handle a XML-RPC or JSON-RPC request.
+        :return: A HttpResponse containing XML-RPC or JSON-RPC response, depending on the incoming request
         """
 
         logger.debug('RPC request received on entry point "{}"'.format(self.entry_point))

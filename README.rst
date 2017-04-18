@@ -24,17 +24,19 @@ django-modern-rpc
 Description
 -----------
 
-django-modern-rpc is a free, lightweight RPC server for Django projects. The library is `available on PyPi`_.
+Django-modern-rpc provides a simple solution to implement a remote procedure call (RPC) server as part of your Django
+project. It supports all major Django and Python versions.
 
-.. _`available on PyPi`: https://pypi.python.org/pypi/django-modern-rpc/
+Project's main features are:
 
-- XML-RPC_ and `JSON-RPC 2.0`_ support. Please note that JSON-RPC 1.0 is not supported.
+- Simple and pythonic API
 - Python 2.7, 3.3, 3.4, 3.5 and 3.6
 - Django 1.8, 1.9, 1.10 and 1.11
+- XML-RPC_ and `JSON-RPC 2.0`_ support (JSON-RPC 1.0 not supported)
 - HTTP Basic Auth support
 - Custom authentication support
-- Automatic protocol detection based on the request's ``Content-Type``
-- High-level error handling based on exceptions
+- Automatic protocol detection based on request's ``Content-Type`` header
+- High-level error management based on exceptions
 - Multiple entry points, with specific methods and protocol attached
 - RPC Methods documentation generated automatically, based on docstrings
 - System introspection methods:
@@ -50,7 +52,7 @@ django-modern-rpc is a free, lightweight RPC server for Django projects. The lib
 -----------
 Quick start
 -----------
-1. Install the library using pip:
+1. Use pip to install the package in your environment:
 
 .. code:: bash
 
@@ -61,9 +63,8 @@ Quick start
 .. code:: python
 
     INSTALLED_APPS = [
-        #...
+        ...
         'modernrpc',
-        #...
     ]
 
 3. Declare an entry point, a view generating correct RPC responses to incoming requests:
@@ -79,7 +80,7 @@ Quick start
         url(r'^rpc/', RPCEntryPoint.as_view()),
     ]
 
-4. Decorate the methods you want to provide via RPC calls:
+4. Use ``@rpc_method`` to register a global function in django-moder-rpc registry:
 
 .. code:: python
 

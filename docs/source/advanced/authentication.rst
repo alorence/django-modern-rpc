@@ -77,7 +77,7 @@ HTTP Basic Authentication support
 django-modern-rpc comes with a builtin support for `HTTP Basic Auth`_. It provides a set of decorators to directly
 extract user information from request, and test this user against Django authentication system:
 
-.. _`HTTP Basic Auth`: https://www.wikiwand.com/en/Basic_access_authentication
+.. _`HTTP Basic Auth`: https://en.wikipedia.org/wiki/Basic_access_authentication
 
 .. code:: python
 

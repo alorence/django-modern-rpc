@@ -2,12 +2,25 @@
 RPC methods registration
 ========================
 
-.. note::
-   Until version 0.3, it was possible to choose between 2 different registration methods. This has been simplified
-   in 0.4, there is now only one registration procedure
+Django-modern-rpc will automatically register RPC methods at startup. To ensure this automatic registration is performed
+quickly, you must provide the list of python modules where your remote methods are declared.
 
-Decorate your methods
-=====================
+In ``settings.py``, add the variable ``MODERNRPC_METHODS_MODULES`` to define this list. In our example, the only defined
+RPC method is ``add()``, declared in ``myproject/rpc_app/rpc_methods.py``.
+
+.. code:: python
+
+   MODERNRPC_METHODS_MODULES = [
+       'rpc_app.rpc_methods'
+   ]
+
+When django-modern-rpc application will be loaded, it's `AppConfig.ready() method`_ is executed. The automatic
+registration is performed at this step.
+
+.. _`AppConfig.ready() method`: https://docs.djangoproject.com/en/dev/ref/applications/#django.apps.AppConfig.ready
+
+Decorate your RPC methods
+=========================
 
 Decorator usage is simple. You only need to add ``@rpc_method`` decorator before any method you want to provide
 via RPC calls.
@@ -21,20 +34,7 @@ via RPC calls.
    def add(a, b):
        return a + b
 
-Declare the modules containing RPC methods
-==========================================
-
-In your ``settings.py``, add the variable ``MODERNRPC_METHODS_MODULES`` to define the list of modules containing
-decorated RPC methods. In our example, the only RPC method is ``add()``, declared in ``myproject/rpc_app/rpc_methods.py``.
-
-.. code:: python
-
-   MODERNRPC_METHODS_MODULES = [
-       'rpc_app.rpc_methods'
-   ]
-
-At startup, django-modern-rpc will lookup all modules listed in ``MODERNRPC_METHODS_MODULES``, and will register
-all functions in those modules that have been decorated with ``@rpc_method``.
+.. _rpc_method_options:
 
 Configure the registration
 ==========================
@@ -63,9 +63,14 @@ You can also change this behavior by setting arguments to the decorator:
 ``entry_point = ALL``
   Set the entry_point argument to one or more str value to ensure the method will be available only via calls to
   corresponding entry point name. Fore more information, please check the documentation about
-  :doc:`entry_point_configuration`.
+  :ref:`multiple entry points declaration <multiple_entry_points>`.
   Example::
 
    @rpc_method(entry_point='apiV2')
    def add(a, b):
        return a + b
+
+Access request, protocol and other info from a RPC method
+=========================================================
+
+See :doc:`../advanced/tips_and_tricks`.
