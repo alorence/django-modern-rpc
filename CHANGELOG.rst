@@ -1,10 +1,11 @@
 Changelog
 =========
 
-Current development
--------------------
+Release 0.5.2 (2017-04-18)
+--------------------------
 - User instance is now correctly stored in the current request after successfull authentication [#4]
 - Unit testing with Django 1.11 is now performed against release version (Beta and RC are not tested anymore)
+- Documentation has been improved
 
 Release 0.5.1 (2017-03-25)
 --------------------------
@@ -15,7 +16,7 @@ Release 0.5.1 (2017-03-25)
   between JSON and XML deserializers, strings were received as ``str`` when method was called via XML-RPC and as
   ``unicode`` with JSON-RPC. This standardization process is disabled by default, and can be configured for the whole
   project or for specific RPC methods.
-- Tests are performed on Django 1.11rc1
+- Tests are performed against Django 1.11rc1
 - ``modernrpc.core.register_method()`` function was deprecated since version 0.4.0 and has been removed.
 
 Release 0.5.0 (2017-02-18)
