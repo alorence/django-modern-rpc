@@ -47,6 +47,12 @@ def test_init_registry_cleaning(settings):
     custom_rpc_methods = [m for m in get_all_method_names() if not m.startswith('system.')]
     assert len(custom_rpc_methods) == 0
 
+    # Re-init library, with None modules list
+    settings.MODERNRPC_METHODS_MODULES = None
+    app.ready()
+    custom_rpc_methods = [m for m in get_all_method_names() if not m.startswith('system.')]
+    assert len(custom_rpc_methods) == 0
+
     # Restore original state for registry
     settings.MODERNRPC_METHODS_MODULES = orig_modules_list
     app.ready()
