@@ -5,15 +5,6 @@ from modernrpc.apps import check_required_settings_defined
 from modernrpc.core import get_all_method_names
 
 
-def test_init_missing_method_modules_setting(settings):
-
-    settings.MODERNRPC_METHODS_MODULES = []
-    app = apps.get_app_config("modernrpc")
-
-    with pytest.warns(Warning):
-        app.ready()
-
-
 def test_init_import_warning(settings):
 
     settings.MODERNRPC_METHODS_MODULES = [
