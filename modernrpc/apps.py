@@ -3,10 +3,27 @@ import inspect
 import warnings
 from importlib import import_module
 
+import django.core.checks
 from django.apps import AppConfig
 
 from modernrpc.conf import settings
 from modernrpc.core import register_rpc_method, get_all_method_names, unregister_rpc_method
+
+
+@django.core.checks.register()
+def check_required_settings_defined(app_configs, **kwargs):
+    result = []
+    if not settings.MODERNRPC_METHODS_MODULES:
+        result.append(
+            django.core.checks.Warning(
+                'settings.MODERNRPC_METHODS_MODULES is not set, django-modern-rpc cannot '
+                'determine which python modules define your RPC methods.',
+                hint='Please define settings.MODERNRPC_METHODS_MODULES to indicate modules containing your methods.',
+                obj=settings,
+                id='modernrpc.E001',
+            )
+        )
+    return result
 
 
 class ModernRpcConfig(AppConfig):
