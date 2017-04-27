@@ -10,7 +10,7 @@ django-modern-rpc
 
 .. image:: https://codecov.io/gh/alorence/django-modern-rpc/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/alorence/django-modern-rpc
-  
+
 .. image:: https://readthedocs.org/projects/django-modern-rpc/badge/?version=latest
     :target: http://django-modern-rpc.readthedocs.io/
 
@@ -52,24 +52,19 @@ Project's main features are:
 -----------
 Quick start
 -----------
-1. Use pip to install the package in your environment:
 
-.. code:: bash
+#. Use pip to install the package in your environment::
 
     pip install django-modern-rpc
 
-2. Add it to your Django applications, in ``settings.py``:
-
-.. code:: python
+#. Add it to your Django applications, in ``settings.py``::
 
     INSTALLED_APPS = [
         ...
         'modernrpc',
     ]
 
-3. Declare an entry point, a view generating correct RPC responses to incoming requests:
-
-.. code:: python
+#. Declare an entry point, a view generating correct RPC responses to incoming requests::
 
     # In myproject/rpc_app/urls.py
     from django.conf.urls import url
@@ -80,9 +75,7 @@ Quick start
         url(r'^rpc/', RPCEntryPoint.as_view()),
     ]
 
-4. Use ``@rpc_method`` to register a global function in django-moder-rpc registry:
-
-.. code:: python
+#. Use ``@rpc_method`` to register a global function in django-moder-rpc registry::
 
     # In myproject/rpc_app/rpc_methods.py
     from modernrpc.core import rpc_method
@@ -91,9 +84,7 @@ Quick start
     def add(a, b):
         return a + b
 
-5. Declare the list of python modules containing your RPC methods, in ``settings.py``:
-
-.. code:: python
+#. Declare the list of python modules containing your RPC methods, in ``settings.py``::
 
     MODERNRPC_METHODS_MODULES = [
         'rpc_app.rpc_methods'
