@@ -15,14 +15,26 @@ def add(a, b):
 
 
 @rpc_method
-def divide(numerator, denominator):
+def divide(numerator, denominator, x=50, y=90, z=120, a=1, b=5, c=10):
     """
     Divide a numerator by a denominator
 
-    :param numerator:
-    :param denominator:
+    :param numerator: The numerator
+    :param denominator: The denominator
+    :param x: useless, needed to check arguments ordering
+    :param y: useless, needed to check arguments ordering
+    :param z: useless, needed to check arguments ordering
+    :param a: useless, needed to check arguments ordering
+    :param b: useless, needed to check arguments ordering
+    :param c: useless, needed to check arguments ordering
     :type numerator: int or double
     :type denominator: int or double
+    :type x: int
+    :type y: int
+    :type z: int
+    :type a: int
+    :type b: int
+    :type c: int
     :return:
     :rtype: int or double
     """

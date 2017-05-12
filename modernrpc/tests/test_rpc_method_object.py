@@ -104,7 +104,22 @@ def test_arguments_order():
     # We want to make sure arguments doc is stored with the same order method parameters are defined
     assert args_names[0] == 'numerator'
     assert args_names[1] == 'denominator'
+    assert args_names[2] == 'x'
+    assert args_names[3] == 'y'
+    assert args_names[4] == 'z'
+    assert args_names[5] == 'a'
+    assert args_names[6] == 'b'
+    assert args_names[7] == 'c'
 
+    args = method.args
+    assert args[0] == 'numerator'
+    assert args[1] == 'denominator'
+    assert args[2] == 'x'
+    assert args[3] == 'y'
+    assert args[4] == 'z'
+    assert args[5] == 'a'
+    assert args[6] == 'b'
+    assert args[7] == 'c'
 
 def single_line_documented():
     """*italic*, **strong**, normal text"""
