@@ -482,5 +482,4 @@ def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL,
 
 def clean_old_cache_content():
     """Clean CACHE data from old versions of django-modern-rpc"""
-    if cache.has_key('__rpc_registry__', version=1):
-        cache.delete('__rpc_registry__', version=1)
+    cache.delete('__rpc_registry__', version=1)
