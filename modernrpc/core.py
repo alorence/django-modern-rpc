@@ -64,7 +64,7 @@ class RPCMethod(object):
         self.signature = []
         # Contains the method's docstring, in HTML form
         self.html_doc = ''
-        # Contains doc about argumetns and their type. We store this in an ordered dict, so the args documentation
+        # Contains doc about arguments and their type. We store this in an ordered dict, so the args documentation
         # keep the order defined in docstring
         self.args_doc = collections.OrderedDict()
         # Contains doc about return type and return value
@@ -88,6 +88,7 @@ class RPCMethod(object):
             'accept_kwargs': self.accept_kwargs,
 
             'signature': self.signature,
+            'args_doc_keys': list(self.args_doc.keys()),
             'args_doc': dict(self.args_doc),
             'return_doc': self.return_doc,
             'raw_docstring': self.raw_docstring,
@@ -109,7 +110,9 @@ class RPCMethod(object):
         o.accept_kwargs = data_dict['accept_kwargs']
 
         o.signature = data_dict['signature']
-        o.args_doc = collections.OrderedDict(data_dict['args_doc'])
+        o.args_doc = collections.OrderedDict()
+        for key in data_dict['args_doc_keys']:
+            o.args_doc[key] = data_dict['args_doc'][key]
         o.return_doc = data_dict['return_doc']
         o.raw_docstring = data_dict['raw_docstring']
         o.html_doc = data_dict['html_doc']
