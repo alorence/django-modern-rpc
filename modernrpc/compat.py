@@ -27,12 +27,12 @@ def standardize_strings(arg, strtype=settings.MODERNRPC_PY2_STR_TYPE, encoding=s
     if not strtype:
         return arg
 
-    if strtype == str:
+    if strtype == str or strtype == 'str':
         # We want to convert from unicode to str
         return generic_convert_string(arg, unicode, str, encoding)
 
-    elif strtype == unicode:
+    elif strtype == unicode or strtype == 'unicode':
         # We want to convert from str to unicode
         return generic_convert_string(arg, str, unicode, encoding)
 
-    raise TypeError('standardize_strings() called with an invalid strtype: "{}"'.format(strtype))
+    raise TypeError('standardize_strings() called with an invalid strtype: "{}"'.format(repr(strtype)))

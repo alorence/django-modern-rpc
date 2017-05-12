@@ -3,7 +3,6 @@ import collections
 import importlib
 import logging
 import re
-import warnings
 
 from django.contrib.admindocs.utils import trim_docstring
 from django.core.cache import cache
@@ -11,16 +10,18 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils import inspect
 from django.utils import six
 
+from modernrpc.compat import standardize_strings
 from modernrpc.conf import settings
 from modernrpc.handlers import XMLRPC, JSONRPC
-from modernrpc.compat import standardize_strings
 
 logger = logging.getLogger(__name__)
-warnings.simplefilter('once', DeprecationWarning)
+# warnings.simplefilter('once', DeprecationWarning)
 
-# The registry key in current cache
-RPC_REGISTRY_KEY = '__rpc_registry__'
-# Timeout set to registry in cache
+# The registry keys in current cache
+RPC_REGISTRY_PREFIX = 'modernrpc'
+RPC_REGISTRY_INDEX = RPC_REGISTRY_PREFIX + '_index'
+RPC_REGISTRY_VERSION = 2
+# Default timeout set to registry in cache
 DEFAULT_REGISTRY_TIMEOUT = None
 
 # Keys used in kwargs dict given to RPC methods
@@ -35,17 +36,30 @@ ALL = "__all__"
 
 class RPCMethod(object):
 
-    def __init__(self, function, external_name, entry_point=ALL, protocol=ALL,
-                 str_standardization=settings.MODERNRPC_PY2_STR_TYPE,
-                 str_std_encoding=settings.MODERNRPC_PY2_STR_ENCODING):
+    def __init__(self, function=None):
+
+        if function is None:
+            return
 
         self.module = function.__module__
         self.func_name = function.__name__
-        self.external_name = external_name
-        self.entry_point = entry_point
-        self.protocol = protocol
-        self.str_standardization = str_standardization
-        self.str_std_encoding = str_std_encoding
+
+        # @rpc_method decorator parameters
+        self.external_name = getattr(function, 'modernrpc_name', self.func_name)
+        self.entry_point = getattr(function, 'modernrpc_entry_point')
+        self.protocol = getattr(function, 'modernrpc_protocol')
+        self.str_standardization = getattr(function, 'str_standardization')
+        self.str_std_encoding = getattr(function, 'str_standardization_encoding')
+
+        if not isinstance(self.str_standardization, six.string_types):
+            # unicode => "unicode"
+            # str => "str"
+            self.str_standardization = self.str_standardization.__name__
+
+        # List method's positional arguments
+        self.args = inspect.get_func_args(function)
+        # Flag the method to accept additional kwargs dict
+        self.accept_kwargs = inspect.func_accepts_kwargs(function)
 
         # Contains the signature of the method, as returned by "system.methodSignature"
         self.signature = []
@@ -57,14 +71,51 @@ class RPCMethod(object):
         # Contains doc about return type and return value
         self.return_doc = {}
 
-        self.args = inspect.get_func_args(function)
-
-        # Flag the method to accept additional kwargs dict
-        self.accept_kwargs = inspect.func_accepts_kwargs(function)
-
         # Docstring parsing
         self.raw_docstring = self.parse_docstring(function.__doc__)
         self.html_doc = self.raw_docstring_to_html(self.raw_docstring)
+
+    def to_dict(self):
+        return {
+            'location': [self.module, self.func_name],
+
+            'external_name': self.external_name,
+            'entry_point': self.entry_point,
+            'protocol': self.protocol,
+            'str_standardization': self.str_standardization,
+            'str_std_encoding': self.str_std_encoding,
+
+            'args': self.args,
+            'accept_kwargs': self.accept_kwargs,
+
+            'signature': self.signature,
+            'args_doc': dict(self.args_doc),
+            'return_doc': self.return_doc,
+            'raw_docstring': self.raw_docstring,
+            'html_doc': self.html_doc,
+        }
+
+    @classmethod
+    def from_dict(cls, data_dict):
+        o = cls()
+        o.module, o.func_name = data_dict['location']
+
+        o.external_name = data_dict['external_name']
+        o.entry_point = data_dict['entry_point']
+        o.protocol = data_dict['protocol']
+        o.str_standardization = data_dict['str_standardization']
+        o.str_std_encoding = data_dict['str_std_encoding']
+
+        o.args = data_dict['args']
+        o.accept_kwargs = data_dict['accept_kwargs']
+
+        o.signature = data_dict['signature']
+        o.args_doc = collections.OrderedDict(data_dict['args_doc'])
+        o.return_doc = data_dict['return_doc']
+        o.raw_docstring = data_dict['raw_docstring']
+        o.html_doc = data_dict['html_doc']
+
+        return o
 
     @property
     def name(self):
@@ -164,6 +215,10 @@ class RPCMethod(object):
         return "<p>{}</p>".format(docstring.replace('\n\n', '</p><p>').replace('\n', '<br/'))
 
     def check_permissions(self, request):
+        """Call the predicate(s) associated with the RPC method, to check if the current request
+        can actually call the method.
+        Return a boolean indicating if the method should be executed (True) or not (False)"""
+
         module = importlib.import_module(self.module)
         func = getattr(module, self.func_name)
 
@@ -207,23 +262,6 @@ class RPCMethod(object):
             self.entry_point == other.entry_point and \
             self.protocol == other.protocol
 
-    def available_for_protocol(self, protocol):
-        if self.protocol == ALL or protocol == ALL:
-            return True
-        else:
-            valid_protocols = self.protocol if isinstance(self.protocol, list) else [self.protocol]
-            return protocol in valid_protocols
-
-    def available_for_entry_point(self, entry_point):
-        if self.entry_point == ALL or entry_point == ALL:
-            return True
-        else:
-            valid_entry_points = self.entry_point if isinstance(self.entry_point, list) else [self.entry_point]
-            return entry_point in valid_entry_points
-
-    def is_valid_for(self, entry_point, protocol):
-        return self.available_for_entry_point(entry_point) and self.available_for_protocol(protocol)
-
     # Helpers to simplify templates generation
     def is_doc_available(self):
         """Returns True if a textual documentation is available for this method"""
@@ -242,68 +280,76 @@ class RPCMethod(object):
         return self.is_args_doc_available() or self.is_return_doc_available() or self.is_doc_available()
 
     def is_available_in_json_rpc(self):
-        return self.available_for_protocol(JSONRPC)
+        return available_for_protocol(self.protocol, JSONRPC)
 
     def is_available_in_xml_rpc(self):
-        return self.available_for_protocol(XMLRPC)
+        return available_for_protocol(self.protocol, XMLRPC)
 
 
-def get_all_method_names(entry_point=ALL, protocol=ALL, sort_methods=False):
-    """"""
-    # Get the current RPC registry from internal cache
-    registry = cache.get(RPC_REGISTRY_KEY, default={})
-
-    method_namess = [
-        name for name, method in registry.items() if method.is_valid_for(entry_point, protocol)
-    ]
-
-    if sort_methods:
-        method_namess = sorted(method_namess)
-
-    return method_namess
+def make_key(key):
+    return RPC_REGISTRY_PREFIX + '_' + key
 
 
-def get_all_methods(entry_point=ALL, protocol=ALL, sort_methods=False):
-    """Return a list of all methods in the registry supported by the given entry_point / protocol pair"""
-    # Get the current RPC registry from internal cache
-    registry = cache.get(RPC_REGISTRY_KEY, default={})
+def available_for_protocol(method_protocol, protocol):
+    """Check if given method summary can be executed on the given protocol"""
+    if method_protocol == ALL or protocol == ALL:
+        return True
 
-    if sort_methods:
-        methods = [method for (_, method) in sorted(registry.items())]
-    else:
-        methods = registry.values()
+    method_protocols = method_protocol if isinstance(method_protocol, list) else [method_protocol]
+    return protocol in method_protocols
 
-    return [
-        method for method in methods if method.is_valid_for(entry_point, protocol)
-    ]
+
+def available_for_entry_point(method_entry_point, entry_point):
+    """Check if given method summary can be executed on the given entry point"""
+    if method_entry_point == ALL or entry_point == ALL:
+        return True
+
+    method_entry_points = method_entry_point if isinstance(method_entry_point, list) else [method_entry_point]
+    return entry_point in method_entry_points
+
+
+def is_valid_for(method_summary, entry_point, protocol):
+    return \
+        available_for_entry_point(method_summary['entry_point'], entry_point) \
+        and \
+        available_for_protocol(method_summary['protocol'], protocol)
 
 
 def get_method(name, entry_point, protocol):
     """Retrieve a method from the given name"""
     # Get the current RPC registry from internal cache
-    registry = cache.get(RPC_REGISTRY_KEY, default={})
+    methods_index = cache.get(RPC_REGISTRY_INDEX, default={}, version=RPC_REGISTRY_VERSION)
 
     # Try to find the given method in cache
-    if name in registry:
-        method = registry.get(name)
+    if name in methods_index:
+        method_summary = methods_index[name]
         # Ensure the method can be returned for given entry_point and protocol
-        if method and method.is_valid_for(entry_point, protocol):
-            return method
+        if is_valid_for(method_summary, entry_point, protocol):
+
+            method_dump = cache.get(make_key(name), default={}, version=RPC_REGISTRY_VERSION)
+            if not method_dump:
+                # Oops, a method found in index doesn't have corresponding info in global registry.
+                # It must be unregistered
+                unregister_rpc_method(name)
+                return None
+
+            return RPCMethod.from_dict(method_dump)
 
     return None
 
 
-def unregister_rpc_method(method_name):
+def unregister_rpc_method(name):
     """Remove a method from registry"""
     # Get the current RPC registry from internal cache
-    registry = cache.get(RPC_REGISTRY_KEY, default={})
+    methods_index = cache.get(RPC_REGISTRY_INDEX, default={}, version=RPC_REGISTRY_VERSION)
 
-    if method_name in registry:
-        logger.debug('Unregister RPC method {}'.format(method_name))
-        del registry[method_name]
+    if name in methods_index:
+        logger.debug('Unregister RPC method {}'.format(name))
+        del methods_index[name]
+        cache.set(RPC_REGISTRY_INDEX, methods_index, version=RPC_REGISTRY_VERSION, timeout=DEFAULT_REGISTRY_TIMEOUT)
 
-    # Update the registry in internal cache
-    cache.set(RPC_REGISTRY_KEY, registry, timeout=DEFAULT_REGISTRY_TIMEOUT)
+    # In all case, delete the entry for the corresponding method
+    cache.delete(make_key(name), version=RPC_REGISTRY_VERSION)
 
 
 def register_rpc_method(function):
@@ -329,38 +375,61 @@ def register_rpc_method(function):
                                    'system extensions and must not be used. See '
                                    'http://www.jsonrpc.org/specification#extensions for more information.')
 
-    entry_point = getattr(function, 'modernrpc_entry_point')
-    protocol = getattr(function, 'modernrpc_protocol')
-    str_standardization = getattr(function, 'str_standardization')
-
     # Encapsulate the function in a RPCMethod object
-    method = RPCMethod(function, name, entry_point, protocol, str_standardization)
+    method = RPCMethod(function)
 
     # Get the current RPC registry from internal cache
-    registry = cache.get(RPC_REGISTRY_KEY, default={})
 
     # Ensure method names are unique in the registry
-    if method.external_name in registry:
+    existing_method = get_method(method.name, ALL, ALL)
+    if existing_method is not None:
         # Trying to register many times the same function is OK, because if a method is decorated
         # with @rpc_method(), it could be imported in different places of the code
-        if method == registry[method.external_name]:
-            return method.external_name
+        if method == existing_method:
+            return method.name
         # But if we try to use the same name to register 2 different methods, we
         # must inform the developer there is an error in the code
         else:
-            raise ImproperlyConfigured("A RPC method with name {} has already been registered"
-                                       .format(method.external_name))
+            raise ImproperlyConfigured("A RPC method with name {} has already been registered".format(method.name))
 
-    # Store the method
-    registry[method.external_name] = method
+    # Store the method in cache
+    methods_index = cache.get(RPC_REGISTRY_INDEX, default={}, version=RPC_REGISTRY_VERSION)
+    methods_index[method.name] = {
+        'entry_point': method.entry_point,
+        'protocol': method.protocol,
+    }
+    cache.set(RPC_REGISTRY_INDEX, methods_index, timeout=DEFAULT_REGISTRY_TIMEOUT, version=RPC_REGISTRY_VERSION)    
+    cache.set(make_key(method.name), method.to_dict(), timeout=DEFAULT_REGISTRY_TIMEOUT, version=RPC_REGISTRY_VERSION)
 
-    # Update the registry in internal cache
-    cache.set(RPC_REGISTRY_KEY, registry, timeout=DEFAULT_REGISTRY_TIMEOUT)
-
-    return method.external_name
+    return method.name
 
 
-def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL, str_standardization=settings.MODERNRPC_PY2_STR_TYPE,
+def get_all_method_names(entry_point=ALL, protocol=ALL, sort_methods=False):
+    """Return the list of all RPC methods registered"""
+
+    # Get the current RPC registry from internal cache
+    methods_index = cache.get(RPC_REGISTRY_INDEX, version=RPC_REGISTRY_VERSION, default=[])
+
+    names = [m for m in methods_index if is_valid_for(methods_index[m], entry_point=entry_point, protocol=protocol)]
+
+    if sort_methods:
+        names = sorted(names)
+
+    return names
+
+
+def get_all_methods(entry_point=ALL, protocol=ALL, sort_methods=False):
+    """Return a list of all methods in the registry supported by the given entry_point / protocol pair"""
+
+    names = get_all_method_names(entry_point=entry_point, protocol=protocol, sort_methods=sort_methods)
+
+    return [
+        RPCMethod.from_dict(cache.get(make_key(method_name), version=RPC_REGISTRY_VERSION)) for method_name in names
+    ]
+
+
+def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL,
+               str_standardization=settings.MODERNRPC_PY2_STR_TYPE,
                str_standardization_encoding=settings.MODERNRPC_PY2_STR_ENCODING):
     """
     Mark a standard python function as RPC method.
@@ -399,3 +468,9 @@ def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL, str_standard
 
     # If @rpc_method is used without parenthesis
     return decorated(func)
+
+
+def clean_old_cache_content():
+    """Clean CACHE data from old versions of django-modern-rpc"""
+    if cache.has_key('__rpc_registry__', version=1):
+        cache.delete('__rpc_registry__', version=1)
