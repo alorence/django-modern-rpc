@@ -6,3 +6,4 @@ requests
 markdown
 docutils
 jsonrpcclient
+msgpack-python

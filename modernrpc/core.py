@@ -398,7 +398,7 @@ def register_rpc_method(function):
         'entry_point': method.entry_point,
         'protocol': method.protocol,
     }
-    cache.set(RPC_REGISTRY_INDEX, methods_index, timeout=DEFAULT_REGISTRY_TIMEOUT, version=RPC_REGISTRY_VERSION)    
+    cache.set(RPC_REGISTRY_INDEX, methods_index, timeout=DEFAULT_REGISTRY_TIMEOUT, version=RPC_REGISTRY_VERSION)
     cache.set(make_key(method.name), method.to_dict(), timeout=DEFAULT_REGISTRY_TIMEOUT, version=RPC_REGISTRY_VERSION)
 
     return method.name

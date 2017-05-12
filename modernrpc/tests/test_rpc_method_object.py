@@ -1,4 +1,9 @@
 # coding: utf-8
+import json
+import pickle
+
+import msgpack
+
 from modernrpc.conf import settings
 from modernrpc.core import RPCMethod, get_all_methods, get_method, ALL, rpc_method, available_for_entry_point
 from modernrpc.handlers import XMLRPC, JSONRPC
@@ -164,3 +169,42 @@ def test_html_documentation_reST(settings):
     assert '<em>multi-lines</em>' in method.html_doc.replace('\n', '')
     assert '<strong>documentation</strong>' in method.html_doc.replace('\n', '')
     assert '<blockquote>abcdef 123456</blockquote>' in method.html_doc.replace('\n', '')
+
+
+def test_method_is_picklable():
+
+    rpc_method(dummy_function, 'dummy_name')
+    m = RPCMethod(dummy_function)
+
+    dumped_data = pickle.dumps(m.to_dict())
+
+    assert dumped_data != b''
+
+    m2 = RPCMethod.from_dict(pickle.loads(dumped_data))
+    assert m2 == m
+
+
+def test_method_is_json_serializable():
+
+    rpc_method(dummy_function, 'dummy_name')
+    m = RPCMethod(dummy_function)
+
+    dumped_data = json.dumps(m.to_dict())
+
+    assert dumped_data != ''
+
+    m2 = RPCMethod.from_dict(json.loads(dumped_data))
+    assert m2 == m
+
+
+def test_method_is_msgpack_serializable():
+
+    rpc_method(dummy_function, 'dummy_name')
+    m = RPCMethod(dummy_function)
+
+    dumped_data = msgpack.dumps(m.to_dict(), use_bin_type=True)
+
+    assert dumped_data != ''
+
+    m2 = RPCMethod.from_dict(msgpack.loads(dumped_data, encoding='utf-8'))
+    assert m2 == m
