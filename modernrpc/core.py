@@ -15,11 +15,10 @@ from modernrpc.conf import settings
 from modernrpc.handlers import XMLRPC, JSONRPC
 
 logger = logging.getLogger(__name__)
-# warnings.simplefilter('once', DeprecationWarning)
 
 # The registry keys in current cache
 RPC_REGISTRY_PREFIX = 'modernrpc'
-RPC_REGISTRY_INDEX = RPC_REGISTRY_PREFIX + '_index'
+RPC_REGISTRY_INDEX = RPC_REGISTRY_PREFIX + '__index'
 RPC_REGISTRY_VERSION = 2
 # Default timeout set to registry in cache
 DEFAULT_REGISTRY_TIMEOUT = None
@@ -315,10 +314,26 @@ def is_valid_for(method_summary, entry_point, protocol):
         available_for_protocol(method_summary['protocol'], protocol)
 
 
+def get_registry_index():
+    try:
+        return cache.get(RPC_REGISTRY_INDEX, version=RPC_REGISTRY_VERSION, default={})
+    except:
+        return {}
+
+
+def add_to_registry_index(name, protocol, entry_point):
+    methods_index = get_registry_index()
+    methods_index[name] = {
+        'entry_point': entry_point,
+        'protocol': protocol,
+    }
+    cache.set(RPC_REGISTRY_INDEX, methods_index, timeout=DEFAULT_REGISTRY_TIMEOUT, version=RPC_REGISTRY_VERSION)
+
+
 def get_method(name, entry_point, protocol):
     """Retrieve a method from the given name"""
     # Get the current RPC registry from internal cache
-    methods_index = cache.get(RPC_REGISTRY_INDEX, default={}, version=RPC_REGISTRY_VERSION)
+    methods_index = get_registry_index()
 
     # Try to find the given method in cache
     if name in methods_index:
@@ -341,7 +356,7 @@ def get_method(name, entry_point, protocol):
 def unregister_rpc_method(name):
     """Remove a method from registry"""
     # Get the current RPC registry from internal cache
-    methods_index = cache.get(RPC_REGISTRY_INDEX, default={}, version=RPC_REGISTRY_VERSION)
+    methods_index = get_registry_index()
 
     if name in methods_index:
         logger.debug('Unregister RPC method {}'.format(name))
@@ -393,12 +408,7 @@ def register_rpc_method(function):
             raise ImproperlyConfigured("A RPC method with name {} has already been registered".format(method.name))
 
     # Store the method in cache
-    methods_index = cache.get(RPC_REGISTRY_INDEX, default={}, version=RPC_REGISTRY_VERSION)
-    methods_index[method.name] = {
-        'entry_point': method.entry_point,
-        'protocol': method.protocol,
-    }
-    cache.set(RPC_REGISTRY_INDEX, methods_index, timeout=DEFAULT_REGISTRY_TIMEOUT, version=RPC_REGISTRY_VERSION)
+    add_to_registry_index(method.name, method.protocol, method.entry_point)
     cache.set(make_key(method.name), method.to_dict(), timeout=DEFAULT_REGISTRY_TIMEOUT, version=RPC_REGISTRY_VERSION)
 
     return method.name
@@ -408,7 +418,7 @@ def get_all_method_names(entry_point=ALL, protocol=ALL, sort_methods=False):
     """Return the list of all RPC methods registered"""
 
     # Get the current RPC registry from internal cache
-    methods_index = cache.get(RPC_REGISTRY_INDEX, version=RPC_REGISTRY_VERSION, default=[])
+    methods_index = get_registry_index()
 
     names = [m for m in methods_index if is_valid_for(methods_index[m], entry_point=entry_point, protocol=protocol)]
 

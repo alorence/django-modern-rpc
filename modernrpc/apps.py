@@ -7,7 +7,7 @@ import django.core.checks
 from django.apps import AppConfig
 
 from modernrpc.conf import settings
-from modernrpc.core import register_rpc_method, get_all_method_names, unregister_rpc_method
+from modernrpc.core import register_rpc_method, get_all_method_names, unregister_rpc_method, clean_old_cache_content
 
 
 @django.core.checks.register()
@@ -76,3 +76,7 @@ class ModernRpcConfig(AppConfig):
         # The corresponding functions have been renamed, deleted or undecorated
         for name in needs_removal:
             unregister_rpc_method(name)
+
+        # If django-modern-rpc was previously used, the old style registry
+        # may still exists in cache. Delete it
+        clean_old_cache_content()
