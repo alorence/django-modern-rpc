@@ -56,7 +56,10 @@ class RPCMethod(object):
             self.str_standardization = self.str_standardization.__name__
 
         # List method's positional arguments
-        self.args = inspect.get_func_args(function)
+        # Note: function inspect.get_func_args() was previously used here. Unfortunately, for a strange
+        # reason, the first argument is removed from the resulting list on Python 2 when the function has
+        # too many arguments. Fallback to inspect.getargspec(f)[0] to get the same (valid) result
+        self.args = inspect.getargspec(function)[0]
         # Flag the method to accept additional kwargs dict
         self.accept_kwargs = inspect.func_accepts_kwargs(function)
 
