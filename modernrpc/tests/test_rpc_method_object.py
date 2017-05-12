@@ -121,6 +121,7 @@ def test_arguments_order():
     assert args[6] == 'b'
     assert args[7] == 'c'
 
+
 def single_line_documented():
     """*italic*, **strong**, normal text"""
     return 111
