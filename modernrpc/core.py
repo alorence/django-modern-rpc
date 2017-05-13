@@ -78,7 +78,7 @@ class RPCMethod(object):
     def __eq__(self, other):
         return \
             self.function == other.function and \
-            self._external_name == other.external_name and \
+            self._external_name == other._external_name and \
             self.entry_point == other.entry_point and \
             self.protocol == other.protocol
 
