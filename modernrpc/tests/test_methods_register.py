@@ -30,6 +30,12 @@ def test_manual_registration():
     assert 'another_dummy_method' in get_all_method_names()
 
 
+def test_double_registration():
+
+    assert register_rpc_method(another_dummy_method) == 'another_dummy_method'
+    assert register_rpc_method(another_dummy_method) == 'another_dummy_method'
+
+
 @rpc_method(name='another_name')
 def another_dummy_method_2():
     return 33
@@ -39,6 +45,7 @@ def test_manual_registration_with_different_name():
 
     register_rpc_method(another_dummy_method_2)
     assert 'another_name' in get_all_method_names()
+    assert 'another_dummy_method_2' not in get_all_method_names()
 
 
 @rpc_method(name='rpc.invalid.name')
@@ -53,6 +60,7 @@ def test_invalid_name():
 
     assert 'method names starting with "rpc." are reserved' in str(excinfo.value)
     assert 'rpc.invalid.name' not in get_all_method_names()
+    assert 'another_dummy_method_3' not in get_all_method_names()
 
 
 @rpc_method(name='divide')
@@ -69,6 +77,7 @@ def test_duplicated_name():
 
 
 def test_wrong_manual_registration():
+
     # Trying to register a not decorated method with the latest version raises an ImproperlyConfigured exception
     with pytest.raises(ImproperlyConfigured):
         register_rpc_method(another_not_decorated)
