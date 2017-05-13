@@ -30,9 +30,6 @@ class RPCMethod(object):
 
     def __init__(self, func):
 
-        if func is None:
-            return
-
         # Store the reference to the registered function
         self.function = func
 
