@@ -7,7 +7,7 @@ import django.core.checks
 from django.apps import AppConfig
 
 from modernrpc.conf import settings
-from modernrpc.core import register_rpc_method, get_all_method_names, unregister_rpc_method
+from modernrpc.core import register_rpc_method
 
 
 @django.core.checks.register()
@@ -44,10 +44,6 @@ class ModernRpcConfig(AppConfig):
             # with check_required_settings_defined() function. See http://docs.djangoproject.com/en/1.10/topics/checks/
             return
 
-        # When project use a persistant cache system (Redis, memcached, etc.), it may contains old data from
-        # previous runs. Compute the list now, so later we can remove useless RPC methods from registry
-        needs_removal = get_all_method_names()
-
         # Lookup content of MODERNRPC_METHODS_MODULES, and add the module containing system methods
         for module_name in settings.MODERNRPC_METHODS_MODULES + ['modernrpc.system_methods']:
 
@@ -65,14 +61,4 @@ class ModernRpcConfig(AppConfig):
             for _, func in inspect.getmembers(module, inspect.isfunction):
                 # And register only functions with attribute 'modernrpc_enabled' defined to True
                 if getattr(func, 'modernrpc_enabled', False):
-                    registered_name = register_rpc_method(func)
-                    try:
-                        # Remove the registered method from the previously known list
-                        needs_removal.remove(registered_name)
-                    except ValueError:
-                        pass
-
-        # Now, all methods remaining in needs_removal can be deleted from cache.
-        # The corresponding functions have been renamed, deleted or undecorated
-        for name in needs_removal:
-            unregister_rpc_method(name)
+                    register_rpc_method(func)

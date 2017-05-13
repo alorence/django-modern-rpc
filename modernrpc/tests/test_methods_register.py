@@ -4,8 +4,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.six.moves import xmlrpc_client
 from pytest import raises
 
-from modernrpc.core import rpc_method, register_rpc_method, get_all_method_names, \
-    unregister_rpc_method, get_all_methods
+from modernrpc.core import rpc_method, register_rpc_method, get_all_method_names, get_all_methods
 from testsite.rpc_methods_stub.not_decorated import another_not_decorated
 
 
@@ -30,9 +29,6 @@ def test_manual_registration():
     register_rpc_method(another_dummy_method)
     assert 'another_dummy_method' in get_all_method_names()
 
-    unregister_rpc_method('another_dummy_method')
-    assert 'another_dummy_method' not in get_all_method_names()
-
 
 @rpc_method(name='another_name')
 def another_dummy_method_2():
@@ -43,9 +39,6 @@ def test_manual_registration_with_different_name():
 
     register_rpc_method(another_dummy_method_2)
     assert 'another_name' in get_all_method_names()
-
-    unregister_rpc_method('another_name')
-    assert 'another_name' not in get_all_method_names()
 
 
 @rpc_method(name='rpc.invalid.name')
@@ -59,7 +52,7 @@ def test_invalid_name():
         register_rpc_method(another_dummy_method_3)
 
     assert 'method names starting with "rpc." are reserved' in str(excinfo.value)
-    assert 'another_name' not in get_all_method_names()
+    assert 'rpc.invalid.name' not in get_all_method_names()
 
 
 @rpc_method(name='divide')
@@ -73,7 +66,6 @@ def test_duplicated_name():
         register_rpc_method(another_dummy_method_4)
 
     assert 'has already been registered' in str(excinfo.value)
-    assert 'another_name' not in get_all_method_names()
 
 
 def test_wrong_manual_registration():
