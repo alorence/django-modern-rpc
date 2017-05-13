@@ -18,6 +18,7 @@ def add(a, b):
 def divide(numerator, denominator, x=50, y=90, z=120, a=1, b=5, c=10):
     """
     Divide a numerator by a denominator
+
     :param numerator: The numerator
     :param denominator: The denominator
     :param x: useless, needed to check arguments ordering

@@ -1,4 +1,5 @@
 # coding: utf-8
+
 from modernrpc.conf import settings
 from modernrpc.core import RPCMethod, get_all_methods, get_method, ALL, rpc_method
 from modernrpc.handlers import XMLRPC, JSONRPC

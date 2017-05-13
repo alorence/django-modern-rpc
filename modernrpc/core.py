@@ -5,6 +5,7 @@ import logging
 import re
 
 from django.contrib.admindocs.utils import trim_docstring
+from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import inspect
 from django.utils import six
@@ -30,6 +31,9 @@ class RPCMethod(object):
 
     def __init__(self, function):
 
+        if function is None:
+            return
+
         self.module = function.__module__
         self.func_name = function.__name__
 
@@ -49,7 +53,7 @@ class RPCMethod(object):
         self.signature = []
         # Contains the method's docstring, in HTML form
         self.html_doc = ''
-        # Contains doc about argumetns and their type. We store this in an ordered dict, so the args documentation
+        # Contains doc about arguments and their type. We store this in an ordered dict, so the args documentation
         # keep the order defined in docstring
         self.args_doc = collections.OrderedDict()
         # Contains doc about return type and return value
@@ -157,6 +161,10 @@ class RPCMethod(object):
         return "<p>{}</p>".format(docstring.replace('\n\n', '</p><p>').replace('\n', '<br/'))
 
     def check_permissions(self, request):
+        """Call the predicate(s) associated with the RPC method, to check if the current request
+        can actually call the method.
+        Return a boolean indicating if the method should be executed (True) or not (False)"""
+
         module = importlib.import_module(self.module)
         func = getattr(module, self.func_name)
 
@@ -272,21 +280,21 @@ def register_rpc_method(function):
     method = RPCMethod(function)
 
     # Ensure method names are unique in the registry
-    if method.external_name in registry:
+    existing_method = get_method(method.name, ALL, ALL)
+    if existing_method is not None:
         # Trying to register many times the same function is OK, because if a method is decorated
         # with @rpc_method(), it could be imported in different places of the code
-        if method == registry[method.external_name]:
-            return method.external_name
+        if method == existing_method:
+            return method.name
         # But if we try to use the same name to register 2 different methods, we
         # must inform the developer there is an error in the code
         else:
-            raise ImproperlyConfigured("A RPC method with name {} has already been registered"
-                                       .format(method.external_name))
+            raise ImproperlyConfigured("A RPC method with name {} has already been registered".format(method.name))
 
     # Store the method
-    registry[method.external_name] = method
+    registry[method.name] = method
 
-    return method.external_name
+    return method.name
 
 
 def unregister_rpc_method(method_name):
@@ -297,9 +305,8 @@ def unregister_rpc_method(method_name):
         del registry[method_name]
 
 
-
 def get_all_method_names(entry_point=ALL, protocol=ALL, sort_methods=False):
-    """"""
+    """Return the names of all RPC methods registered"""
 
     method_namess = [
         name for name, method in registry.items() if method.is_valid_for(entry_point, protocol)
@@ -369,3 +376,8 @@ def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL, str_standard
 
     # If @rpc_method is used without parenthesis
     return decorated(func)
+
+
+def clean_old_cache_content():
+    """Clean CACHE data from old versions of django-modern-rpc"""
+    cache.delete('__rpc_registry__', version=1)
