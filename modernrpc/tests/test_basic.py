@@ -69,10 +69,16 @@ def test_xmlrpc_get_signature_2(live_server):
     signature = c.system.methodSignature('divide')
     # Return type + 2 parameters = 3 elements in the signature
     assert type(signature) == list
-    assert len(signature) == 3
+    assert len(signature) == 9
     assert signature[0] == 'int or double'
     assert signature[1] == 'int or double'
     assert signature[2] == 'int or double'
+    assert signature[3] == 'int'
+    assert signature[4] == 'int'
+    assert signature[5] == 'int'
+    assert signature[6] == 'int'
+    assert signature[7] == 'int'
+    assert signature[8] == 'int'
 
 
 def test_xmlrpc_get_signature_invalid_method(live_server):
@@ -98,11 +104,16 @@ def test_jsonrpc_get_signature_2(live_server):
     signature = c.request('system.methodSignature', "divide")
     # Return type + 2 parameters = 3 elements in the signature
     assert type(signature) == list
-    assert len(signature) == 3
+    assert len(signature) == 9
     assert signature[0] == 'int or double'
     assert signature[1] == 'int or double'
     assert signature[2] == 'int or double'
-
+    assert signature[3] == 'int'
+    assert signature[4] == 'int'
+    assert signature[5] == 'int'
+    assert signature[6] == 'int'
+    assert signature[7] == 'int'
+    assert signature[8] == 'int'
 
 def test_jsonrpc_get_signature_invalid_method(live_server):
     c = HTTPClient(live_server.url + '/all-rpc/')
