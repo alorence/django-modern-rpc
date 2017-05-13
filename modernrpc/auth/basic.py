@@ -34,9 +34,9 @@ def http_basic_auth_get_user(request):
     # This was grabbed from https://www.djangosnippets.org/snippets/243/
     # Thanks to http://stackoverflow.com/a/1087736/1887976
     if 'HTTP_AUTHORIZATION' in request.META:
-        auth = request.META['HTTP_AUTHORIZATION'].split()
-        if len(auth) == 2 and auth[0].lower() == "basic":
-            uname, passwd = base64.b64decode(auth[1]).decode('utf-8').split(':')
+        auth_data = request.META['HTTP_AUTHORIZATION'].split()
+        if len(auth_data) == 2 and auth_data[0].lower() == "basic":
+            uname, passwd = base64.b64decode(auth_data[1]).decode('utf-8').split(':')
             login(request, authenticate(username=uname, password=passwd))
 
     # In all cases, return the current request's user (may be anonymous user if no login succeed)
@@ -50,8 +50,8 @@ def http_basic_auth_get_user(request):
 def http_basic_auth_login_required(func=None):
     """Decorator. Use it to specify a RPC method is available only to logged users"""
 
-    def decorated(function):
-        return auth.set_authentication_predicate(function, http_basic_auth_check_user, [auth.user_is_logged])
+    def decorated(_func):
+        return auth.set_authentication_predicate(_func, http_basic_auth_check_user, [auth.user_is_logged])
 
     # If @http_basic_auth_login_required() is used (with parenthesis)
     if func is None:
@@ -64,8 +64,8 @@ def http_basic_auth_login_required(func=None):
 # Decorator
 def http_basic_auth_superuser_required(func=None):
     """Decorator. Use it to specify a RPC method is available only to logged superusers"""
-    def decorated(function):
-        return auth.set_authentication_predicate(function, http_basic_auth_check_user, [auth.user_is_superuser])
+    def decorated(_func):
+        return auth.set_authentication_predicate(_func, http_basic_auth_check_user, [auth.user_is_superuser])
 
     # If @http_basic_auth_superuser_required() is used (with parenthesis)
     if func is None:

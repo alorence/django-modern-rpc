@@ -11,7 +11,7 @@ from modernrpc.core import register_rpc_method, reset_registry, clean_old_cache_
 
 
 @django.core.checks.register()
-def check_required_settings_defined(app_configs, **kwargs):
+def check_required_settings_defined(app_configs, **kwargs):  # noqa
     result = []
     if not settings.MODERNRPC_METHODS_MODULES:
         result.append(
@@ -35,7 +35,8 @@ class ModernRpcConfig(AppConfig):
     def ready(self):
         self.rpc_methods_registration()
 
-    def rpc_methods_registration(self):
+    @staticmethod
+    def rpc_methods_registration():
         """Look into each module listed in settings.MODERNRPC_METHODS_MODULES, import each module and register
         functions annotated with @rpc_method decorator in the registry"""
 
@@ -55,7 +56,7 @@ class ModernRpcConfig(AppConfig):
 
             try:
                 # Import the module in current scope
-                module = import_module(module_name)
+                rpc_module = import_module(module_name)
 
             except ImportError:
                 msg = 'Unable to load module "{}" declared in settings.MODERNRPC_METHODS_MODULES. Please ensure ' \
@@ -64,7 +65,7 @@ class ModernRpcConfig(AppConfig):
                 continue
 
             # Lookup all global functions in module
-            for _, func in inspect.getmembers(module, inspect.isfunction):
+            for _, func in inspect.getmembers(rpc_module, inspect.isfunction):
                 # And register only functions with attribute 'modernrpc_enabled' defined to True
                 if getattr(func, 'modernrpc_enabled', False):
                     register_rpc_method(func)

@@ -28,31 +28,31 @@ registry = {}
 
 class RPCMethod(object):
 
-    def __init__(self, function):
+    def __init__(self, func):
 
-        if function is None:
+        if func is None:
             return
 
         # Store the reference to the registered function
-        self.function = function
+        self.function = func
 
         # @rpc_method decorator parameters
-        self._external_name = getattr(function, 'modernrpc_name', function.__name__)
-        self.entry_point = getattr(function, 'modernrpc_entry_point')
-        self.protocol = getattr(function, 'modernrpc_protocol')
-        self.str_standardization = getattr(function, 'str_standardization')
-        self.str_std_encoding = getattr(function, 'str_standardization_encoding')
+        self._external_name = getattr(func, 'modernrpc_name', func.__name__)
+        self.entry_point = getattr(func, 'modernrpc_entry_point')
+        self.protocol = getattr(func, 'modernrpc_protocol')
+        self.str_standardization = getattr(func, 'str_standardization')
+        self.str_std_encoding = getattr(func, 'str_standardization_encoding')
         # Authentication related attributes
-        self.predicates = getattr(function, 'modernrpc_auth_predicates', None)
-        self.predicates_params = getattr(function, 'modernrpc_auth_predicates_params', None)
+        self.predicates = getattr(func, 'modernrpc_auth_predicates', None)
+        self.predicates_params = getattr(func, 'modernrpc_auth_predicates_params', None)
 
         # List method's positional arguments
         # Note: function inspect.get_func_args() was previously used here. Unfortunately, for a strange
         # reason, the first argument is removed from the resulting list on Python 2 when the function has
         # too many arguments. Fallback to inspect.getargspec(f)[0] to get the same (valid) result
-        self.args = inspect.getargspec(function)[0]
+        self.args = inspect.getargspec(func)[0]
         # Does the method accept additional kwargs dict?
-        self.accept_kwargs = inspect.func_accepts_kwargs(function)
+        self.accept_kwargs = inspect.func_accepts_kwargs(func)
 
         # Contains the signature of the method, as returned by "system.methodSignature"
         self.signature = []
@@ -65,7 +65,7 @@ class RPCMethod(object):
         self.return_doc = {}
 
         # Docstring parsing
-        self.raw_docstring = self.parse_docstring(function.__doc__)
+        self.raw_docstring = self.parse_docstring(func.__doc__)
         self.html_doc = self.raw_docstring_to_html(self.raw_docstring)
 
     @property
@@ -251,21 +251,21 @@ def reset_registry():
     registry.clear()
 
 
-def register_rpc_method(function):
+def register_rpc_method(func):
     """
     Register a function to be available as RPC method.
 
     The given function will be inspected to find external_name, protocol and entry_point values set by the decorator
     @rpc_method.
-    :param function: A function previously decorated using @rpc_method
+    :param func: A function previously decorated using @rpc_method
     :return: The name of registered method
     """
-    if not getattr(function, 'modernrpc_enabled', False):
+    if not getattr(func, 'modernrpc_enabled', False):
         raise ImproperlyConfigured('Error: trying to register {} as RPC method, but it has not been decorated.'
-                                   .format(function.__name__))
+                                   .format(func.__name__))
 
     # Define the external name of the function
-    name = getattr(function, 'modernrpc_name', function.__name__)
+    name = getattr(func, 'modernrpc_name', func.__name__)
 
     logger.debug('Register RPC method {}'.format(name))
 
@@ -275,7 +275,7 @@ def register_rpc_method(function):
                                    'http://www.jsonrpc.org/specification#extensions for more information.')
 
     # Encapsulate the function in a RPCMethod object
-    method = RPCMethod(function)
+    method = RPCMethod(func)
 
     # Ensure method names are unique in the registry
     existing_method = get_method(method.name, ALL, ALL)
@@ -348,16 +348,16 @@ def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL, str_standard
     :type str_standardization_encoding: str
     """
 
-    def decorated(function):
+    def decorated(_func):
 
-        function.modernrpc_enabled = True
-        function.modernrpc_name = name or function.__name__
-        function.modernrpc_entry_point = entry_point
-        function.modernrpc_protocol = protocol
-        function.str_standardization = str_standardization
-        function.str_standardization_encoding = str_standardization_encoding
+        _func.modernrpc_enabled = True
+        _func.modernrpc_name = name or _func.__name__
+        _func.modernrpc_entry_point = entry_point
+        _func.modernrpc_protocol = protocol
+        _func.str_standardization = str_standardization
+        _func.str_standardization_encoding = str_standardization_encoding
 
-        return function
+        return _func
 
     # If @rpc_method() is used with parenthesis (with or without argument)
     if func is None:
