@@ -1,5 +1,5 @@
 # coding: utf-8
-from modernrpc.core import ENTRY_POINT_KEY, PROTOCOL_KEY, get_method, rpc_method, get_all_methods
+from modernrpc.core import ENTRY_POINT_KEY, PROTOCOL_KEY, get_method, rpc_method, get_all_method_names
 from modernrpc.exceptions import RPCInvalidParams, RPCUnknownMethod, RPCException, RPC_INTERNAL_ERROR
 from modernrpc.handlers import XMLRPC
 
@@ -10,9 +10,7 @@ def __system_listMethods(**kwargs):
     entry_point = kwargs.get(ENTRY_POINT_KEY)
     protocol = kwargs.get(PROTOCOL_KEY)
 
-    names = [method.name for method in get_all_methods(entry_point, protocol, sort_methods=True)]
-
-    return names
+    return get_all_method_names(entry_point, protocol, sort_methods=True)
 
 
 @rpc_method(name='system.methodSignature')
