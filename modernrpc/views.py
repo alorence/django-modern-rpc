@@ -69,7 +69,10 @@ class RPCEntryPoint(TemplateView):
     def post(self, request, *args, **kwargs):
         """
         Handle a XML-RPC or JSON-RPC request.
-        
+
+        :param request: Incoming request
+        :param args: Additional arguments
+        :param kwargs: Additional named arguments
         :return: A HttpResponse containing XML-RPC or JSON-RPC response, depending on the incoming request
         """
 
