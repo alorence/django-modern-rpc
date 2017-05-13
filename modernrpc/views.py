@@ -37,8 +37,7 @@ class RPCEntryPoint(TemplateView):
     # This disable CSRF validation for POST requests
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
-        """
-        Overrides the default dispatch method, for 2 reasons:
+        """Overrides the default dispatch method, for 2 reasons:
          1. Filter input requests methods to respect ``enable_doc`` and ``enable_rpc`` parameters
          2. Disable CSRF validation on post request, since this is irrelevant for RPC calls.
         """
@@ -70,6 +69,7 @@ class RPCEntryPoint(TemplateView):
     def post(self, request, *args, **kwargs):
         """
         Handle a XML-RPC or JSON-RPC request.
+        
         :return: A HttpResponse containing XML-RPC or JSON-RPC response, depending on the incoming request
         """
 
