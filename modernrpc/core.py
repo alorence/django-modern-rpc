@@ -1,6 +1,5 @@
 # coding: utf-8
 import collections
-import importlib
 import logging
 import re
 
@@ -34,15 +33,18 @@ class RPCMethod(object):
         if function is None:
             return
 
-        self.module = function.__module__
-        self.func_name = function.__name__
+        # Store the reference to the registered function
+        self.function = function
 
         # @rpc_method decorator parameters
-        self.external_name = getattr(function, 'modernrpc_name', self.func_name)
+        self._external_name = getattr(function, 'modernrpc_name', function.__name__)
         self.entry_point = getattr(function, 'modernrpc_entry_point')
         self.protocol = getattr(function, 'modernrpc_protocol')
         self.str_standardization = getattr(function, 'str_standardization')
         self.str_std_encoding = getattr(function, 'str_standardization_encoding')
+        # Authentication related attributes
+        self.predicates = getattr(function, 'modernrpc_auth_predicates', None)
+        self.predicates_params = getattr(function, 'modernrpc_auth_predicates_params', None)
 
         # List method's positional arguments
         # Note: function inspect.get_func_args() was previously used here. Unfortunately, for a strange
@@ -68,10 +70,17 @@ class RPCMethod(object):
 
     @property
     def name(self):
-        return self.external_name
+        return self._external_name
 
     def __repr__(self):
         return 'RPC Method ' + self.name
+
+    def __eq__(self, other):
+        return \
+            self.function == other.function and \
+            self._external_name == other.external_name and \
+            self.entry_point == other.entry_point and \
+            self.protocol == other.protocol
 
     def parse_docstring(self, content):
         """
@@ -100,8 +109,7 @@ class RPCMethod(object):
         PARAM_TYPE_REXP = r'^:type ([\w]+):\s?(.*)'
         RETURN_TYPE_REXP = r'^:rtype:\s?(.*)'
 
-        lines = docstring.split('\n')
-        for line in lines:
+        for line in docstring.split('\n'):
 
             # Empty line
             if not line:
@@ -168,65 +176,57 @@ class RPCMethod(object):
         can actually call the method.
         Return a boolean indicating if the method should be executed (True) or not (False)"""
 
-        module = importlib.import_module(self.module)
-        func = getattr(module, self.func_name)
-
-        predicates = getattr(func, 'modernrpc_auth_predicates', None)
-
-        if not predicates:
+        if not self.predicates:
             return True
-
-        predicates_params = getattr(func, 'modernrpc_auth_predicates_params', None)
 
         # All registered authentication predicates must return True
         return all(
-            predicate(request, *predicates_params[i])
-            for i, predicate in enumerate(predicates)
+            predicate(request, *self.predicates_params[i])
+            for i, predicate in enumerate(self.predicates)
         )
 
     def execute(self, *args, **kwargs):
-        """
-        Call the function encapsulated by the current instance
-
-        :return:
-        """
-        # Try to load the method address
-        module = importlib.import_module(self.module)
-        func = getattr(module, self.func_name)
+        """Call the function encapsulated by the current instance"""
 
         if six.PY2:
             args = standardize_strings(args, strtype=self.str_standardization, encoding=self.str_std_encoding)
 
         # Call the rpc method, as standard python function
         if self.accept_kwargs:
-            return func(*args, **kwargs)
+            return self.function(*args, **kwargs)
         else:
-            return func(*args)
-
-    def __eq__(self, other):
-        return \
-            self.external_name == other.external_name and \
-            self.module == other.module and \
-            self.func_name == other.func_name and \
-            self.entry_point == other.entry_point and \
-            self.protocol == other.protocol
+            return self.function(*args)
 
     def available_for_protocol(self, protocol):
+        """Check if the current function can be executed from a request defining the given protocol"""
         if self.protocol == ALL or protocol == ALL:
             return True
-        else:
-            valid_protocols = self.protocol if isinstance(self.protocol, list) else [self.protocol]
-            return protocol in valid_protocols
+
+        protocols = self.protocol if isinstance(self.protocol, list) else [self.protocol]
+        return protocol in protocols
 
     def available_for_entry_point(self, entry_point):
+        """Check if the current function can be executed from a request to the given entry point"""
         if self.entry_point == ALL or entry_point == ALL:
             return True
-        else:
-            valid_entry_points = self.entry_point if isinstance(self.entry_point, list) else [self.entry_point]
-            return entry_point in valid_entry_points
+
+        entry_points = self.entry_point if isinstance(self.entry_point, list) else [self.entry_point]
+        return entry_point in entry_points
 
     def is_valid_for(self, entry_point, protocol):
+        """Check if the current function can be executed from a request to the given entry point
+        and with the given protocol"""
         return self.available_for_entry_point(entry_point) and self.available_for_protocol(protocol)
+
+    def is_available_in_json_rpc(self):
+        """Shortcut checking if the current method can be executed on JSONRPC protocol.
+        Used in HTML documentation to easily display protocols supported by a RPC method"""
+        return self.available_for_protocol(JSONRPC)
+
+    def is_available_in_xml_rpc(self):
+        """Shortcut checking if the current method can be executed on XMLRPC protocol.
+        Used in HTML documentation to easily display protocols supported by a RPC method"""
+        return self.available_for_protocol(XMLRPC)
 
     # Helpers to simplify templates generation
     def is_doc_available(self):
@@ -245,14 +245,9 @@ class RPCMethod(object):
         """Returns True if there is a textual documentation or a documentation on arguments or return of the method."""
         return self.is_args_doc_available() or self.is_return_doc_available() or self.is_doc_available()
 
-    def is_available_in_json_rpc(self):
-        return self.available_for_protocol(JSONRPC)
-
-    def is_available_in_xml_rpc(self):
-        return self.available_for_protocol(XMLRPC)
-
 
 def reset_registry():
+    """Flush the registry from any previously registered RPC method"""
     registry.clear()
 
 
@@ -300,16 +295,8 @@ def register_rpc_method(function):
     return method.name
 
 
-def unregister_rpc_method(method_name):
-    """Remove a method from registry"""
-
-    if method_name in registry:
-        logger.debug('Unregister RPC method {}'.format(method_name))
-        del registry[method_name]
-
-
 def get_all_method_names(entry_point=ALL, protocol=ALL, sort_methods=False):
-    """Return the names of all RPC methods registered"""
+    """Return the names of all RPC methods registered supported by the given entry_point / protocol pair"""
 
     method_namess = [
         name for name, method in registry.items() if method.is_valid_for(entry_point, protocol)
@@ -333,7 +320,6 @@ def get_all_methods(entry_point=ALL, protocol=ALL, sort_methods=False):
 def get_method(name, entry_point, protocol):
     """Retrieve a method from the given name"""
 
-    # Try to find the given method in registry
     if name in registry and registry[name].is_valid_for(entry_point, protocol):
         return registry[name]
 
