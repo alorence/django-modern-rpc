@@ -330,7 +330,7 @@ def get_all_methods(entry_point=ALL, protocol=ALL, sort_methods=False):
 def get_method(name, entry_point, protocol):
     """Retrieve a method from the given name"""
 
-    # Try to find the given method in cache
+    # Try to find the given method in registry
     if name in registry and registry[name].is_valid_for(entry_point, protocol):
         return registry[name]
 

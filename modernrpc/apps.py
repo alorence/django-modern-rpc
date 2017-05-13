@@ -7,7 +7,7 @@ import django.core.checks
 from django.apps import AppConfig
 
 from modernrpc.conf import settings
-from modernrpc.core import register_rpc_method, reset_registry
+from modernrpc.core import register_rpc_method, reset_registry, clean_old_cache_content
 
 
 @django.core.checks.register()
@@ -39,6 +39,9 @@ class ModernRpcConfig(AppConfig):
         """Look into each module listed in settings.MODERNRPC_METHODS_MODULES, import each module and register
         functions annotated with @rpc_method decorator in the registry"""
 
+        # In previous version, django-moder-rpc used the django cache system to store methods registry.
+        # It is useless now, so clean the cache from old data
+        clean_old_cache_content()
         # For security (and unit tests), make sure the registry is empty before registering rpc methods
         reset_registry()
 
