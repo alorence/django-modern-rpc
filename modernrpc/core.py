@@ -11,9 +11,9 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils import inspect
 from django.utils import six
 
+from modernrpc.compat import standardize_strings
 from modernrpc.conf import settings
 from modernrpc.handlers import XMLRPC, JSONRPC
-from modernrpc.compat import standardize_strings
 
 logger = logging.getLogger(__name__)
 warnings.simplefilter('once', DeprecationWarning)
@@ -35,17 +35,22 @@ ALL = "__all__"
 
 class RPCMethod(object):
 
-    def __init__(self, function, external_name, entry_point=ALL, protocol=ALL,
-                 str_standardization=settings.MODERNRPC_PY2_STR_TYPE,
-                 str_std_encoding=settings.MODERNRPC_PY2_STR_ENCODING):
+    def __init__(self, function):
 
         self.module = function.__module__
         self.func_name = function.__name__
-        self.external_name = external_name
-        self.entry_point = entry_point
-        self.protocol = protocol
-        self.str_standardization = str_standardization
-        self.str_std_encoding = str_std_encoding
+
+        # @rpc_method decorator parameters
+        self.external_name = getattr(function, 'modernrpc_name', self.func_name)
+        self.entry_point = getattr(function, 'modernrpc_entry_point')
+        self.protocol = getattr(function, 'modernrpc_protocol')
+        self.str_standardization = getattr(function, 'str_standardization')
+        self.str_std_encoding = getattr(function, 'str_standardization_encoding')
+
+        # List method's positional arguments
+        self.args = inspect.get_func_args(function)
+        # Does the method accept additional kwargs dict?
+        self.accept_kwargs = inspect.func_accepts_kwargs(function)
 
         # Contains the signature of the method, as returned by "system.methodSignature"
         self.signature = []
@@ -56,11 +61,6 @@ class RPCMethod(object):
         self.args_doc = collections.OrderedDict()
         # Contains doc about return type and return value
         self.return_doc = {}
-
-        self.args = inspect.get_func_args(function)
-
-        # Flag the method to accept additional kwargs dict
-        self.accept_kwargs = inspect.func_accepts_kwargs(function)
 
         # Docstring parsing
         self.raw_docstring = self.parse_docstring(function.__doc__)
@@ -329,12 +329,8 @@ def register_rpc_method(function):
                                    'system extensions and must not be used. See '
                                    'http://www.jsonrpc.org/specification#extensions for more information.')
 
-    entry_point = getattr(function, 'modernrpc_entry_point')
-    protocol = getattr(function, 'modernrpc_protocol')
-    str_standardization = getattr(function, 'str_standardization')
-
     # Encapsulate the function in a RPCMethod object
-    method = RPCMethod(function, name, entry_point, protocol, str_standardization)
+    method = RPCMethod(function)
 
     # Get the current RPC registry from internal cache
     registry = cache.get(RPC_REGISTRY_KEY, default={})
