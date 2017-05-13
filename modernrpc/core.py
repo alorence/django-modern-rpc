@@ -241,51 +241,6 @@ class RPCMethod(object):
         return self.available_for_protocol(XMLRPC)
 
 
-def get_all_method_names(entry_point=ALL, protocol=ALL, sort_methods=False):
-    """"""
-
-    method_namess = [
-        name for name, method in registry.items() if method.is_valid_for(entry_point, protocol)
-    ]
-
-    if sort_methods:
-        method_namess = sorted(method_namess)
-
-    return method_namess
-
-
-def get_all_methods(entry_point=ALL, protocol=ALL, sort_methods=False):
-    """Return a list of all methods in the registry supported by the given entry_point / protocol pair"""
-
-    if sort_methods:
-        methods = [method for (_, method) in sorted(registry.items())]
-    else:
-        methods = registry.values()
-
-    return [
-        method for method in methods if method.is_valid_for(entry_point, protocol)
-    ]
-
-
-def get_method(name, entry_point, protocol):
-    """Retrieve a method from the given name"""
-
-    # Try to find the given method in cache
-    if name in registry:
-        method = registry.get(name)
-        # Ensure the method can be returned for given entry_point and protocol
-        if method and method.is_valid_for(entry_point, protocol):
-            return method
-
-    return None
-
-
-def unregister_rpc_method(method_name):
-    """Remove a method from registry"""
-
-    if method_name in registry:
-        logger.debug('Unregister RPC method {}'.format(method_name))
-        del registry[method_name]
 
 
 def register_rpc_method(function):
@@ -330,6 +285,47 @@ def register_rpc_method(function):
     registry[method.external_name] = method
 
     return method.external_name
+
+
+def unregister_rpc_method(method_name):
+    """Remove a method from registry"""
+
+    if method_name in registry:
+        logger.debug('Unregister RPC method {}'.format(method_name))
+        del registry[method_name]
+
+
+
+def get_all_method_names(entry_point=ALL, protocol=ALL, sort_methods=False):
+    """"""
+
+    method_namess = [
+        name for name, method in registry.items() if method.is_valid_for(entry_point, protocol)
+    ]
+
+    if sort_methods:
+        method_namess = sorted(method_namess)
+
+    return method_namess
+
+
+def get_all_methods(entry_point=ALL, protocol=ALL, sort_methods=False):
+    """Return a list of all methods in the registry supported by the given entry_point / protocol pair"""
+
+    if sort_methods:
+        return [method for (_, method) in sorted(registry.items()) if method.is_valid_for(entry_point, protocol)]
+
+    return registry.values()
+
+
+def get_method(name, entry_point, protocol):
+    """Retrieve a method from the given name"""
+
+    # Try to find the given method in cache
+    if name in registry and registry[name].is_valid_for(entry_point, protocol):
+        return registry[name]
+
+    return None
 
 
 def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL, str_standardization=settings.MODERNRPC_PY2_STR_TYPE,

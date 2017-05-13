@@ -96,3 +96,6 @@ def test_methods_list():
 
     for m in raw_list:
         assert m in sorted_list
+
+    for m in sorted_list:
+        assert m in raw_list
