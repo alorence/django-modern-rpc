@@ -5,7 +5,6 @@ import logging
 import re
 
 from django.contrib.admindocs.utils import trim_docstring
-from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import inspect
 from django.utils import six
@@ -13,13 +12,6 @@ from django.utils import six
 from modernrpc.compat import standardize_strings
 from modernrpc.conf import settings
 from modernrpc.handlers import XMLRPC, JSONRPC
-
-logger = logging.getLogger(__name__)
-
-# The registry key in current cache
-RPC_REGISTRY_KEY = '__rpc_registry__'
-# Timeout set to registry in cache
-DEFAULT_REGISTRY_TIMEOUT = None
 
 # Keys used in kwargs dict given to RPC methods
 REQUEST_KEY = 'request'
@@ -30,6 +22,8 @@ HANDLER_KEY = 'handler'
 # Special constant meaning "all protocols" or "all entry points"
 ALL = "__all__"
 
+logger = logging.getLogger(__name__)
+registry = {}
 
 class RPCMethod(object):
 
@@ -248,8 +242,6 @@ class RPCMethod(object):
 
 def get_all_method_names(entry_point=ALL, protocol=ALL, sort_methods=False):
     """"""
-    # Get the current RPC registry from internal cache
-    registry = cache.get(RPC_REGISTRY_KEY, default={})
 
     method_namess = [
         name for name, method in registry.items() if method.is_valid_for(entry_point, protocol)
@@ -263,8 +255,6 @@ def get_all_method_names(entry_point=ALL, protocol=ALL, sort_methods=False):
 
 def get_all_methods(entry_point=ALL, protocol=ALL, sort_methods=False):
     """Return a list of all methods in the registry supported by the given entry_point / protocol pair"""
-    # Get the current RPC registry from internal cache
-    registry = cache.get(RPC_REGISTRY_KEY, default={})
 
     if sort_methods:
         methods = [method for (_, method) in sorted(registry.items())]
@@ -278,8 +268,6 @@ def get_all_methods(entry_point=ALL, protocol=ALL, sort_methods=False):
 
 def get_method(name, entry_point, protocol):
     """Retrieve a method from the given name"""
-    # Get the current RPC registry from internal cache
-    registry = cache.get(RPC_REGISTRY_KEY, default={})
 
     # Try to find the given method in cache
     if name in registry:
@@ -293,15 +281,10 @@ def get_method(name, entry_point, protocol):
 
 def unregister_rpc_method(method_name):
     """Remove a method from registry"""
-    # Get the current RPC registry from internal cache
-    registry = cache.get(RPC_REGISTRY_KEY, default={})
 
     if method_name in registry:
         logger.debug('Unregister RPC method {}'.format(method_name))
         del registry[method_name]
-
-    # Update the registry in internal cache
-    cache.set(RPC_REGISTRY_KEY, registry, timeout=DEFAULT_REGISTRY_TIMEOUT)
 
 
 def register_rpc_method(function):
@@ -330,9 +313,6 @@ def register_rpc_method(function):
     # Encapsulate the function in a RPCMethod object
     method = RPCMethod(function)
 
-    # Get the current RPC registry from internal cache
-    registry = cache.get(RPC_REGISTRY_KEY, default={})
-
     # Ensure method names are unique in the registry
     if method.external_name in registry:
         # Trying to register many times the same function is OK, because if a method is decorated
@@ -347,9 +327,6 @@ def register_rpc_method(function):
 
     # Store the method
     registry[method.external_name] = method
-
-    # Update the registry in internal cache
-    cache.set(RPC_REGISTRY_KEY, registry, timeout=DEFAULT_REGISTRY_TIMEOUT)
 
     return method.external_name
 
