@@ -3,7 +3,6 @@ import collections
 import importlib
 import logging
 import re
-import warnings
 
 from django.contrib.admindocs.utils import trim_docstring
 from django.core.cache import cache
@@ -16,7 +15,6 @@ from modernrpc.conf import settings
 from modernrpc.handlers import XMLRPC, JSONRPC
 
 logger = logging.getLogger(__name__)
-warnings.simplefilter('once', DeprecationWarning)
 
 # The registry key in current cache
 RPC_REGISTRY_KEY = '__rpc_registry__'
