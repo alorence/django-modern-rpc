@@ -1,6 +1,13 @@
 Changelog
 =========
 
+Release 0.6.0 (2017-05-13)
+--------------------------
+- Many performance improvements. The Django cache system was previously used to store the list of available methods
+  in the current project. This was mostly useless, and caused issues with some cache systems (#5). Use of cache system
+  has been completely removed. The list of RPC methods is computed when the application is started and kept in memory
+  until it is stopped.
+
 Release 0.5.2 (2017-04-18)
 --------------------------
 - User instance is now correctly stored in the current request after successfull authentication [#4]
