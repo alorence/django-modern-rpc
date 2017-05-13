@@ -241,6 +241,8 @@ class RPCMethod(object):
         return self.available_for_protocol(XMLRPC)
 
 
+def reset_registry():
+    registry.clear()
 
 
 def register_rpc_method(function):

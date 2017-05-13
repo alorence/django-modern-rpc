@@ -7,7 +7,7 @@ import django.core.checks
 from django.apps import AppConfig
 
 from modernrpc.conf import settings
-from modernrpc.core import register_rpc_method
+from modernrpc.core import register_rpc_method, reset_registry
 
 
 @django.core.checks.register()
@@ -38,6 +38,9 @@ class ModernRpcConfig(AppConfig):
     def rpc_methods_registration(self):
         """Look into each module listed in settings.MODERNRPC_METHODS_MODULES, import each module and register
         functions annotated with @rpc_method decorator in the registry"""
+
+        # For security (and unit tests), make sure the registry is empty before registering rpc methods
+        reset_registry()
 
         if not settings.MODERNRPC_METHODS_MODULES:
             # settings.MODERNRPC_METHODS_MODULES is undefined or empty, but we already notified user
