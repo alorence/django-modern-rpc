@@ -25,6 +25,7 @@ ALL = "__all__"
 logger = logging.getLogger(__name__)
 registry = {}
 
+
 class RPCMethod(object):
 
     def __init__(self, function):

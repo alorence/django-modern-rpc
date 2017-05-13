@@ -115,6 +115,7 @@ def test_jsonrpc_get_signature_2(live_server):
     assert signature[7] == 'int'
     assert signature[8] == 'int'
 
+
 def test_jsonrpc_get_signature_invalid_method(live_server):
     c = HTTPClient(live_server.url + '/all-rpc/')
 
