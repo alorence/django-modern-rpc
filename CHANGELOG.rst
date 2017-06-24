@@ -1,6 +1,13 @@
 Changelog
 =========
 
+Release 0.7.0 (2017-06-24)
+--------------------------
+- Default logging behavior has been changed. The library will not output any log anymore, unless
+  ``MODERNRPC_ENABLE_LOGGING`` is set to True. See documentation_ for more information
+
+.. _documentation: http://django-modern-rpc.readthedocs.io/en/latest/advanced/tips_and_tricks.html#enable-logging
+
 Release 0.6.0 (2017-05-13)
 --------------------------
 - Many performance improvements. The Django cache system was previously used to store the list of available methods
