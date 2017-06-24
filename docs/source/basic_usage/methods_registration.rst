@@ -73,4 +73,4 @@ You can also change this behavior by setting arguments to the decorator:
 Access request, protocol and other info from a RPC method
 =========================================================
 
-See :doc:`../advanced/tips_and_tricks`.
+See :ref:`Access to current request from RPC methods`.

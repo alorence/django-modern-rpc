@@ -2,8 +2,8 @@
 Tips and tricks
 ===============
 
-Access the current request
---------------------------
+Access to current request from RPC methods
+------------------------------------------
 
 If you need to access some environment from your RPC method, simply adds ``**kwargs`` in function parameters. When the
 function will be executed, a dict will be passed as argument, providing the following information:

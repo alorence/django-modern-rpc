@@ -24,11 +24,11 @@ Basic declaration
     ]
 
 As a result, all RPC requests made to ``http://yourwebsite/rpc/`` will be handled by the RPC entry point. Obviously,
-you can decide to handle requests from a different URL by updatingthe ``regex`` argument of ``url()``. You can also
+you can decide to handle requests from a different URL by updating the ``regex`` argument of ``url()``. You can also
 declare more entry points with different URLs.
 
-Advanced configuration
-======================
+Advanced entry point configuration
+==================================
 
 You can modify the behavior of the view by passing some arguments to ``as_view()``.
 

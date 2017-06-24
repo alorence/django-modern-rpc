@@ -42,8 +42,8 @@ An entry point is the URL used by clients to call your RPC methods. Declare it a
         url(r'^rpc/', RPCEntryPoint.as_view()),
     ]
 
-Entry points behavior can be customized with some arguments. Read the page :doc:`Entry Points configuration
-<basic_usage/entry_point_configuration>` for more information.
+Entry points behavior can be customized with some arguments. Read the page :ref:`Entry point configuration`
+ for more information.
 
 Write and register your methods
 ===============================
