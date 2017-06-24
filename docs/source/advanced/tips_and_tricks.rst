@@ -38,12 +38,11 @@ See the example to see how to access these values:
 Enable logging
 --------------
 
-If you need to troubleshoot errors, you can enable logging capabilities. This will give you some information about
-common issues (why incoming request is invalid, call to unregistered RPC method, etc.) or provide info about entry
-point behavior.
+Django-modern-rpc use Python longging system to report some information, warning and errors. If you need to
+troubleshoot issues, you can enable logging capabilities.
 
-To enable logging, set ``settings.MODERNRPC_ENABLE_LOGGING`` to True and configure ``settings.LOGGING`` to handle log
-messages from ``modernrpc.core`` and ``modernrpc.views``. Here is a basic example of such a configuration:
+You only have to configure ``settings.LOGGING`` to handle log messages from ``modernrpc.core`` and ``modernrpc.views``.
+Here is a basic example of such a configuration:
 
 .. code:: python
 
@@ -69,6 +68,8 @@ messages from ``modernrpc.core`` and ``modernrpc.views``. Here is a basic exampl
         }
     }
 
-All information about logging configuration can be found in `official Django docs`_.
+All information about logging configuration can be found in `official Django docs`_. By default, logs from
+``modernrpc.*`` modules are discarded silently. This behavior prevent the common Python 2 error message "No handlers
+could be found for logger XXX".
 
 .. _official Django docs: https://docs.djangoproject.com/en/dev/topics/logging/#configuring-logging

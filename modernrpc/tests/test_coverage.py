@@ -36,7 +36,8 @@ def test_not_called_functions():
     logged_user_required_alt(20)
     logged_superuser_required_alt(6)
     another_name()
-    assert True
+    # We need to access a Django-only setting at least once
+    assert bool(settings.SECRET_KEY)
 
 
 class MyBadHandler(RPCHandler):

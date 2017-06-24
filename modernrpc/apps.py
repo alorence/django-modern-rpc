@@ -28,48 +28,6 @@ def check_required_settings_defined(app_configs, **kwargs):  # noqa
     return result
 
 
-def check_logging_configuration(app_configs, **kwargs):  # noqa
-
-    # Lookup current user settings, and analyze the LOGGING configuration to check if
-    # loggers have been configured for 'modernrpc' or 'modernrpc.<module>'
-    is_modernrpc_logging_configured = False
-    modernrpc_loggers = settings.LOGGING.get('loggers', {})
-    for name, config in modernrpc_loggers.items():
-        if name.startswith('modernrpc'):
-            if len(config.get('handlers', [])) > 0:
-                is_modernrpc_logging_configured = True
-                break
-
-    if is_modernrpc_logging_configured and not settings.MODERNRPC_ENABLE_LOGGING:
-
-        return [
-            django.core.checks.Info(
-                'Logging is disabled in django-modern-rpc',
-                hint='You properly configured logging for "modernrpc.*" in project settings, but use of configured '
-                     'loggers is disabled by default. Set settings.MODERNRPC_ENABLE_LOGGING to True to correctly '
-                     'propagate logs to the handlers.',
-                obj=settings,
-                id='modernrpc.E003',
-            )
-        ]
-
-    elif settings.MODERNRPC_ENABLE_LOGGING and not is_modernrpc_logging_configured:
-        django_version = '.'.join(str(x) for x in django.utils.version.get_complete_version()[:2])
-        return [
-            django.core.checks.Warning(
-                'settings.MODERNRPC_ENABLE_LOGGING set to True, but no handler is attached to "modernrpc.* loggers". ',
-                hint='You may disable modernrpc logging capabilities by setting settings.MODERNRPC_ENABLE_LOGGING to '
-                     'False, or configure your project to handle logs from "modernrpc.* modules. See '
-                     'https://docs.djangoproject.com/en/{version}/topics/logging/" for more info'
-                     .format(version=django_version),
-                obj=settings,
-                id='modernrpc.E002',
-            )
-        ]
-
-    return []
-
-
 class ModernRpcConfig(AppConfig):
 
     name = 'modernrpc'

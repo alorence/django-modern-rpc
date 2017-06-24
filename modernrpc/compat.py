@@ -1,3 +1,4 @@
+# coding: utf-8
 from django.utils import six
 
 from modernrpc.conf import settings
