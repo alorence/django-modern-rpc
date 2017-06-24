@@ -7,7 +7,7 @@ import django.core.checks
 import django.utils.version
 from django.apps import AppConfig
 
-from modernrpc.conf import settings, get_modernrpc_logger
+from modernrpc.conf import settings
 from modernrpc.core import register_rpc_method, reset_registry, clean_old_cache_content
 
 

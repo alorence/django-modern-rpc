@@ -1,5 +1,4 @@
 # coding: utf-8
-import logging
 import pytest
 from django.apps.registry import apps
 
