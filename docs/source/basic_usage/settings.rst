@@ -121,3 +121,15 @@ Default: ``''`` (Empty String)
 
 Configure the format of the docstring used to document your RPC methods.
 Possible values are: '', 'rst' or 'md'
+
+
+``MODERNRPC_ENABLE_LOGGING``
+----------------------------
+
+Default: ``False``
+
+Configure library logging. If set to True, ``modernrpc.core`` and ``modernrpc.views`` modules will use python
+logging system to provide some information about its behavior. In such case, you must `configure logging`_
+in your project's ``settings.py``
+
+.. _configure logging: https://docs.djangoproject.com/en/dev/topics/logging/#configuring-logging

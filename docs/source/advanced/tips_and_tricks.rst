@@ -33,3 +33,38 @@ See the example to see how to access these values:
 
         # Return the content-type of the current request
         return request.META.get('Content-Type', '')
+
+
+Enable logging
+--------------
+
+If you need to troubleshoot errors, you can enable logging capabilities. This will give you some information about
+common issues (why incoming request is invalid, call to unregistered RPC method, etc.) or provide info about entry
+point behavior.
+
+To enable logging, set ``settings.MODERNRPC_ENABLE_LOGGING`` and configure ``settings.LOGGING`` to handle log messages
+from ``modernrpc.core`` and ``modernrpc.views``. Here is a basic example of such a configuration:
+
+.. code:: python
+
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+            # Your formatters configuration...
+        },
+        'handlers': {
+            'console': {
+                'level': 'DEBUG',
+                'class': 'logging.StreamHandler',
+            },
+        },
+        'loggers': {
+            # your other loggers configuration
+            'modernrpc': {
+                'handlers': ['console'],
+                'level': 'DEBUG',
+                'propagate': True,
+            },
+        }
+    }
