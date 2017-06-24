@@ -10,7 +10,7 @@ Release 0.6.0 (2017-05-13)
 
 Release 0.5.2 (2017-04-18)
 --------------------------
-- User instance is now correctly stored in the current request after successfull authentication [#4]
+- User instance is now correctly stored in the current request after successful authentication [#4]
 - Unit testing with Django 1.11 is now performed against release version (Beta and RC are not tested anymore)
 - Documentation has been improved
 
@@ -29,7 +29,7 @@ Release 0.5.1 (2017-03-25)
 Release 0.5.0 (2017-02-18)
 --------------------------
 - Typo fixes
-- JSON-RPC 2.0 standard explicitely allows requests without 'parmas' member. This doesn't produce error anymore.
+- JSON-RPC 2.0 standard explicitly allows requests without 'params' member. This doesn't produce error anymore.
 - Setting variable ``MODERNRPC_XML_USE_BUILTIN_TYPES`` is now deprecated in favor of
   ``MODERNRPC_XMLRPC_USE_BUILTIN_TYPES``
 - Unit tests are now performed with python 3.6 and Django 1.11 alpha, in addition to supported environment already
@@ -50,16 +50,16 @@ Release 0.4.2 (2016-11-20)
 Release 0.4.1 (2016-11-17)
 --------------------------
 - Method arguments documentation keep the same order as defined in docstring
-- API change: MODERNRPC_ENTRY_POINTS_MODULES setting have been renamed to MODERNRPC_METHODS_MODULES.
-- A simple warning is displayed when MODERNRPC_METHODS_MODULES is not set, instead of a radical ImproperlyConfigured
-  exception.
+- API change: ``MODERNRPC_ENTRY_POINTS_MODULES`` setting have been renamed to ``MODERNRPC_METHODS_MODULES``.
+- A simple warning is displayed when ``MODERNRPC_METHODS_MODULES`` is not set, instead of a radical
+  ``ImproperlyConfigured`` exception.
 - Some traces have been added to allow debugging in the module easily. It uses the builtin logging framework.
 
 Release 0.4.0 (2016-11-17)
 --------------------------
 - API change: new unified way to register methods. Documentation in progress
 - API change: XMl-RPC handler will now correctly handle None values by default. This behavior can be configured using
-  MODERNRPC_XMLRPC_ALLOW_NONE setting.
+  ``MODERNRPC_XMLRPC_ALLOW_NONE`` setting.
 - Bugfix: when django use a persistent cache (Redis, memcached, etc.), ensure the registry is up-to-date
   with current sources at startup
 
