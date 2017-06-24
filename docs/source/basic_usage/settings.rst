@@ -132,4 +132,6 @@ Configure library logging. If set to True, ``modernrpc.core`` and ``modernrpc.vi
 logging system to provide some information about its behavior. In such case, you must `configure logging`_
 in your project's ``settings.py``
 
+See also :ref:`Enable logging`
+
 .. _configure logging: https://docs.djangoproject.com/en/dev/topics/logging/#configuring-logging

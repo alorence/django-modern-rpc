@@ -68,3 +68,7 @@ from ``modernrpc.core`` and ``modernrpc.views``. Here is a basic example of such
             },
         }
     }
+
+All information about logging configuration can be found in `official Django docs``.
+
+.. _official Django docs: https://docs.djangoproject.com/en/dev/topics/logging/#configuring-logging
