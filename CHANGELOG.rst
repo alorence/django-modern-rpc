@@ -4,7 +4,7 @@ Changelog
 Release 0.7.1 (2017-06-24)
 --------------------------
 - Removed useless settings variable introduced in last 0.7.0 release. Logging capabilities are now enabled by simply
-  configuring a logger for ```modernrpc.*`` modules, using Django variable ``LOGGING``. The documentation_ has been
+  configuring a logger for ``modernrpc.*`` modules, using Django variable ``LOGGING``. The documentation_ has been
   updated accordingly.
 
 Release 0.7.0 (2017-06-24)
