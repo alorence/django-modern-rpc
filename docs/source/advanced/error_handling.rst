@@ -16,7 +16,7 @@ Customize error handling
 ------------------------
 
 If you want to define customized exceptions for your application, you can create ``RPCException`` sub-classes and set,
-for each custome exception, a *faultCode* to ``RPC_CUSTOM_ERROR_BASE + N`` with ``N`` a unique number.
+for each custom exception, a *faultCode* to ``RPC_CUSTOM_ERROR_BASE + N`` with ``N`` a unique number.
 
 Here is an example:
 

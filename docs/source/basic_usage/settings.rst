@@ -44,7 +44,7 @@ XML serialization and deserialization
 
 Default: ``True``
 
-Control how builtin types are handled by XML-RPC serializer and deserializer. Id set to True (default), dates will be
+Control how builtin types are handled by XML-RPC serializer and deserializer. If set to True (default), dates will be
 converted to ``datetime.datetime`` by XML-RPC deserializer. If set to False, dates will be converted to
 `XML-RPC DateTime`_ instances (or `equivalent`_ for Python 2).
 
@@ -89,7 +89,7 @@ Define target type for :ref:`GlobalStringStandardization`.
 ``MODERNRPC_PY2_STR_ENCODING``
 ------------------------------
 
-Default: ``True``
+Default: ``UTF-8``
 
 Define global encoding used in :ref:`GlobalStringStandardization`.
 
@@ -111,7 +111,7 @@ Default: ``'__default_entry_point__'``
 
 Default name used for anonymous ``RPCEntryPoint``
 
-Other settings available
+Other available settings
 ========================
 
 ``MODERNRPC_DOC_FORMAT``
