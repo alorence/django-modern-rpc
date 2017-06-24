@@ -18,7 +18,7 @@ def check_required_settings_defined(app_configs, **kwargs):  # noqa
         result.append(
             django.core.checks.Warning(
                 'settings.MODERNRPC_METHODS_MODULES is not set, django-modern-rpc cannot locate your RPC methods.',
-                hint='Please define MODERNRPC_METHODS_MODULES in your settings.py to indicate modules containing your'
+                hint='Please define MODERNRPC_METHODS_MODULES in your settings.py to indicate modules containing your '
                      'methods. See http://django-modern-rpc.rtfd.io/en/latest/basic_usage/methods_registration.html '
                      'for more info',
                 obj=settings,
@@ -29,9 +29,31 @@ def check_required_settings_defined(app_configs, **kwargs):  # noqa
 
 
 def check_logging_configuration(app_configs, **kwargs):  # noqa
-    logger = get_modernrpc_logger(__name__)
 
-    if not logger.hasHandlers():
+    # Lookup current user settings, and analyze the LOGGING configuration to check if
+    # loggers have been configured for 'modernrpc' or 'modernrpc.<module>'
+    is_modernrpc_logging_configured = False
+    modernrpc_loggers = settings.LOGGING.get('loggers', {})
+    for name, config in modernrpc_loggers.items():
+        if name.startswith('modernrpc'):
+            if len(config.get('handlers', [])) > 0:
+                is_modernrpc_logging_configured = True
+                break
+
+    if is_modernrpc_logging_configured and not settings.MODERNRPC_ENABLE_LOGGING:
+
+        return [
+            django.core.checks.Info(
+                'Logging is disabled in django-modern-rpc',
+                hint='You properly configured logging for "modernrpc.*" in project settings, but use of configured '
+                     'loggers is disabled by default. Set settings.MODERNRPC_ENABLE_LOGGING to True to correctly '
+                     'propagate logs to the handlers.',
+                obj=settings,
+                id='modernrpc.E003',
+            )
+        ]
+
+    elif settings.MODERNRPC_ENABLE_LOGGING and not is_modernrpc_logging_configured:
         django_version = '.'.join(str(x) for x in django.utils.version.get_complete_version()[:2])
         return [
             django.core.checks.Warning(
@@ -42,18 +64,6 @@ def check_logging_configuration(app_configs, **kwargs):  # noqa
                      .format(version=django_version),
                 obj=settings,
                 id='modernrpc.E002',
-            )
-        ]
-
-    elif len(logger.handlers) > 1 and not settings.MODERNRPC_ENABLE_LOGGING:
-        return [
-            django.core.checks.Info(
-                'Logging is disabled in django-modern-rpc',
-                hint='You properly configured logging for "modernrpc.*" in project settings, but use of configured '
-                     'loggers is disabled by default. Set settings.MODERNRPC_ENABLE_LOGGING to True to correctly '
-                     'propagate logs to the handlers.',
-                obj=settings,
-                id='modernrpc.E003',
             )
         ]
 

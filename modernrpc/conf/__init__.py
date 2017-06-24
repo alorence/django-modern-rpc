@@ -9,7 +9,13 @@ from modernrpc.conf import default_settings
 class ModernRpcSettings:
 
     def __getattr__(self, item):
-        return getattr(user_settings, item, getattr(default_settings, item))
+        if hasattr(user_settings, item):
+            # We can't put 'getattr(default_settings, item)' as 3rd default argument here,
+            # because it will be evaluated always and raise AttributeError if missing, even
+            # when the attribute can  be found in user_settings
+            return getattr(user_settings, item)
+        else:
+            return getattr(default_settings, item)
 
 
 settings = ModernRpcSettings()
