@@ -42,8 +42,8 @@ If you need to troubleshoot errors, you can enable logging capabilities. This wi
 common issues (why incoming request is invalid, call to unregistered RPC method, etc.) or provide info about entry
 point behavior.
 
-To enable logging, set ``settings.MODERNRPC_ENABLE_LOGGING`` and configure ``settings.LOGGING`` to handle log messages
-from ``modernrpc.core`` and ``modernrpc.views``. Here is a basic example of such a configuration:
+To enable logging, set ``settings.MODERNRPC_ENABLE_LOGGING`` to True and configure ``settings.LOGGING`` to handle log
+messages from ``modernrpc.core`` and ``modernrpc.views``. Here is a basic example of such a configuration:
 
 .. code:: python
 
@@ -69,6 +69,6 @@ from ``modernrpc.core`` and ``modernrpc.views``. Here is a basic example of such
         }
     }
 
-All information about logging configuration can be found in `official Django docs``.
+All information about logging configuration can be found in `official Django docs`_.
 
 .. _official Django docs: https://docs.djangoproject.com/en/dev/topics/logging/#configuring-logging
