@@ -1,9 +1,5 @@
 # coding: utf-8
-import logging
-
 from modernrpc.exceptions import RPCInvalidRequest
-
-logger = logging.getLogger(__name__)
 
 
 class RPCHandler(object):

@@ -1,14 +1,13 @@
 # coding: utf-8
-import logging
 import xml
 
 from django.http.response import HttpResponse
 from django.utils.six.moves import xmlrpc_client
+
 from modernrpc.conf import settings
 from modernrpc.exceptions import RPCParseError, RPCInvalidRequest
 from modernrpc.handlers.base import RPCHandler
 
-logger = logging.getLogger(__name__)
 XMLRPC = '__xml_rpc'
 
 

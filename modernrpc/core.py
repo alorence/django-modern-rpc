@@ -1,6 +1,5 @@
 # coding: utf-8
 import collections
-import logging
 import re
 
 from django.contrib.admindocs.utils import trim_docstring
@@ -10,7 +9,7 @@ from django.utils import inspect
 from django.utils import six
 
 from modernrpc.compat import standardize_strings
-from modernrpc.conf import settings
+from modernrpc.conf import settings, get_modernrpc_logger
 from modernrpc.handlers import XMLRPC, JSONRPC
 
 # Keys used in kwargs dict given to RPC methods
@@ -22,7 +21,7 @@ HANDLER_KEY = 'handler'
 # Special constant meaning "all protocols" or "all entry points"
 ALL = "__all__"
 
-logger = logging.getLogger(__name__)
+logger = get_modernrpc_logger(__name__)
 registry = {}
 
 

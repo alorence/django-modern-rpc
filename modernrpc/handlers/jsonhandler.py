@@ -1,6 +1,5 @@
 # coding: utf-8
 import json
-import logging
 
 from django.http.response import HttpResponse
 from django.utils.module_loading import import_string
@@ -16,7 +15,6 @@ except ImportError:
     # Python 2: json.loads will raise a ValueError when loading json
     JSONDecodeError = ValueError
 
-logger = logging.getLogger(__name__)
 JSONRPC = '__json_rpc'
 
 

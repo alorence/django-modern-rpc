@@ -4,9 +4,10 @@ import warnings
 from importlib import import_module
 
 import django.core.checks
+import django.utils.version
 from django.apps import AppConfig
 
-from modernrpc.conf import settings
+from modernrpc.conf import settings, get_modernrpc_logger
 from modernrpc.core import register_rpc_method, reset_registry, clean_old_cache_content
 
 
@@ -25,6 +26,38 @@ def check_required_settings_defined(app_configs, **kwargs):  # noqa
             )
         )
     return result
+
+
+def check_logging_configuration(app_configs, **kwargs):  # noqa
+    logger = get_modernrpc_logger(__name__)
+
+    if not logger.hasHandlers():
+        django_version = '.'.join(str(x) for x in django.utils.version.get_complete_version()[:2])
+        return [
+            django.core.checks.Warning(
+                'settings.MODERNRPC_ENABLE_LOGGING set to True, but no handler is attached to "modernrpc.* loggers". ',
+                hint='You may disable modernrpc logging capabilities by setting settings.MODERNRPC_ENABLE_LOGGING to '
+                     'False, or configure your project to handle logs from "modernrpc.* modules. See '
+                     'https://docs.djangoproject.com/en/{version}/topics/logging/" for more info'
+                     .format(version=django_version),
+                obj=settings,
+                id='modernrpc.E002',
+            )
+        ]
+
+    elif len(logger.handlers) > 1 and not settings.MODERNRPC_ENABLE_LOGGING:
+        return [
+            django.core.checks.Info(
+                'Logging is disabled in django-modern-rpc',
+                hint='You properly configured logging for "modernrpc.*" in project settings, but use of configured '
+                     'loggers is disabled by default. Set settings.MODERNRPC_ENABLE_LOGGING to True to correctly '
+                     'propagate logs to the handlers.',
+                obj=settings,
+                id='modernrpc.E003',
+            )
+        ]
+
+    return []
 
 
 class ModernRpcConfig(AppConfig):
