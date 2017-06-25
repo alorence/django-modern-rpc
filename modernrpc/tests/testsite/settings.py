@@ -69,6 +69,29 @@ MODERNRPC_METHODS_MODULES = [
     'inexistant.module',
 ]
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'modernrpc': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'modernrpc.a.b': {
+            'handlers': [],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    }
+}
+
 if six.PY2:
     MODERNRPC_METHODS_MODULES.append('testsite.rpc_methods_stub.python2_specific')
 
