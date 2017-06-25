@@ -79,12 +79,15 @@ LOGGING = {
         },
     },
     'loggers': {
-        'modernrpc': {
+        # Note: We don't want to print logs when executing tests, so no logger is declared for modernrpc module.
+        # But since we need some tests for logging utilities, let's declare 2 loggers for inexistant packages
+        # See test_logging.py
+        'my_app': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': 'WARNING',
             'propagate': True,
         },
-        'modernrpc.a.b': {
+        'my_app.a': {
             'handlers': [],
             'level': 'INFO',
             'propagate': False,

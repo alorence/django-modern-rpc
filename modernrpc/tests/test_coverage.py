@@ -1,10 +1,9 @@
 # coding: utf-8
 import datetime
-import logging
 
 import pytest
 
-from modernrpc.conf import settings, logger_has_handlers
+from modernrpc.conf import settings
 from modernrpc.exceptions import RPCException
 from modernrpc.handlers.base import RPCHandler
 from test_methods_register import another_dummy_method, another_dummy_method_2, another_dummy_method_3, \
@@ -62,7 +61,3 @@ def test_bad_handler_definition(rf):
         h.result_success(42)
     with pytest.raises(NotImplementedError):
         h.result_error(RPCException(1, ''))
-
-
-def test_logger_has_handlers():
-    assert not logger_has_handlers(logging.getLogger('modernrpc.a.b.c'))
