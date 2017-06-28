@@ -31,6 +31,7 @@ class RPCEntryPoint(TemplateView):
 
         if not self.get_handler_classes():
             raise ImproperlyConfigured("At least 1 handler must be instantiated.")
+
         logger.debug('RPC entry point "{}" initialized'.format(self.entry_point))
 
     # This disable CSRF validation for POST requests
@@ -57,8 +58,10 @@ class RPCEntryPoint(TemplateView):
         return allowed_methods
 
     def get_handler_classes(self):
+        """Return the list of handlers to use when receiving RPC requests."""
 
         handler_classes = [import_string(handler_cls) for handler_cls in settings.MODERNRPC_HANDLERS]
+
         if self.protocol == ALL:
             return handler_classes
         else:

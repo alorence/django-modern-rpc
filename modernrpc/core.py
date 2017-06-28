@@ -146,7 +146,7 @@ class RPCMethod(object):
                 self.signature.insert(0, return_description)
                 continue
 
-            # Line doesn't match with known args/return regular expression,
+            # Line doesn't match with known args/return regular expressions,
             # add the line to raw help text
             raw_docstring += line + '\n'
         return raw_docstring
@@ -294,14 +294,14 @@ def register_rpc_method(func):
 def get_all_method_names(entry_point=ALL, protocol=ALL, sort_methods=False):
     """Return the names of all RPC methods registered supported by the given entry_point / protocol pair"""
 
-    method_namess = [
+    method_names = [
         name for name, method in registry.items() if method.is_valid_for(entry_point, protocol)
     ]
 
     if sort_methods:
-        method_namess = sorted(method_namess)
+        method_names = sorted(method_names)
 
-    return method_namess
+    return method_names
 
 
 def get_all_methods(entry_point=ALL, protocol=ALL, sort_methods=False):
