@@ -5,7 +5,7 @@ from django.http.response import HttpResponse, HttpResponseForbidden
 from django.utils.decorators import method_decorator
 from django.utils.module_loading import import_string
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic.base import TemplateView
+from django.views.generic.base import View, TemplateView
 
 from modernrpc.conf import settings, get_modernrpc_logger
 from modernrpc.core import ALL, get_method, get_all_methods, REQUEST_KEY, ENTRY_POINT_KEY, PROTOCOL_KEY, HANDLER_KEY
@@ -32,30 +32,26 @@ class RPCEntryPoint(TemplateView):
         if not self.get_handler_classes():
             raise ImproperlyConfigured("At least 1 handler must be instantiated.")
 
+        # Copy static list http_method_names locally (in instance), so we can dynamically customize it
+        self.http_method_names = list(View.http_method_names)
+
+        # Customize allowed HTTP methods name to forbid access to GET when this EntryPoint
+        # must not display docs...
+        if not self.enable_doc:
+            self.http_method_names.remove('get')
+
+        # ... and also forbid access to POST when this EntryPoint must not support RPC request (docs only view)
+        if not self.enable_rpc:
+            self.http_method_names.remove('post')
+
         logger.debug('RPC entry point "{}" initialized'.format(self.entry_point))
 
     # This disable CSRF validation for POST requests
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
-        """Overrides the default dispatch method, for 2 reasons:
-         1. Filter input requests methods to respect ``enable_doc`` and ``enable_rpc`` parameters
-         2. Disable CSRF validation on post request, since this is irrelevant for RPC calls.
-        """
-
-        if request.method.lower() == 'get' and not self.enable_doc:
-            return self.http_method_not_allowed(request, *args, **kwargs)
-        elif request.method.lower() == 'post' and not self.enable_rpc:
-            return self.http_method_not_allowed(request, *args, **kwargs)
-
+        """Overrides the default dispatch method, to disable CSRF validation on POST requests. This
+        is mandatory to ensure RPC calls wil be correctly handled"""
         return super(RPCEntryPoint, self).dispatch(request, *args, **kwargs)
-
-    def _allowed_methods(self):
-        allowed_methods = super(RPCEntryPoint, self)._allowed_methods()
-        if not self.enable_doc:
-            allowed_methods.remove('GET')
-        if not self.enable_rpc:
-            allowed_methods.remove('POST')
-        return allowed_methods
 
     def get_handler_classes(self):
         """Return the list of handlers to use when receiving RPC requests."""
