@@ -165,7 +165,7 @@ class RPCMethod(object):
             import markdown
             return markdown.markdown(docstring)
 
-        return "<p>{}</p>".format(docstring.replace('\n\n', '</p><p>').replace('\n', '<br/'))
+        return "<p>{}</p>".format(docstring.replace('\n\n', '</p><p>').replace('\n', ' '))
 
     def check_permissions(self, request):
         """Call the predicate(s) associated with the RPC method, to check if the current request
