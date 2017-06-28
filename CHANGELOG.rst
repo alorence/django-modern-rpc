@@ -1,6 +1,11 @@
 Changelog
 =========
 
+Current development
+-------------------
+- Fixed invalid HTML tag rendered from RPC Method documentation. Single new lines are converted to space since they
+  are mostly used to limit docstrings line width. See pull request #7
+
 Release 0.7.1 (2017-06-24)
 --------------------------
 - Removed useless settings variable introduced in last 0.7.0 release. Logging capabilities are now enabled by simply
