@@ -50,9 +50,11 @@ class XMLRPCHandler(RPCHandler):
         # It will output a '<params></params>' block and loops onto given objects to inject, for each one,
         # a '<param><value><type>X</type></value></param>' block.
         # This is not the return defined in XML-RPC standard, see http://xmlrpc.scripting.com/spec.html:
-        # > The body of the response is a single XML structure, a <methodResponse>, which can contain
-        # > a single <params> which contains a single <param> which contains a single <value>.
-        # For any type to dump, we need to give a single element list:
+        # "The body of the response is a single XML structure, a <methodResponse>, which can contain
+        # a single <params> which contains a single <param> which contains a single <value>."
+        #
+        # So, to make sure the return value always contain a single '<param><value><type>X</type></value></param>',
+        # we dumps it as an array of a single value.
         return self.marshaller.dumps([obj])
 
     def parse_request(self):
