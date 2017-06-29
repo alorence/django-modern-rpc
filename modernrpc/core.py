@@ -13,6 +13,8 @@ from modernrpc.conf import settings, get_modernrpc_logger
 from modernrpc.handlers import XMLRPC, JSONRPC
 
 # Keys used in kwargs dict given to RPC methods
+from modernrpc.utils import ensure_sequence
+
 REQUEST_KEY = 'request'
 ENTRY_POINT_KEY = 'entry_point'
 PROTOCOL_KEY = 'protocol'
@@ -198,16 +200,14 @@ class RPCMethod(object):
         if self.protocol == ALL or protocol == ALL:
             return True
 
-        protocols = self.protocol if isinstance(self.protocol, list) else [self.protocol]
-        return protocol in protocols
+        return protocol in ensure_sequence(self.protocol)
 
     def available_for_entry_point(self, entry_point):
         """Check if the current function can be executed from a request to the given entry point"""
         if self.entry_point == ALL or entry_point == ALL:
             return True
 
-        entry_points = self.entry_point if isinstance(self.entry_point, list) else [self.entry_point]
-        return entry_point in entry_points
+        return entry_point in ensure_sequence(self.entry_point)
 
     def is_valid_for(self, entry_point, protocol):
         """Check if the current function can be executed from a request to the given entry point

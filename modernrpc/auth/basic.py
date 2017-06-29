@@ -105,7 +105,6 @@ def http_basic_auth_any_of_permissions_required(permissions):
 def http_basic_auth_group_member_required(groups):
     """Decorator. Use it to specify a RPC method is available only to logged users with given permissions"""
     def decorated(func):
-
         if isinstance(groups, six.string_types):
             # Check user is in a group
             return auth.set_authentication_predicate(func, http_basic_auth_check_user, [auth.user_in_group, groups])

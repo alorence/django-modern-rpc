@@ -2,9 +2,9 @@
 import logging
 
 from django.conf import settings as user_settings
-from django.utils import six
 
 from modernrpc.conf import default_settings
+from modernrpc.utils import logger_has_handlers
 
 
 class ModernRpcSettings:
@@ -20,25 +20,6 @@ class ModernRpcSettings:
 
 
 settings = ModernRpcSettings()
-
-
-def logger_has_handlers(logger):
-    """Since Python 2 doesn't provide Logger.hasHandlers(), we have to
-    perform the lookup by ourself."""
-    if six.PY3:
-        return logger.hasHandlers()
-    else:
-        c = logger
-        rv = False
-        while c:
-            if c.handlers:
-                rv = True
-                break
-            if not c.propagate:
-                break
-            else:
-                c = c.parent
-        return rv
 
 
 def get_modernrpc_logger(name):

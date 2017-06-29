@@ -10,6 +10,7 @@ from django.views.generic.base import View, TemplateView
 from modernrpc.conf import settings, get_modernrpc_logger
 from modernrpc.core import ALL, get_method, get_all_methods, REQUEST_KEY, ENTRY_POINT_KEY, PROTOCOL_KEY, HANDLER_KEY
 from modernrpc.exceptions import RPCInternalError, RPCException, RPCUnknownMethod, RPCInvalidParams
+from modernrpc.utils import ensure_sequence
 
 logger = get_modernrpc_logger(__name__)
 
@@ -61,8 +62,7 @@ class RPCEntryPoint(TemplateView):
         if self.protocol == ALL:
             return handler_classes
         else:
-            valid_protocols = self.protocol if isinstance(self.protocol, list) else [self.protocol]
-            return [cls for cls in handler_classes if cls.protocol in valid_protocols]
+            return [cls for cls in handler_classes if cls.protocol in ensure_sequence(self.protocol)]
 
     def post(self, request, *args, **kwargs):
         """
