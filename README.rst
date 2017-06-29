@@ -75,7 +75,7 @@ Quick start
         url(r'^rpc/', RPCEntryPoint.as_view()),
     ]
 
-#. Use ``@rpc_method`` to register a global function in django-moder-rpc registry::
+#. Use ``@rpc_method`` to register a global function in django-modern-rpc registry::
 
     # In myproject/rpc_app/rpc_methods.py
     from modernrpc.core import rpc_method
