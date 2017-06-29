@@ -38,7 +38,7 @@ See the example to see how to access these values:
 Enable logging
 --------------
 
-Django-modern-rpc use Python longging system to report some information, warning and errors. If you need to
+Django-modern-rpc use Python logging system to report some information, warning and errors. If you need to
 troubleshoot issues, you can enable logging capabilities.
 
 You only have to configure ``settings.LOGGING`` to handle log messages from ``modernrpc.core`` and ``modernrpc.views``.
