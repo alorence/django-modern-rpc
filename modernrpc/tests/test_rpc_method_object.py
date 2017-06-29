@@ -144,6 +144,20 @@ def multi_line_documented_2():
     return "abc"
 
 
+def test_html_documentation_simple():
+
+    settings.MODERNRPC_DOC_FORMAT = ''
+
+    rpc_method(single_line_documented, 'dummy_name')
+    method = RPCMethod(single_line_documented)
+    assert '*italic*, **strong**, normal text' in method.html_doc
+
+    rpc_method(multi_line_documented_1, 'dummy_name_2')
+    method = RPCMethod(multi_line_documented_1)
+    # We ensure no <br/> is added to the text when the original docstring contained single \n characters
+    assert 'attribute function is read. The indentation should not' in method.html_doc
+
+
 def test_html_documentation_markdown(settings):
 
     settings.MODERNRPC_DOC_FORMAT = 'md'
