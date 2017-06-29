@@ -144,7 +144,7 @@ def multi_line_documented_2():
     return "abc"
 
 
-def test_html_documentation_simple():
+def test_html_documentation_simple(settings):
 
     settings.MODERNRPC_DOC_FORMAT = ''
 
