@@ -4,7 +4,7 @@ from django.utils import six
 
 
 # Decorator
-def set_authentication_predicate(rpc_method, predicate, params=None):
+def set_authentication_predicate(predicate, params=()):
     """
     Assign a new authentication predicate to an RPC method.
     This is the most generic decorator used to implement authentication.
@@ -25,15 +25,20 @@ def set_authentication_predicate(rpc_method, predicate, params=None):
     :param params:
     :return:
     """
-    if hasattr(rpc_method, 'modernrpc_auth_predicates'):
-        rpc_method.modernrpc_auth_predicates.append(predicate)
-        rpc_method.modernrpc_auth_predicates_params.append(params)
 
-    else:
-        rpc_method.modernrpc_auth_predicates = [predicate]
-        rpc_method.modernrpc_auth_predicates_params = [params]
+    def wrapper(rpc_method):
 
-    return rpc_method
+        if hasattr(rpc_method, 'modernrpc_auth_predicates'):
+            rpc_method.modernrpc_auth_predicates.append(predicate)
+            rpc_method.modernrpc_auth_predicates_params.append(params)
+
+        else:
+            rpc_method.modernrpc_auth_predicates = [predicate]
+            rpc_method.modernrpc_auth_predicates_params = [params]
+
+        return rpc_method
+
+    return wrapper
 
 
 def user_is_logged(user):

@@ -42,7 +42,7 @@ class RPCMethod(object):
         self.str_std_encoding = getattr(func, 'str_standardization_encoding')
         # Authentication related attributes
         self.predicates = getattr(func, 'modernrpc_auth_predicates', None)
-        self.predicates_params = getattr(func, 'modernrpc_auth_predicates_params', None)
+        self.predicates_params = getattr(func, 'modernrpc_auth_predicates_params', ())
 
         # List method's positional arguments
         # Note: function inspect.get_func_args() was previously used here. Unfortunately, for a strange
