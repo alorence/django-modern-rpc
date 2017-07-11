@@ -23,7 +23,7 @@ taking a request as argument and returning a boolean:
             'YandexBot',  # Yandex
             'facebot',  # Facebook
         ]
-        incoming_UA = request.meta.get('HTTP_USER_AGENT')
+        incoming_UA = request.META.get('HTTP_USER_AGENT')
         if not incoming_UA:
             return False
 
