@@ -13,7 +13,8 @@ from test_rpc_method_object import dummy_function, single_line_documented, multi
 from testsite.rpc_methods_stub.generic import existing_but_not_decorated, another_name
 from testsite.rpc_methods_stub.not_decorated import full_documented_method, func_a, func_b, func_c, \
     another_not_decorated
-from testsite.rpc_methods_stub.with_authentication import logged_user_required_alt, logged_superuser_required_alt
+from testsite.rpc_methods_stub.with_authentication import logged_user_required_alt, logged_superuser_required_alt, \
+    power_2
 
 
 def test_not_called_functions():
@@ -36,6 +37,7 @@ def test_not_called_functions():
     logged_user_required_alt(20)
     logged_superuser_required_alt(6)
     another_name()
+    power_2(5)
     # We need to access a Django-only setting at least once
     assert bool(settings.SECRET_KEY)
 

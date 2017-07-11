@@ -229,4 +229,3 @@ def test_custom_predicate_rejected(live_server):
     with raises(xmlrpc_client.ProtocolError) as exc_info:
         c.power_2(5)
     assert exc_info.value.errcode == 403
-
