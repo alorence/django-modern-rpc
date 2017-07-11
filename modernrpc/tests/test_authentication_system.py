@@ -207,3 +207,7 @@ def test_http_basic_auth_user_in_request(live_server, john_doe, superuser, commo
     c.session.auth = (superuser.username, common_pwd)
 
     assert 'username: admin' == c.request('display_authenticated_user')
+
+
+def test_custom_predicate(live_server):
+    assert True
