@@ -209,5 +209,24 @@ def test_http_basic_auth_user_in_request(live_server, john_doe, superuser, commo
     assert 'username: admin' == c.request('display_authenticated_user')
 
 
-def test_custom_predicate(live_server):
-    assert True
+def test_custom_predicate_allowed(live_server):
+
+    c = HTTPClient(live_server.url + '/all-rpc/')
+    assert 'python-requests' in c.request('get_user_agent')
+
+    c = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
+    assert 'xmlrpc' in c.get_user_agent()
+
+
+def test_custom_predicate_rejected(live_server):
+
+    c = HTTPClient(live_server.url + '/all-rpc/')
+    with raises(ReceivedErrorResponse) as exc_info:
+        c.request('power_2', 5)
+    assert exc_info.value.code == RPC_INTERNAL_ERROR
+
+    c = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
+    with raises(xmlrpc_client.ProtocolError) as exc_info:
+        c.power_2(5)
+    assert exc_info.value.errcode == 403
+

@@ -81,31 +81,22 @@ def display_authenticated_user(**kwargs):
     return 'username: {}'.format('Anonymous' if u.is_anonymous() else u.username)
 
 
-def forbid_bots_access(request):
-    forbidden_bots = [
-        'Googlebot',  # Google
-        'Bingbot',  # Microsoft
-        'Slurp',  # Yahoo
-        'DuckDuckBot',  # DuckDuckGo
-        'Baiduspider',  # Baidu
-        'YandexBot',  # Yandex
-        'facebot',  # Facebook
-    ]
-    incoming_UA = request.meta.get('HTTP_USER_AGENT')
-    if not incoming_UA:
-        return False
+def allow_python_callers(request):
+    return 'python' in request.META.get('HTTP_USER_AGENT').lower()
 
-    for bot_ua in forbidden_bots:
-        # If we detect the caller is one of the bots listed above...
-        if bot_ua.lower() in incoming_UA.lower():
-            # ... forbid access
-            return False
 
-    # In all other cases, allow access
-    return True
+def reject_python_callers(request):
+    return 'python' not in request.META.get('HTTP_USER_AGENT').lower()
 
 
 @rpc_method()
-@set_authentication_predicate(forbid_bots_access)
-def custom_auth_predicate(x):
+@set_authentication_predicate(allow_python_callers)
+def get_user_agent(**kwargs):
+    request = kwargs.get(REQUEST_KEY)
+    return request.META.get('HTTP_USER_AGENT')
+
+
+@rpc_method
+@set_authentication_predicate(reject_python_callers)
+def power_2(x):
     return x * x
