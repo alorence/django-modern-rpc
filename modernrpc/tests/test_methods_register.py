@@ -14,9 +14,9 @@ def test_not_registered(live_server):
 
     assert 'existing_but_not_decorated' not in result
 
-    with pytest.raises(xmlrpc_client.Fault) as excinfo:
+    with pytest.raises(xmlrpc_client.Fault) as exc_info:
         client.existing_but_not_decorated()
-    assert "Method not found: existing_but_not_decorated" in str(excinfo.value)
+    assert "Method not found: existing_but_not_decorated" in str(exc_info.value)
 
 
 @rpc_method
@@ -55,10 +55,10 @@ def another_dummy_method_3():
 
 def test_invalid_name():
 
-    with raises(ImproperlyConfigured) as excinfo:
+    with raises(ImproperlyConfigured) as exc_info:
         register_rpc_method(another_dummy_method_3)
 
-    assert 'method names starting with "rpc." are reserved' in str(excinfo.value)
+    assert 'method names starting with "rpc." are reserved' in str(exc_info.value)
     assert 'rpc.invalid.name' not in get_all_method_names()
     assert 'another_dummy_method_3' not in get_all_method_names()
 
@@ -70,10 +70,10 @@ def another_dummy_method_4():
 
 def test_duplicated_name():
 
-    with raises(ImproperlyConfigured) as excinfo:
+    with raises(ImproperlyConfigured) as exc_info:
         register_rpc_method(another_dummy_method_4)
 
-    assert 'has already been registered' in str(excinfo.value)
+    assert 'has already been registered' in str(exc_info.value)
 
 
 def test_wrong_manual_registration():

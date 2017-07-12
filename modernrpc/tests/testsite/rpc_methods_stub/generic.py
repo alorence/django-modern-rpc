@@ -72,6 +72,6 @@ def existing_but_not_decorated():
 
 @rpc_method
 def get_invalid_result():
-    """Return an oject instance that cannot be serialized in json or xml"""
+    """Return an object instance that cannot be serialized in json or xml"""
     from django.http.response import HttpResponse
     return HttpResponse(content='dummy')

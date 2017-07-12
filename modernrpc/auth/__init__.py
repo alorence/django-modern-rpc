@@ -20,7 +20,6 @@ def set_authentication_predicate(predicate, params=()):
                return True
            return False
 
-    :param rpc_method:
     :param predicate:
     :param params:
     :return:
@@ -72,7 +71,7 @@ def user_in_group(user, group):
 
 
 def user_in_any_group(user, groups):
-    """Returns True if the given user is in at leats 1 of the given groups"""
+    """Returns True if the given user is in at least 1 of the given groups"""
     return user_is_superuser(user) or any(user_in_group(user, group) for group in groups)
 
 

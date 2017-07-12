@@ -28,7 +28,7 @@ def test_invalid_entry_point(settings, rf):
     settings.MODERNRPC_HANDLERS = []
 
     entry_point = RPCEntryPoint.as_view()
-    with raises(ImproperlyConfigured) as e:
+    with raises(ImproperlyConfigured) as exc_info:
         entry_point(rf.post('xxx'))
 
-    assert 'handler' in str(e.value)
+    assert 'handler' in str(exc_info.value)
