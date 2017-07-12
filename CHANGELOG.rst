@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Current development
--------------------
+Release 0.8.0 (2017-07-12)
+--------------------------
 - Fixed invalid HTML tag rendered from RPC Method documentation. Single new lines are converted to space since they
   are mostly used to limit docstrings line width. See pull request #7, thanks to @adamdonahue
 - Fixed issue #8: signature of ``auth.set_authentication_predicate`` has been fixed so it can be used as decorator_.
