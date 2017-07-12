@@ -73,10 +73,10 @@ def test_xmlrpc_user_permissions(live_server, john_doe, common_pwd, delete_user_
     assert c.delete_user_perm_required(5) == 5
     assert c.any_permission_required(5) == 5
 
-    with raises(xmlrpc_client.ProtocolError) as excinfo:
+    with raises(xmlrpc_client.ProtocolError) as exc_info:
         c.all_permissions_required(5)
 
-    assert excinfo.value.errcode == 403
+    assert exc_info.value.errcode == 403
 
     john_doe.user_permissions.add(add_user_perm, change_user_perm)
     assert c.all_permissions_required(5) == 5
@@ -167,10 +167,10 @@ def test_jsonrpc_user_permissions(live_server, john_doe, common_pwd, delete_user
     assert c.request('delete_user_perm_required', 5) == 5
     assert c.request('any_permission_required', 5) == 5
 
-    with raises(ReceivedErrorResponse) as exinfo:
+    with raises(ReceivedErrorResponse) as exc_info:
         c.request('all_permissions_required', 5)
 
-    assert exinfo.value.code == RPC_INTERNAL_ERROR
+    assert exc_info.value.code == RPC_INTERNAL_ERROR
 
     john_doe.user_permissions.add(add_user_perm, change_user_perm)
     assert c.request('all_permissions_required', 5) == 5
