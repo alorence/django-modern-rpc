@@ -4,7 +4,11 @@ Changelog
 Current development
 -------------------
 - Fixed invalid HTML tag rendered from RPC Method documentation. Single new lines are converted to space since they
-  are mostly used to limit docstrings line width. See pull request #7
+  are mostly used to limit docstrings line width. See pull request #7, thanks to @adamdonahue
+- Fixed issue #8: signature of ``auth.set_authentication_predicate`` has been fixed so it can be used as decorator_.
+  Thanks to @aplicacionamedida
+
+.. _decorator: http://django-modern-rpc.readthedocs.io/en/latest/advanced/authentication.html#basics
 
 Release 0.7.1 (2017-06-24)
 --------------------------

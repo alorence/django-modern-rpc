@@ -64,6 +64,7 @@ def http_basic_auth_login_required(func=None):
 # Decorator
 def http_basic_auth_superuser_required(func=None):
     """Decorator. Use it to specify a RPC method is available only to logged superusers"""
+
     wrapper = auth.set_authentication_predicate(http_basic_auth_check_user, [auth.user_is_superuser])
 
     # If @http_basic_auth_superuser_required() is used (with parenthesis)
@@ -93,6 +94,7 @@ def http_basic_auth_any_of_permissions_required(permissions):
 # Decorator
 def http_basic_auth_group_member_required(groups):
     """Decorator. Use it to specify a RPC method is available only to logged users with given permissions"""
+
     if isinstance(groups, six.string_types):
         # Check user is in a group
         return auth.set_authentication_predicate(http_basic_auth_check_user, [auth.user_in_group, groups])
@@ -104,4 +106,5 @@ def http_basic_auth_group_member_required(groups):
 # Decorator
 def http_basic_auth_all_groups_member_required(groups):
     """Decorator. Use it to specify a RPC method is available only to logged users with given permissions"""
+
     return auth.set_authentication_predicate(http_basic_auth_check_user, [auth.user_in_all_groups, groups])
