@@ -51,12 +51,12 @@ It is associated with RPC method using ``@set_authentication_predicate`` decorat
 
 Now, the RPC method becomes unavailable to callers if User-Agent is not provided or if it has an invalid value.
 
-If your predicate takes additional arguments, simply add them as arguments of the decorator:
+In addition, you can provide arguments to your predicate using ``params``:
 
 .. code:: python
 
     @rpc_method
-    @set_authentication_predicate(my_predicate_with_params, 'param_1', 42)
+    @set_authentication_predicate(my_predicate_with_params, params=('param_1', 42))
     def my_rpc_method(a, b):
         return a + b
 
@@ -67,7 +67,7 @@ True to allow access to the method.
 
     @rpc_method
     @set_authentication_predicate(forbid_bots_access)
-    @set_authentication_predicate(my_predicate_with_params, 'param_1', 42)
+    @set_authentication_predicate(my_predicate_with_params, params=('param_1', 42))
     def my_rpc_method(a, b):
         return a + b
 
