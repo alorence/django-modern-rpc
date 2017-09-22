@@ -77,7 +77,7 @@ LOGGING = {
         'nullhandler': {
             'level': 'INFO',
             'class': 'logging.NullHandler',
-        } ,
+        },
     },
     'loggers': {
         # Note: We don't want to print logs when executing tests, so no logger is declared for modernrpc module.
