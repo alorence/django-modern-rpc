@@ -77,10 +77,14 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
         },
+        'nullhandler': {
+            'level': 'INFO',
+            'class': 'logging.NullHandler',
+        } ,
     },
     'loggers': {
         # Note: We don't want to print logs when executing tests, so no logger is declared for modernrpc module.
-        # But since we need some tests for logging utilities, let's declare 2 loggers for inexistant packages
+        # But since we need some tests for logging utilities, let's declare 2 loggers for non-existent packages
         # See test_logging.py
         'my_app': {
             'handlers': ['console'],
@@ -89,6 +93,18 @@ LOGGING = {
         },
         'my_app.a': {
             'handlers': [],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        # This seems the only way to hide log messages from jsonrpcclient
+        # See https://github.com/bcb/jsonrpcclient/issues/45
+        'jsonrpcclient.client.request': {
+            'handlers': ['nullhandler'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'jsonrpcclient.client.response': {
+            'handlers': ['nullhandler'],
             'level': 'INFO',
             'propagate': False,
         },
