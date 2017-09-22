@@ -179,6 +179,16 @@ def test_jsrpc_internal_error(live_server):
     assert RPC_CUSTOM_ERROR_BASE <= excinfo.value.code <= RPC_CUSTOM_ERROR_MAX
 
 
+def test_jsrpc_exception_with_data(live_server):
+
+    client = HTTPClient(live_server.url + '/all-rpc/')
+
+    with pytest.raises(ReceivedErrorResponse) as excinfo:
+        client.raise_custom_exception_with_data()
+
+    assert ['a', 'b', 'c'] == excinfo.value.data
+
+
 def test_jsrpc_divide_by_zero(live_server):
 
     client = HTTPClient(live_server.url + '/all-rpc/')

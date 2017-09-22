@@ -59,6 +59,17 @@ def raise_custom_exception():
     raise MyCustomException()
 
 
+class MyCustomExceptionWithData(RPCException):
+
+    def __init__(self, data):
+        super(MyCustomExceptionWithData, self).__init__(RPC_CUSTOM_ERROR_BASE + 5, 'This exception has additional data', data)
+
+
+@rpc_method
+def raise_custom_exception_with_data():
+    raise MyCustomExceptionWithData(['a', 'b', 'c'])
+
+
 @rpc_method()
 def add_one_month(date):
     """Adds 31 days to the given date, and returns the result."""

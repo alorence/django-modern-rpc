@@ -322,7 +322,8 @@ def get_method(name, entry_point, protocol):
     return None
 
 
-def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL, str_standardization=settings.MODERNRPC_PY2_STR_TYPE,
+def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL,
+               str_standardization=settings.MODERNRPC_PY2_STR_TYPE,
                str_standardization_encoding=settings.MODERNRPC_PY2_STR_ENCODING):
     """
     Mark a standard python function as RPC method.

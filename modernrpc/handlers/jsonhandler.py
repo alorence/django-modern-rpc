@@ -94,4 +94,7 @@ class JSONRPCHandler(RPCHandler):
             }
         }
 
+        if exception.data:
+            result['error']['data'] = exception.data
+
         return self.json_http_response(self.dumps(result), http_response_cls=http_response_cls)

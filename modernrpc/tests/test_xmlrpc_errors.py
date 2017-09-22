@@ -59,6 +59,19 @@ def test_xrpc_internal_error(live_server):
     assert RPC_CUSTOM_ERROR_BASE <= excinfo.value.faultCode <= RPC_CUSTOM_ERROR_MAX
 
 
+def test_xrpc_exception_with_data(live_server):
+
+    client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
+
+    with pytest.raises(xmlrpc_client.Fault) as excinfo:
+        client.raise_custom_exception_with_data()
+
+    # XML-RPC does not support additional data. The returned exception only
+    # contains code and message
+    assert 'This exception has additional data' in excinfo.value.faultString
+    assert RPC_CUSTOM_ERROR_BASE <= excinfo.value.faultCode <= RPC_CUSTOM_ERROR_MAX
+
+
 def test_xrpc_divide_by_zero(live_server):
 
     client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
