@@ -55,10 +55,8 @@ class JSONRPCHandler(RPCHandler):
         if not isinstance(body, dict):
             raise RPCInvalidRequest('Payload object must be a struct')
 
-        if 'id' in body:
-            self.request_id = body['id']
-        else:
-            raise RPCInvalidRequest('Missing parameter "id"')
+        # Store current request id, or None if request is a notification
+        self.request_id = body.get('id')
 
         if 'jsonrpc' not in body:
             raise RPCInvalidRequest('Missing parameter "jsonrpc"')
@@ -70,8 +68,14 @@ class JSONRPCHandler(RPCHandler):
 
         return body['method'], body.get('params', [])
 
-    @staticmethod
-    def json_http_response(data, http_response_cls=HttpResponse):
+    def is_notification_request(self):
+        return self.request_id is None
+
+    def json_http_response(self, data, http_response_cls=HttpResponse):
+
+        if self.is_notification_request():
+            return http_response_cls()
+
         response = http_response_cls(data)
         response['Content-Type'] = 'application/json'
         return response
