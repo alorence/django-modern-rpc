@@ -82,22 +82,6 @@ def test_jsonrpc_invalid_request_3(live_server):
     assert RPC_INVALID_REQUEST == response['error']['code']
 
 
-def test_jsonrpc_invalid_request_4(live_server):
-
-    headers = {'content-type': 'application/json'}
-    payload = {
-        "method": 'add',
-        "params": [5, 6],
-        "jsonrpc": "2.0",
-        # "id": random.randint(1, 1000),
-    }
-    req_data = json.dumps(payload, cls=DjangoJSONEncoder)
-    response = requests.post(live_server.url + '/all-rpc/', data=req_data, headers=headers).json()
-
-    assert 'Missing parameter "id"' in response['error']['message']
-    assert RPC_INVALID_REQUEST == response['error']['code']
-
-
 def test_jsrpc_no_content_type(live_server):
     payload = {
         "method": "add",
