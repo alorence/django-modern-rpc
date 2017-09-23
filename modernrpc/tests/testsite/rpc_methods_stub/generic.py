@@ -1,9 +1,10 @@
 # coding: utf-8
 import datetime
 
-from modernrpc.core import rpc_method
+from modernrpc.core import rpc_method, PROTOCOL_KEY
 from modernrpc.exceptions import RPCException, RPC_CUSTOM_ERROR_BASE
 from modernrpc.helpers import get_builtin_date
+
 
 # In this file, some methods are decorated with @rpc_method without parenthesis, some
 # are decorated with @rpc_method(). Both notations are supported and must works the same way
@@ -87,3 +88,13 @@ def get_invalid_result():
     """Return an object instance that cannot be serialized in json or xml"""
     from django.http.response import HttpResponse
     return HttpResponse(content='dummy')
+
+
+@rpc_method()
+def method_with_kwargs(**kwargs):
+    return kwargs.get(PROTOCOL_KEY)
+
+
+@rpc_method()
+def method_with_kwargs_2(x, **kwargs):
+    return x, kwargs.get(PROTOCOL_KEY)

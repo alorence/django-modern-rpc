@@ -24,6 +24,9 @@ def test_multicall_with_named_params(live_server):
     calls_args = [
         {'methodName': 'add', 'params': {'a': 5, 'b': 10}},
         {'methodName': 'divide', 'params': {'numerator': 30, 'denominator': 5}},
+        {'methodName': 'method_with_kwargs'},
+        {'methodName': 'method_with_kwargs_2', 'params': [6]},
+        {'methodName': 'method_with_kwargs_2', 'params': {'x': 25}},
     ]
     result = c.request('system.multicall', [calls_args])
 
@@ -33,3 +36,7 @@ def test_multicall_with_named_params(live_server):
     # See https://mirrors.talideon.com/articles/multicall.html:
     assert result[0] == [15]  # 5 + 10
     assert result[1] == [6]   # 30 / 5
+
+    assert result[2] == ['__all__']
+    assert result[3] == [[6, '__all__']]
+    assert result[4] == [[25, '__all__']]
