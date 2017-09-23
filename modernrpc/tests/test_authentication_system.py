@@ -124,17 +124,17 @@ def test_jsonrpc_superuser_auth(live_server, superuser, common_pwd):
     c = HTTPClient(live_server.url + '/all-rpc/')
     c.session.auth = (superuser.username, common_pwd)
 
-    assert c.request('logged_user_required', 5) == 5
-    assert c.request('logged_user_required_alt', 5) == 5
-    assert c.request('logged_superuser_required', 5) == 5
-    assert c.request('logged_superuser_required_alt', 5) == 5
-    assert c.request('delete_user_perm_required', 5) == 5
-    assert c.request('any_permission_required', 5) == 5
-    assert c.request('all_permissions_required', 5) == 5
-    assert c.request('in_group_A_required', 5) == 5
-    assert c.request('in_groups_A_and_B_required', 5) == 5
-    assert c.request('in_groups_A_and_B_required_alt', 5) == 5
-    assert c.request('in_group_A_or_B_required', 5) == 5
+    assert c.logged_user_required(5) == 5
+    assert c.logged_user_required_alt(5) == 5
+    assert c.logged_superuser_required(5) == 5
+    assert c.logged_superuser_required_alt(5) == 5
+    assert c.delete_user_perm_required(5) == 5
+    assert c.any_permission_required(5) == 5
+    assert c.all_permissions_required(5) == 5
+    assert c.in_group_A_required(5) == 5
+    assert c.in_groups_A_and_B_required(5) == 5
+    assert c.in_groups_A_and_B_required_alt(5) == 5
+    assert c.in_group_A_or_B_required(5) == 5
 
 
 def test_jsonrpc_user_auth(live_server, john_doe, common_pwd):
@@ -142,8 +142,8 @@ def test_jsonrpc_user_auth(live_server, john_doe, common_pwd):
     c = HTTPClient(live_server.url + '/all-rpc/')
     c.session.auth = (john_doe.username, common_pwd)
 
-    assert c.request('logged_user_required', 5) == 5
-    assert c.request('logged_user_required_alt', 5) == 5
+    assert c.logged_user_required(5) == 5
+    assert c.logged_user_required_alt(5) == 5
 
     assert raises(ReceivedErrorResponse, c.request, 'logged_superuser_required', 5).value.code == RPC_INTERNAL_ERROR
     assert raises(ReceivedErrorResponse, c.request, 'logged_superuser_required_alt', 5).value.code == RPC_INTERNAL_ERROR
@@ -164,16 +164,16 @@ def test_jsonrpc_user_permissions(live_server, john_doe, common_pwd, delete_user
 
     john_doe.user_permissions.add(delete_user_perm)
 
-    assert c.request('delete_user_perm_required', 5) == 5
-    assert c.request('any_permission_required', 5) == 5
+    assert c.delete_user_perm_required(5) == 5
+    assert c.any_permission_required(5) == 5
 
     with raises(ReceivedErrorResponse) as exc_info:
-        c.request('all_permissions_required', 5)
+        c.all_permissions_required(5)
 
     assert exc_info.value.code == RPC_INTERNAL_ERROR
 
     john_doe.user_permissions.add(add_user_perm, change_user_perm)
-    assert c.request('all_permissions_required', 5) == 5
+    assert c.all_permissions_required(5) == 5
 
 
 def test_jsonrpc_user_groups(live_server, john_doe, common_pwd, group_A, group_B):
@@ -183,8 +183,8 @@ def test_jsonrpc_user_groups(live_server, john_doe, common_pwd, group_A, group_B
 
     john_doe.groups.add(group_A)
 
-    assert c.request('in_group_A_required', 5) == 5
-    assert c.request('in_group_A_or_B_required', 5) == 5
+    assert c.in_group_A_required(5) == 5
+    assert c.in_group_A_or_B_required(5) == 5
 
     assert raises(ReceivedErrorResponse, c.request, 'in_groups_A_and_B_required', 5).value.code == RPC_INTERNAL_ERROR
     e = raises(ReceivedErrorResponse, c.request, 'in_groups_A_and_B_required_alt', 5)
@@ -192,8 +192,8 @@ def test_jsonrpc_user_groups(live_server, john_doe, common_pwd, group_A, group_B
 
     john_doe.groups.add(group_B)
 
-    assert c.request('in_groups_A_and_B_required', 5) == 5
-    assert c.request('in_groups_A_and_B_required_alt', 5) == 5
+    assert c.in_groups_A_and_B_required(5) == 5
+    assert c.in_groups_A_and_B_required_alt(5) == 5
 
 
 def test_http_basic_auth_user_in_request(live_server, john_doe, superuser, common_pwd):
@@ -201,18 +201,18 @@ def test_http_basic_auth_user_in_request(live_server, john_doe, superuser, commo
     c = HTTPClient(live_server.url + '/all-rpc/')
     c.session.auth = (john_doe.username, common_pwd)
 
-    assert 'username: johndoe' == c.request('display_authenticated_user')
+    assert 'username: johndoe' == c.display_authenticated_user()
 
     c = HTTPClient(live_server.url + '/all-rpc/')
     c.session.auth = (superuser.username, common_pwd)
 
-    assert 'username: admin' == c.request('display_authenticated_user')
+    assert 'username: admin' == c.display_authenticated_user()
 
 
 def test_custom_predicate_allowed(live_server):
 
     c = HTTPClient(live_server.url + '/all-rpc/')
-    assert 'python-requests' in c.request('get_user_agent')
+    assert 'python-requests' in c.get_user_agent()
 
     c = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
     assert 'xmlrpc' in c.get_user_agent()
@@ -222,7 +222,7 @@ def test_custom_predicate_rejected(live_server):
 
     c = HTTPClient(live_server.url + '/all-rpc/')
     with raises(ReceivedErrorResponse) as exc_info:
-        c.request('power_2', 5)
+        c.power_2(5)
     assert exc_info.value.code == RPC_INTERNAL_ERROR
 
     c = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')

@@ -25,7 +25,7 @@ def test_xmlrpc_basic_add(live_server):
 def test_jsonrpc_basic_add(live_server):
 
     c = HTTPClient(live_server.url + '/all-rpc/')
-    assert c.request('add', 2, 3) == 5
+    assert c.add(2, 3) == 5
 
 
 def test_xmlrpc_list_methods(live_server):
@@ -43,6 +43,8 @@ def test_xmlrpc_list_methods(live_server):
 def test_jsonrpc_list_methods(live_server):
 
     c = HTTPClient(live_server.url + '/all-rpc/')
+    # Can't call c.system.listMethods() directly. jsonrpcclient doesn't support
+    # remote procedure with a dotted ('.') name
     result = c.request('system.listMethods')
 
     assert type(result) == list
@@ -220,7 +222,7 @@ def test_jsonrpc_protocol_specific_methods_2(live_server):
     c = HTTPClient(live_server.url + '/json-only/')
 
     # method_x is available only via JSON-RPC
-    assert c.request('method_x') == 'JSON only'
+    assert c.method_x() == 'JSON only'
 
 
 def test_jsonrpc_protocol_specific_methods_invalid_method(live_server):
@@ -229,7 +231,7 @@ def test_jsonrpc_protocol_specific_methods_invalid_method(live_server):
 
     # method_y is available only via XML-RPC
     with pytest.raises(ReceivedErrorResponse) as excinfo:
-        c.request('method_y')
+        c.method_y()
 
     assert 'Method not found: method_y' in excinfo.value.message
     assert excinfo.value.code == RPC_METHOD_NOT_FOUND

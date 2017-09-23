@@ -16,8 +16,8 @@ from modernrpc.exceptions import RPC_INTERNAL_ERROR
 def test_xmlrpc_bool(live_server):
 
     c = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
-    result = c.get_true()
 
+    result = c.get_true()
     assert type(result) == bool
     assert result is True
 
@@ -25,8 +25,8 @@ def test_xmlrpc_bool(live_server):
 def test_jsonrpc_bool(live_server):
 
     c = HTTPClient(live_server.url + '/all-rpc/')
-    result = c.get_true()
 
+    result = c.get_true()
     assert type(result) == bool
     assert result is True
 
@@ -34,8 +34,8 @@ def test_jsonrpc_bool(live_server):
 def test_xmlrpc_bool_2(live_server):
 
     c = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
-    result = c.get_false()
 
+    result = c.get_false()
     assert type(result) == bool
     assert result is False
 
@@ -43,8 +43,8 @@ def test_xmlrpc_bool_2(live_server):
 def test_jsonrpc_bool_2(live_server):
 
     c = HTTPClient(live_server.url + '/all-rpc/')
-    result = c.get_false()
 
+    result = c.get_false()
     assert type(result) == bool
     assert result is False
 
@@ -52,10 +52,12 @@ def test_jsonrpc_bool_2(live_server):
 def test_xmlrpc_null(live_server):
 
     c = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
+
     assert c.get_null() is None
 
 
 def test_jsonrpc_null(live_server):
+
     c = HTTPClient(live_server.url + '/all-rpc/')
 
     result = c.get_null()
@@ -119,8 +121,8 @@ def test_jsonrpc_float(live_server):
 def test_xmlrpc_string(live_server):
 
     c = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
-    result = c.get_string()
 
+    result = c.get_string()
     # Unlike JSON-RPC, XML-RPC always return a str. That means the result is unicode
     # in Python 3 and ASCII in Python 2. This may be addressed in the future
     assert type(result) == str
@@ -130,8 +132,8 @@ def test_xmlrpc_string(live_server):
 def test_jsonrpc_string(live_server):
 
     c = HTTPClient(live_server.url + '/all-rpc/')
-    result = c.get_string()
 
+    result = c.get_string()
     # Unlike XML-RPC, JSON-RPC always return a unicode string. That means the type of the result value is
     # 'unicode' in Python 2 and 'str' in python 3.
     assert type(result) == str if six.PY3 else unicode
@@ -162,8 +164,8 @@ def test_jsonrpc_input_string(live_server):
 def test_xmlrpc_bytes(live_server):
 
     c = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
-    result = c.get_bytes()
 
+    result = c.get_bytes()
     assert result == b'abcde'
 
 
@@ -200,6 +202,7 @@ def test_xmlrpc_date(live_server):
 
 
 def test_xmlrpc_date_2(live_server):
+
     try:
         # Python 3
         c = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/', use_builtin_types=True)
@@ -239,6 +242,7 @@ def test_xmlrpc_date_4(live_server):
     except TypeError:
         # Python 3
         c = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/', use_datetime=True)
+
     date = datetime.datetime(2000, 6, 3, 0, 0, 0)
     result = c.add_one_month(date)
 
@@ -254,8 +258,8 @@ def test_xmlrpc_date_4(live_server):
 def test_jsonrpc_date(live_server):
 
     c = HTTPClient(live_server.url + '/all-rpc/')
-    result = c.get_date()
 
+    result = c.get_date()
     # Unlike XML-RPC, JSON transport does not store value types.
     # Dates are transmitted as string in ISO 8601 format:
     assert '1987-06-02' in result
@@ -263,6 +267,7 @@ def test_jsonrpc_date(live_server):
 
 
 def test_jsonrpc_date_2(live_server):
+
     c = HTTPClient(live_server.url + '/all-rpc/')
     date = datetime.datetime(1990, 1, 1, 0, 0, 0)
 
@@ -276,8 +281,10 @@ def test_jsonrpc_date_2(live_server):
 
 
 def test_jsonrpc_date_3(live_server):
+
     c = HTTPClient(live_server.url + '/all-rpc/')
     date = datetime.datetime(2000, 6, 3, 0, 0, 0)
+
     # We have to convert date to ISO 8601, since JSON-RPC cannot serialize it
     result = c.add_one_month(date.isoformat())
 
@@ -288,8 +295,8 @@ def test_jsonrpc_date_3(live_server):
 def test_xmlrpc_list(live_server):
 
     c = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
-    result = c.get_list()
 
+    result = c.get_list()
     assert type(result) == list
     assert result == [1, 2, 3, ]
 
@@ -297,8 +304,8 @@ def test_xmlrpc_list(live_server):
 def test_jsonrpc_list(live_server):
 
     c = HTTPClient(live_server.url + '/all-rpc/')
-    result = c.get_list()
 
+    result = c.get_list()
     assert type(result) == list
     assert result == [1, 2, 3, ]
 
@@ -306,8 +313,8 @@ def test_jsonrpc_list(live_server):
 def test_xmlrpc_struct(live_server):
 
     c = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
-    result = c.get_struct()
 
+    result = c.get_struct()
     assert type(result) == dict
     assert result == {'x': 1, 'y': 2, 'z': 3, }
 
@@ -315,7 +322,7 @@ def test_xmlrpc_struct(live_server):
 def test_jsonrpc_struct(live_server):
 
     c = HTTPClient(live_server.url + '/all-rpc/')
-    result = c.get_struct()
 
+    result = c.get_struct()
     assert type(result) == dict
     assert result == {'x': 1, 'y': 2, 'z': 3, }
