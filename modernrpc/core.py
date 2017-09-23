@@ -190,10 +190,7 @@ class RPCMethod(object):
             args = standardize_strings(args, strtype=self.str_standardization, encoding=self.str_std_encoding)
 
         # Call the rpc method, as standard python function
-        if self.accept_kwargs:
-            return self.function(*args, **kwargs)
-        else:
-            return self.function(*args)
+        return self.function(*args, **kwargs)
 
     def available_for_protocol(self, protocol):
         """Check if the current function can be executed from a request defining the given protocol"""

@@ -102,18 +102,27 @@ class RPCEntryPoint(TemplateView):
 
                 logger.debug('RPC method {} will be executed'.format(method))
 
-                try:
-                    # If the RPC method needs to access some internals:
-                    kwargs = {
+                # Build args & kwargs for procedure execution
+                args, kwargs = [], {}
+                if isinstance(params, (list, tuple)):
+                    args += params
+                elif isinstance(params, dict):
+                    kwargs.update(params)
+
+                # If the RPC method needs to access some internals:
+                if rpc_method.accept_kwargs:
+                    kwargs.update({
                         REQUEST_KEY: request,
                         ENTRY_POINT_KEY: self.entry_point,
                         PROTOCOL_KEY: self.protocol,
                         HANDLER_KEY: handler,
-                    }
+                    })
 
+                logger.debug('Params: args = {} - kwargs = {}'.format(args, kwargs))
+
+                try:
                     # Call the python function associated with the RPC method name
-                    result = rpc_method.execute(*params, **kwargs)
-
+                    result = rpc_method.execute(*args, **kwargs)
                 except TypeError as e:
                     # If given arguments cannot be transmitted properly to python function,
                     # raise an Invalid Params exceptions

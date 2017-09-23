@@ -75,10 +75,22 @@ def __system_multiCall(calls, **kwargs):
         method = get_method(method_name, entry_point, protocol)
 
         try:
+
             if not method:
                 raise RPCUnknownMethod(method_name)
 
-            result = method.execute(*params, **kwargs)
+            # Build args & kwargs for procedure execution
+            call_args, call_kwargs = [], {}
+            if isinstance(params, (list, tuple)):
+                call_args += params
+            elif isinstance(params, dict):
+                call_kwargs.update(params)
+
+            if method.accept_kwargs:
+                call_kwargs.update(kwargs)
+
+            result = method.execute(*call_args, **call_kwargs)
+
             # From https://mirrors.talideon.com/articles/multicall.html:
             # "Notice that regular return values are always nested inside a one-element array. This allows you to
             # return structs from functions without confusing them with faults."
