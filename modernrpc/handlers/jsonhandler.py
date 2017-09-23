@@ -71,16 +71,17 @@ class JSONRPCHandler(RPCHandler):
     def is_notification_request(self):
         return self.request_id is None
 
-    def json_http_response(self, data, http_response_cls=HttpResponse):
-
-        if self.is_notification_request():
-            return http_response_cls()
-
+    @staticmethod
+    def json_http_response(data, http_response_cls=HttpResponse):
         response = http_response_cls(data)
         response['Content-Type'] = 'application/json'
         return response
 
     def result_success(self, data):
+
+        if self.is_notification_request():
+            return HttpResponse(status=204)
+
         result = {
             'id': self.request_id,
             'jsonrpc': '2.0',
