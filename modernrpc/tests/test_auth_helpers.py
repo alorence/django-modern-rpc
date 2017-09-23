@@ -220,4 +220,4 @@ def test_http_basic_get_user():
     user = http_basic_auth_get_user(request)
 
     assert user is not None
-    assert user.is_anonymous()
+    assert user.is_anonymous

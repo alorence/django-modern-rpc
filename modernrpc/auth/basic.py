@@ -27,7 +27,7 @@ def http_basic_auth_get_user(request):
 
     try:
         # If standard auth middleware already authenticated a user, use it
-        if not request.user.is_anonymous():
+        if not request.user.is_anonymous:
             return request.user
     except AttributeError:
         pass

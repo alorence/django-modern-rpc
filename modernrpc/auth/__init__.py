@@ -41,7 +41,7 @@ def set_authentication_predicate(predicate, params=()):
 
 
 def user_is_logged(user):
-    return not user.is_anonymous()
+    return not user.is_anonymous
 
 
 def user_is_superuser(user):
