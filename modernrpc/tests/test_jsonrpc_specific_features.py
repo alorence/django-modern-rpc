@@ -15,4 +15,4 @@ def test_notify(live_server):
 
     c = HTTPClient(live_server.url + '/all-rpc/')
 
-    assert c.notify('add', 5, 12) == None
+    assert c.notify('add', 5, 12) is None
