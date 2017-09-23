@@ -105,5 +105,8 @@ def test_jsonrpc_multicall_with_errors_2(live_server):
 
     assert isinstance(result, list)
     assert result[0] == [10]
-    assert result[1] == {"faultCode": RPC_INTERNAL_ERROR, "faultString": "division by zero"}
+    assert result[1]['faultCode'] == RPC_INTERNAL_ERROR
+    # py2: integer division or modulo by zero
+    # py2: division by zero
+    assert 'by zero' in result[1]['faultString']
     assert result[2] == [16]
