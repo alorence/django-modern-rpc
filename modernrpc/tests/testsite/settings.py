@@ -1,6 +1,8 @@
 # coding: utf-8
-from django.utils import six
+from distutils.version import StrictVersion
 
+import django
+from django.utils import six
 
 DEBUG = True
 ALLOWED_HOSTS = ['*']
@@ -46,13 +48,19 @@ TEMPLATES = [
     },
 ]
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 )
+
+# This allows the tests to be run against Django 1.8 to current
+# MIDDLEWARE_CLASSES is deprecated since Django 1.10, and is completely
+# removed from Django 2.0
+if StrictVersion(django.get_version()) >= StrictVersion('1.10'):
+    MIDDLEWARE_CLASSES = MIDDLEWARE
 
 MEDIA_ROOT = ''
 MEDIA_URL = '/'
