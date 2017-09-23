@@ -1,4 +1,4 @@
-from modernrpc.auth import set_authentication_predicate
+from modernrpc.auth import set_authentication_predicate, user_is_authenticated
 from modernrpc.auth.basic import http_basic_auth_login_required, http_basic_auth_superuser_required,\
     http_basic_auth_permissions_required, http_basic_auth_group_member_required, \
     http_basic_auth_any_of_permissions_required, http_basic_auth_all_groups_member_required
@@ -78,7 +78,7 @@ def in_group_A_or_B_required(x):
 @rpc_method
 def display_authenticated_user(**kwargs):
     u = kwargs[REQUEST_KEY].user
-    return 'username: {}'.format('Anonymous' if u.is_anonymous else u.username)
+    return 'username: {}'.format(u.username if user_is_authenticated(u) else 'Anonymous')
 
 
 def allow_python_callers(request):

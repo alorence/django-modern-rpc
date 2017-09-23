@@ -6,6 +6,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.utils import six
 
 from modernrpc import auth
+from modernrpc.auth import user_is_authenticated
 
 
 def http_basic_auth_check_user(request, user_validation_func, *args):
@@ -27,7 +28,7 @@ def http_basic_auth_get_user(request):
 
     try:
         # If standard auth middleware already authenticated a user, use it
-        if not request.user.is_anonymous:
+        if user_is_authenticated(request.user):
             return request.user
     except AttributeError:
         pass
@@ -51,7 +52,7 @@ def http_basic_auth_get_user(request):
 def http_basic_auth_login_required(func=None):
     """Decorator. Use it to specify a RPC method is available only to logged users"""
 
-    wrapper = auth.set_authentication_predicate(http_basic_auth_check_user, [auth.user_is_logged])
+    wrapper = auth.set_authentication_predicate(http_basic_auth_check_user, [auth.user_is_authenticated])
 
     # If @http_basic_auth_login_required() is used (with parenthesis)
     if func is None:

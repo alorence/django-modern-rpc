@@ -1,4 +1,7 @@
 # coding: utf-8
+from distutils.version import StrictVersion
+
+import django
 from django.contrib.auth.models import Group
 from django.utils import six
 
@@ -40,8 +43,18 @@ def set_authentication_predicate(predicate, params=()):
     return wrapper
 
 
-def user_is_logged(user):
-    return not user.is_anonymous
+def user_is_authenticated(user):
+    if StrictVersion(django.get_version()) < StrictVersion('1.10'):
+        return user.is_authenticated()
+
+    return user.is_authenticated
+
+
+def user_is_anonymous(user):
+    if StrictVersion(django.get_version()) < StrictVersion('1.10'):
+        return user.is_anonymous()
+
+    return user.is_anonymous
 
 
 def user_is_superuser(user):

@@ -2,23 +2,30 @@
 from django.http.request import HttpRequest
 from pytest import raises
 
-from modernrpc.auth import user_is_logged, user_is_superuser, user_has_perm, user_has_all_perms, user_in_group,\
-    user_has_any_perm, user_in_all_groups, user_in_any_group
+from modernrpc.auth import user_is_authenticated, user_is_superuser, user_has_perm, user_has_all_perms, user_in_group, \
+    user_has_any_perm, user_in_all_groups, user_in_any_group, user_is_anonymous
 from modernrpc.auth.basic import http_basic_auth_get_user
 
 
-def test_user_is_logged(anonymous_user, john_doe, superuser):
+def test_user_is_authenticated(anonymous_user, john_doe, superuser):
 
-    assert user_is_logged(superuser) is True
-    assert user_is_logged(anonymous_user) is False
-    assert user_is_logged(john_doe) is True
+    assert user_is_authenticated(superuser)
+    assert not user_is_authenticated(anonymous_user)
+    assert user_is_authenticated(john_doe)
+
+
+def test_user_is_anonymous(anonymous_user, john_doe, superuser):
+
+    assert not user_is_anonymous(superuser)
+    assert user_is_anonymous(anonymous_user)
+    assert not user_is_anonymous(john_doe)
 
 
 def test_user_is_superuser(anonymous_user, john_doe, superuser):
 
-    assert user_is_superuser(superuser) is True
-    assert user_is_superuser(anonymous_user) is False
-    assert user_is_superuser(john_doe) is False
+    assert user_is_superuser(superuser)
+    assert not user_is_superuser(anonymous_user)
+    assert not user_is_superuser(john_doe)
 
 
 def test_user_has_perm(django_user_model, anonymous_user, john_doe, superuser, delete_user_perm):
@@ -220,4 +227,4 @@ def test_http_basic_get_user():
     user = http_basic_auth_get_user(request)
 
     assert user is not None
-    assert user.is_anonymous
+    assert user_is_anonymous(user)
