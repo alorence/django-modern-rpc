@@ -43,7 +43,7 @@ An entry point is the URL used by clients to call your RPC methods. Declare it a
     ]
 
 Entry points behavior can be customized with some arguments. Read the page :ref:`Entry point configuration`
- for more information.
+for more information.
 
 Write and register your methods
 ===============================
