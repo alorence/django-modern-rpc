@@ -79,7 +79,9 @@ class RPCMethod(object):
             self.function == other.function and \
             self._external_name == other._external_name and \
             self.entry_point == other.entry_point and \
-            self.protocol == other.protocol
+            self.protocol == other.protocol and \
+            self.predicates == other.predicates and \
+            self.predicates_params == other.predicates_params
 
     def parse_docstring(self, content):
         """

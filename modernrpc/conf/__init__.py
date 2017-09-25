@@ -7,17 +7,16 @@ from modernrpc.conf import default_settings
 from modernrpc.utils import logger_has_handlers
 
 
-class ModernRpcSettings:
+class ModernRpcSettings(object):
 
     def __getattr__(self, item):
-        if hasattr(user_settings, item):
-            # We can't put 'getattr(default_settings, item)' as 3rd default argument here,
-            # because it will be evaluated always and raise AttributeError if missing, even
-            # when the attribute can  be found in user_settings
-            return getattr(user_settings, item)
-        else:
-            return getattr(default_settings, item)
 
+        try:
+            # First, try to retrieve setting from project level settings module
+            return getattr(user_settings, item)
+        except AttributeError:
+            # Fallback: return the default value, provided by django-modern-rpc
+            return getattr(default_settings, item)
 
 settings = ModernRpcSettings()
 
