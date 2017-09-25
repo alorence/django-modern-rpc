@@ -18,6 +18,7 @@ class ModernRpcSettings(object):
             # Fallback: return the default value, provided by django-modern-rpc
             return getattr(default_settings, item)
 
+
 settings = ModernRpcSettings()
 
 
