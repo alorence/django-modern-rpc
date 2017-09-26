@@ -1,7 +1,6 @@
 import logging
 
-from modernrpc.conf import get_modernrpc_logger
-from modernrpc.utils import logger_has_handlers
+from modernrpc.utils import logger_has_handlers, get_modernrpc_logger
 
 
 def test_configured_logger():

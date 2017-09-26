@@ -9,9 +9,9 @@ from django.utils import inspect
 from django.utils import six
 
 from modernrpc.compat import standardize_strings
-from modernrpc.conf import settings, get_modernrpc_logger
+from modernrpc.conf import settings
 from modernrpc.handlers import XMLRPC, JSONRPC
-from modernrpc.utils import ensure_sequence
+from modernrpc.utils import ensure_sequence, get_modernrpc_logger
 
 # Keys used in kwargs dict given to RPC methods
 REQUEST_KEY = 'request'
