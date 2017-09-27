@@ -1,6 +1,17 @@
 Changelog
 =========
 
+Current development
+-------------------
+This version fixed implementation of JSON-RPC standard:
+- Named parameters are now correctly supported in JSON-RPC calls.
+- Class RPCException and all its subclass accept an additional ``data`` argument (#10). This is used by JSON-RPC
+  handler to report additional information to user in case of error. This data is ignored in case of XML-RPC call.
+- Added support for JSON-RPC notifications. Requests received without `id` are no longer considered as invalid, but
+  are correectly handled. No HTTP response is returned in such case, according to the standard.
+- Support for system.multicall with JSON-RPC
+In addition, this version contains a few minor updates to prepare for future compatibility with Django 2.0
+
 Release 0.8.0 (2017-07-12)
 --------------------------
 - Fixed invalid HTML tag rendered from RPC Method documentation. Single new lines are converted to space since they
@@ -134,7 +145,7 @@ Release 0.2.0 (2016-10-05)
 - 'system.listMethods' is now supported
 - 'system.methodSignature' is now supported
 - Error reporting has been improved. Correct error codes and messages are returned on usual fail cause.
-  See module modernrpc.exceptions for more information.
+  See module ``modernrpc.exceptions`` for more information.
 - Many unit tests have been added to increase test coverage of the library
 
 Release 0.1.0 (2016-10-02)
