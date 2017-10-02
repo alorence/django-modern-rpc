@@ -23,17 +23,6 @@ def test_jsrpc_call_unknown_method(live_server):
     assert excinfo.value.code == RPC_METHOD_NOT_FOUND
 
 
-def test_jsonrpc_invalid_request_0(live_server):
-
-    headers = {'content-type': 'application/json'}
-    payload = ["method", 'add', "params", [5, 6], "jsonrpc", "2.0", "id", random.randint(1, 1000)]
-    req_data = json.dumps(payload, cls=DjangoJSONEncoder)
-    response = requests.post(live_server.url + '/all-rpc/', data=req_data, headers=headers).json()
-
-    assert 'Payload object must be a struct' in response['error']['message']
-    assert RPC_INVALID_REQUEST == response['error']['code']
-
-
 def test_jsonrpc_invalid_request_1(live_server):
 
     headers = {'content-type': 'application/json'}

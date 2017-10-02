@@ -6,7 +6,7 @@ from django.utils.module_loading import import_string
 
 from modernrpc.conf import settings
 from modernrpc.core import JSONRPC
-from modernrpc.exceptions import RPCInternalError, RPCInvalidRequest, RPCParseError
+from modernrpc.exceptions import RPCInternalError, RPCInvalidRequest, RPCParseError, RPCException
 from modernrpc.handlers.base import RPCHandler
 from modernrpc.core import RPCRequest
 
@@ -16,6 +16,11 @@ try:
 except ImportError:
     # Python 2: json.loads will raise a ValueError when loading json
     JSONDecodeError = ValueError
+
+
+class JSONRPCBatchResult(object):
+    def __init__(self):
+        self.results = []
 
 
 class JSONRPCHandler(RPCHandler):
@@ -52,11 +57,33 @@ class JSONRPCHandler(RPCHandler):
         data = self.request.body.decode(encoding)
         body = self.loads(data)
 
-        if not isinstance(body, dict):
-            raise RPCInvalidRequest('Payload object must be a struct')
+        if isinstance(body, dict):
 
-        # Store current request id, or None if request is a notification
-        self.request_id = body.get('id')
+            # Store current request id, or None if request is a notification
+            self.request_id = body.get('id')
+            return self.process_single_request(body)
+
+        elif isinstance(body, (list, tuple)):
+
+            batch_result = JSONRPCBatchResult()
+
+            for single_body in body:
+
+                request_id = single_body.get('id')
+                try:
+                    result = self.process_single_request(single_body)
+                    batch_result.results.append(self.get_success_payload(result, override_id=request_id))
+
+                except RPCException as e:
+                    batch_result.results.append(self.get_error_payload(e, override_id=request_id))
+
+                except Exception as e:
+                    rpc_exception = RPCInternalError(str(e))
+                    batch_result.results.append(self.get_error_payload(rpc_exception, override_id=request_id))
+
+            return batch_result
+
+    def process_single_request(self, body):
 
         if 'jsonrpc' not in body:
             raise RPCInvalidRequest('Missing parameter "jsonrpc"')
@@ -80,30 +107,39 @@ class JSONRPCHandler(RPCHandler):
 
         return rpc_request.execute(self)
 
-    def is_notification_request(self):
-        return self.request_id is None
-
     @staticmethod
     def json_http_response(data, http_response_cls=HttpResponse):
         response = http_response_cls(data)
         response['Content-Type'] = 'application/json'
         return response
 
-    def result_success(self, data):
+    def get_success_payload(self, data, override_id=None):
 
-        if self.is_notification_request():
-            return HttpResponse(status=204)
+        if not (override_id or self.request_id):
+            return None
 
-        result = {
-            'id': self.request_id,
+        return {
+            'id': override_id or self.request_id,
             'jsonrpc': '2.0',
             'result': data,
         }
+
+    def result_success(self, data):
+
+        if isinstance(data, JSONRPCBatchResult):
+            result = data.results
+
+        else:
+            result = self.get_success_payload(data)
+
+            if not result:
+                return HttpResponse(status=204)
+
         return self.json_http_response(self.dumps(result))
 
-    def result_error(self, exception, http_response_cls=HttpResponse):
+    def get_error_payload(self, exception, override_id=None):
         result = {
-            'id': self.request_id,
+            'id': override_id or self.request_id,
             'jsonrpc': '2.0',
             'error': {
                 'code': exception.code,
@@ -114,4 +150,8 @@ class JSONRPCHandler(RPCHandler):
         if exception.data:
             result['error']['data'] = exception.data
 
+        return result
+
+    def result_error(self, exception, http_response_cls=HttpResponse):
+        result = self.get_error_payload(exception)
         return self.json_http_response(self.dumps(result), http_response_cls=http_response_cls)

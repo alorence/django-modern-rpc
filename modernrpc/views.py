@@ -100,7 +100,7 @@ class RPCEntryPoint(TemplateView):
                 return handler.result_error(e)
 
             except Exception as e:
-                logger.error('Exception raised from an RPC method: {}'.format(str(e)))
+                logger.error('Exception raised from a RPC method: {}'.format(str(e)))
                 return handler.result_error(RPCInternalError(str(e)))
 
         logger.error('Received a request impossible to handle with available handlers.')
