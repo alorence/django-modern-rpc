@@ -30,6 +30,8 @@ setup(
     long_description=read('README.rst'),
     author='Antoine Lorence',
     author_email='antoine.lorence@gmail.com',
+    maintainer='Antoine Lorence',
+    maintainer_email='antoine.lorence@gmail.com',
     url='https://github.com/alorence/django-modern-rpc',
     packages=find_packages(exclude=['modernrpc.tests', 'modernrpc.tests.*']),
     # Files included in sdist (using MANIFEST.in) will also be included in bdist*
