@@ -10,7 +10,7 @@ from django.utils import six
 
 from modernrpc.compat import standardize_strings
 from modernrpc.conf import settings
-from modernrpc.exceptions import RPCUnknownMethod, AuthenticationFailed, RPCInvalidParams, RPCInternalError
+from modernrpc.exceptions import RPCUnknownMethod, AuthenticationFailed, RPCInvalidParams
 from modernrpc.utils import ensure_sequence, get_modernrpc_logger
 
 # Protocols identifiers
@@ -420,4 +420,3 @@ class RPCRequest(object):
             # If given arguments cannot be transmitted properly to python function,
             # raise an Invalid Params exceptions
             raise RPCInvalidParams(str(e))
-
