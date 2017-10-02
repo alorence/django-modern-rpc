@@ -1,6 +1,11 @@
 Changelog
 =========
 
+Release 0.8.1 (2017-10-02)
+--------------------------
+This version is a security fix. Upgrade is highly recommended
+- Security: Authentication backend is correctly checked when executing method using ``system.multicall()``
+
 Release 0.8.0 (2017-07-12)
 --------------------------
 - Fixed invalid HTML tag rendered from RPC Method documentation. Single new lines are converted to space since they
