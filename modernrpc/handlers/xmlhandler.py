@@ -8,6 +8,7 @@ from modernrpc.conf import settings
 from modernrpc.core import XMLRPC
 from modernrpc.exceptions import RPCParseError, RPCInvalidRequest
 from modernrpc.handlers.base import RPCHandler
+from modernrpc.core import RPCRequest
 
 
 class XMLRPCHandler(RPCHandler):
@@ -56,7 +57,7 @@ class XMLRPCHandler(RPCHandler):
         # we dumps it as an array of a single value.
         return self.marshaller.dumps([obj])
 
-    def parse_request(self):
+    def process_request(self):
 
         encoding = self.request.encoding or 'utf-8'
         data = self.request.body.decode(encoding)
@@ -66,7 +67,9 @@ class XMLRPCHandler(RPCHandler):
         if method_name is None:
             raise RPCInvalidRequest('Missing methodName')
 
-        return method_name, params
+        rpc_request = RPCRequest(method_name, args=params)
+
+        return rpc_request.execute(self)
 
     @staticmethod
     def xml_http_response(data, http_response_cls=HttpResponse):

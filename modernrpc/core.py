@@ -10,6 +10,7 @@ from django.utils import six
 
 from modernrpc.compat import standardize_strings
 from modernrpc.conf import settings
+from modernrpc.exceptions import RPCUnknownMethod, AuthenticationFailed, RPCInvalidParams, RPCInternalError
 from modernrpc.utils import ensure_sequence, get_modernrpc_logger
 
 # Protocols identifiers
@@ -370,3 +371,53 @@ def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL,
 def clean_old_cache_content():
     """Clean CACHE data from old versions of django-modern-rpc"""
     cache.delete('__rpc_registry__', version=1)
+
+
+class RPCRequest(object):
+
+    def __init__(self, method, args=None, kwargs=None):
+        self.method = method
+        self.args = args or []
+        self.kwargs = kwargs or {}
+
+    def execute(self, handler):
+        """Process single RPC request, return instance of RPCResponse"""
+
+        method = get_method(self.method, handler.entry_point, handler.protocol)
+
+        if not method:
+            logger.warning('Unknown RPC method: {}'.format(self.method))
+            raise RPCUnknownMethod(self.method)
+
+        logger.debug('Check authentication / permissions for method {} and user {}'
+                     .format(self.method, handler.request.user))
+
+        if not method.check_permissions(handler.request):
+            logger.info('Call to {} forbidden by authentication system.'.format(self.method))
+            raise AuthenticationFailed()
+
+        logger.debug('RPC method {} will be executed'.format(self.method))
+
+        # Build args & kwargs for procedure execution
+        args, kwargs = self.args, self.kwargs
+
+        # If the RPC method needs to access some internals:
+        if method.accept_kwargs:
+            kwargs.update({
+                REQUEST_KEY: handler.request,
+                ENTRY_POINT_KEY: handler.entry_point,
+                PROTOCOL_KEY: handler.protocol,
+                HANDLER_KEY: handler,
+            })
+
+        logger.debug('Params: args = {} - kwargs = {}'.format(args, kwargs))
+
+        try:
+            # Call the python function associated with the RPC method name
+            return method.execute(*args, **kwargs)
+
+        except TypeError as e:
+            # If given arguments cannot be transmitted properly to python function,
+            # raise an Invalid Params exceptions
+            raise RPCInvalidParams(str(e))
+

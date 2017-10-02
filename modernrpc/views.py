@@ -9,7 +9,8 @@ from django.views.generic.base import View, TemplateView
 
 from modernrpc.conf import settings
 from modernrpc.core import ALL, get_method, get_all_methods, REQUEST_KEY, ENTRY_POINT_KEY, PROTOCOL_KEY, HANDLER_KEY
-from modernrpc.exceptions import RPCInternalError, RPCException, RPCUnknownMethod, RPCInvalidParams
+from modernrpc.exceptions import RPCInternalError, RPCException, RPCUnknownMethod, RPCInvalidParams, \
+    AuthenticationFailed
 from modernrpc.utils import ensure_sequence, get_modernrpc_logger
 
 logger = get_modernrpc_logger(__name__)
@@ -86,7 +87,13 @@ class RPCEntryPoint(TemplateView):
 
                 logger.debug('Request will be handled by {}'.format(handler_cls.__name__))
 
-                return self.handle_request(handler, request)
+                result = handler.process_request()
+
+                return handler.result_success(result)
+
+            except AuthenticationFailed as e:
+                # Customize HttpResponse instance used when AuthenticationFailed was raised
+                return handler.result_error(e, HttpResponseForbidden)
 
             except RPCException as e:
                 logger.warning('RPC exception raised: {}'.format(str(e)))
@@ -100,51 +107,6 @@ class RPCEntryPoint(TemplateView):
 
         return HttpResponse('Unable to handle your request. Please ensure you called the right entry point. If not, '
                             'this could be a server error.')
-
-    def handle_request(self, handler, request):
-
-        method, params = handler.parse_request()
-        rpc_method = get_method(method, self.entry_point, handler.protocol)
-
-        if not rpc_method:
-            logger.warning('Unknown RPC method: {}'.format(method))
-            raise RPCUnknownMethod(method)
-
-        logger.debug('Check authentication / permissions for method {} and user {}'.format(method, request.user))
-
-        if not rpc_method.check_permissions(request):
-            logger.info('Call to {} disallowed by authentication system.'.format(method))
-            return handler.result_error(RPCInternalError('Invalid authentication'), HttpResponseForbidden)
-
-        logger.debug('RPC method {} will be executed'.format(method))
-
-        # Build args & kwargs for procedure execution
-        args, kwargs = [], {}
-        if isinstance(params, (list, tuple)):
-            args += params
-        elif isinstance(params, dict):
-            kwargs.update(params)
-
-        # If the RPC method needs to access some internals:
-        if rpc_method.accept_kwargs:
-            kwargs.update({
-                REQUEST_KEY: request,
-                ENTRY_POINT_KEY: self.entry_point,
-                PROTOCOL_KEY: self.protocol,
-                HANDLER_KEY: handler,
-            })
-
-        logger.debug('Params: args = {} - kwargs = {}'.format(args, kwargs))
-
-        try:
-            # Call the python function associated with the RPC method name
-            result = rpc_method.execute(*args, **kwargs)
-        except TypeError as e:
-            # If given arguments cannot be transmitted properly to python function,
-            # raise an Invalid Params exceptions
-            raise RPCInvalidParams(str(e))
-
-        return handler.result_success(result)
 
     def get_context_data(self, **kwargs):
         """Update context data with list of RPC methods of the current entry point.

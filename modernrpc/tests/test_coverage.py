@@ -58,7 +58,7 @@ def test_bad_handler_definition(rf):
     with pytest.raises(NotImplementedError):
         MyBadHandler.valid_content_types()
     with pytest.raises(NotImplementedError):
-        h.parse_request()
+        h.process_request()
     with pytest.raises(NotImplementedError):
         h.result_success(42)
     with pytest.raises(NotImplementedError):

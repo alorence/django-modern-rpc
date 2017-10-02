@@ -8,6 +8,7 @@ from modernrpc.conf import settings
 from modernrpc.core import JSONRPC
 from modernrpc.exceptions import RPCInternalError, RPCInvalidRequest, RPCParseError
 from modernrpc.handlers.base import RPCHandler
+from modernrpc.core import RPCRequest
 
 try:
     # Python 3
@@ -45,7 +46,7 @@ class JSONRPCHandler(RPCHandler):
         except Exception:
             raise RPCInternalError('Unable to serialize result as valid JSON')
 
-    def parse_request(self):
+    def process_request(self):
 
         encoding = self.request.encoding or 'utf-8'
         data = self.request.body.decode(encoding)
@@ -59,13 +60,25 @@ class JSONRPCHandler(RPCHandler):
 
         if 'jsonrpc' not in body:
             raise RPCInvalidRequest('Missing parameter "jsonrpc"')
+
         elif 'method' not in body:
             raise RPCInvalidRequest('Missing parameter "method"')
 
         if body['jsonrpc'] != '2.0':
             raise RPCInvalidRequest('The attribute "jsonrpc" must contains "2.0"')
 
-        return body['method'], body.get('params', [])
+        params = body.get('params')
+
+        if isinstance(params, (list, tuple)):
+            rpc_request = RPCRequest(body['method'], args=params)
+
+        elif isinstance(params, dict):
+            rpc_request = RPCRequest(body['method'], kwargs=params)
+
+        else:
+            rpc_request = RPCRequest(body['method'])
+
+        return rpc_request.execute(self)
 
     def is_notification_request(self):
         return self.request_id is None

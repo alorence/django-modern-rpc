@@ -35,8 +35,8 @@ class RPCHandler(object):
 
         return content_type.lower() in self.valid_content_types()
 
-    def parse_request(self):
-        raise NotImplementedError("You must override parse_request()")
+    def process_request(self):
+        raise NotImplementedError("You must override process_request()")
 
     def result_success(self, data):
         raise NotImplementedError("You must override result_success()")
