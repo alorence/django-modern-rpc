@@ -6,7 +6,7 @@ from django.utils.six.moves import xmlrpc_client
 
 from modernrpc.conf import settings
 from modernrpc.core import XMLRPC
-from modernrpc.exceptions import RPCParseError, RPCInvalidRequest
+from modernrpc.exceptions import RPCParseError, RPCInvalidRequest, RPCInternalError
 from modernrpc.handlers.base import RPCHandler
 from modernrpc.core import RPCRequest
 
@@ -35,27 +35,33 @@ class XMLRPCHandler(RPCHandler):
             except TypeError:
                 # Python 2
                 return xmlrpc_client.loads(data, use_datetime=settings.MODERNRPC_XMLRPC_USE_BUILTIN_TYPES)
+
         except xml.parsers.expat.ExpatError as e:
             raise RPCParseError(e)
+
         except Exception as e:
             raise RPCInvalidRequest(e)
 
     def dumps(self, obj):
 
-        # Marshaller has a specific handling of Fault instance. It is given without modification
-        if isinstance(obj, xmlrpc_client.Fault):
-            return self.marshaller.dumps(obj)
+        try:
+            # Marshaller has a specific handling of Fault instance. It is given without modification
+            if isinstance(obj, xmlrpc_client.Fault):
+                return self.marshaller.dumps(obj)
 
-        # xmlrpc_client.Marshaller expects a list of objects to dumps.
-        # It will output a '<params></params>' block and loops onto given objects to inject, for each one,
-        # a '<param><value><type>X</type></value></param>' block.
-        # This is not the return defined in XML-RPC standard, see http://xmlrpc.scripting.com/spec.html:
-        # "The body of the response is a single XML structure, a <methodResponse>, which can contain
-        # a single <params> which contains a single <param> which contains a single <value>."
-        #
-        # So, to make sure the return value always contain a single '<param><value><type>X</type></value></param>',
-        # we dumps it as an array of a single value.
-        return self.marshaller.dumps([obj])
+            # xmlrpc_client.Marshaller expects a list of objects to dumps.
+            # It will output a '<params></params>' block and loops onto given objects to inject, for each one,
+            # a '<param><value><type>X</type></value></param>' block.
+            # This is not the return defined in XML-RPC standard, see http://xmlrpc.scripting.com/spec.html:
+            # "The body of the response is a single XML structure, a <methodResponse>, which can contain
+            # a single <params> which contains a single <param> which contains a single <value>."
+            #
+            # So, to make sure the return value always contain a single '<param><value><type>X</type></value></param>',
+            # we dumps it as an array of a single value.
+            return self.marshaller.dumps([obj])
+
+        except Exception:
+            raise RPCInternalError('Unable to serialize result as valid XML')
 
     def process_request(self):
 
