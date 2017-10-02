@@ -39,7 +39,9 @@ class RPCHandler(object):
         raise NotImplementedError("You must override process_request()")
 
     def result_success(self, data):
+        """Return a HttpResponse instance containing the result payload for the given data"""
         raise NotImplementedError("You must override result_success()")
 
     def result_error(self, exception, http_response_cls=None):
+        """Return a HttpResponse instance containing the result payload for the given exception"""
         raise NotImplementedError("You must override result_error()")

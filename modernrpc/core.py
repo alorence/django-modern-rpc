@@ -374,6 +374,11 @@ def clean_old_cache_content():
 
 
 class RPCRequest(object):
+    """
+    Encapsulate a RPC request.
+
+    Instances of this class are used to call a RPC method the same way from anywhere.
+    """
 
     def __init__(self, method, args=None, kwargs=None):
         self.method = method
@@ -381,7 +386,11 @@ class RPCRequest(object):
         self.kwargs = kwargs or {}
 
     def execute(self, handler):
-        """Process single RPC request, return instance of RPCResponse"""
+        """
+        Process single RPC request, call the corresponding RPC Method and return the result.
+
+        Raise RPCUnknownMethod, AuthenticationFailed, RPCInvalidParams or any Exception sub-class.
+        """
 
         method = get_method(self.method, handler.entry_point, handler.protocol)
 
