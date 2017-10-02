@@ -1,6 +1,6 @@
 # coding: utf-8
-from modernrpc.core import ENTRY_POINT_KEY, PROTOCOL_KEY, get_method, rpc_method, get_all_method_names
-from modernrpc.exceptions import RPCInvalidParams, RPCUnknownMethod, RPCException, RPC_INTERNAL_ERROR
+from modernrpc.core import ENTRY_POINT_KEY, PROTOCOL_KEY, get_method, rpc_method, get_all_method_names, REQUEST_KEY
+from modernrpc.exceptions import RPCInvalidParams, RPCUnknownMethod, RPCException, RPC_INTERNAL_ERROR, RPCInternalError
 from modernrpc.handlers import XMLRPC
 
 
@@ -68,6 +68,7 @@ def __system_multiCall(calls, **kwargs):
 
     entry_point = kwargs.get(ENTRY_POINT_KEY)
     protocol = kwargs.get(PROTOCOL_KEY)
+    request = kwargs.get(REQUEST_KEY)
 
     results = []
     for call in calls:
@@ -77,6 +78,9 @@ def __system_multiCall(calls, **kwargs):
         try:
             if not method:
                 raise RPCUnknownMethod(method_name)
+
+            if not method.check_permissions(request):
+                raise RPCInternalError('Invalid authentication')
 
             result = method.execute(*params, **kwargs)
             # From https://mirrors.talideon.com/articles/multicall.html:
