@@ -5,10 +5,9 @@ from django.http.response import HttpResponse
 from django.utils.six.moves import xmlrpc_client
 
 from modernrpc.conf import settings
+from modernrpc.core import XMLRPC
 from modernrpc.exceptions import RPCParseError, RPCInvalidRequest
 from modernrpc.handlers.base import RPCHandler
-
-XMLRPC = '__xml_rpc'
 
 
 class XMLRPCHandler(RPCHandler):

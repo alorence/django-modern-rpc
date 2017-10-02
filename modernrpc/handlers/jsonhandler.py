@@ -5,6 +5,7 @@ from django.http.response import HttpResponse
 from django.utils.module_loading import import_string
 
 from modernrpc.conf import settings
+from modernrpc.core import JSONRPC
 from modernrpc.exceptions import RPCInternalError, RPCInvalidRequest, RPCParseError
 from modernrpc.handlers.base import RPCHandler
 
@@ -14,8 +15,6 @@ try:
 except ImportError:
     # Python 2: json.loads will raise a ValueError when loading json
     JSONDecodeError = ValueError
-
-JSONRPC = '__json_rpc'
 
 
 class JSONRPCHandler(RPCHandler):

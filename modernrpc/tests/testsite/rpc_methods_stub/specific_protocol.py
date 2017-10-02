@@ -1,5 +1,4 @@
-from modernrpc.core import rpc_method
-from modernrpc.handlers import JSONRPC, XMLRPC
+from modernrpc.core import rpc_method, JSONRPC, XMLRPC
 
 
 @rpc_method(protocol=JSONRPC)
