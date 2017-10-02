@@ -4,6 +4,7 @@ Changelog
 Current development
 -------------------
 This version fixed implementation of JSON-RPC standard:
+
 - Named parameters are now correctly supported in JSON-RPC calls.
 - Class RPCException and all its subclass accept an additional ``data`` argument (#10). This is used by JSON-RPC
   handler to report additional information to user in case of error. This data is ignored in case of XML-RPC call.
