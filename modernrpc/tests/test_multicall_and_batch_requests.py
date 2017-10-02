@@ -173,3 +173,22 @@ def test_jsonrpc_batch_with_named_params(live_server):
     assert result[2] == {'jsonrpc': '2.0', 'id': 3, 'result': '__json_rpc'}
     assert result[3] == {'jsonrpc': '2.0', 'id': 4, 'result': [6, '__json_rpc']}
     assert result[4] == {'jsonrpc': '2.0', 'id': 5, 'result': [25, '__json_rpc']}
+
+
+def test_jsonrpc_batch_with_notifications(live_server):
+
+    c = HTTPClient(live_server.url + '/all-rpc/')
+
+    batch_request = json.dumps([
+        {'jsonrpc': '2.0', 'id': 1, 'method': 'add', 'params': {'a': 5, 'b': 10}},
+        {'jsonrpc': '2.0', 'method': 'method_with_kwargs'},
+        {'jsonrpc': '2.0', 'id': 2, 'method': 'divide', 'params': {'numerator': 30, 'denominator': 5}}
+    ])
+
+    result = c.send(batch_request)
+
+    assert isinstance(result, list)
+    assert len(result) == 2
+    assert result[0] == {'jsonrpc': '2.0', 'id': 1, 'result': 15}
+    assert result[1] == {'jsonrpc': '2.0', 'id': 2, 'result': 6}
+
