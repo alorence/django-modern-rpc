@@ -192,3 +192,37 @@ def test_jsonrpc_batch_with_notifications(live_server):
     assert result[0] == {'jsonrpc': '2.0', 'id': 1, 'result': 15}
     assert result[1] == {'jsonrpc': '2.0', 'id': 2, 'result': 6}
 
+
+def test_jsonrpc_batch_with_auth(live_server):
+
+    c = HTTPClient(live_server.url + '/all-rpc/')
+
+    batch_request = json.dumps([
+        {'jsonrpc': '2.0', 'id': 1, 'method': 'add', 'params': {'a': 7, 'b': 3}},
+        {'jsonrpc': '2.0', 'id': 2, 'method': 'logged_superuser_required', 'params': [5, ]}
+    ])
+
+    result = c.send(batch_request)
+
+    assert isinstance(result, list)
+    assert result[0] == {'jsonrpc': '2.0', 'id': 1, 'result': 10}
+    assert result[1] == {'jsonrpc': '2.0', 'id': 2, 'error': {
+        'code': RPC_INTERNAL_ERROR, 'message': 'Internal error: Authentication failed'
+    }}
+
+
+def test_jsonrpc_batch_with_auth_2(live_server, superuser, common_pwd):
+
+    c = HTTPClient(live_server.url + '/all-rpc/')
+    c.session.auth = (superuser.username, common_pwd)
+
+    batch_request = json.dumps([
+        {'jsonrpc': '2.0', 'id': 1, 'method': 'add', 'params': {'a': 7, 'b': 3}},
+        {'jsonrpc': '2.0', 'id': 2, 'method': 'logged_superuser_required', 'params': [5, ]}
+    ])
+
+    result = c.send(batch_request)
+
+    assert isinstance(result, list)
+    assert result[0] == {'jsonrpc': '2.0', 'id': 1, 'result': 10}
+    assert result[1] == {'jsonrpc': '2.0', 'id': 2, 'result': 5}
