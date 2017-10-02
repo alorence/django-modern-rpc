@@ -1,6 +1,7 @@
 # coding: utf-8
-from modernrpc.core import ENTRY_POINT_KEY, PROTOCOL_KEY, get_method, rpc_method, get_all_method_names
-from modernrpc.exceptions import RPCInvalidParams, RPCUnknownMethod, RPCException, RPC_INTERNAL_ERROR
+from modernrpc.core import ENTRY_POINT_KEY, PROTOCOL_KEY, get_method, rpc_method, get_all_method_names, RPCRequest, \
+    HANDLER_KEY
+from modernrpc.exceptions import RPCInvalidParams, RPCException, RPC_INTERNAL_ERROR
 
 
 @rpc_method(name='system.listMethods')
@@ -65,30 +66,15 @@ def __system_multiCall(calls, **kwargs):
     if not isinstance(calls, list):
         raise RPCInvalidParams('system.multicall first argument should be a list, {} given.'.format(type(calls)))
 
-    entry_point = kwargs.get(ENTRY_POINT_KEY)
-    protocol = kwargs.get(PROTOCOL_KEY)
+    handler = kwargs.get(HANDLER_KEY)
 
     results = []
+
     for call in calls:
-        method_name, params = call['methodName'], call.get('params', [])
-        method = get_method(method_name, entry_point, protocol)
+        rpc_request = RPCRequest(call['methodName'], args=call.get('params'))
 
         try:
-
-            if not method:
-                raise RPCUnknownMethod(method_name)
-
-            # Build args & kwargs for procedure execution
-            call_args, call_kwargs = [], {}
-            if isinstance(params, (list, tuple)):
-                call_args += params
-            elif isinstance(params, dict):
-                call_kwargs.update(params)
-
-            if method.accept_kwargs:
-                call_kwargs.update(kwargs)
-
-            result = method.execute(*call_args, **call_kwargs)
+            result = rpc_request.execute(handler)
 
             # From https://mirrors.talideon.com/articles/multicall.html:
             # "Notice that regular return values are always nested inside a one-element array. This allows you to
