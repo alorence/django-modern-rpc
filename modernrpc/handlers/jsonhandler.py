@@ -133,13 +133,19 @@ class JSONRPCHandler(RPCHandler):
     def result_success(self, data):
 
         if isinstance(data, JSONRPCBatchResult):
-            result = data.results
+
+            # Result data for Batch requests is ready to dump, no need to insert it in a
+            # response payload
+            # As stated in standard:
+            # "If there are no Response objects contained within the Response array as it is to be sent to the client,
+            # the server MUST NOT return an empty Array and should return nothing at all."
+            result = data.results or None
 
         else:
             result = self.get_success_payload(data)
 
-            if not result:
-                return HttpResponse(status=204)
+        if not result:
+            return HttpResponse(status=204)
 
         return self.json_http_response(self.dumps(result))
 

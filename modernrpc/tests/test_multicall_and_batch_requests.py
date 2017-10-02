@@ -193,6 +193,21 @@ def test_jsonrpc_batch_with_notifications(live_server):
     assert result[1] == {'jsonrpc': '2.0', 'id': 2, 'result': 6}
 
 
+def test_jsonrpc_batch_notifications_only(live_server):
+
+    c = HTTPClient(live_server.url + '/all-rpc/')
+
+    batch_request = json.dumps([
+        {'jsonrpc': '2.0', 'method': 'add', 'params': {'a': 5, 'b': 10}},
+        {'jsonrpc': '2.0', 'method': 'method_with_kwargs'},
+        {'jsonrpc': '2.0', 'method': 'divide', 'params': {'numerator': 30, 'denominator': 5}}
+    ])
+
+    result = c.send(batch_request)
+
+    assert result is None
+
+
 def test_jsonrpc_batch_with_auth(live_server):
 
     c = HTTPClient(live_server.url + '/all-rpc/')
