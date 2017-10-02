@@ -118,3 +118,9 @@ class RPCInternalError(RPCException):
     def __init__(self, message, data=None):
         err_msg = 'Internal error: {}'.format(message)
         super(RPCInternalError, self).__init__(RPC_INTERNAL_ERROR, err_msg, data)
+
+
+class AuthenticationFailed(RPCInternalError):
+
+    def __init__(self):
+        super(AuthenticationFailed, self).__init__('Authentication failed')
