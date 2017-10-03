@@ -128,9 +128,6 @@ class JSONRPCHandler(RPCHandler):
 
     def json_success_response(self, data, override_id=None):
 
-        if not (override_id or self.request_id):
-            return None
-
         return {
             'id': override_id or self.request_id,
             'jsonrpc': '2.0',
