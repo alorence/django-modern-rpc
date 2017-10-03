@@ -1,17 +1,31 @@
 Changelog
 =========
 
-Current development
--------------------
-This version fixed implementation of JSON-RPC standard:
+Release 0.9.0 (2017-10-03)
+--------------------------
+This is a major release, with many improvements, protocol support and bug fixes. This version introduce an API break,
+please read carefully.
 
-- Named parameters are now correctly supported in JSON-RPC calls.
-- Class RPCException and all its subclass accept an additional ``data`` argument (#10). This is used by JSON-RPC
-  handler to report additional information to user in case of error. This data is ignored in case of XML-RPC call.
-- Added support for JSON-RPC notifications. Requests received without `id` are no longer considered as invalid, but
-  are correectly handled. No HTTP response is returned in such case, according to the standard.
-- Support for system.multicall with JSON-RPC
-In addition, this version contains a few minor updates to prepare for future compatibility with Django 2.0
+Improvements:
+
+- Class ``RPCException`` and its subclasses now accept an additional ``data`` argument (#10). This is used by JSON-RPC
+  handler to report additional information to user in case of error. This data is ignored in XML-RPC response.
+- JSON-RPC: Batch requests are now supported (#11)
+- JSON-RPC: Named parameters are now supported (#12)
+- JSON-RPC: Notification calls are now supported. Missing `id` in payload is no longer considered as invalid, but
+  is correectly handled. No HTTP response is returned in such case, according to the standard.
+- XML-RPC: exception raised when serializing data to XML are now catched as ``InternalError`` and a clear error message
+
+API Changes:
+
+- ``modernrpc.handlers.JSONRPC`` and ``modernrpc.handlers.XMLRPC`` have been moved and renamed. They become respectively
+  ``modernrpc.core.JSONRPC_PROTOCOL`` and ``modernrpc.core.XMLRPC_PROTOCOL``
+- ``RPCHandler`` class updated, as well as subclases ``XMLRPCHandler`` and ``JSONRPCHandler``.
+  ``RPCHandler.parse_request()`` is now ``RPCHandler.process_request()``. The new method does not return a tuple
+  ``(method_name, params)`` anymore. Instead, it executes the underlying RPC method using new class ``RPCRequest``.
+  If you customized your handlers, please make sure you updated your code (if needed).
+
+In addition, this version contains minor updates to prepare future compatibility with Django 2.0
 
 Release 0.8.1 (2017-10-02)
 --------------------------
