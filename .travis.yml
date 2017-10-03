@@ -50,5 +50,5 @@ deploy:
   repo: alorence/django-modern-rpc
   on:
     tags: true
-    python: 3.5
-    condition: $DJANGO_VERSION = "1.10.*"
+    python: 3.6
+    condition: $DJANGO_VERSION = "1.11.*"
