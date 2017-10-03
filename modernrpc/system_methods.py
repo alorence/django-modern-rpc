@@ -1,6 +1,6 @@
 # coding: utf-8
 from modernrpc.core import ENTRY_POINT_KEY, PROTOCOL_KEY, get_method, rpc_method, get_all_method_names, RPCRequest, \
-    HANDLER_KEY
+    HANDLER_KEY, XMLRPC_PROTOCOL
 from modernrpc.exceptions import RPCInvalidParams, RPCException, RPC_INTERNAL_ERROR
 
 
@@ -52,7 +52,7 @@ def __system_methodHelp(method_name, **kwargs):
     return method.html_doc
 
 
-@rpc_method(name='system.multicall')
+@rpc_method(name='system.multicall', protocol=XMLRPC_PROTOCOL)
 def __system_multiCall(calls, **kwargs):
     """
     Call multiple RPC methods at once.

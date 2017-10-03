@@ -4,6 +4,7 @@ import json
 import pytest
 import requests
 from django.utils.six.moves import xmlrpc_client
+from jsonrpcclient.exceptions import ReceivedErrorResponse
 from jsonrpcclient.http_client import HTTPClient
 
 from modernrpc.exceptions import RPC_METHOD_NOT_FOUND, RPC_INTERNAL_ERROR, RPC_INVALID_REQUEST
@@ -92,6 +93,16 @@ def test_multicall_with_auth_2(live_server, superuser, common_pwd):
     assert isinstance(result, xmlrpc_client.MultiCallIterator)
     assert result[0] == 10
     assert result[1] == 5
+
+def test_jsonrpc_multicall_error(live_server):
+
+    c = HTTPClient(live_server.url + '/all-rpc/')
+
+    with pytest.raises(ReceivedErrorResponse) as excinfo:
+        c.request('system.multicall')
+
+    assert 'Method not found' in excinfo.value.message
+    assert excinfo.value.code == RPC_METHOD_NOT_FOUND
 
 
 def test_jsonrpc_batch_standard(live_server):
