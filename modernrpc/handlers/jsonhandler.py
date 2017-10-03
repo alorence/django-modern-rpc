@@ -97,9 +97,6 @@ class JSONRPCHandler(RPCHandler):
 
     def process_single_request(self, body):
 
-        if not isinstance(body, dict):
-            raise RPCInvalidRequest()
-
         if 'jsonrpc' not in body:
             raise RPCInvalidRequest('Missing parameter "jsonrpc"')
 

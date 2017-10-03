@@ -104,13 +104,26 @@ def test_jsrpc_invalid_request(live_server):
 
     assert 'error' in response
     assert 'result' not in response
-    # On ParseError, JSOn has not been properly deserialized, so the request ID can't be given to error response"
+    # On ParseError, JSON has not been properly deserialized, so the request ID can't be given to error response"
     assert response['id'] is None
     error = response['error']
 
     assert 'Parse error' in error['message']
     assert 'unable to read the request' in error['message']
     assert error['code'] == RPC_PARSE_ERROR
+
+
+def test_jsrpc_invalid_request_2(live_server):
+    headers = {'content-type': 'application/json'}
+    response = requests.post(live_server.url + '/all-rpc/', data='10', headers=headers).json()
+
+    assert 'error' in response
+    assert 'result' not in response
+    assert response['id'] is None
+    error = response['error']
+
+    assert 'Invalid request' in error['message']
+    assert error['code'] == RPC_INVALID_REQUEST
 
 
 def test_jsrpc_invalid_params(live_server):
