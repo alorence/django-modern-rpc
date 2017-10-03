@@ -13,6 +13,9 @@ from modernrpc.conf import settings
 from modernrpc.exceptions import RPCUnknownMethod, AuthenticationFailed, RPCInvalidParams
 from modernrpc.utils import ensure_sequence, get_modernrpc_logger
 
+# Special constant meaning "all protocols" or "all entry points"
+ALL = "__all__"
+
 # Protocols identifiers
 JSONRPC_PROTOCOL = '__json_rpc'
 XMLRPC_PROTOCOL = '__xml_rpc'
@@ -22,9 +25,6 @@ REQUEST_KEY = 'request'
 ENTRY_POINT_KEY = 'entry_point'
 PROTOCOL_KEY = 'protocol'
 HANDLER_KEY = 'handler'
-
-# Special constant meaning "all protocols" or "all entry points"
-ALL = "__all__"
 
 logger = get_modernrpc_logger(__name__)
 registry = {}
@@ -377,41 +377,41 @@ class RPCRequest(object):
     """
     Encapsulate a RPC request.
 
-    Instances of this class are used to call a RPC method the same way from anywhere.
+    Instances of this class are used to call a RPC methods the same way from anywhere.
     """
 
-    def __init__(self, method, args=None, kwargs=None):
-        self.method = method
+    def __init__(self, method_name, args=None, kwargs=None):
+        self.method_name = method_name
         self.args = args or []
         self.kwargs = kwargs or {}
 
     def execute(self, handler):
         """
-        Process single RPC request, call the corresponding RPC Method and return the result.
+        Process RPC request, call the corresponding RPC Method and return the result.
 
         Raise RPCUnknownMethod, AuthenticationFailed, RPCInvalidParams or any Exception sub-class.
         """
 
-        method = get_method(self.method, handler.entry_point, handler.protocol)
+        rpc_method = get_method(self.method_name, handler.entry_point, handler.protocol)
 
-        if not method:
-            logger.warning('Unknown RPC method: {}'.format(self.method))
-            raise RPCUnknownMethod(self.method)
+        if not rpc_method:
+            logger.warning('Unknown RPC method: {}'.format(self.method_name))
+            raise RPCUnknownMethod(self.method_name)
 
         logger.debug('Check authentication / permissions for method {} and user {}'
-                     .format(self.method, handler.request.user))
+                     .format(self.method_name, handler.request.user))
 
-        if not method.check_permissions(handler.request):
-            logger.info('Call to {} forbidden by authentication system.'.format(self.method))
+        if not rpc_method.check_permissions(handler.request):
+            logger.info('Call to {} forbidden by authentication system.'.format(self.method_name))
             raise AuthenticationFailed()
 
-        logger.debug('RPC method {} will be executed'.format(self.method))
+        logger.debug('RPC method {} will be executed'.format(self.method_name))
 
         # Build args & kwargs for procedure execution
         args, kwargs = self.args, self.kwargs
 
-        # If the RPC method needs to access some internals:
-        if method.accept_kwargs:
+        # If the RPC method needs to access some internals, update kwargs dict
+        if rpc_method.accept_kwargs:
             kwargs.update({
                 REQUEST_KEY: handler.request,
                 ENTRY_POINT_KEY: handler.entry_point,
@@ -423,7 +423,7 @@ class RPCRequest(object):
 
         try:
             # Call the python function associated with the RPC method name
-            return method.execute(*args, **kwargs)
+            return rpc_method.execute(*args, **kwargs)
 
         except TypeError as e:
             # If given arguments cannot be transmitted properly to python function,

@@ -12,7 +12,7 @@ from modernrpc.exceptions import RPC_INVALID_REQUEST, RPC_METHOD_NOT_FOUND, RPC_
     RPC_CUSTOM_ERROR_BASE, RPC_CUSTOM_ERROR_MAX, RPC_INTERNAL_ERROR
 
 
-def test_jsrpc_call_unknown_method(live_server):
+def test_jsonrpc_call_unknown_method(live_server):
 
     client = HTTPClient(live_server.url + '/all-rpc/')
 
@@ -24,6 +24,8 @@ def test_jsrpc_call_unknown_method(live_server):
 
 
 def test_jsonrpc_invalid_request_1(live_server):
+
+    # Missing 'method' in payload
 
     headers = {'content-type': 'application/json'}
     payload = {
@@ -41,6 +43,8 @@ def test_jsonrpc_invalid_request_1(live_server):
 
 def test_jsonrpc_invalid_request_2(live_server):
 
+    # Missing 'jsonrpc' in payload
+
     headers = {'content-type': 'application/json'}
     payload = {
         "method": 'add',
@@ -57,6 +61,8 @@ def test_jsonrpc_invalid_request_2(live_server):
 
 def test_jsonrpc_invalid_request_3(live_server):
 
+    # Bad value for payload member 'jsonrpc'
+
     headers = {'content-type': 'application/json'}
     payload = {
         "method": 'add',
@@ -71,27 +77,10 @@ def test_jsonrpc_invalid_request_3(live_server):
     assert RPC_INVALID_REQUEST == response['error']['code']
 
 
-def test_jsrpc_no_content_type(live_server):
-    payload = {
-        "method": "add",
-        "params": [5, 6],
-        "jsonrpc": "2.0",
-        "id": 51,
-    }
-    req_data = json.dumps(payload)
-    headers = {'content-type': ''}
-    response = requests.post(live_server.url + '/all-rpc/', data=req_data, headers=headers).json()
+def test_jsonrpc_invalid_request_4(live_server):
 
-    assert 'error' in response
-    assert 'result' not in response
-    assert response['id'] is None
-    error = response['error']
-    assert 'Missing header' in error['message']
-    assert error['code'] == RPC_INVALID_REQUEST
+    # Closing '}' is missing from this payload => invalid json data
 
-
-def test_jsrpc_invalid_request(live_server):
-    # Closing '}' is missing from this payload
     invalid_json_payload = '''
         {
             "method": "add",
@@ -113,7 +102,10 @@ def test_jsrpc_invalid_request(live_server):
     assert error['code'] == RPC_PARSE_ERROR
 
 
-def test_jsrpc_invalid_request_2(live_server):
+def test_jsonrpc_invalid_request_5(live_server):
+
+    # Json payload is not a struct or a list
+
     headers = {'content-type': 'application/json'}
     response = requests.post(live_server.url + '/all-rpc/', data='10', headers=headers).json()
 
@@ -126,7 +118,26 @@ def test_jsrpc_invalid_request_2(live_server):
     assert error['code'] == RPC_INVALID_REQUEST
 
 
-def test_jsrpc_invalid_params(live_server):
+def test_jsonrpc_no_content_type(live_server):
+    payload = {
+        "method": "add",
+        "params": [5, 6],
+        "jsonrpc": "2.0",
+        "id": 51,
+    }
+    req_data = json.dumps(payload)
+    headers = {'content-type': ''}
+    response = requests.post(live_server.url + '/all-rpc/', data=req_data, headers=headers).json()
+
+    assert 'error' in response
+    assert 'result' not in response
+    assert response['id'] is None
+    error = response['error']
+    assert 'Missing header' in error['message']
+    assert error['code'] == RPC_INVALID_REQUEST
+
+
+def test_jsonrpc_invalid_params(live_server):
 
     client = HTTPClient(live_server.url + '/all-rpc/')
 
@@ -140,7 +151,7 @@ def test_jsrpc_invalid_params(live_server):
     assert excinfo.value.code == RPC_INVALID_PARAMS
 
 
-def test_jsrpc_invalid_params2(live_server):
+def test_jsonrpc_invalid_params2(live_server):
 
     client = HTTPClient(live_server.url + '/all-rpc/')
 
@@ -154,7 +165,7 @@ def test_jsrpc_invalid_params2(live_server):
     assert excinfo.value.code == RPC_INVALID_PARAMS
 
 
-def test_jsrpc_internal_error(live_server):
+def test_jsonrpc_internal_error(live_server):
 
     client = HTTPClient(live_server.url + '/all-rpc/')
 
@@ -165,7 +176,7 @@ def test_jsrpc_internal_error(live_server):
     assert RPC_CUSTOM_ERROR_BASE <= excinfo.value.code <= RPC_CUSTOM_ERROR_MAX
 
 
-def test_jsrpc_exception_with_data(live_server):
+def test_jsonrpc_exception_with_data(live_server):
 
     client = HTTPClient(live_server.url + '/all-rpc/')
 
@@ -175,7 +186,7 @@ def test_jsrpc_exception_with_data(live_server):
     assert ['a', 'b', 'c'] == excinfo.value.data
 
 
-def test_jsrpc_divide_by_zero(live_server):
+def test_jsonrpc_divide_by_zero(live_server):
 
     client = HTTPClient(live_server.url + '/all-rpc/')
 
@@ -189,7 +200,7 @@ def test_jsrpc_divide_by_zero(live_server):
     assert excinfo.value.code == RPC_INTERNAL_ERROR
 
 
-def test_jsrpc_invalid_result(live_server):
+def test_jsonrpc_invalid_result(live_server):
 
     client = HTTPClient(live_server.url + '/all-rpc/')
 

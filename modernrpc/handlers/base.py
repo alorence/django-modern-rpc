@@ -10,10 +10,12 @@ class RPCHandler(object):
         self.request = request
         self.entry_point = entry_point
 
-    def loads(self, data):
+    def loads(self, str_data):
+        """Convert serialized string data to valid Python data, depending on current handler protocol"""
         raise NotImplementedError("You must override loads()")
 
     def dumps(self, obj):
+        """Convert Python data to serialized form, according to current handler protocol."""
         raise NotImplementedError("You must override dumps()")
 
     @staticmethod
@@ -36,6 +38,11 @@ class RPCHandler(object):
         return content_type.lower() in self.valid_content_types()
 
     def process_request(self):
+        """
+        Parse self.request to extract payload. Parse it to retrieve RPC call information, and
+        execute the corresponding RPC Method. At any time, raise an exception when detecting error.
+        :return: The result of RPC Method execution
+        """
         raise NotImplementedError("You must override process_request()")
 
     def result_success(self, data):

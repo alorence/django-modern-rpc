@@ -27,14 +27,14 @@ class XMLRPCHandler(RPCHandler):
             'text/xml',
         ]
 
-    def loads(self, data):
+    def loads(self, str_data):
         try:
             try:
                 # Python 3
-                return xmlrpc_client.loads(data, use_builtin_types=settings.MODERNRPC_XMLRPC_USE_BUILTIN_TYPES)
+                return xmlrpc_client.loads(str_data, use_builtin_types=settings.MODERNRPC_XMLRPC_USE_BUILTIN_TYPES)
             except TypeError:
                 # Python 2
-                return xmlrpc_client.loads(data, use_datetime=settings.MODERNRPC_XMLRPC_USE_BUILTIN_TYPES)
+                return xmlrpc_client.loads(str_data, use_datetime=settings.MODERNRPC_XMLRPC_USE_BUILTIN_TYPES)
 
         except xml.parsers.expat.ExpatError as e:
             raise RPCParseError(e)

@@ -37,10 +37,11 @@ class JSONRPCHandler(RPCHandler):
             'application/json',
         ]
 
-    def loads(self, data):
+    def loads(self, str_data):
         try:
             decoder = import_string(settings.MODERNRPC_JSON_DECODER)
-            return json.loads(data, cls=decoder)
+            return json.loads(str_data, cls=decoder)
+
         except JSONDecodeError as e:
             raise RPCParseError(str(e))
 
@@ -54,68 +55,68 @@ class JSONRPCHandler(RPCHandler):
     def process_request(self):
 
         encoding = self.request.encoding or 'utf-8'
-        data = self.request.body.decode(encoding)
-        body = self.loads(data)
+        payload = self.loads(self.request.body.decode(encoding))
 
-        if isinstance(body, dict):
+        if isinstance(payload, dict):
 
             # Store current request id, or None if request is a notification
-            self.request_id = body.get('id')
-            return self.process_single_request(body)
+            self.request_id = payload.get('id')
+            return self.process_single_request(payload)
 
-        elif isinstance(body, (list, tuple)):
+        elif isinstance(payload, (list, tuple)):
 
             batch_result = JSONRPCBatchResult()
 
-            for single_body in body:
+            for single_payload in payload:
                 try:
                     try:
-                        request_id = single_body.get('id')
+                        request_id = single_payload.get('id')
+
                     except AttributeError:
                         request_id = None
                         raise RPCInvalidRequest()
 
-                    result = self.process_single_request(single_body)
+                    result = self.process_single_request(single_payload)
 
                     if request_id:
                         # As stated in documentation:
                         # "A Response object SHOULD exist for each Request object, except that there SHOULD NOT be any
                         # Response objects for notifications."
-                        batch_result.results.append(self.get_success_payload(result, override_id=request_id))
+                        batch_result.results.append(self.json_success_response(result, override_id=request_id))
 
                 except RPCException as e:
-                    batch_result.results.append(self.get_error_payload(e, override_id=request_id))
+                    batch_result.results.append(self.json_error_response(e, override_id=request_id))
 
                 except Exception as e:
                     rpc_exception = RPCInternalError(str(e))
-                    batch_result.results.append(self.get_error_payload(rpc_exception, override_id=request_id))
+                    batch_result.results.append(self.json_error_response(rpc_exception, override_id=request_id))
 
             return batch_result
 
         else:
             raise RPCInvalidRequest()
 
-    def process_single_request(self, body):
+    def process_single_request(self, payload):
 
-        if 'jsonrpc' not in body:
+        if 'jsonrpc' not in payload:
             raise RPCInvalidRequest('Missing parameter "jsonrpc"')
 
-        elif 'method' not in body:
+        elif 'method' not in payload:
             raise RPCInvalidRequest('Missing parameter "method"')
 
-        if body['jsonrpc'] != '2.0':
+        if payload['jsonrpc'] != '2.0':
             raise RPCInvalidRequest('The attribute "jsonrpc" must contains "2.0"')
 
-        params = body.get('params')
+        params = payload.get('params')
 
         if isinstance(params, (list, tuple)):
-            rpc_request = RPCRequest(body['method'], args=params)
+            rpc_request = RPCRequest(payload['method'], args=params)
 
         elif isinstance(params, dict):
-            rpc_request = RPCRequest(body['method'], kwargs=params)
+            rpc_request = RPCRequest(payload['method'], kwargs=params)
 
         else:
-            rpc_request = RPCRequest(body['method'])
+            rpc_request = RPCRequest(payload['method'])
 
         return rpc_request.execute(self)
 
@@ -125,7 +126,7 @@ class JSONRPCHandler(RPCHandler):
         response['Content-Type'] = 'application/json'
         return response
 
-    def get_success_payload(self, data, override_id=None):
+    def json_success_response(self, data, override_id=None):
 
         if not (override_id or self.request_id):
             return None
@@ -138,6 +139,8 @@ class JSONRPCHandler(RPCHandler):
 
     def result_success(self, data):
 
+        result = None
+
         if isinstance(data, JSONRPCBatchResult):
 
             # Result data for Batch requests is ready to dump, no need to insert it in a
@@ -147,15 +150,18 @@ class JSONRPCHandler(RPCHandler):
             # the server MUST NOT return an empty Array and should return nothing at all."
             result = data.results or None
 
-        else:
-            result = self.get_success_payload(data)
+        elif self.request_id is not None:
+            result = self.json_success_response(data)
 
-        if not result:
+        if result is None:
+            # Nothing should be returned when JSON-RPC request is a notification or a batch
+            # of notification only requests
             return HttpResponse(status=204)
 
         return self.json_http_response(self.dumps(result))
 
-    def get_error_payload(self, exception, override_id=None):
+    def json_error_response(self, exception, override_id=None):
+
         result = {
             'id': override_id or self.request_id,
             'jsonrpc': '2.0',
@@ -171,5 +177,5 @@ class JSONRPCHandler(RPCHandler):
         return result
 
     def result_error(self, exception, http_response_cls=HttpResponse):
-        result = self.get_error_payload(exception)
+        result = self.json_error_response(exception)
         return self.json_http_response(self.dumps(result), http_response_cls=http_response_cls)
