@@ -18,7 +18,7 @@ django-modern-rpc
     :target: https://badge.fury.io/py/django-modern-rpc
 
 .. image:: https://img.shields.io/badge/demo-online-brightgreen.svg
-    :target: http://modernrpc.herokuapp.com/
+    :target: https://modernrpc.herokuapp.com/
 
 -----------
 Description
