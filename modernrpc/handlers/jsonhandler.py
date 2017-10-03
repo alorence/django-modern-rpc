@@ -5,7 +5,7 @@ from django.http.response import HttpResponse
 from django.utils.module_loading import import_string
 
 from modernrpc.conf import settings
-from modernrpc.core import JSONRPC
+from modernrpc.core import JSONRPC_PROTOCOL
 from modernrpc.exceptions import RPCInternalError, RPCInvalidRequest, RPCParseError, RPCException
 from modernrpc.handlers.base import RPCHandler
 from modernrpc.core import RPCRequest
@@ -25,7 +25,7 @@ class JSONRPCBatchResult(object):
 
 class JSONRPCHandler(RPCHandler):
 
-    protocol = JSONRPC
+    protocol = JSONRPC_PROTOCOL
 
     def __init__(self, request, entry_point):
         super(JSONRPCHandler, self).__init__(request, entry_point)

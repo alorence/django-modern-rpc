@@ -14,8 +14,8 @@ from modernrpc.exceptions import RPCUnknownMethod, AuthenticationFailed, RPCInva
 from modernrpc.utils import ensure_sequence, get_modernrpc_logger
 
 # Protocols identifiers
-JSONRPC = '__json_rpc'
-XMLRPC = '__xml_rpc'
+JSONRPC_PROTOCOL = '__json_rpc'
+XMLRPC_PROTOCOL = '__xml_rpc'
 
 # Keys used in kwargs dict given to RPC methods
 REQUEST_KEY = 'request'
@@ -221,12 +221,12 @@ class RPCMethod(object):
     def is_available_in_json_rpc(self):
         """Shortcut checking if the current method can be executed on JSONRPC protocol.
         Used in HTML documentation to easily display protocols supported by a RPC method"""
-        return self.available_for_protocol(JSONRPC)
+        return self.available_for_protocol(JSONRPC_PROTOCOL)
 
     def is_available_in_xml_rpc(self):
         """Shortcut checking if the current method can be executed on XMLRPC protocol.
         Used in HTML documentation to easily display protocols supported by a RPC method"""
-        return self.available_for_protocol(XMLRPC)
+        return self.available_for_protocol(XMLRPC_PROTOCOL)
 
     # Helpers to simplify templates generation
     def is_doc_available(self):

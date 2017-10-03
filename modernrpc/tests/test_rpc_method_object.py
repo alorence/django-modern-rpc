@@ -1,6 +1,6 @@
 # coding: utf-8
 from modernrpc.conf import settings
-from modernrpc.core import RPCMethod, get_all_methods, get_method, ALL, rpc_method, JSONRPC, XMLRPC
+from modernrpc.core import RPCMethod, get_all_methods, get_method, ALL, rpc_method, JSONRPC_PROTOCOL, XMLRPC_PROTOCOL
 from testsite.rpc_methods_stub.not_decorated import full_documented_method
 
 
@@ -22,7 +22,7 @@ def test_method_always_available():
 
 def test_method_xmlrpc_only():
 
-    rpc_method(dummy_function, 'dummy_name', protocol=XMLRPC)
+    rpc_method(dummy_function, 'dummy_name', protocol=XMLRPC_PROTOCOL)
     m = RPCMethod(dummy_function)
 
     assert m.is_available_in_xml_rpc()
@@ -31,7 +31,7 @@ def test_method_xmlrpc_only():
 
 def test_method_jsonrpc_only():
 
-    rpc_method(dummy_function, 'dummy_name', protocol=JSONRPC)
+    rpc_method(dummy_function, 'dummy_name', protocol=JSONRPC_PROTOCOL)
     m = RPCMethod(dummy_function)
 
     assert not m.is_available_in_xml_rpc()
@@ -40,7 +40,7 @@ def test_method_jsonrpc_only():
 
 def test_method_repr():
 
-    rpc_method(dummy_function, 'dummy_name', protocol=JSONRPC)
+    rpc_method(dummy_function, 'dummy_name', protocol=JSONRPC_PROTOCOL)
     m = RPCMethod(dummy_function)
     assert 'dummy_name' in repr(m)
 
