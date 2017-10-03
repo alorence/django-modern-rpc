@@ -68,14 +68,15 @@ class JSONRPCHandler(RPCHandler):
             batch_result = JSONRPCBatchResult()
 
             for single_body in body:
-
-                # If exception is raised early in request parsing, we need to have a null id in returned error response
-                request_id = None
-
                 try:
+                    try:
+                        request_id = single_body.get('id')
+                    except AttributeError:
+                        request_id = None
+                        raise RPCInvalidRequest()
+
                     result = self.process_single_request(single_body)
 
-                    request_id = single_body.get('id')
                     if request_id:
                         # As stated in documentation:
                         # "A Response object SHOULD exist for each Request object, except that there SHOULD NOT be any
