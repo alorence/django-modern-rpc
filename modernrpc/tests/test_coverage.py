@@ -1,11 +1,7 @@
 # coding: utf-8
 import datetime
 
-import pytest
-
 from modernrpc.conf import settings
-from modernrpc.exceptions import RPCException
-from modernrpc.handlers.base import RPCHandler
 from test_methods_register import another_dummy_method, another_dummy_method_2, another_dummy_method_3, \
     another_dummy_method_4
 from test_rpc_method_object import dummy_function, single_line_documented, multi_line_documented_1, \
@@ -40,26 +36,3 @@ def test_not_called_functions():
     power_2(5)
     # We need to access a Django-only setting at least once
     assert bool(settings.SECRET_KEY)
-
-
-class MyBadHandler(RPCHandler):
-    pass
-
-
-def test_bad_handler_definition(rf):
-
-    request = rf.get('/rpc')
-
-    h = MyBadHandler(request, settings.MODERNRPC_DEFAULT_ENTRYPOINT_NAME)
-    with pytest.raises(NotImplementedError):
-        h.loads("")
-    with pytest.raises(NotImplementedError):
-        h.dumps({"x": "y"})
-    with pytest.raises(NotImplementedError):
-        MyBadHandler.valid_content_types()
-    with pytest.raises(NotImplementedError):
-        h.process_request()
-    with pytest.raises(NotImplementedError):
-        h.result_success(42)
-    with pytest.raises(NotImplementedError):
-        h.result_error(RPCException(1, ''))

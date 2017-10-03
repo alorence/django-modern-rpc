@@ -65,7 +65,7 @@ def test_xmlrpc_multicall_with_errors_2(live_server):
     assert result[2] == 16
 
 
-def test_multicall_with_auth(live_server):
+def test_xmlrpc_multicall_with_auth(live_server):
     client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
 
     multicall = xmlrpc_client.MultiCall(client)
@@ -81,7 +81,7 @@ def test_multicall_with_auth(live_server):
     assert 'Authentication failed' in excinfo.value.faultString
 
 
-def test_multicall_with_auth_2(live_server, superuser, common_pwd):
+def test_xmlrpc_multicall_with_auth_2(live_server, superuser, common_pwd):
     server_url = get_url_with_auth(live_server.url + '/all-rpc/', superuser.username, common_pwd)
     client = xmlrpc_client.ServerProxy(server_url)
 
