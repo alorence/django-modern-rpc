@@ -94,6 +94,7 @@ def test_multicall_with_auth_2(live_server, superuser, common_pwd):
     assert result[0] == 10
     assert result[1] == 5
 
+
 def test_jsonrpc_multicall_error(live_server):
 
     c = HTTPClient(live_server.url + '/all-rpc/')
