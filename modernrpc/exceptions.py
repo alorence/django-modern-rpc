@@ -92,7 +92,10 @@ class RPCInvalidRequest(RPCException):
     """Raised by handlers if incoming JSON or XML data is not a valid JSON-RPC or XML-RPC data."""
 
     def __init__(self, message='', data=None):
-        err_msg = 'Invalid request: {}'.format(message)
+        if message:
+            err_msg = 'Invalid request: {}'.format(message)
+        else:
+            err_msg = 'Invalid request'
         super(RPCInvalidRequest, self).__init__(RPC_INVALID_REQUEST, err_msg, data)
 
 

@@ -2,10 +2,11 @@
 import json
 
 import pytest
+import requests
 from django.utils.six.moves import xmlrpc_client
 from jsonrpcclient.http_client import HTTPClient
 
-from modernrpc.exceptions import RPC_METHOD_NOT_FOUND, RPC_INTERNAL_ERROR
+from modernrpc.exceptions import RPC_METHOD_NOT_FOUND, RPC_INTERNAL_ERROR, RPC_INVALID_REQUEST
 from test_authentication_system import get_url_with_auth
 
 
@@ -241,3 +242,27 @@ def test_jsonrpc_batch_with_auth_2(live_server, superuser, common_pwd):
     assert isinstance(result, list)
     assert result[0] == {'jsonrpc': '2.0', 'id': 1, 'result': 10}
     assert result[1] == {'jsonrpc': '2.0', 'id': 2, 'result': 5}
+
+
+def test_jsonrpc_batch_invalid_request(live_server):
+
+    headers = {'content-type': 'application/json'}
+    result = requests.post(live_server.url + '/all-rpc/', data='[1, 2, 3]', headers=headers).json()
+
+    assert isinstance(result, list)
+    assert len(result) == 3
+
+    assert result[0]['jsonrpc'] == '2.0'
+    assert result[0]['id'] is None
+    assert result[0]['error']['code'] == RPC_INVALID_REQUEST
+    assert 'Invalid request' in result[0]['error']['message']
+
+    assert result[1]['jsonrpc'] == '2.0'
+    assert result[1]['id'] is None
+    assert result[1]['error']['code'] == RPC_INVALID_REQUEST
+    assert 'Invalid request' in result[1]['error']['message']
+
+    assert result[2]['jsonrpc'] == '2.0'
+    assert result[2]['id'] is None
+    assert result[2]['error']['code'] == RPC_INVALID_REQUEST
+    assert 'Invalid request' in result[2]['error']['message']
