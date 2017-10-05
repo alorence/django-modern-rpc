@@ -78,6 +78,9 @@ class RPCMethod(object):
     def __repr__(self):
         return 'RPC Method ' + self.name
 
+    def __str__(self):
+        return '{}({})'.format(self._external_name, ', '.join(self.args))
+
     def __eq__(self, other):
         return \
             self.function == other.function and \
@@ -290,6 +293,7 @@ def register_rpc_method(func):
             raise ImproperlyConfigured("A RPC method with name {} has already been registered".format(method.name))
 
     # Store the method
+    logger.debug('registry: {}'.format(str(registry)))
     registry[method.name] = method
 
     return method.name
