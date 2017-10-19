@@ -168,7 +168,7 @@ class JSONRPCHandler(RPCHandler):
             }
         }
 
-        if getattr(exception, 'data', default=None):
+        if getattr(exception, 'data', None):
             result['error']['data'] = exception.data
 
         return result
