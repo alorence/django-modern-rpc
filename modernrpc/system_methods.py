@@ -30,7 +30,7 @@ def __system_methodSignature(method_name, **kwargs):
 
     method = get_method(method_name, entry_point, protocol)
     if method is None:
-        raise RPCInvalidParams('The method {} is not found in the system. Unable to retrieve signature.')
+        raise RPCInvalidParams('Unknown method {}. Unable to retrieve signature.'.format(method_name))
     return method.signature
 
 
@@ -48,7 +48,7 @@ def __system_methodHelp(method_name, **kwargs):
 
     method = get_method(method_name, entry_point, protocol)
     if method is None:
-        raise RPCInvalidParams('The method {} is not found in the system. Unable to retrieve method help.')
+        raise RPCInvalidParams('Unknown method {}. Unable to retrieve its documentation.'.format(method_name))
     return method.html_doc
 
 
