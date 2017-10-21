@@ -92,17 +92,19 @@ class RPCEntryPoint(TemplateView):
 
             except AuthenticationFailed as e:
                 # Customize HttpResponse instance used when AuthenticationFailed was raised
+                logger.info(e, exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
                 return handler.result_error(e, HttpResponseForbidden)
 
             except RPCException as e:
-                logger.warning('RPC exception raised: {}'.format(str(e)))
+                logger.warning('RPC exception: {}'.format(e), exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
                 return handler.result_error(e)
 
             except Exception as e:
-                logger.error('Exception raised from a RPC method: {}'.format(str(e)))
+                logger.error('Exception raised from a RPC method: {}'.format(e),
+                             exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
                 return handler.result_error(RPCInternalError(str(e)))
 
-        logger.error('Received a request impossible to handle with available handlers.')
+        logger.error('Unable to handle incoming request.')
 
         return HttpResponse('Unable to handle your request. Please ensure you called the right entry point. If not, '
                             'this could be a server error.')

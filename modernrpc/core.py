@@ -399,15 +399,13 @@ class RPCRequest(object):
         rpc_method = get_method(self.method_name, handler.entry_point, handler.protocol)
 
         if not rpc_method:
-            logger.warning('Unknown RPC method: {}'.format(self.method_name))
             raise RPCUnknownMethod(self.method_name)
 
         logger.debug('Check authentication / permissions for method {} and user {}'
                      .format(self.method_name, handler.request.user))
 
         if not rpc_method.check_permissions(handler.request):
-            logger.info('Call to {} forbidden by authentication system.'.format(self.method_name))
-            raise AuthenticationFailed()
+            raise AuthenticationFailed(self.method_name)
 
         logger.debug('RPC method {} will be executed'.format(self.method_name))
 

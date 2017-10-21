@@ -235,7 +235,8 @@ def test_jsonrpc_batch_with_auth(live_server):
     assert isinstance(result, list)
     assert result[0] == {'jsonrpc': '2.0', 'id': 1, 'result': 10}
     assert result[1] == {'jsonrpc': '2.0', 'id': 2, 'error': {
-        'code': RPC_INTERNAL_ERROR, 'message': 'Internal error: Authentication failed'
+        'code': RPC_INTERNAL_ERROR,
+        'message': 'Internal error: Authentication failed when calling logged_superuser_required'
     }}
 
 

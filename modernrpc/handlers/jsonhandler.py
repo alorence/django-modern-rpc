@@ -94,7 +94,7 @@ class JSONRPCHandler(RPCHandler):
             return batch_result
 
         else:
-            raise RPCInvalidRequest()
+            raise RPCInvalidRequest('Invalid payload: {}'.format(str(payload)))
 
     def process_single_request(self, payload):
 
@@ -105,7 +105,7 @@ class JSONRPCHandler(RPCHandler):
             raise RPCInvalidRequest('Missing parameter "method"')
 
         if payload['jsonrpc'] != '2.0':
-            raise RPCInvalidRequest('The attribute "jsonrpc" must contains "2.0"')
+            raise RPCInvalidRequest('The attribute "jsonrpc" must contain "2.0"')
 
         params = payload.get('params')
 

@@ -73,7 +73,7 @@ def test_jsonrpc_invalid_request_3(live_server):
     req_data = json.dumps(payload, cls=DjangoJSONEncoder)
     response = requests.post(live_server.url + '/all-rpc/', data=req_data, headers=headers).json()
 
-    assert 'The attribute "jsonrpc" must contains "2.0"' in response['error']['message']
+    assert 'The attribute "jsonrpc" must contain "2.0"' in response['error']['message']
     assert RPC_INVALID_REQUEST == response['error']['code']
 
 
