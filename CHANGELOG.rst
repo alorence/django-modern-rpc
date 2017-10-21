@@ -1,6 +1,10 @@
 Changelog
 =========
 
+Current development
+-------------------
+- Update documentation template to use Bootstrap 4.0.0-beta (previously 4.0.0-alpha.5)
+
 Release 0.9.0 (2017-10-03)
 --------------------------
 This is a major release, with many improvements, protocol support and bug fixes. This version introduce an API break,
