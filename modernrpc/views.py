@@ -92,7 +92,7 @@ class RPCEntryPoint(TemplateView):
 
             except AuthenticationFailed as e:
                 # Customize HttpResponse instance used when AuthenticationFailed was raised
-                logger.info(e, exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
+                logger.info(e)
                 return handler.result_error(e, HttpResponseForbidden)
 
             except RPCException as e:
