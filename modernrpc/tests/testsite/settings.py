@@ -1,5 +1,6 @@
 # coding: utf-8
 from distutils.version import StrictVersion
+from os.path import dirname, realpath, join
 
 import django
 from django.utils import six
@@ -8,6 +9,8 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 SECRET_KEY = 'dummy'
 ROOT_URLCONF = 'testsite.urls'
+
+SITE_ROOT = dirname(realpath(__file__))
 
 DATABASES = {
     'default': {
@@ -77,6 +80,18 @@ MODERNRPC_METHODS_MODULES = [
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+        'default': {
+            'format': "[%(asctime)s] %(levelname)s [%(filename)s:%(funcName)s:%(lineno)s] %(message)s",
+            'datefmt': "%Y-%m-%d %H:%M:%S"
+        },
+    },
     'handlers': {
         'console': {
             'level': 'DEBUG',
@@ -86,10 +101,28 @@ LOGGING = {
             'level': 'INFO',
             'class': 'logging.NullHandler',
         },
+        'logfile': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': join(SITE_ROOT, 'modernrpc.log'),
+            'maxBytes': 1024 * 1024 * 1,  # 1 MB
+            'formatter': 'default',
+            'backupCount': 5,
+            # In Django 1.11, without this attribute, a warning is thrown at server startup
+            # Use `python -Wall ./manage.py runserver` to see warnings
+            # See https://stackoverflow.com/a/30684667/1887976 for more info
+            'delay': True,
+        },
     },
     'loggers': {
-        # Note: We don't want to print logs when executing tests, so no logger is declared for modernrpc module.
-        # But since we need some tests for logging utilities, let's declare 2 loggers for non-existent packages
+        # Default modernrpc logger. Will collect test execution logs into modernrpc/tests/testsite/modernrpc.log
+        'modernrpc': {
+            'handlers': ['logfile'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        # test_logging.py will execute some tests on logging utilities (get_modernrpc_logger() and
+        # logger_has_handlers()). These dummy loggers are declared here
         # See test_logging.py
         'my_app': {
             'handlers': ['console'],
@@ -120,3 +153,4 @@ if six.PY2:
     MODERNRPC_METHODS_MODULES.append('testsite.rpc_methods_stub.python2_specific')
 
 MODERNRPC_PY2_STR_TYPE = str
+MODERNRPC_LOG_EXCEPTIONS = True
