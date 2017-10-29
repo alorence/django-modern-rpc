@@ -9,6 +9,7 @@ from modernrpc.core import JSONRPC_PROTOCOL
 from modernrpc.exceptions import RPCInternalError, RPCInvalidRequest, RPCParseError, RPCException
 from modernrpc.handlers.base import RPCHandler
 from modernrpc.core import RPCRequest
+from modernrpc.utils import get_modernrpc_logger
 
 try:
     # Python 3
@@ -16,6 +17,8 @@ try:
 except ImportError:
     # Python 2: json.loads will raise a ValueError when loading json
     JSONDecodeError = ValueError
+
+logger = get_modernrpc_logger(__name__)
 
 
 class JSONRPCBatchResult(object):
@@ -74,7 +77,7 @@ class JSONRPCHandler(RPCHandler):
 
                     except AttributeError:
                         request_id = None
-                        raise RPCInvalidRequest()
+                        raise RPCInvalidRequest('Single RPC call payload must be a struct')
 
                     result = self.process_single_request(single_payload)
 
@@ -85,16 +88,20 @@ class JSONRPCHandler(RPCHandler):
                         batch_result.results.append(self.json_success_response(result, override_id=request_id))
 
                 except RPCException as e:
+                    logger.warning('RPC Exception raised in a JSON-RPC batch handling: {}'.format(e),
+                                   exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
                     batch_result.results.append(self.json_error_response(e, override_id=request_id))
 
                 except Exception as e:
+                    logger.warning('Exception raised in a JSON-RPC batch handling: {}'.format(e),
+                                   exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
                     rpc_exception = RPCInternalError(str(e))
                     batch_result.results.append(self.json_error_response(rpc_exception, override_id=request_id))
 
             return batch_result
 
         else:
-            raise RPCInvalidRequest('Invalid payload: {}'.format(str(payload)))
+            raise RPCInvalidRequest('Bad JSON-RPC payload: {}'.format(str(payload)))
 
     def process_single_request(self, payload):
 

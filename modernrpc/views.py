@@ -74,7 +74,7 @@ class RPCEntryPoint(TemplateView):
         :return: A HttpResponse containing XML-RPC or JSON-RPC response, depending on the incoming request
         """
 
-        logger.debug('RPC request received on entry point "{}"'.format(self.entry_point))
+        logger.debug('RPC request received...')
 
         for handler_cls in self.get_handler_classes():
 
@@ -92,7 +92,7 @@ class RPCEntryPoint(TemplateView):
 
             except AuthenticationFailed as e:
                 # Customize HttpResponse instance used when AuthenticationFailed was raised
-                logger.info(e)
+                logger.warning(e)
                 return handler.result_error(e, HttpResponseForbidden)
 
             except RPCException as e:
@@ -100,7 +100,7 @@ class RPCEntryPoint(TemplateView):
                 return handler.result_error(e)
 
             except Exception as e:
-                logger.error('Exception raised from a RPC method: {}'.format(e),
+                logger.error('Exception raised from a RPC method: "{}"'.format(e),
                              exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
                 return handler.result_error(RPCInternalError(str(e)))
 

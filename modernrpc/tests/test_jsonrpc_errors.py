@@ -19,7 +19,7 @@ def test_jsonrpc_call_unknown_method(live_server):
     with pytest.raises(ReceivedErrorResponse) as excinfo:
         client.non_existing_method()
 
-    assert 'Method not found: non_existing_method' in excinfo.value.message
+    assert 'Method not found: "non_existing_method"' in excinfo.value.message
     assert excinfo.value.code == RPC_METHOD_NOT_FOUND
 
 
@@ -93,7 +93,7 @@ def test_jsonrpc_invalid_request_4(live_server):
 
     assert 'error' in response
     assert 'result' not in response
-    # On ParseError, JSON has not been properly deserialized, so the request ID can't be given to error response"
+    # On ParseError, JSON has not been properly deserialized, so the request ID can't be returned in error response
     assert response['id'] is None
     error = response['error']
 
@@ -114,7 +114,7 @@ def test_jsonrpc_invalid_request_5(live_server):
     assert response['id'] is None
     error = response['error']
 
-    assert 'Invalid request' in error['message']
+    assert 'Invalid request: Bad JSON-RPC payload' in error['message']
     assert error['code'] == RPC_INVALID_REQUEST
 
 

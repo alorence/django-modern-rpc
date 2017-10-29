@@ -204,7 +204,7 @@ def test_xmlrpc_protocol_specific_methods_invalid_method(live_server):
         # method_x is available only via JSON-RPC
         c.method_x()
 
-    assert 'Method not found: method_x' in excinfo.value.faultString
+    assert 'Method not found: "method_x"' in excinfo.value.faultString
     assert excinfo.value.faultCode == RPC_METHOD_NOT_FOUND
 
 
@@ -233,7 +233,7 @@ def test_jsonrpc_protocol_specific_methods_invalid_method(live_server):
     with pytest.raises(ReceivedErrorResponse) as excinfo:
         c.method_y()
 
-    assert 'Method not found: method_y' in excinfo.value.message
+    assert 'Method not found: "method_y"' in excinfo.value.message
     assert excinfo.value.code == RPC_METHOD_NOT_FOUND
 
 
@@ -253,9 +253,11 @@ def test_xmlrpc_protocol_specific_error(live_server):
 def test_jsonrpc_protocol_specific_error(live_server):
 
     c = HTTPClient(live_server.url + '/xml-only/')
-    with pytest.raises(ParseResponseError):
+    with pytest.raises(ParseResponseError) as excinfo:
         # There is no method available via this entry point for JSON-RPC clients.
         # The returned error message cannot be encapsulated in a proper JSON-RPC response (since the entry
         # point is not configured to handle and respond via this protocol). The returned error message is RAW,
         # so JSON-RPC cannot parse it and generate a JSONDecodeError, or a ValueError in python 2
         c.request('system.listMethods')
+
+    assert 'The response was not valid JSON' in str(excinfo.value)

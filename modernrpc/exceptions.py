@@ -84,7 +84,7 @@ class RPCException(Exception):
 class RPCParseError(RPCException):
     """Raised by handlers if the request can't be read as valid JSOn or XML data."""
 
-    def __init__(self, message='', data=None):
+    def __init__(self, message, data=None):
         err_msg = 'Parse error, unable to read the request: {}'.format(message)
         super(RPCParseError, self).__init__(RPC_PARSE_ERROR, err_msg, data)
 
@@ -92,11 +92,8 @@ class RPCParseError(RPCException):
 class RPCInvalidRequest(RPCException):
     """Raised by handlers if incoming JSON or XML data is not a valid JSON-RPC or XML-RPC data."""
 
-    def __init__(self, message='', data=None):
-        if message:
-            err_msg = 'Invalid request: {}'.format(message)
-        else:
-            err_msg = 'Invalid request'
+    def __init__(self, message, data=None):
+        err_msg = 'Invalid request: {}'.format(message)
         super(RPCInvalidRequest, self).__init__(RPC_INVALID_REQUEST, err_msg, data)
 
 
@@ -104,15 +101,15 @@ class RPCUnknownMethod(RPCException):
     """Raised by handlers the RPC method called is not defined for the current entry point and protocol."""
 
     def __init__(self, name, data=None):
-        err_msg = 'Method not found: {}'.format(name)
+        err_msg = 'Method not found: "{}"'.format(name)
         super(RPCUnknownMethod, self).__init__(RPC_METHOD_NOT_FOUND, err_msg, data)
 
 
 class RPCInvalidParams(RPCException):
     """Raised by handlers if the RPC method's params does not match the parameters in RPC request"""
 
-    def __init__(self, message='', data=None):
-        err_msg = 'Invalid parameters, {}'.format(message)
+    def __init__(self, message, data=None):
+        err_msg = 'Invalid parameters: {}'.format(message)
         super(RPCInvalidParams, self).__init__(RPC_INVALID_PARAMS, err_msg, data)
 
 
@@ -127,4 +124,4 @@ class RPCInternalError(RPCException):
 class AuthenticationFailed(RPCInternalError):
     """Raised when authentication system forbade execution of a RPC Method"""
     def __init__(self, method_name):
-        super(AuthenticationFailed, self).__init__('Authentication failed when calling {}'.format(method_name))
+        super(AuthenticationFailed, self).__init__('Authentication failed when calling "{}"'.format(method_name))

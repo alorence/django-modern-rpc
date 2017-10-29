@@ -16,7 +16,7 @@ def test_not_registered(live_server):
 
     with pytest.raises(xmlrpc_client.Fault) as exc_info:
         client.existing_but_not_decorated()
-    assert "Method not found: existing_but_not_decorated" in str(exc_info.value)
+    assert 'Method not found: "existing_but_not_decorated"' in str(exc_info.value)
 
 
 @rpc_method

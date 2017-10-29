@@ -17,7 +17,7 @@ def test_xrpc_call_unknown_method(live_server):
     with pytest.raises(xmlrpc_client.Fault) as excinfo:
         client.non_existing_method()
 
-    assert 'Method not found: non_existing_method' in excinfo.value.faultString
+    assert 'Method not found: "non_existing_method"' in excinfo.value.faultString
     assert excinfo.value.faultCode == RPC_METHOD_NOT_FOUND
 
 
@@ -128,11 +128,12 @@ def test_xrpc_invalid_request_but_valid_xml(live_server):
         elif member.find('name').text == 'faultString':
             message = member.find('value').find('string').text
 
-    assert 'Invalid request: Invalid payload' in message
+    assert 'Invalid request: Bad XML-RPC payload' in message
     assert code == RPC_INVALID_REQUEST
 
 
 def test_xrpc_invalid_xml(live_server):
+    # "</methodName" misses the closing '>'
     invalid_payload = '''<?xml version="1.0"?>
 <methodCall>
   <methodName>examples.getStateName</methodName

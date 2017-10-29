@@ -8,7 +8,10 @@ import django.utils.version
 from django.apps import AppConfig
 
 from modernrpc.conf import settings
-from modernrpc.core import register_rpc_method, reset_registry, clean_old_cache_content
+from modernrpc.core import register_rpc_method, reset_registry, clean_old_cache_content, get_all_method_names
+from modernrpc.utils import get_modernrpc_logger
+
+logger = get_modernrpc_logger(__name__)
 
 
 @django.core.checks.register()
@@ -70,3 +73,5 @@ class ModernRpcConfig(AppConfig):
                 # And register only functions with attribute 'modernrpc_enabled' defined to True
                 if getattr(func, 'modernrpc_enabled', False):
                     register_rpc_method(func)
+
+        logger.info('django-modern-rpc initialized: {} RPC methods registered'.format(len(get_all_method_names())))

@@ -270,7 +270,7 @@ def register_rpc_method(func):
     # Define the external name of the function
     name = getattr(func, 'modernrpc_name', func.__name__)
 
-    logger.info('Register RPC method {}'.format(name))
+    logger.debug('Register RPC method "{}"'.format(name))
 
     if name.startswith('rpc.'):
         raise ImproperlyConfigured('According to RPC standard, method names starting with "rpc." are reserved for '
@@ -293,8 +293,8 @@ def register_rpc_method(func):
             raise ImproperlyConfigured("A RPC method with name {} has already been registered".format(method.name))
 
     # Store the method
-    logger.debug('registry: {}'.format(str(registry)))
     registry[method.name] = method
+    logger.debug('Method registered. len(registry): {}'.format(len(registry)))
 
     return method.name
 
