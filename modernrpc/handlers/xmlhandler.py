@@ -39,6 +39,9 @@ class XMLRPCHandler(RPCHandler):
         except xml.parsers.expat.ExpatError as e:
             raise RPCParseError(e)
 
+        except xmlrpc_client.ResponseError as e:
+            raise RPCInvalidRequest('Invalid payload')
+
         except Exception as e:
             raise RPCInvalidRequest(e)
 
