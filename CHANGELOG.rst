@@ -3,7 +3,8 @@ Changelog
 
 Current development
 -------------------
-- Update documentation template to use Bootstrap 4.0.0-beta.2 (previously 4.0.0-alpha.5)
+- Documentation improved
+- Update documentation templates to use Bootstrap 4.0.0-beta.2 (previously 4.0.0-alpha.5)
 
 Release 0.9.0 (2017-10-03)
 --------------------------

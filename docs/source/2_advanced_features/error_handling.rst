@@ -1,42 +1,41 @@
-===============
-Tips and tricks
-===============
+=================================
+Error handling and logging system
+=================================
 
-Access to current request from RPC methods
+.. _exceptions:
+
+RPC Error codes and pre-defined exceptions
 ------------------------------------------
 
-If you need to access some environment from your RPC method, simply adds ``**kwargs`` in function parameters. When the
-function will be executed, a dict will be passed as argument, providing the following information:
+django-modern-rpc provide exceptions to cover common errors when requests are processed.
 
- - Current HTTP request, as proper Django HttpRequest instance
- - Current protocol (JSON-RPC or XML-RPC)
- - Current entry point name
- - Current handler instance
+.. automodule:: modernrpc.exceptions
+   :members:
 
-See the example to see how to access these values:
+Customize error handling
+------------------------
+
+If you want to define customized exceptions for your application, you can create ``RPCException`` sub-classes and set,
+for each custom exception, a *faultCode* to ``RPC_CUSTOM_ERROR_BASE + N`` with ``N`` a unique number.
+
+Here is an example:
 
 .. code:: python
 
-    from modernrpc.core import REQUEST_KEY, ENTRY_POINT_KEY, PROTOCOL_KEY, HANDLER_KEY
-    from modernrpc.core import rpc_method
+   class MyException1(RPCException):
+       def __init__(self, message):
+           super(MyException1, self).__init__(RPC_CUSTOM_ERROR_BASE + 1, message)
 
-    @rpc_method
-    def content_type_printer(**kwargs):
+   class MyException2(RPCException):
+       def __init__(self, message):
+           super(MyException2, self).__init__(RPC_CUSTOM_ERROR_BASE + 2, message)
 
-        # Get the current request
-        request = kwargs.get(REQUEST_KEY)
+Anyway, any exception raised during the RPC method execution will generate a ``RPCInternalError`` with an error message
+constructed from the underlying error. As a result, the RPC client will have a correct message describing what went
+wrong.
 
-        # Other available objects are:
-        # protocol = kwargs.get(PROTOCOL_KEY)
-        # entry_point = kwargs.get(ENTRY_POINT_KEY)
-        # handler = kwargs.get(HANDLER_KEY)
-
-        # Return the content-type of the current request
-        return request.META.get('Content-Type', '')
-
-
-Enable logging
---------------
+Logging
+-------
 
 Django-modern-rpc use Python logging system to report some information, warning and errors. If you need to
 troubleshoot issues, you can enable logging capabilities.

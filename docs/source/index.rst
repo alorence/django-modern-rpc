@@ -35,8 +35,8 @@ Project's main features are:
    :caption: Table of Contents
 
    quickstart
-   basic_usage/index
-   advanced/index
+   1_standard_config/index
+   2_advanced_features/index
    contribute
    changelog
 

@@ -7,7 +7,7 @@ There is many way to contribute to project development.
 Report issues, suggest enhancements
 ===================================
 
-If you find a bug, want to ask question about configuration or suggest an improvemnt to the project, feel free to use
+If you find a bug, want to ask question about configuration or suggest an improvement to the project, feel free to use
 `the issue tracker <https://github.com/alorence/django-modern-rpc/issues>`_. You will need a GitHub account.
 
 Submit a pull request
@@ -15,7 +15,7 @@ Submit a pull request
 
 If you improved something or fixed a bug by yourself in a fork, you can
 `submit a pull request <https://github.com/alorence/django-modern-rpc/pulls>`_. We will be happy to review it before
-doing the merge.
+doing a merge.
 
 Execute the unit tests
 ======================
@@ -42,11 +42,11 @@ When all required packages are installed, you can run the tests using::
 Execute unit tests in all supported environments
 ================================================
 
-Alternatively to simple ``pytest`` run, you may want to check if the tests run correctly in all supported configuration.
-To do so, you can install and run ``tox``::
+Alternatively to simple ``pytest`` run, you may want to check if the tests run correctly in all supported
+configurations. To do so, you can install and run ``tox``::
 
    pip install tox
    tox .
 
-This will execute all tests under all supported Python and Django versions. Also, it will execute ``flake8`` to perform
-code style checks.
+This will execute all tests under all supported Python and Django versions. In addition, it will execute ``flake8``
+to perform code style checks.
