@@ -37,6 +37,7 @@ Project's main features are:
    quickstart
    1_standard_config/index
    2_advanced_features/index
+   biblio
    contribute
    changelog
 

@@ -24,12 +24,12 @@ Add ``modernrpc`` app to your Django applications, in ``settings.INSTALLED_APPS`
         'modernrpc',
     ]
 
-Declare an RPC Entry Point in URLConf
-=====================================
+Declare a RPC Entry Point in URLConf
+====================================
 
-The entry point is a standard Django view class which mainly handle RPC calls. Like other Django views, you have to use
-``django.conf.urls.url()`` to map URL pattern with this class. This can be done in your project's URLConf, or in any
-app specific one.
+The entry point is a standard Django view class which mainly handle RPC calls. Like other Django views, you have
+to use ``django.conf.urls.url()`` to map URL pattern with this class. This can be done in your project's URLConf,
+or in any app specific one.
 
 .. code::
 
