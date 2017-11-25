@@ -2,13 +2,15 @@
 Authentication
 ==============
 
-Starting from version 0.5, django-modern-rpc supports authentication. It is possible to restrict access to any
-RPC method depending on conditions names "predicate".
+.. versionadded:: 0.5
+
+django-modern-rpc supports authentication. It is possible to restrict access to any
+RPC method depending on conditions named "predicate".
 
 Basics
 ======
 
-To provide authentication features, django-modern-rpc introduces the concept of "predicate". It is a python function
+To provide authentication features, django-modern-rpc introduce concept of "predicate". It is a python function
 taking a request as argument and returning a boolean:
 
 .. code:: python

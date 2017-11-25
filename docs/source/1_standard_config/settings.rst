@@ -119,9 +119,12 @@ Other available settings
 
 Default: ``''`` (Empty String)
 
-Configure the format of the docstring used to document your RPC methods. Possible values are: '' (empty), 'rst' or 'md'.
+Configure the format of the docstring used to document your RPC methods.
 
-Note: the corresponding package is not automatically installed. You have to manually install `markdown` if you set
-this variable to ``md``, or `docutils` if you set this variable to ``rst``
+Possible values are: ``(empty)``, ``rst`` or ``markdown``.
+
+.. note::
+    The corresponding package is not automatically installed. You have to ensure library `markdown` or `docutils` is
+    installed in your environment if you set ``settings.MODERNRPC_DOC_FORMAT`` to a non-empty value
 
 

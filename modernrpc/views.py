@@ -112,8 +112,7 @@ class RPCEntryPoint(TemplateView):
     def get_context_data(self, **kwargs):
         """Update context data with list of RPC methods of the current entry point.
         Will be used to display methods documentation page"""
-        ctx = super(RPCEntryPoint, self).get_context_data(**kwargs)
-        ctx.update({
+        kwargs.update({
             'methods': get_all_methods(self.entry_point, sort_methods=True),
         })
-        return ctx
+        return super(RPCEntryPoint, self).get_context_data(**kwargs)

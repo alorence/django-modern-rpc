@@ -11,6 +11,7 @@ XML-RPC standard:
 JSON-RPC specification
 
 - http://www.jsonrpc.org/specification
+- JSON type support: http://www.ietf.org/rfc/rfc4627.txt
 
 Specification for system introspection methods (XML-RPC)
 
