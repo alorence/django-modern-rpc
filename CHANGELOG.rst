@@ -1,29 +1,47 @@
+*********
 Changelog
-=========
+*********
 
 Current development
--------------------
-- Documentation improved
-- Update documentation templates to use Bootstrap 4.0.0-beta.2 (previously 4.0.0-alpha.5)
-- Logging system usage has been completely rewritten:
-  -
+===================
+
+**Improvements**
+
+- Logging system
+
+  - It is now possible to log exceptions stack on errors by configuring ``MODERNRPC_LOG_EXCEPTIONS = True`` (#15)
+  - Error messages have been rewritten to be consistent across all modules and classes
+  - Decrease log verbosity: some ``INFO`` log messages now have ``DEBUG`` level (startup methods registration)
+
+- Documentation has been updated
+
+  - Added a page to explain how to configure RPC methods documentation generation, and add a note to explicitly
+    state that ``markdown`` or ``docutils`` package must be installed if ``settings.MODERNRPC_DOC_FORMAT`` is set
+    to non-empty value (#16)
+  - Added a page to list implemented system introspection methods
+  - Added a bibliography page, to list all references used to write the library
+
+- Generated RPC methods documentation default template now uses Bootstrap 4.0.0-beta.2 (previously 4.0.0-alpha.5)
+
+**Bugfixes**
+
 
 Release 0.9.0 (2017-10-03)
---------------------------
+==========================
 This is a major release, with many improvements, protocol support and bug fixes. This version introduce an API break,
 please read carefully.
 
-Improvements:
+**Improvements**
 
 - Class ``RPCException`` and its subclasses now accept an additional ``data`` argument (#10). This is used by JSON-RPC
-  handler to report additional information to user in case of error. This data is ignored in XML-RPC response.
+  handler to report additional information to user in case of error. This data is ignored by XML-RPC handler.
 - JSON-RPC: Batch requests are now supported (#11)
 - JSON-RPC: Named parameters are now supported (#12)
 - JSON-RPC: Notification calls are now supported. Missing `id` in payload is no longer considered as invalid, but
   is correectly handled. No HTTP response is returned in such case, according to the standard.
 - XML-RPC: exception raised when serializing data to XML are now catched as ``InternalError`` and a clear error message
 
-API Changes:
+**API Changes**
 
 - ``modernrpc.handlers.JSONRPC`` and ``modernrpc.handlers.XMLRPC`` have been moved and renamed. They become respectively
   ``modernrpc.core.JSONRPC_PROTOCOL`` and ``modernrpc.core.XMLRPC_PROTOCOL``
@@ -32,42 +50,60 @@ API Changes:
   ``(method_name, params)`` anymore. Instead, it executes the underlying RPC method using new class ``RPCRequest``.
   If you customized your handlers, please make sure you updated your code (if needed).
 
-In addition, this version contains minor updates to prepare future compatibility with Django 2.0
+**Minor updates**
+
+- Code has been improved to prepare future compatibility with Django 2.0
 
 Release 0.8.1 (2017-10-02)
 --------------------------
-This version is a security fix. Upgrade is highly recommended
 
-- Security: Authentication backend is correctly checked when executing method using ``system.multicall()``
+.. important::
+    This version is a security fix. Upgrade is highly recommended
+
+**Security fix**
+
+- Authentication backend is correctly checked when executing method using ``system.multicall()``
 
 Release 0.8.0 (2017-07-12)
 --------------------------
+
+**Bugfixes**
+
 - Fixed invalid HTML tag rendered from RPC Method documentation. Single new lines are converted to space since they
   are mostly used to limit docstrings line width. See pull request #7, thanks to @adamdonahue
-- Fixed issue #8: signature of ``auth.set_authentication_predicate`` has been fixed so it can be used as decorator_.
+- Signature of ``auth.set_authentication_predicate`` has been fixed so it can be used as decorator_ (#8).
   Thanks to @aplicacionamedida
 
 .. _decorator: http://django-modern-rpc.readthedocs.io/en/latest/advanced/authentication.html#basics
 
 Release 0.7.1 (2017-06-24)
 --------------------------
+
+**Minor fix**
+
 - Removed useless settings variable introduced in last 0.7.0 release. Logging capabilities are now enabled by simply
   configuring a logger for ``modernrpc.*`` modules, using Django variable ``LOGGING``. The documentation_ has been
   updated accordingly.
 
 Release 0.7.0 (2017-06-24)
 --------------------------
-- Default logging behavior has been changed. The library will not output any log anymore, unless
+
+**Improvement**
+
+- Default logging behavior has changed. The library will not output any log anymore, unless
   ``MODERNRPC_ENABLE_LOGGING`` is set to True. See documentation_ for more information
 
 .. _documentation: http://django-modern-rpc.readthedocs.io/en/latest/advanced/tips_and_tricks.html#enable-logging
 
 Release 0.6.0 (2017-05-13)
 --------------------------
-- Many performance improvements. The Django cache system was previously used to store the list of available methods
-  in the current project. This was mostly useless, and caused issues with some cache systems (#5). Use of cache system
-  has been completely removed. The list of RPC methods is computed when the application is started and kept in memory
-  until it is stopped.
+
+**Performance Improvements**
+
+- Django cache system was previously used to store the list of available methods in the current project. This was
+  useless, and caused issues with some cache systems (#5).
+  Use of cache system has been removed. The list of RPC methods is computed when the application is
+  started and kept in memory until it is stopped.
 
 Release 0.5.2 (2017-04-18)
 --------------------------
