@@ -5,6 +5,8 @@ Current development
 -------------------
 - Documentation improved
 - Update documentation templates to use Bootstrap 4.0.0-beta.2 (previously 4.0.0-alpha.5)
+- Logging system usage has been completely rewritten:
+  -
 
 Release 0.9.0 (2017-10-03)
 --------------------------

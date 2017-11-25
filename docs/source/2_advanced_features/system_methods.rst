@@ -2,7 +2,7 @@
 System methods
 ==============
 
-XML-RPC_ standard does not specify default method to achieve introspection tasks. But some people proposed a standard
+XML-RPC_ standard does not specify default methods to achieve introspection tasks. But some people proposed a standard
 for such methods. The `original document`_ is now offline, but has been retrieved from Google cache and is now
 hosted here_.
 
@@ -12,15 +12,17 @@ hosted here_.
 
 system.listMethods
 ------------------
+Return a list of all methods available.
 
 system.methodSignature
 ----------------------
+Return the signature of a specific method
 
 system.methodHelp
 -----------------
+Return the documentation for a specific method.
 
-Fortunately, these 3 reserved methods can be used with JSON-RPC protocol 2. django-modern-rpc implements these methods
-by default for both JSOn-RPC and XML-RPC protocols.
+These 3 system methods are available to both JSON-RPC and XML-RPC clients.
 
 system.multicall
 ----------------
@@ -32,5 +34,9 @@ clients (including `Python's ServerProxy`_).
 This method can be used to make many RPC calls at once, by sending an array of RPC payload. The result is a list of
 responses, with the result for each individual request, or a corresponding fault result.
 
+It is available only to XML-RPC clients, since JSON-RPC protocol specify how to call multiple RPC methods
+at once using batch request.
+
 .. _well defined: https://mirrors.talideon.com/articles/multicall.html
 .. _Python's ServerProxy: https://docs.python.org/3/library/xmlrpc.client.html#multicall-objects
+.. _Eric Kidd: https://github.com/emk

@@ -67,8 +67,10 @@ Here is a basic example of such a configuration:
         }
     }
 
-All information about logging configuration can be found in `official Django docs`_. By default, logs from
-``modernrpc.*`` modules are discarded silently. This behavior prevent the common Python 2 error message "No handlers
-could be found for logger XXX".
+All information about logging configuration can be found in `official Django docs`_.
+
+.. versionadded:: 0.7
+   By default, logs from ``modernrpc.*`` modules are discarded silently. This behavior prevent
+   the common Python 2 error message "No handlers could be found for logger XXX".
 
 .. _official Django docs: https://docs.djangoproject.com/en/dev/topics/logging/#configuring-logging

@@ -15,14 +15,11 @@ JSON-RPC specification
 
 Specification for system introspection methods (XML-RPC)
 
-- Original document: http://xmlrpc.usefulinc.com/doc/reserved.html (dead link now)
-- http://scripts.incutio.com/xmlrpc/introspection.html
+- http://scripts.incutio.com/xmlrpc/introspection.html (originally available
+  from http://xmlrpc.usefulinc.com/doc/reserved.html)
 
 Description of the system.multicall introspection method, by Eric Kidd:
 
-- https://mirrors.talideon.com/articles/multicall.html
+- https://mirrors.talideon.com/articles/multicall.html (originally posted
+  on http://www.xmlrpc.com/discuss/msgReader$1208 and http://directory.xmlrpc.com/services/xmlrpcextensions/)
 - Python XML-RPC implementation: https://docs.python.org/3/library/xmlrpc.client.html
-
-Dead links:
-
-- http://directory.xmlrpc.com/services/xmlrpcExtensions
