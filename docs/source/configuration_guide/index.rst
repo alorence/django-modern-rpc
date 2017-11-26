@@ -6,6 +6,8 @@ Standard configuration
    :maxdepth: 2
 
    methods_registration
-   entry_point_configuration
-   provide_documentation
+   entry_point
+   auto_generated_documentation
+   authentication
+   error_handling
    settings
