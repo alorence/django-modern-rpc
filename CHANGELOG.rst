@@ -9,7 +9,7 @@ Current development
 
 - Logging system
 
-  - It is now possible to log exceptions stack on errors by configuring ``MODERNRPC_LOG_EXCEPTIONS = True`` (#15)
+  - It is now possible to log exceptions stack on errors by configuring ``MODERNRPC_LOG_EXCEPTIONS = True`` (`#15`_)
   - Error messages have been rewritten to be consistent across all modules and classes
   - Decrease log verbosity: some ``INFO`` log messages now have ``DEBUG`` level (startup methods registration)
 
@@ -17,34 +17,36 @@ Current development
 
   - Added a page to explain how to configure RPC methods documentation generation, and add a note to explicitly
     state that ``markdown`` or ``docutils`` package must be installed if ``settings.MODERNRPC_DOC_FORMAT`` is set
-    to non-empty value (#16)
+    to non-empty value (`#16`_)
   - Added a page to list implemented system introspection methods
   - Added a bibliography page, to list all references used to write the library
 
-- Generated RPC methods documentation default template now uses Bootstrap 4.0.0-beta.2 (previously 4.0.0-alpha.5)
+- Default template for generated RPC methods documentation now uses Bootstrap 4.0.0-beta.2 (previously 4.0.0-alpha.5)
 
 **Bugfixes**
 
+.. _#15: https://github.com/alorence/django-modern-rpc/issues/15
+.. _#16: https://github.com/alorence/django-modern-rpc/issues/16
 
 Release 0.9.0 (2017-10-03)
 ==========================
-This is a major release, with many improvements, protocol support and bug fixes. This version introduce an API break,
+This is a major release with many improvements, protocol support and bug fixes. This version introduce an API break,
 please read carefully.
 
 **Improvements**
 
-- Class ``RPCException`` and its subclasses now accept an additional ``data`` argument (#10). This is used by JSON-RPC
+- Class ``RPCException`` and its subclasses now accept an additional ``data`` argument (`#10`_). This is used by JSON-RPC
   handler to report additional information to user in case of error. This data is ignored by XML-RPC handler.
-- JSON-RPC: Batch requests are now supported (#11)
-- JSON-RPC: Named parameters are now supported (#12)
+- JSON-RPC: Batch requests are now supported (`#11`_)
+- JSON-RPC: Named parameters are now supported (`#12`_)
 - JSON-RPC: Notification calls are now supported. Missing `id` in payload is no longer considered as invalid, but
   is correectly handled. No HTTP response is returned in such case, according to the standard.
 - XML-RPC: exception raised when serializing data to XML are now catched as ``InternalError`` and a clear error message
 
 **API Changes**
 
-- ``modernrpc.handlers.JSONRPC`` and ``modernrpc.handlers.XMLRPC`` have been moved and renamed. They become respectively
-  ``modernrpc.core.JSONRPC_PROTOCOL`` and ``modernrpc.core.XMLRPC_PROTOCOL``
+- ``modernrpc.handlers.JSONRPC`` and ``modernrpc.handlers.XMLRPC`` constants have been moved and renamed. They
+  become respectively ``modernrpc.core.JSONRPC_PROTOCOL`` and ``modernrpc.core.XMLRPC_PROTOCOL``
 - ``RPCHandler`` class updated, as well as subclases ``XMLRPCHandler`` and ``JSONRPCHandler``.
   ``RPCHandler.parse_request()`` is now ``RPCHandler.process_request()``. The new method does not return a tuple
   ``(method_name, params)`` anymore. Instead, it executes the underlying RPC method using new class ``RPCRequest``.
@@ -53,6 +55,11 @@ please read carefully.
 **Minor updates**
 
 - Code has been improved to prepare future compatibility with Django 2.0
+
+.. _#10: https://github.com/alorence/django-modern-rpc/issues/10
+.. _#11: https://github.com/alorence/django-modern-rpc/issues/11
+.. _#12: https://github.com/alorence/django-modern-rpc/issues/12
+
 
 Release 0.8.1 (2017-10-02)
 --------------------------
@@ -70,11 +77,13 @@ Release 0.8.0 (2017-07-12)
 **Bugfixes**
 
 - Fixed invalid HTML tag rendered from RPC Method documentation. Single new lines are converted to space since they
-  are mostly used to limit docstrings line width. See pull request #7, thanks to @adamdonahue
-- Signature of ``auth.set_authentication_predicate`` has been fixed so it can be used as decorator_ (#8).
+  are mostly used to limit docstrings line width. See pull request `#7`_, thanks to @adamdonahue
+- Signature of ``auth.set_authentication_predicate`` has been fixed so it can be used as decorator_ (`#8`_).
   Thanks to @aplicacionamedida
 
 .. _decorator: http://django-modern-rpc.readthedocs.io/en/latest/advanced/authentication.html#basics
+.. _#7: https://github.com/alorence/django-modern-rpc/issues/7
+.. _#8: https://github.com/alorence/django-modern-rpc/issues/8
 
 Release 0.7.1 (2017-06-24)
 --------------------------
@@ -101,20 +110,32 @@ Release 0.6.0 (2017-05-13)
 **Performance Improvements**
 
 - Django cache system was previously used to store the list of available methods in the current project. This was
-  useless, and caused issues with some cache systems (#5).
+  useless, and caused issues with some cache systems (`#5`_).
   Use of cache system has been removed. The list of RPC methods is computed when the application is
   started and kept in memory until it is stopped.
 
+.. _#5: https://github.com/alorence/django-modern-rpc/issues/5
+
+
 Release 0.5.2 (2017-04-18)
 --------------------------
-- User instance is now correctly stored in the current request after successful authentication [#4]
+
+**Improvements**
+
+- HTTP Basic Authentication backend: User instance is now correctly stored in current request after successful
+  authentication (`#4`_)
 - Unit testing with Django 1.11 is now performed against release version (Beta and RC are not tested anymore)
-- Documentation has been improved
+- Various Documentation improvements
+
+.. _#4: https://github.com/alorence/django-modern-rpc/issues/4
 
 Release 0.5.1 (2017-03-25)
 --------------------------
+
+**Improvements**
+
 - When RPC methods are registered, if a module file contains errors, a python warning is produced. This ensure the
-  message will be displayed even if the logging system is not configured in a project (#2)
+  message will be displayed even if the logging system is not configured in a project (`#2`_)
 - Python 2 strings standardization. Allow to configure an automatic conversion of incoming strings, to ensure they have
   the same type in RPC method, no matter what protocol was used to call it. Previously, due to different behavior
   between JSON and XML deserializers, strings were received as ``str`` when method was called via XML-RPC and as
@@ -123,8 +144,13 @@ Release 0.5.1 (2017-03-25)
 - Tests are performed against Django 1.11rc1
 - ``modernrpc.core.register_method()`` function was deprecated since version 0.4.0 and has been removed.
 
+.. _#2: https://github.com/alorence/django-modern-rpc/issues/2
+
 Release 0.5.0 (2017-02-18)
 --------------------------
+
+**Improvements**
+
 - Typo fixes
 - JSON-RPC 2.0 standard explicitly allows requests without 'params' member. This doesn't produce error anymore.
 - Setting variable ``MODERNRPC_XML_USE_BUILTIN_TYPES`` is now deprecated in favor of
@@ -137,8 +163,11 @@ Release 0.5.0 (2017-02-18)
 
 Release 0.4.2 (2016-11-20)
 --------------------------
+
+**Improvements**
+
 - Various performance improvements
-- Better use of logging framework (python builtin) to report errors & exceptions from library and RPC methods
+- Better use of logging system (python builtin) to report errors & exceptions from library and RPC methods
 - Rewritten docstring parser. Markdown and reStructured formatters are still supported to generate HTML documentation
   for RPC methods. They now have unit tests to validate their behavior.
 - @rpc_method decorator can be used with or without parenthesis (and this feature is tested)
@@ -146,6 +175,9 @@ Release 0.4.2 (2016-11-20)
 
 Release 0.4.1 (2016-11-17)
 --------------------------
+
+**Improvements**
+
 - Method arguments documentation keep the same order as defined in docstring
 - API change: ``MODERNRPC_ENTRY_POINTS_MODULES`` setting have been renamed to ``MODERNRPC_METHODS_MODULES``.
 - A simple warning is displayed when ``MODERNRPC_METHODS_MODULES`` is not set, instead of a radical
@@ -154,49 +186,76 @@ Release 0.4.1 (2016-11-17)
 
 Release 0.4.0 (2016-11-17)
 --------------------------
-- API change: new unified way to register methods. Documentation in progress
-- API change: XMl-RPC handler will now correctly handle None values by default. This behavior can be configured using
-  ``MODERNRPC_XMLRPC_ALLOW_NONE`` setting.
-- Bugfix: when django use a persistent cache (Redis, memcached, etc.), ensure the registry is up-to-date
+
+**API Changes**
+
+- New unified way to register methods. Documentation in progress
+- XMl-RPC handler will now correctly serialize and unserialize None values by default. This behavior can be
+  configured using ``MODERNRPC_XMLRPC_ALLOW_NONE`` setting.
+
+**Bugfix**
+
+- When django use a persistent cache (Redis, memcached, etc.), ensure the registry is up-to-date
   with current sources at startup
 
 Release 0.3.2 (2016-10-26)
 --------------------------
+
+**Bugfix**
+
 - Include missing templates in pypi distribution packages
 
 Release 0.3.1 (2016-10-26)
 --------------------------
+
+**Improvements**
+
 - HTML documentation automatically generated for an entry point
-- 'system.multicall' is now supported, only in XML-RPC
+- ``system.multicall`` is now supported, only in XML-RPC
 - Many tests added
 
 Release 0.3.0 (2016-10-18)
 --------------------------
+
+**API Changes**
+
 - Settings variables have been renamed to limit conflicts with other libraries. In the future, all settings will have
   the same prefix.
 
   * ``JSONRPC_DEFAULT_DECODER`` becomes ``MODERNRPC_JSON_DECODER``
   * ``JSONRPC_DEFAULT_ENCODER`` becomes ``MODERNRPC_JSON_ENCODER``
 
-  See https:/alorence/django-modern-rpc/blob/master/modernrpc/config.py for more details
+  See https://github.com/alorence/django-modern-rpc/blob/master/modernrpc/conf/default_settings.py for more details
 - Many other settings added, to make the library more configurable. See
   http://django-modern-rpc.readthedocs.io/en/latest/basic_usage/settings.html
+
+**Improvements**
+
 - RPC methods can now declare the special ``**kwargs`` parameter. The dict will contain information about current
   context (request, entry point, protocol, etc.)
 - About 12 tests added to increase coverage
 - Many documentation improvements
-- 'system.methodHelp' is now supported
+- ``system.methodHelp`` is now supported
 
 Release 0.2.3 (2016-10-13)
 --------------------------
+
+**Minor change**
+
 - Useless tests & testsite packages have been removed from Pypi distributions (binary & source)
 
 Release 0.2.2 (2016-10-13)
 --------------------------
+
+**Minor change**
+
 - Useless tests packages have been removed from Pypi distributions (binary & source)
 
 Release 0.2.1 (2016-10-12)
 --------------------------
+
+**Improvements**
+
 - Project is now configured to report tests coverage. See https://coveralls.io/github/alorence/django-modern-rpc
 - Some documentation have been added, to cover more features of the library.
   See http://django-modern-rpc.readthedocs.io/en/latest/
@@ -205,28 +264,32 @@ Release 0.2.1 (2016-10-12)
 
 Release 0.2.0 (2016-10-05)
 --------------------------
+
+**Improvements**
+
 - Added very basic documentation: http://django-modern-rpc.rtfd.io/
-- 'system.listMethods' is now supported
-- 'system.methodSignature' is now supported
+- ``system.listMethods`` is now supported
+- ``system.methodSignature`` is now supported
 - Error reporting has been improved. Correct error codes and messages are returned on usual fail cause.
   See module ``modernrpc.exceptions`` for more information.
 - Many unit tests have been added to increase test coverage of the library
 
 Release 0.1.0 (2016-10-02)
 --------------------------
-- First version with very basic features:
 
-  * Works with Python 2.7, 3.3, 3.4 (Django 1.8 only) and 3.5
-  * Works with Django 1.8, 1.9 and 1.10
-  * Supports JSON-RPC and XML-RPC simple requests
-  * Supports multiple entry-points with defined list of methods and
-    supported protocols
-- Some important features are still **missing**:
+This is the very first version of the library. Only a few subset of planned features were implemented
+
+**Current features**
+
+  * Work with Python 2.7, 3.3, 3.4 (Django 1.8 only) and 3.5
+  * Work with Django 1.8, 1.9 and 1.10
+  * JSON-RPC and XML-RPC simple requests support
+  * Multiple entry-points with defined list of methods and supported protocols
+
+**Missing features**
 
   * No authentication support
   * Unit tests doesn't cover all the code
-  * RPC system methods utility (listMethods, methodSignature, etc.)
-    are not implemented
+  * RPC system methods utility (``listMethods``, ``methodSignature``, etc.) are not yet implemented
   * There is no way to provide documentation in HTML form
-  * The library itself doesn't have any documentation (appart from
-    README.md)
+  * The library itself doesn't have any documentation (appart from README.md)
