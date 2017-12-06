@@ -2,9 +2,9 @@
 System methods
 ==============
 
-XML-RPC_ standard does not specify default methods to achieve introspection tasks. But some people proposed a standard
-for such methods. The `original document`_ is now offline, but has been retrieved from Google cache and is now
-hosted here_.
+XML-RPC_ specification doesn't provide default methods to achieve introspection tasks, but some people proposed
+a standard for such methods. The `original document`_ is now offline, but has been retrieved from Google
+cache and is now hosted here_.
 
 .. _XML-RPC: http://xmlrpc.scripting.com/spec.html
 .. _original document: http://xmlrpc.usefulinc.com/doc/reserved.html
@@ -21,8 +21,6 @@ Return the signature of a specific method
 system.methodHelp
 -----------------
 Return the documentation for a specific method.
-
-These 3 system methods are available to both JSON-RPC and XML-RPC clients.
 
 system.multicall
 ----------------
