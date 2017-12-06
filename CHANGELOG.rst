@@ -2,14 +2,16 @@
 Changelog
 *********
 
-Current development
-===================
+Release 0.10.0 (2017-12-06)
+===========================
 
 **Improvements**
 
-- Logging system
+- Logging system / error management
 
-  - It is now possible to log exceptions stack on errors by configuring ``MODERNRPC_LOG_EXCEPTIONS = True`` (`#15`_)
+  - In case of error, current exception stacktrace is now passed to logger by default. This allows special handler like
+  ``django.utils.log.AdminEmailHandler`` or ``raven.handlers.logging.SentryHandler`` to use it to report more useful
+  information (`#13`_)
   - Error messages have been rewritten to be consistent across all modules and classes
   - Decrease log verbosity: some ``INFO`` log messages now have ``DEBUG`` level (startup methods registration)
 
@@ -23,9 +25,7 @@ Current development
 
 - Default template for generated RPC methods documentation now uses Bootstrap 4.0.0-beta.2 (previously 4.0.0-alpha.5)
 
-**Bugfixes**
-
-.. _#15: https://github.com/alorence/django-modern-rpc/issues/15
+.. _#13: https://github.com/alorence/django-modern-rpc/issues/13
 .. _#16: https://github.com/alorence/django-modern-rpc/issues/16
 
 Release 0.9.0 (2017-10-03)
