@@ -32,4 +32,5 @@ MODERNRPC_DOC_FORMAT = ''
 MODERNRPC_PY2_STR_TYPE = None
 MODERNRPC_PY2_STR_ENCODING = 'UTF-8'
 
-MODERNRPC_LOG_EXCEPTIONS = False
+# Set to False if you need to disable exception logging
+MODERNRPC_LOG_EXCEPTIONS = True
