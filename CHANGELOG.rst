@@ -3,13 +3,13 @@ Changelog
 *********
 
 Current development
-===================
+-------------------
 **Performance improvements**
 
 - HTML documentation is generated only if needed and uses Django's @cached_property
 
 Release 0.10.0 (2017-12-06)
-===========================
+---------------------------
 **Improvements**
 
 - Logging system / error management
@@ -34,7 +34,7 @@ Release 0.10.0 (2017-12-06)
 .. _#16: https://github.com/alorence/django-modern-rpc/issues/16
 
 Release 0.9.0 (2017-10-03)
-==========================
+--------------------------
 This is a major release with many improvements, protocol support and bug fixes. This version introduce an API break,
 please read carefully.
 
