@@ -3,7 +3,7 @@ import pytest
 from django.apps.registry import apps
 
 from modernrpc.apps import check_required_settings_defined
-from modernrpc.core import get_all_method_names
+from modernrpc.core import registry
 
 
 def test_init_import_warning(settings):
@@ -36,7 +36,7 @@ def test_init_registry_cleaning(settings):
     app.ready()
 
     # Retrieve all methods defined in custom modules (minus system.* methods)
-    custom_rpc_methods = [m for m in get_all_method_names() if not m.startswith('system.')]
+    custom_rpc_methods = [m for m in registry.get_all_method_names() if not m.startswith('system.')]
     # Ensure a normal init registered some rpc methods
     assert len(custom_rpc_methods) > 0
 
@@ -48,13 +48,13 @@ def test_init_registry_cleaning(settings):
         app.ready()
 
     # Now, we should have removed all custom methods from the registry
-    custom_rpc_methods = [m for m in get_all_method_names() if not m.startswith('system.')]
+    custom_rpc_methods = [m for m in registry.get_all_method_names() if not m.startswith('system.')]
     assert len(custom_rpc_methods) == 0
 
     # Re-init library, with None modules list
     settings.MODERNRPC_METHODS_MODULES = None
     app.ready()
-    custom_rpc_methods = [m for m in get_all_method_names() if not m.startswith('system.')]
+    custom_rpc_methods = [m for m in registry.get_all_method_names() if not m.startswith('system.')]
     assert len(custom_rpc_methods) == 0
 
     # Restore original state for registry
