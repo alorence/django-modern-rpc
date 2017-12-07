@@ -63,7 +63,7 @@ class RPCHandler(object):
 
     def execute_procedure(self, name, args=None, kwargs=None):
         """
-        Process RPC request, call the corresponding RPC Method and return the result.
+        Call the concrete python function corresponding to given RPC Method `name` and return the result.
 
         Raise RPCUnknownMethod, AuthenticationFailed, RPCInvalidParams or any Exception sub-class.
         """
