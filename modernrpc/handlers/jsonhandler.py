@@ -8,7 +8,6 @@ from modernrpc.conf import settings
 from modernrpc.core import JSONRPC_PROTOCOL
 from modernrpc.exceptions import RPCInternalError, RPCInvalidRequest, RPCParseError, RPCException
 from modernrpc.handlers.base import RPCHandler
-from modernrpc.core import RPCRequest
 from modernrpc.utils import get_modernrpc_logger
 
 try:
@@ -114,18 +113,13 @@ class JSONRPCHandler(RPCHandler):
         if payload['jsonrpc'] != '2.0':
             raise RPCInvalidRequest('The attribute "jsonrpc" must contain "2.0"')
 
+        method_name = payload['method']
+
         params = payload.get('params')
+        args = params if isinstance(params, (list, tuple)) else []
+        kwargs = params if isinstance(params, dict) else {}
 
-        if isinstance(params, (list, tuple)):
-            rpc_request = RPCRequest(payload['method'], args=params)
-
-        elif isinstance(params, dict):
-            rpc_request = RPCRequest(payload['method'], kwargs=params)
-
-        else:
-            rpc_request = RPCRequest(payload['method'])
-
-        return rpc_request.execute(self)
+        return self.execute_procedure(method_name, args=args, kwargs=kwargs)
 
     @staticmethod
     def json_http_response(data, http_response_cls=HttpResponse):

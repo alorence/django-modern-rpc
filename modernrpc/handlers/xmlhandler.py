@@ -8,7 +8,6 @@ from modernrpc.conf import settings
 from modernrpc.core import XMLRPC_PROTOCOL
 from modernrpc.exceptions import RPCParseError, RPCInvalidRequest, RPCInternalError
 from modernrpc.handlers.base import RPCHandler
-from modernrpc.core import RPCRequest
 
 
 class XMLRPCHandler(RPCHandler):
@@ -76,9 +75,7 @@ class XMLRPCHandler(RPCHandler):
         if method_name is None:
             raise RPCInvalidRequest('Missing methodName')
 
-        rpc_request = RPCRequest(method_name, args=params)
-
-        return rpc_request.execute(self)
+        return self.execute_procedure(method_name, args=params)
 
     @staticmethod
     def xml_http_response(data, http_response_cls=HttpResponse):

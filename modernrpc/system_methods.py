@@ -1,6 +1,5 @@
 # coding: utf-8
-from modernrpc.core import ENTRY_POINT_KEY, PROTOCOL_KEY, registry, rpc_method, RPCRequest, \
-    HANDLER_KEY, XMLRPC_PROTOCOL
+from modernrpc.core import ENTRY_POINT_KEY, PROTOCOL_KEY, registry, rpc_method, HANDLER_KEY, XMLRPC_PROTOCOL
 from modernrpc.exceptions import RPCInvalidParams, RPCException, RPC_INTERNAL_ERROR
 
 
@@ -71,10 +70,8 @@ def __system_multiCall(calls, **kwargs):
     results = []
 
     for call in calls:
-        rpc_request = RPCRequest(call['methodName'], args=call.get('params'))
-
         try:
-            result = rpc_request.execute(handler)
+            result = handler.execute_procedure(call['methodName'], args=call.get('params'))
 
             # From https://mirrors.talideon.com/articles/multicall.html:
             # "Notice that regular return values are always nested inside a one-element array. This allows you to

@@ -9,9 +9,7 @@ from django.utils.functional import cached_property
 from django.utils.html import urlize
 from django.utils.safestring import mark_safe
 
-from modernrpc.compat import standardize_strings
 from modernrpc.conf import settings
-from modernrpc.exceptions import RPCUnknownMethod, AuthenticationFailed, RPCInvalidParams
 from modernrpc.utils import ensure_sequence, get_modernrpc_logger
 
 # Special constant meaning "all protocols" or "all entry points"
@@ -27,14 +25,14 @@ ENTRY_POINT_KEY = 'entry_point'
 PROTOCOL_KEY = 'protocol'
 HANDLER_KEY = 'handler'
 
-logger = get_modernrpc_logger(__name__)
-
 # Define regular expressions used to parse docstring
 PARAM_REXP = re.compile(r'^:param ([\w]+):\s?(.*)')
 PARAM_TYPE_REXP = re.compile(r'^:type ([\w]+):\s?(.*)')
 
 RETURN_REXP = re.compile(r'^:return:\s?(.*)')
 RETURN_TYPE_REXP = re.compile(r'^:rtype:\s?(.*)')
+
+logger = get_modernrpc_logger(__name__)
 
 
 class RPCMethod(object):
@@ -194,15 +192,6 @@ class RPCMethod(object):
             predicate(request, *self.predicates_params[i])
             for i, predicate in enumerate(self.predicates)
         )
-
-    def execute(self, *args, **kwargs):
-        """Call the function encapsulated by the current instance"""
-
-        if six.PY2:
-            args = standardize_strings(args, strtype=self.str_standardization, encoding=self.str_std_encoding)
-
-        # Call the rpc method, as standard python function
-        return self.function(*args, **kwargs)
 
     def available_for_protocol(self, protocol):
         """Check if the current function can be executed from a request defining the given protocol"""
@@ -380,59 +369,3 @@ def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL,
 
     # If @rpc_method is used without parenthesis
     return decorated(func)
-
-
-class RPCRequest(object):
-    """
-    Encapsulate a RPC request.
-
-    Instances of this class are used to call a RPC methods the same way from anywhere.
-    """
-
-    def __init__(self, method_name, args=None, kwargs=None):
-        self.method_name = method_name
-        self.args = args or []
-        self.kwargs = kwargs or {}
-
-    def execute(self, handler):
-        """
-        Process RPC request, call the corresponding RPC Method and return the result.
-
-        Raise RPCUnknownMethod, AuthenticationFailed, RPCInvalidParams or any Exception sub-class.
-        """
-
-        _method = registry.get_method(self.method_name, handler.entry_point, handler.protocol)
-
-        if not _method:
-            raise RPCUnknownMethod(self.method_name)
-
-        logger.debug('Check authentication / permissions for method {} and user {}'
-                     .format(self.method_name, handler.request.user))
-
-        if not _method.check_permissions(handler.request):
-            raise AuthenticationFailed(self.method_name)
-
-        logger.debug('RPC method {} will be executed'.format(self.method_name))
-
-        # Build args & kwargs for procedure execution
-        args, kwargs = self.args, self.kwargs
-
-        # If the RPC method needs to access some internals, update kwargs dict
-        if _method.accept_kwargs:
-            kwargs.update({
-                REQUEST_KEY: handler.request,
-                ENTRY_POINT_KEY: handler.entry_point,
-                PROTOCOL_KEY: handler.protocol,
-                HANDLER_KEY: handler,
-            })
-
-        logger.debug('Params: args = {} - kwargs = {}'.format(args, kwargs))
-
-        try:
-            # Call the python function associated with the RPC method name
-            return _method.execute(*args, **kwargs)
-
-        except TypeError as e:
-            # If given arguments cannot be transmitted properly to python function,
-            # raise an Invalid Params exceptions
-            raise RPCInvalidParams(str(e))

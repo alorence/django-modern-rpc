@@ -1,5 +1,13 @@
 # coding: utf-8
-from modernrpc.exceptions import RPCInvalidRequest
+from django.utils import six
+
+import modernrpc
+from modernrpc.core import registry, REQUEST_KEY, ENTRY_POINT_KEY, PROTOCOL_KEY, HANDLER_KEY
+from modernrpc.exceptions import RPCInvalidRequest, RPCUnknownMethod, AuthenticationFailed, RPCInvalidParams
+from modernrpc.utils import get_modernrpc_logger
+import modernrpc.compat
+
+logger = get_modernrpc_logger(__name__)
 
 
 class RPCHandler(object):
@@ -52,3 +60,53 @@ class RPCHandler(object):
     def result_error(self, exception, http_response_cls=None):
         """Return a HttpResponse instance containing the result payload for the given exception"""
         raise NotImplementedError("You must override result_error()")
+
+    def execute_procedure(self, name, args=None, kwargs=None):
+        """
+        Process RPC request, call the corresponding RPC Method and return the result.
+
+        Raise RPCUnknownMethod, AuthenticationFailed, RPCInvalidParams or any Exception sub-class.
+        """
+
+        _method = registry.get_method(name, self.entry_point, self.protocol)
+
+        if not _method:
+            raise RPCUnknownMethod(name)
+
+        logger.debug('Check authentication / permissions for method {} and user {}'
+                     .format(name, self.request.user))
+
+        if not _method.check_permissions(self.request):
+            raise AuthenticationFailed(name)
+
+        logger.debug('RPC method {} will be executed'.format(name))
+
+        # Replace default None value with empty instance of corresponding type
+        args = args or []
+        kwargs = kwargs or {}
+
+        # If the RPC method needs to access some internals, update kwargs dict
+        if _method.accept_kwargs:
+            kwargs.update({
+                REQUEST_KEY: self.request,
+                ENTRY_POINT_KEY: self.entry_point,
+                PROTOCOL_KEY: self.protocol,
+                HANDLER_KEY: self,
+            })
+
+        # Call the python function associated with the RPC method name
+        if six.PY2:
+            method_std, encoding = _method.str_standardization, _method.str_std_encoding
+            args = modernrpc.compat.standardize_strings(args, strtype=method_std, encoding=encoding)
+            kwargs = modernrpc.compat.standardize_strings(kwargs, strtype=method_std, encoding=encoding)
+
+        logger.debug('Params: args = {} - kwargs = {}'.format(args, kwargs))
+
+        try:
+            # Call the rpc method, as standard python function
+            return _method.function(*args, **kwargs)
+
+        except TypeError as e:
+            # If given arguments cannot be transmitted properly to python function,
+            # raise an Invalid Params exceptions
+            raise RPCInvalidParams(str(e))
