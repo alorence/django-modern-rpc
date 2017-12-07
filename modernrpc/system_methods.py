@@ -1,5 +1,5 @@
 # coding: utf-8
-from modernrpc.core import ENTRY_POINT_KEY, PROTOCOL_KEY,registry, rpc_method, RPCRequest, \
+from modernrpc.core import ENTRY_POINT_KEY, PROTOCOL_KEY, registry, rpc_method, RPCRequest, \
     HANDLER_KEY, XMLRPC_PROTOCOL
 from modernrpc.exceptions import RPCInvalidParams, RPCException, RPC_INTERNAL_ERROR
 
