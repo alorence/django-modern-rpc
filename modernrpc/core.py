@@ -30,10 +30,11 @@ HANDLER_KEY = 'handler'
 logger = get_modernrpc_logger(__name__)
 
 # Define regular expressions used to parse docstring
-PARAM_REXP = r'^:param ([\w]+):\s?(.*)'
-RETURN_REXP = r'^:return:\s?(.*)'
-PARAM_TYPE_REXP = r'^:type ([\w]+):\s?(.*)'
-RETURN_TYPE_REXP = r'^:rtype:\s?(.*)'
+PARAM_REXP = re.compile(r'^:param ([\w]+):\s?(.*)')
+PARAM_TYPE_REXP = re.compile(r'^:type ([\w]+):\s?(.*)')
+
+RETURN_REXP = re.compile(r'^:return:\s?(.*)')
+RETURN_TYPE_REXP = re.compile(r'^:rtype:\s?(.*)')
 
 
 class RPCMethod(object):
@@ -120,7 +121,7 @@ class RPCMethod(object):
                 raw_docstring += '\n'
                 continue
 
-            param_match = re.match(PARAM_REXP, line)
+            param_match = PARAM_REXP.match(line)
             if param_match:
                 param_name, description = param_match.group(1, 2)
                 if param_name == 'kwargs':
@@ -130,7 +131,7 @@ class RPCMethod(object):
                 self.args_doc[param_name] = doc
                 continue
 
-            param_type_match = re.match(PARAM_TYPE_REXP, line)
+            param_type_match = PARAM_TYPE_REXP.match(line)
             if param_type_match:
                 param_name, param_type = param_type_match.group(1, 2)
                 if param_name == 'kwargs':
@@ -141,13 +142,13 @@ class RPCMethod(object):
                 self.signature.append(param_type)
                 continue
 
-            return_match = re.match(RETURN_REXP, line)
+            return_match = RETURN_REXP.match(line)
             if return_match:
                 return_description = return_match.group(1)
                 self.return_doc['text'] = return_description
                 continue
 
-            return_type_match = re.match(RETURN_TYPE_REXP, line)
+            return_type_match = RETURN_TYPE_REXP.match(line)
             if return_type_match:
                 return_description = return_type_match.group(1)
                 self.return_doc['type'] = return_description
