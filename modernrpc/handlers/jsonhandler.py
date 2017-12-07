@@ -81,10 +81,10 @@ class JSONRPCHandler(RPCHandler):
 
                     result = self.process_single_request(single_payload)
 
+                    # As stated in documentation:
+                    # "A Response object SHOULD exist for each Request object, except that there SHOULD NOT be any
+                    # Response objects for notifications."
                     if request_id:
-                        # As stated in documentation:
-                        # "A Response object SHOULD exist for each Request object, except that there SHOULD NOT be any
-                        # Response objects for notifications."
                         batch_result.results.append(self.json_success_response(result, override_id=request_id))
 
                 except RPCException as e:

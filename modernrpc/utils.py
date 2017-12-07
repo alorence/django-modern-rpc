@@ -3,9 +3,17 @@ import logging
 from django.utils import six
 
 
+def ensure_sequence(element):
+    """Ensure the given argument is a sequence object (tuple, list). If not, return a list containing its value."""
+    return element if isinstance(element, (tuple, list)) else [element]
+
+
 def logger_has_handlers(logger):
-    """Since Python 2 doesn't provide Logger.hasHandlers(), we have to
-    perform the lookup by ourself."""
+    """
+    Check if given logger has at least 1 handler associated, return a boolean value.
+
+    Since Python 2 doesn't provide Logger.hasHandlers(), we have to perform the lookup by ourself.
+    """
     if six.PY3:
         return logger.hasHandlers()
     else:
@@ -20,14 +28,6 @@ def logger_has_handlers(logger):
             else:
                 c = c.parent
         return rv
-
-
-def ensure_sequence(element):
-    """Ensure the given argument is a sequence object (tuple, list). If not, return a list with it."""
-    if isinstance(element, (tuple, list)):
-        return element
-
-    return [element]
 
 
 def get_modernrpc_logger(name):

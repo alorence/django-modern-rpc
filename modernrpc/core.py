@@ -84,7 +84,7 @@ class RPCMethod(object):
     def __eq__(self, other):
         return \
             self.function == other.function and \
-            self._external_name == other._external_name and \
+            self.name == other.name and \
             self.entry_point == other.entry_point and \
             self.protocol == other.protocol and \
             self.predicates == other.predicates and \
@@ -345,7 +345,7 @@ def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL,
     :param str_standardization: Default: settings.MODERNRPC_PY2_STR_TYPE. Configure string standardization on python 2.
     Ignored on python 3.
     :param str_standardization_encoding: Default: settings.MODERNRPC_PY2_STR_ENCODING. Configure the encoding used
-    to perform string standardization conversion
+    to perform string standardization conversion. Ignored on python 3.
     :type name: str
     :type entry_point: str
     :type protocol: str
@@ -396,15 +396,15 @@ class RPCRequest(object):
         Raise RPCUnknownMethod, AuthenticationFailed, RPCInvalidParams or any Exception sub-class.
         """
 
-        rpc_method = get_method(self.method_name, handler.entry_point, handler.protocol)
+        _method = get_method(self.method_name, handler.entry_point, handler.protocol)
 
-        if not rpc_method:
+        if not _method:
             raise RPCUnknownMethod(self.method_name)
 
         logger.debug('Check authentication / permissions for method {} and user {}'
                      .format(self.method_name, handler.request.user))
 
-        if not rpc_method.check_permissions(handler.request):
+        if not _method.check_permissions(handler.request):
             raise AuthenticationFailed(self.method_name)
 
         logger.debug('RPC method {} will be executed'.format(self.method_name))
@@ -413,7 +413,7 @@ class RPCRequest(object):
         args, kwargs = self.args, self.kwargs
 
         # If the RPC method needs to access some internals, update kwargs dict
-        if rpc_method.accept_kwargs:
+        if _method.accept_kwargs:
             kwargs.update({
                 REQUEST_KEY: handler.request,
                 ENTRY_POINT_KEY: handler.entry_point,
@@ -425,7 +425,7 @@ class RPCRequest(object):
 
         try:
             # Call the python function associated with the RPC method name
-            return rpc_method.execute(*args, **kwargs)
+            return _method.execute(*args, **kwargs)
 
         except TypeError as e:
             # If given arguments cannot be transmitted properly to python function,

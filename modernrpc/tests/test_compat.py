@@ -10,8 +10,9 @@ from modernrpc.compat import standardize_strings
 
 @pytest.mark.skipif(six.PY2, reason='Python 3 specific test')
 def test_standardize_str_error_with_py3():
-    with raises(AssertionError):
+    with raises(AssertionError) as excpinfo:
         standardize_strings('123')
+    assert 'python 2 only' in str(excpinfo.value).lower()
 
 
 @pytest.mark.skipif(six.PY3, reason='Python 2 specific test')
