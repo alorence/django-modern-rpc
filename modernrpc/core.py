@@ -6,6 +6,8 @@ from django.contrib.admindocs.utils import trim_docstring
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import inspect, six
 from django.utils.functional import cached_property
+from django.utils.html import urlize
+from django.utils.safestring import mark_safe
 
 from modernrpc.compat import standardize_strings
 from modernrpc.conf import settings
@@ -161,17 +163,20 @@ class RPCMethod(object):
     def html_doc(self):
         """Methods docstring, as HTML"""
         if not self.raw_docstring:
-            return ''
+            result = ''
 
-        if settings.MODERNRPC_DOC_FORMAT.lower() in ('rst', 'reStructred', 'reStructuredText'):
+        elif settings.MODERNRPC_DOC_FORMAT.lower() in ('rst', 'reStructred', 'reStructuredText'):
             from docutils.core import publish_parts
-            return publish_parts(self.raw_docstring, writer_name='html')['body']
+            result = publish_parts(self.raw_docstring, writer_name='html')['body']
 
         elif settings.MODERNRPC_DOC_FORMAT.lower() in ('md', 'markdown'):
             import markdown
-            return markdown.markdown(self.raw_docstring)
+            result = markdown.markdown(self.raw_docstring)
 
-        return "<p>{}</p>".format(self.raw_docstring.replace('\n\n', '</p><p>').replace('\n', ' '))
+        else:
+            result = "<p>{}</p>".format(self.raw_docstring.replace('\n\n', '</p><p>').replace('\n', ' '))
+
+        return mark_safe(urlize(result))
 
     def check_permissions(self, request):
         """Call the predicate(s) associated with the RPC method, to check if the current request

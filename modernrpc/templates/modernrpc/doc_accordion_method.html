@@ -29,7 +29,7 @@
 
         <div class="card-body">
 
-            {{ method.html_doc | safe | urlize }}
+            {{ method.html_doc }}
 
             {% if method.is_args_doc_available %}
 
@@ -39,9 +39,8 @@
                     <li>
                         <strong>{{ name }}</strong>
                         {% if param_help.type %}
-                            ({{ param_help.type }})
+                            ({{ param_help.type }}) -
                         {% endif %}
-                        -
                         {{ param_help.text }}
                     </li>
                     {% endfor %}
