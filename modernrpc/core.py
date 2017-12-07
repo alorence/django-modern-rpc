@@ -165,7 +165,7 @@ class RPCMethod(object):
         if not self.raw_docstring:
             result = ''
 
-        elif settings.MODERNRPC_DOC_FORMAT.lower() in ('rst', 'reStructred', 'reStructuredText'):
+        elif settings.MODERNRPC_DOC_FORMAT.lower() in ('rst', 'restructred', 'restructuredtext'):
             from docutils.core import publish_parts
             result = publish_parts(self.raw_docstring, writer_name='html')['body']
 
