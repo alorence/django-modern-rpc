@@ -123,22 +123,24 @@ class RPCMethod(object):
 
             param_match = PARAM_REXP.match(line)
             if param_match:
+                
                 param_name, description = param_match.group(1, 2)
                 if param_name == 'kwargs':
                     continue
-                doc = self.args_doc.get(param_name, {})
+
+                doc = self.args_doc.setdefault(param_name, {})
                 doc['text'] = description
-                self.args_doc[param_name] = doc
                 continue
 
             param_type_match = PARAM_TYPE_REXP.match(line)
             if param_type_match:
+
                 param_name, param_type = param_type_match.group(1, 2)
                 if param_name == 'kwargs':
                     continue
-                doc = self.args_doc.get(param_name, {})
+
+                doc = self.args_doc.setdefault(param_name, {})
                 doc['type'] = param_type
-                self.args_doc[param_name] = doc
                 self.signature.append(param_type)
                 continue
 
