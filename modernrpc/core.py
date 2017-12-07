@@ -123,7 +123,7 @@ class RPCMethod(object):
 
             param_match = PARAM_REXP.match(line)
             if param_match:
-                
+
                 param_name, description = param_match.group(1, 2)
                 if param_name == 'kwargs':
                     continue
