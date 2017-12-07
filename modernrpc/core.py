@@ -5,6 +5,7 @@ import re
 from django.contrib.admindocs.utils import trim_docstring
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import inspect, six
+from django.utils.functional import cached_property
 
 from modernrpc.compat import standardize_strings
 from modernrpc.conf import settings
@@ -25,6 +26,12 @@ PROTOCOL_KEY = 'protocol'
 HANDLER_KEY = 'handler'
 
 logger = get_modernrpc_logger(__name__)
+
+# Define regular expressions used to parse docstring
+PARAM_REXP = r'^:param ([\w]+):\s?(.*)'
+RETURN_REXP = r'^:return:\s?(.*)'
+PARAM_TYPE_REXP = r'^:type ([\w]+):\s?(.*)'
+RETURN_TYPE_REXP = r'^:rtype:\s?(.*)'
 
 
 class RPCMethod(object):
@@ -56,17 +63,13 @@ class RPCMethod(object):
 
         # Contains the signature of the method, as returned by "system.methodSignature"
         self.signature = []
-        # Contains the method's docstring, in HTML form
-        self.html_doc = ''
         # Contains doc about arguments and their type. We store this in an ordered dict, so the args documentation
         # keep the order defined in docstring
         self.args_doc = collections.OrderedDict()
         # Contains doc about return type and return value
         self.return_doc = {}
-
-        # Docstring parsing
-        self.raw_docstring = self.parse_docstring(func.__doc__)
-        self.html_doc = self.raw_docstring_to_html(self.raw_docstring)
+        # Docstring parsing. This will initialize self.signature, self.args_doc and self.return_doc
+        self.raw_docstring = self.parse_docstring(self.function.__doc__)
 
     @property
     def name(self):
@@ -107,12 +110,6 @@ class RPCMethod(object):
         # We use the helper defined in django admindocs app to remove indentation chars from docstring,
         # and parse it as title, body, metadata. We don't use metadata for now.
         docstring = trim_docstring(content)
-
-        # Define regular expression used to parse docstring
-        PARAM_REXP = r'^:param ([\w]+):\s?(.*)'
-        RETURN_REXP = r'^:return:\s?(.*)'
-        PARAM_TYPE_REXP = r'^:type ([\w]+):\s?(.*)'
-        RETURN_TYPE_REXP = r'^:rtype:\s?(.*)'
 
         for line in docstring.split('\n'):
 
@@ -160,21 +157,21 @@ class RPCMethod(object):
             raw_docstring += line + '\n'
         return raw_docstring
 
-    @staticmethod
-    def raw_docstring_to_html(docstring):
-
-        if not docstring:
+    @cached_property
+    def html_doc(self):
+        """Methods docstring, as HTML"""
+        if not self.raw_docstring:
             return ''
 
         if settings.MODERNRPC_DOC_FORMAT.lower() in ('rst', 'reStructred', 'reStructuredText'):
             from docutils.core import publish_parts
-            return publish_parts(docstring, writer_name='html')['body']
+            return publish_parts(self.raw_docstring, writer_name='html')['body']
 
         elif settings.MODERNRPC_DOC_FORMAT.lower() in ('md', 'markdown'):
             import markdown
-            return markdown.markdown(docstring)
+            return markdown.markdown(self.raw_docstring)
 
-        return "<p>{}</p>".format(docstring.replace('\n\n', '</p><p>').replace('\n', ' '))
+        return "<p>{}</p>".format(self.raw_docstring.replace('\n\n', '</p><p>').replace('\n', ' '))
 
     def check_permissions(self, request):
         """Call the predicate(s) associated with the RPC method, to check if the current request

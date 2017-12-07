@@ -2,9 +2,14 @@
 Changelog
 *********
 
+Current development
+===================
+**Performance improvements**
+
+- HTML documentation is generated only if needed and uses Django's @cached_property
+
 Release 0.10.0 (2017-12-06)
 ===========================
-
 **Improvements**
 
 - Logging system / error management
