@@ -3,10 +3,8 @@ import collections
 import re
 
 from django.contrib.admindocs.utils import trim_docstring
-from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
-from django.utils import inspect
-from django.utils import six
+from django.utils import inspect, six
 
 from modernrpc.compat import standardize_strings
 from modernrpc.conf import settings
@@ -27,7 +25,6 @@ PROTOCOL_KEY = 'protocol'
 HANDLER_KEY = 'handler'
 
 logger = get_modernrpc_logger(__name__)
-registry = {}
 
 
 class RPCMethod(object):
@@ -249,85 +246,93 @@ class RPCMethod(object):
         return self.is_args_doc_available() or self.is_return_doc_available() or self.is_doc_available()
 
 
-def reset_registry():
-    """Flush the registry from any previously registered RPC method"""
-    registry.clear()
+class _RPCRegistry(object):
+
+    def __init__(self):
+        self._registry = {}
+
+    def reset(self):
+        self._registry.clear()
+
+    def register_method(self, func):
+        """
+        Register a function to be available as RPC method.
+
+        The given function will be inspected to find external_name, protocol and entry_point values set by the decorator
+        @rpc_method.
+        :param func: A function previously decorated using @rpc_method
+        :return: The name of registered method
+        """
+        if not getattr(func, 'modernrpc_enabled', False):
+            raise ImproperlyConfigured('Error: trying to register {} as RPC method, but it has not been decorated.'
+                                       .format(func.__name__))
+
+        # Define the external name of the function
+        name = getattr(func, 'modernrpc_name', func.__name__)
+
+        logger.debug('Register RPC method "{}"'.format(name))
+
+        if name.startswith('rpc.'):
+            raise ImproperlyConfigured('According to RPC standard, method names starting with "rpc." are reserved for '
+                                       'system extensions and must not be used. See '
+                                       'http://www.jsonrpc.org/specification#extensions for more information.')
+
+        # Encapsulate the function in a RPCMethod object
+        method = RPCMethod(func)
+
+        # Ensure method names are unique in the registry
+        existing_method = self.get_method(method.name, ALL, ALL)
+        if existing_method is not None:
+            # Trying to register many times the same function is OK, because if a method is decorated
+            # with @rpc_method(), it could be imported in different places of the code
+            if method == existing_method:
+                return method.name
+            # But if we try to use the same name to register 2 different methods, we
+            # must inform the developer there is an error in the code
+            else:
+                raise ImproperlyConfigured("A RPC method with name {} has already been registered".format(method.name))
+
+        # Store the method
+        self._registry[method.name] = method
+        logger.debug('Method registered. len(registry): {}'.format(len(self._registry)))
+
+        return method.name
+
+    def total_count(self):
+        return len(self._registry)
+
+    def get_all_method_names(self, entry_point=ALL, protocol=ALL, sort_methods=False):
+        """Return the names of all RPC methods registered supported by the given entry_point / protocol pair"""
+
+        method_names = [
+            name for name, method in self._registry.items() if method.is_valid_for(entry_point, protocol)
+        ]
+
+        if sort_methods:
+            method_names = sorted(method_names)
+
+        return method_names
+
+    def get_all_methods(self, entry_point=ALL, protocol=ALL, sort_methods=False):
+        """Return a list of all methods in the registry supported by the given entry_point / protocol pair"""
+
+        if sort_methods:
+            return [
+                method for (_, method) in sorted(self._registry.items()) if method.is_valid_for(entry_point, protocol)
+            ]
+
+        return self._registry.values()
+
+    def get_method(self, name, entry_point, protocol):
+        """Retrieve a method from the given name"""
+
+        if name in self._registry and self._registry[name].is_valid_for(entry_point, protocol):
+            return self._registry[name]
+
+        return None
 
 
-def register_rpc_method(func):
-    """
-    Register a function to be available as RPC method.
-
-    The given function will be inspected to find external_name, protocol and entry_point values set by the decorator
-    @rpc_method.
-    :param func: A function previously decorated using @rpc_method
-    :return: The name of registered method
-    """
-    if not getattr(func, 'modernrpc_enabled', False):
-        raise ImproperlyConfigured('Error: trying to register {} as RPC method, but it has not been decorated.'
-                                   .format(func.__name__))
-
-    # Define the external name of the function
-    name = getattr(func, 'modernrpc_name', func.__name__)
-
-    logger.debug('Register RPC method "{}"'.format(name))
-
-    if name.startswith('rpc.'):
-        raise ImproperlyConfigured('According to RPC standard, method names starting with "rpc." are reserved for '
-                                   'system extensions and must not be used. See '
-                                   'http://www.jsonrpc.org/specification#extensions for more information.')
-
-    # Encapsulate the function in a RPCMethod object
-    method = RPCMethod(func)
-
-    # Ensure method names are unique in the registry
-    existing_method = get_method(method.name, ALL, ALL)
-    if existing_method is not None:
-        # Trying to register many times the same function is OK, because if a method is decorated
-        # with @rpc_method(), it could be imported in different places of the code
-        if method == existing_method:
-            return method.name
-        # But if we try to use the same name to register 2 different methods, we
-        # must inform the developer there is an error in the code
-        else:
-            raise ImproperlyConfigured("A RPC method with name {} has already been registered".format(method.name))
-
-    # Store the method
-    registry[method.name] = method
-    logger.debug('Method registered. len(registry): {}'.format(len(registry)))
-
-    return method.name
-
-
-def get_all_method_names(entry_point=ALL, protocol=ALL, sort_methods=False):
-    """Return the names of all RPC methods registered supported by the given entry_point / protocol pair"""
-
-    method_names = [
-        name for name, method in registry.items() if method.is_valid_for(entry_point, protocol)
-    ]
-
-    if sort_methods:
-        method_names = sorted(method_names)
-
-    return method_names
-
-
-def get_all_methods(entry_point=ALL, protocol=ALL, sort_methods=False):
-    """Return a list of all methods in the registry supported by the given entry_point / protocol pair"""
-
-    if sort_methods:
-        return [method for (_, method) in sorted(registry.items()) if method.is_valid_for(entry_point, protocol)]
-
-    return registry.values()
-
-
-def get_method(name, entry_point, protocol):
-    """Retrieve a method from the given name"""
-
-    if name in registry and registry[name].is_valid_for(entry_point, protocol):
-        return registry[name]
-
-    return None
+registry = _RPCRegistry()
 
 
 def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL,
@@ -372,11 +377,6 @@ def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL,
     return decorated(func)
 
 
-def clean_old_cache_content():
-    """Clean CACHE data from old versions of django-modern-rpc"""
-    cache.delete('__rpc_registry__', version=1)
-
-
 class RPCRequest(object):
     """
     Encapsulate a RPC request.
@@ -396,7 +396,7 @@ class RPCRequest(object):
         Raise RPCUnknownMethod, AuthenticationFailed, RPCInvalidParams or any Exception sub-class.
         """
 
-        _method = get_method(self.method_name, handler.entry_point, handler.protocol)
+        _method = registry.get_method(self.method_name, handler.entry_point, handler.protocol)
 
         if not _method:
             raise RPCUnknownMethod(self.method_name)

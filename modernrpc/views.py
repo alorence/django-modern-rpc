@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import View, TemplateView
 
 from modernrpc.conf import settings
-from modernrpc.core import ALL, get_all_methods
+from modernrpc.core import ALL, registry
 from modernrpc.exceptions import RPCInternalError, RPCException, AuthenticationFailed
 from modernrpc.utils import ensure_sequence, get_modernrpc_logger
 
@@ -113,6 +113,6 @@ class RPCEntryPoint(TemplateView):
         """Update context data with list of RPC methods of the current entry point.
         Will be used to display methods documentation page"""
         kwargs.update({
-            'methods': get_all_methods(self.entry_point, sort_methods=True),
+            'methods': registry.get_all_methods(self.entry_point, sort_methods=True),
         })
         return super(RPCEntryPoint, self).get_context_data(**kwargs)

@@ -8,8 +8,8 @@ import django.utils.version
 from django.apps import AppConfig
 
 from modernrpc.conf import settings
-from modernrpc.core import register_rpc_method, reset_registry, clean_old_cache_content, get_all_method_names
-from modernrpc.utils import get_modernrpc_logger
+from modernrpc.core import registry
+from modernrpc.utils import get_modernrpc_logger, clean_old_cache_content
 
 logger = get_modernrpc_logger(__name__)
 
@@ -48,7 +48,7 @@ class ModernRpcConfig(AppConfig):
         # It is useless now, so clean the cache from old data
         clean_old_cache_content()
         # For security (and unit tests), make sure the registry is empty before registering rpc methods
-        reset_registry()
+        registry.reset()
 
         if not settings.MODERNRPC_METHODS_MODULES:
             # settings.MODERNRPC_METHODS_MODULES is undefined or empty, but we already notified user
@@ -72,6 +72,6 @@ class ModernRpcConfig(AppConfig):
             for _, func in inspect.getmembers(rpc_module, inspect.isfunction):
                 # And register only functions with attribute 'modernrpc_enabled' defined to True
                 if getattr(func, 'modernrpc_enabled', False):
-                    register_rpc_method(func)
+                    registry.register_method(func)
 
-        logger.info('django-modern-rpc initialized: {} RPC methods registered'.format(len(get_all_method_names())))
+        logger.info('django-modern-rpc initialized: {} RPC methods registered'.format(registry.total_count()))

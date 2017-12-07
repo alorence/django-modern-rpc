@@ -1,5 +1,5 @@
 # coding: utf-8
-from modernrpc.core import ENTRY_POINT_KEY, PROTOCOL_KEY, get_method, rpc_method, get_all_method_names, RPCRequest, \
+from modernrpc.core import ENTRY_POINT_KEY, PROTOCOL_KEY,registry, rpc_method, RPCRequest, \
     HANDLER_KEY, XMLRPC_PROTOCOL
 from modernrpc.exceptions import RPCInvalidParams, RPCException, RPC_INTERNAL_ERROR
 
@@ -10,7 +10,7 @@ def __system_listMethods(**kwargs):
     entry_point = kwargs.get(ENTRY_POINT_KEY)
     protocol = kwargs.get(PROTOCOL_KEY)
 
-    return get_all_method_names(entry_point, protocol, sort_methods=True)
+    return registry.get_all_method_names(entry_point, protocol, sort_methods=True)
 
 
 @rpc_method(name='system.methodSignature')
@@ -28,7 +28,7 @@ def __system_methodSignature(method_name, **kwargs):
     entry_point = kwargs.get(ENTRY_POINT_KEY)
     protocol = kwargs.get(PROTOCOL_KEY)
 
-    method = get_method(method_name, entry_point, protocol)
+    method = registry.get_method(method_name, entry_point, protocol)
     if method is None:
         raise RPCInvalidParams('Unknown method {}. Unable to retrieve signature.'.format(method_name))
     return method.signature
@@ -46,7 +46,7 @@ def __system_methodHelp(method_name, **kwargs):
     entry_point = kwargs.get(ENTRY_POINT_KEY)
     protocol = kwargs.get(PROTOCOL_KEY)
 
-    method = get_method(method_name, entry_point, protocol)
+    method = registry.get_method(method_name, entry_point, protocol)
     if method is None:
         raise RPCInvalidParams('Unknown method {}. Unable to retrieve its documentation.'.format(method_name))
     return method.html_doc
