@@ -1,11 +1,10 @@
 # coding: utf-8
 from django.utils import six
 
-import modernrpc
+import modernrpc.compat
 from modernrpc.core import registry, REQUEST_KEY, ENTRY_POINT_KEY, PROTOCOL_KEY, HANDLER_KEY
 from modernrpc.exceptions import RPCInvalidRequest, RPCUnknownMethod, AuthenticationFailed, RPCInvalidParams
 from modernrpc.utils import get_modernrpc_logger
-import modernrpc.compat
 
 logger = get_modernrpc_logger(__name__)
 
