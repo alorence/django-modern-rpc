@@ -93,7 +93,6 @@ class RPCHandler(object):
                 HANDLER_KEY: self,
             })
 
-        # Call the python function associated with the RPC method name
         if six.PY2:
             method_std, encoding = _method.str_standardization, _method.str_std_encoding
             args = modernrpc.compat.standardize_strings(args, strtype=method_std, encoding=encoding)

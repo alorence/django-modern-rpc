@@ -6,7 +6,13 @@ Current development
 -------------------
 **Performance improvements**
 
-- HTML documentation is generated only if needed and uses Django's @cached_property
+- HTML documentation is generated only if needed and uses Django's @cached_property decorator
+
+**API Changes**
+
+- Class RPCRequest has been removed and replaced by method ``execute_procedure(name, args, kwargs)`` in ``RPCHandler``
+  class. This method contains common logic used to retrieve a RPC method, executed authentication predicates to make
+  sure it can be run, execute the concrete method and return the result.
 
 Release 0.10.0 (2017-12-06)
 ---------------------------
