@@ -14,6 +14,18 @@ Current development
   class. This method contains common logic used to retrieve a RPC method, executed authentication predicates to make
   sure it can be run, execute the concrete method and return the result.
 
+**Settings**
+
+- The ``kwargs`` dict passed to RPC methods can have customized keys: set the following values:
+
+  - ``settings.MODERNRPC_KWARGS_REQUEST_KEY``
+  - ``settings.MODERNRPC_KWARGS_ENTRY_POINT_KEY``
+  - ``settings.MODERNRPC_KWARGS_PROTOCOL_KEY``
+  - ``settings.MODERNRPC_KWARGS_HANDLER_KEY``
+
+to control dict keys and prevent conflicts with your own methods arguments.
+
+
 Release 0.10.0 (2017-12-06)
 ---------------------------
 **Improvements**

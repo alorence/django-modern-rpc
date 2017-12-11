@@ -20,10 +20,10 @@ JSONRPC_PROTOCOL = '__json_rpc'
 XMLRPC_PROTOCOL = '__xml_rpc'
 
 # Keys used in kwargs dict given to RPC methods
-REQUEST_KEY = 'request'
-ENTRY_POINT_KEY = 'entry_point'
-PROTOCOL_KEY = 'protocol'
-HANDLER_KEY = 'handler'
+REQUEST_KEY = settings.MODERNRPC_KWARGS_REQUEST_KEY
+ENTRY_POINT_KEY = settings.MODERNRPC_KWARGS_ENTRY_POINT_KEY
+PROTOCOL_KEY = settings.MODERNRPC_KWARGS_PROTOCOL_KEY
+HANDLER_KEY = settings.MODERNRPC_KWARGS_HANDLER_KEY
 
 # Define regular expressions used to parse docstring
 PARAM_REXP = re.compile(r'^:param ([\w]+):\s?(.*)')

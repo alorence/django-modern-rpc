@@ -34,3 +34,9 @@ MODERNRPC_PY2_STR_ENCODING = 'UTF-8'
 
 # Set to False if you need to disable exception logging
 MODERNRPC_LOG_EXCEPTIONS = True
+
+# Default key values for dict given to RPC methods when **kwargs is allowed
+MODERNRPC_KWARGS_REQUEST_KEY = 'request'
+MODERNRPC_KWARGS_ENTRY_POINT_KEY = 'entry_point'
+MODERNRPC_KWARGS_PROTOCOL_KEY = 'protocol'
+MODERNRPC_KWARGS_HANDLER_KEY = 'handler'
