@@ -16,13 +16,14 @@ def test_configured_logger():
 def test_unconfigured_logger():
     # When trying to retrieve an unconfigured logger with logging.getLogger(), no handler is associated
     logger = logging.getLogger('xxx_unconfigured')
-    assert logger_has_handlers(logger) is False
+    # Note: pytest automatically attach a root logger when running tests
+    assert logger_has_handlers(logger) is True
 
-    # If we retrieve it with get_modernrpc_logger(), the returned object has a default NullHandler attached
+    # This logger still has no handler, but root logger has some
     logger2 = get_modernrpc_logger('xxx_unconfigured')
     assert logger_has_handlers(logger2) is True
-    assert len(logger2.handlers) == 1
-    assert isinstance(logger2.handlers[0], logging.NullHandler)
+    assert len(logger2.handlers) == 0
+    assert len(logger2.parent.handlers) > 0
 
 
 def test_unconfigured_no_propagate():
