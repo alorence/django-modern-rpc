@@ -90,6 +90,7 @@ def xml_only_url(live_server):
 def xmlrpc_client(all_rpc_url):
     return python_xmlrpc.ServerProxy(all_rpc_url)
 
+
 @pytest.fixture(scope='session')
 def jsonrpc_client(all_rpc_url):
     return jsonrpcclient.HTTPClient(all_rpc_url)

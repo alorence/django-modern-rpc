@@ -6,24 +6,21 @@ import pytest
 import requests
 from django.core.serializers.json import DjangoJSONEncoder
 from jsonrpcclient.exceptions import ReceivedErrorResponse
-from jsonrpcclient.http_client import HTTPClient
 
 from modernrpc.exceptions import RPC_INVALID_REQUEST, RPC_METHOD_NOT_FOUND, RPC_PARSE_ERROR, RPC_INVALID_PARAMS, \
     RPC_CUSTOM_ERROR_BASE, RPC_CUSTOM_ERROR_MAX, RPC_INTERNAL_ERROR
 
 
-def test_jsonrpc_call_unknown_method(live_server):
-
-    client = HTTPClient(live_server.url + '/all-rpc/')
+def test_jsonrpc_call_unknown_method(jsonrpc_client):
 
     with pytest.raises(ReceivedErrorResponse) as excinfo:
-        client.non_existing_method()
+        jsonrpc_client.non_existing_method()
 
     assert 'Method not found: "non_existing_method"' in excinfo.value.message
     assert excinfo.value.code == RPC_METHOD_NOT_FOUND
 
 
-def test_jsonrpc_invalid_request_1(live_server):
+def test_jsonrpc_invalid_request_1(all_rpc_url):
 
     # Missing 'method' in payload
 
@@ -35,13 +32,13 @@ def test_jsonrpc_invalid_request_1(live_server):
         "id": random.randint(1, 1000),
     }
     req_data = json.dumps(payload, cls=DjangoJSONEncoder)
-    response = requests.post(live_server.url + '/all-rpc/', data=req_data, headers=headers).json()
+    response = requests.post(all_rpc_url, data=req_data, headers=headers).json()
 
     assert 'Missing parameter "method"' in response['error']['message']
     assert RPC_INVALID_REQUEST == response['error']['code']
 
 
-def test_jsonrpc_invalid_request_2(live_server):
+def test_jsonrpc_invalid_request_2(all_rpc_url):
 
     # Missing 'jsonrpc' in payload
 
@@ -53,13 +50,13 @@ def test_jsonrpc_invalid_request_2(live_server):
         "id": random.randint(1, 1000),
     }
     req_data = json.dumps(payload, cls=DjangoJSONEncoder)
-    response = requests.post(live_server.url + '/all-rpc/', data=req_data, headers=headers).json()
+    response = requests.post(all_rpc_url, data=req_data, headers=headers).json()
 
     assert 'Missing parameter "jsonrpc"' in response['error']['message']
     assert RPC_INVALID_REQUEST == response['error']['code']
 
 
-def test_jsonrpc_invalid_request_3(live_server):
+def test_jsonrpc_invalid_request_3(all_rpc_url):
 
     # Bad value for payload member 'jsonrpc'
 
@@ -71,13 +68,13 @@ def test_jsonrpc_invalid_request_3(live_server):
         "id": random.randint(1, 1000),
     }
     req_data = json.dumps(payload, cls=DjangoJSONEncoder)
-    response = requests.post(live_server.url + '/all-rpc/', data=req_data, headers=headers).json()
+    response = requests.post(all_rpc_url, data=req_data, headers=headers).json()
 
     assert 'The attribute "jsonrpc" must contain "2.0"' in response['error']['message']
     assert RPC_INVALID_REQUEST == response['error']['code']
 
 
-def test_jsonrpc_invalid_request_4(live_server):
+def test_jsonrpc_invalid_request_4(all_rpc_url):
 
     # Closing '}' is missing from this payload => invalid json data
 
@@ -89,7 +86,7 @@ def test_jsonrpc_invalid_request_4(live_server):
             "id": 74,
     '''
     headers = {'content-type': 'application/json'}
-    response = requests.post(live_server.url + '/all-rpc/', data=invalid_json_payload, headers=headers).json()
+    response = requests.post(all_rpc_url, data=invalid_json_payload, headers=headers).json()
 
     assert 'error' in response
     assert 'result' not in response
@@ -102,12 +99,12 @@ def test_jsonrpc_invalid_request_4(live_server):
     assert error['code'] == RPC_PARSE_ERROR
 
 
-def test_jsonrpc_invalid_request_5(live_server):
+def test_jsonrpc_invalid_request_5(all_rpc_url):
 
     # Json payload is not a struct or a list
 
     headers = {'content-type': 'application/json'}
-    response = requests.post(live_server.url + '/all-rpc/', data='10', headers=headers).json()
+    response = requests.post(all_rpc_url, data='10', headers=headers).json()
 
     assert 'error' in response
     assert 'result' not in response
@@ -118,7 +115,7 @@ def test_jsonrpc_invalid_request_5(live_server):
     assert error['code'] == RPC_INVALID_REQUEST
 
 
-def test_jsonrpc_no_content_type(live_server):
+def test_jsonrpc_no_content_type(all_rpc_url):
     payload = {
         "method": "add",
         "params": [5, 6],
@@ -127,7 +124,7 @@ def test_jsonrpc_no_content_type(live_server):
     }
     req_data = json.dumps(payload)
     headers = {'content-type': ''}
-    response = requests.post(live_server.url + '/all-rpc/', data=req_data, headers=headers).json()
+    response = requests.post(all_rpc_url, data=req_data, headers=headers).json()
 
     assert 'error' in response
     assert 'result' not in response
@@ -137,12 +134,10 @@ def test_jsonrpc_no_content_type(live_server):
     assert error['code'] == RPC_INVALID_REQUEST
 
 
-def test_jsonrpc_invalid_params(live_server):
-
-    client = HTTPClient(live_server.url + '/all-rpc/')
+def test_jsonrpc_invalid_params(jsonrpc_client):
 
     with pytest.raises(ReceivedErrorResponse) as excinfo:
-        client.add(42)
+        jsonrpc_client.add(42)
 
     assert 'Invalid parameters' in excinfo.value.message
     # Python2: takes exactly 2 arguments (1 given)
@@ -151,12 +146,10 @@ def test_jsonrpc_invalid_params(live_server):
     assert excinfo.value.code == RPC_INVALID_PARAMS
 
 
-def test_jsonrpc_invalid_params2(live_server):
-
-    client = HTTPClient(live_server.url + '/all-rpc/')
+def test_jsonrpc_invalid_params2(jsonrpc_client):
 
     with pytest.raises(ReceivedErrorResponse) as excinfo:
-        client.add(42, -51, 98)
+        jsonrpc_client.add(42, -51, 98)
 
     assert 'Invalid parameters' in excinfo.value.message
     # Python2: takes exactly 2 arguments (3 given)
@@ -165,33 +158,27 @@ def test_jsonrpc_invalid_params2(live_server):
     assert excinfo.value.code == RPC_INVALID_PARAMS
 
 
-def test_jsonrpc_internal_error(live_server):
-
-    client = HTTPClient(live_server.url + '/all-rpc/')
+def test_jsonrpc_internal_error(jsonrpc_client):
 
     with pytest.raises(ReceivedErrorResponse) as excinfo:
-        client.raise_custom_exception()
+        jsonrpc_client.raise_custom_exception()
 
     assert 'This is a test error' in excinfo.value.message
     assert RPC_CUSTOM_ERROR_BASE <= excinfo.value.code <= RPC_CUSTOM_ERROR_MAX
 
 
-def test_jsonrpc_exception_with_data(live_server):
-
-    client = HTTPClient(live_server.url + '/all-rpc/')
+def test_jsonrpc_exception_with_data(jsonrpc_client):
 
     with pytest.raises(ReceivedErrorResponse) as excinfo:
-        client.raise_custom_exception_with_data()
+        jsonrpc_client.raise_custom_exception_with_data()
 
     assert ['a', 'b', 'c'] == excinfo.value.data
 
 
-def test_jsonrpc_divide_by_zero(live_server):
-
-    client = HTTPClient(live_server.url + '/all-rpc/')
+def test_jsonrpc_divide_by_zero(jsonrpc_client):
 
     with pytest.raises(ReceivedErrorResponse) as excinfo:
-        client.divide(42, 0)
+        jsonrpc_client.divide(42, 0)
 
     assert 'Internal error' in excinfo.value.message
     # Python2: integer division or modulo by zero
@@ -200,12 +187,10 @@ def test_jsonrpc_divide_by_zero(live_server):
     assert excinfo.value.code == RPC_INTERNAL_ERROR
 
 
-def test_jsonrpc_invalid_result(live_server):
-
-    client = HTTPClient(live_server.url + '/all-rpc/')
+def test_jsonrpc_invalid_result(jsonrpc_client):
 
     with pytest.raises(ReceivedErrorResponse) as excinfo:
-        client.get_invalid_result()
+        jsonrpc_client.get_invalid_result()
 
     assert 'Unable to serialize result as' in excinfo.value.message
     assert excinfo.value.code == RPC_INTERNAL_ERROR
