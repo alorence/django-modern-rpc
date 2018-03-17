@@ -72,6 +72,11 @@ def all_rpc_url(live_server):
 
 
 @pytest.fixture(scope='session')
+def all_rpc_doc_url(live_server):
+    return live_server + '/all-rpc-doc/'
+
+
+@pytest.fixture(scope='session')
 def json_only_url(live_server):
     return live_server + '/json-only/'
 

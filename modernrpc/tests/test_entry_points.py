@@ -6,21 +6,21 @@ from pytest import raises
 from modernrpc.views import RPCEntryPoint
 
 
-def test_forbidden_get(live_server):
+def test_forbidden_get(all_rpc_url):
 
-    r = requests.get(live_server.url + '/all-rpc/')
+    r = requests.get(all_rpc_url)
     assert r.status_code == 405
 
-    r2 = requests.post(live_server.url + '/all-rpc/')
+    r2 = requests.post(all_rpc_url)
     assert r2.status_code == 200
 
 
-def test_allowed_get(live_server):
+def test_allowed_get(all_rpc_doc_url):
 
-    r = requests.get(live_server.url + '/all-rpc-doc/')
+    r = requests.get(all_rpc_doc_url)
     assert r.status_code == 200
 
-    r2 = requests.post(live_server.url + '/all-rpc-doc/')
+    r2 = requests.post(all_rpc_doc_url)
     assert r2.status_code == 405
 
 
