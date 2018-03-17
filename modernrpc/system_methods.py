@@ -48,7 +48,7 @@ def __system_methodHelp(method_name, **kwargs):
     method = registry.get_method(method_name, entry_point, protocol)
     if method is None:
         raise RPCInvalidParams('Unknown method {}. Unable to retrieve its documentation.'.format(method_name))
-    return str(method.html_doc)
+    return method.html_doc
 
 
 @rpc_method(name='system.multicall', protocol=XMLRPC_PROTOCOL)

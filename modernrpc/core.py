@@ -1,13 +1,11 @@
 # coding: utf-8
 import collections
 import re
-
 from django.contrib.admindocs.utils import trim_docstring
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import inspect, six
 from django.utils.functional import cached_property
 from django.utils.html import urlize
-from django.utils.safestring import mark_safe
 
 from modernrpc.conf import settings
 from modernrpc.utils import ensure_sequence, get_modernrpc_logger
@@ -177,7 +175,7 @@ class RPCMethod(object):
         else:
             result = "<p>{}</p>".format(self.raw_docstring.replace('\n\n', '</p><p>').replace('\n', ' '))
 
-        return mark_safe(urlize(result))
+        return urlize(result)
 
     def check_permissions(self, request):
         """Call the predicate(s) associated with the RPC method, to check if the current request

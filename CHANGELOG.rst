@@ -13,6 +13,8 @@ Current development
 - Class RPCRequest has been removed and replaced by method ``execute_procedure(name, args, kwargs)`` in ``RPCHandler``
   class. This method contains common logic used to retrieve a RPC method, executed authentication predicates to make
   sure it can be run, execute the concrete method and return the result.
+- HTML documentation is not anymore marked as "safe" using ``django.utils.safestring.mark_safe()``. You have to use
+  Django decorator ``safe`` in your template if you display this value.
 
 **Settings**
 
