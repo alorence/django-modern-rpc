@@ -30,7 +30,8 @@ def test_xmlrpc_anon_user_auth(live_server):
 
 def test_xmlrpc_superuser_auth(live_server, superuser, common_pwd):
 
-    c = xmlrpc_client.ServerProxy(get_url_with_auth(live_server.url + '/all-rpc/', superuser.username, common_pwd))
+    admin_auth_url = get_url_with_auth(live_server.url + '/all-rpc/', superuser.username, common_pwd)
+    c = xmlrpc_client.ServerProxy(admin_auth_url)
 
     assert c.logged_user_required(5) == 5
     assert c.logged_user_required_alt(5) == 5
@@ -47,7 +48,8 @@ def test_xmlrpc_superuser_auth(live_server, superuser, common_pwd):
 
 def test_xmlrpc_user_auth(live_server, john_doe, common_pwd):
 
-    c = xmlrpc_client.ServerProxy(get_url_with_auth(live_server.url + '/all-rpc/', john_doe.username, common_pwd))
+    johndoe_auth_url = get_url_with_auth(live_server.url + '/all-rpc/', john_doe.username, common_pwd)
+    c = xmlrpc_client.ServerProxy(johndoe_auth_url)
 
     assert c.logged_user_required(5) == 5
     assert c.logged_user_required_alt(5) == 5
@@ -121,8 +123,8 @@ def test_jsonrpc_anon_user_auth(live_server):
 
 def test_jsonrpc_superuser_auth(live_server, superuser, common_pwd):
 
-    c = HTTPClient(live_server.url + '/all-rpc/')
-    c.session.auth = (superuser.username, common_pwd)
+    admin_auth_url = get_url_with_auth(live_server.url + '/all-rpc/', superuser.username, common_pwd)
+    c = HTTPClient(admin_auth_url)
 
     assert c.logged_user_required(5) == 5
     assert c.logged_user_required_alt(5) == 5
@@ -139,8 +141,8 @@ def test_jsonrpc_superuser_auth(live_server, superuser, common_pwd):
 
 def test_jsonrpc_user_auth(live_server, john_doe, common_pwd):
 
-    c = HTTPClient(live_server.url + '/all-rpc/')
-    c.session.auth = (john_doe.username, common_pwd)
+    johndoe_auth_url = get_url_with_auth(live_server.url + '/all-rpc/', john_doe.username, common_pwd)
+    c = HTTPClient(johndoe_auth_url)
 
     assert c.logged_user_required(5) == 5
     assert c.logged_user_required_alt(5) == 5
@@ -159,8 +161,8 @@ def test_jsonrpc_user_auth(live_server, john_doe, common_pwd):
 
 def test_jsonrpc_user_permissions(live_server, john_doe, common_pwd, delete_user_perm, add_user_perm, change_user_perm):
 
-    c = HTTPClient(live_server.url + '/all-rpc/')
-    c.session.auth = (john_doe.username, common_pwd)
+    johndoe_auth_url = get_url_with_auth(live_server.url + '/all-rpc/', john_doe.username, common_pwd)
+    c = HTTPClient(johndoe_auth_url)
 
     john_doe.user_permissions.add(delete_user_perm)
 
@@ -178,8 +180,8 @@ def test_jsonrpc_user_permissions(live_server, john_doe, common_pwd, delete_user
 
 def test_jsonrpc_user_groups(live_server, john_doe, common_pwd, group_A, group_B):
 
-    c = HTTPClient(live_server.url + '/all-rpc/')
-    c.session.auth = (john_doe.username, common_pwd)
+    johndoe_auth_url = get_url_with_auth(live_server.url + '/all-rpc/', john_doe.username, common_pwd)
+    c = HTTPClient(johndoe_auth_url)
 
     john_doe.groups.add(group_A)
 
@@ -198,8 +200,8 @@ def test_jsonrpc_user_groups(live_server, john_doe, common_pwd, group_A, group_B
 
 def test_http_basic_auth_user_in_request(live_server, john_doe, superuser, common_pwd):
 
-    c = HTTPClient(live_server.url + '/all-rpc/')
-    c.session.auth = (john_doe.username, common_pwd)
+    johndoe_auth_url = get_url_with_auth(live_server.url + '/all-rpc/', john_doe.username, common_pwd)
+    c = HTTPClient(johndoe_auth_url)
 
     assert 'username: johndoe' == c.display_authenticated_user()
 

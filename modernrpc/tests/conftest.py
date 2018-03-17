@@ -28,12 +28,12 @@ def anonymous_user(transactional_db):
 
 @pytest.fixture
 def john_doe(django_user_model, transactional_db):
-    return django_user_model.objects.create_user('johndoe', email='jd@example.com', password='123456')
+    return django_user_model.objects.create_user('johndoe', email='jd@example.com', password=COMMON_PASSWORD)
 
 
 @pytest.fixture
 def superuser(django_user_model, transactional_db):
-    return django_user_model.objects.create_superuser('admin', email='admin@example.com', password='123456')
+    return django_user_model.objects.create_superuser('admin', email='admin@example.com', password=COMMON_PASSWORD)
 
 
 @pytest.fixture
