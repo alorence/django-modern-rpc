@@ -11,6 +11,11 @@ class XmlRpcBase:
 
 class TestAuthAnonymousUser(XmlRpcBase):
 
+    def test_display_username(self, xmlrpc_client):
+        with pytest.raises(self.error_klass) as excpinfo:
+            xmlrpc_client.display_authenticated_user()
+        assert excpinfo.value.errcode == 403
+
     def test_logged_user_required(self, xmlrpc_client):
         with pytest.raises(self.error_klass) as excpinfo:
             xmlrpc_client.logged_user_required(5)
@@ -69,6 +74,9 @@ class TestAuthAnonymousUser(XmlRpcBase):
 
 class TestAuthStandardUser(XmlRpcBase):
 
+    def test_display_username(self, xmlrpc_client_as_user, john_doe):
+        assert john_doe.username in xmlrpc_client_as_user.display_authenticated_user()
+
     def test_logged_user_required(self, xmlrpc_client_as_user):
         assert xmlrpc_client_as_user.logged_user_required(5) == 5
 
@@ -123,6 +131,9 @@ class TestAuthStandardUser(XmlRpcBase):
 
 class TestAuthSuperuser(XmlRpcBase):
 
+    def test_display_username(self, xmlrpc_client_as_superuser, superuser):
+        assert superuser.username in xmlrpc_client_as_superuser.display_authenticated_user()
+
     def test_logged_user_required(self, xmlrpc_client_as_superuser):
         assert xmlrpc_client_as_superuser.logged_user_required(5) == 5
 
@@ -164,10 +175,10 @@ def test_xmlrpc_user_permissions(xmlrpc_client_as_user, john_doe, delete_user_pe
     assert xmlrpc_client_as_user.delete_user_perm_required(5) == 5
     assert xmlrpc_client_as_user.any_permission_required(5) == 5
 
-    with pytest.raises(python_xmlrpc.ProtocolError) as exc_info:
+    with pytest.raises(python_xmlrpc.ProtocolError) as excpinfo:
         xmlrpc_client_as_user.all_permissions_required(5)
 
-    assert exc_info.value.errcode == 403
+    assert excpinfo.value.errcode == 403
 
     john_doe.user_permissions.add(add_user_perm, change_user_perm)
     assert xmlrpc_client_as_user.all_permissions_required(5) == 5
@@ -180,8 +191,13 @@ def test_xmlrpc_user_groups(xmlrpc_client_as_user, john_doe, group_A, group_B):
     assert xmlrpc_client_as_user.in_group_A_required(5) == 5
     assert xmlrpc_client_as_user.in_group_A_or_B_required(5) == 5
 
-    assert pytest.raises(python_xmlrpc.ProtocolError, xmlrpc_client_as_user.in_groups_A_and_B_required, 5).value.errcode == 403
-    assert pytest.raises(python_xmlrpc.ProtocolError, xmlrpc_client_as_user.in_groups_A_and_B_required_alt, 5).value.errcode == 403
+    with pytest.raises(python_xmlrpc.ProtocolError) as excpinfo:
+        xmlrpc_client_as_user.in_groups_A_and_B_required(5)
+    assert excpinfo.value.errcode == 403
+
+    with pytest.raises(python_xmlrpc.ProtocolError) as excpinfo:
+        xmlrpc_client_as_user.in_groups_A_and_B_required_alt(5)
+    assert excpinfo.value.errcode == 403
 
     john_doe.groups.add(group_B)
 
@@ -196,6 +212,6 @@ def test_custom_predicate_allowed(xmlrpc_client):
 
 def test_custom_predicate_rejected(xmlrpc_client):
 
-    with pytest.raises(python_xmlrpc.ProtocolError) as exc_info:
+    with pytest.raises(python_xmlrpc.ProtocolError) as excpinfo:
         xmlrpc_client.power_2(5)
-    assert exc_info.value.errcode == 403
+    assert excpinfo.value.errcode == 403

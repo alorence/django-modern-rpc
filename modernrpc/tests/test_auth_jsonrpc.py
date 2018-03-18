@@ -12,6 +12,12 @@ class JsonRpcBase:
 
 class TestAuthAnonymousUser(JsonRpcBase):
 
+    def test_display_username(self, jsonrpc_client):
+        with pytest.raises(Exception) as excpinfo:
+            jsonrpc_client.display_authenticated_user()
+        assert excpinfo.value.code == RPC_INTERNAL_ERROR
+        assert 'Authentication failed' in excpinfo.value.message
+
     def test_logged_user_required(self, jsonrpc_client):
         with pytest.raises(Exception) as excpinfo:
             jsonrpc_client.logged_user_required(5)
@@ -81,6 +87,9 @@ class TestAuthAnonymousUser(JsonRpcBase):
 
 class TestAuthStandardUser(JsonRpcBase):
 
+    def test_display_username(self, jsonrpc_client_as_user, john_doe):
+        assert john_doe.username in jsonrpc_client_as_user.display_authenticated_user()
+
     def test_logged_user_required(self, jsonrpc_client_as_user):
         assert jsonrpc_client_as_user.logged_user_required(5) == 5
 
@@ -143,6 +152,9 @@ class TestAuthStandardUser(JsonRpcBase):
 
 
 class TestAuthSuperuser(JsonRpcBase):
+
+    def test_display_username(self, jsonrpc_client_as_superuser, superuser):
+        assert superuser.username in jsonrpc_client_as_superuser.display_authenticated_user()
 
     def test_logged_user_required(self, jsonrpc_client_as_superuser):
         assert jsonrpc_client_as_superuser.logged_user_required(5) == 5
