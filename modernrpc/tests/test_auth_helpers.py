@@ -9,23 +9,23 @@ from modernrpc.auth.basic import http_basic_auth_get_user
 
 def test_user_is_authenticated(anonymous_user, john_doe, superuser):
 
-    assert user_is_authenticated(superuser)
     assert not user_is_authenticated(anonymous_user)
     assert user_is_authenticated(john_doe)
+    assert user_is_authenticated(superuser)
 
 
 def test_user_is_anonymous(anonymous_user, john_doe, superuser):
 
-    assert not user_is_anonymous(superuser)
     assert user_is_anonymous(anonymous_user)
     assert not user_is_anonymous(john_doe)
+    assert not user_is_anonymous(superuser)
 
 
 def test_user_is_superuser(anonymous_user, john_doe, superuser):
 
-    assert user_is_superuser(superuser)
     assert not user_is_superuser(anonymous_user)
     assert not user_is_superuser(john_doe)
+    assert user_is_superuser(superuser)
 
 
 def test_user_has_perm(django_user_model, anonymous_user, john_doe, superuser, delete_user_perm):

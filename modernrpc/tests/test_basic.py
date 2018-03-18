@@ -1,9 +1,9 @@
 # coding: utf-8
-import sys
 import xml
 
 import jsonrpcclient.exceptions
 import pytest
+from django.utils import six
 from django.utils.six.moves import xmlrpc_client as python_xmlrpc
 from jsonrpcclient import http_client as jsonrpc
 
@@ -135,11 +135,9 @@ def test_xmlrpc_method_help_invalid_method(xmlrpc_client):
 def test_jsonrpc_method_help(jsonrpc_client):
 
     help_text = jsonrpc_client.request('system.methodHelp', "add")
-    if sys.version_info < (3, 0):
-        assert type(help_text) == unicode  # noqa: F821
 
-    else:
-        assert type(help_text) == str
+    # Type = unicode in Python 2, str in Python 3
+    assert type(help_text) == six.text_type
     assert help_text == ''
 
 
