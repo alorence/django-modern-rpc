@@ -6,7 +6,6 @@ import requests
 from jsonrpcclient.exceptions import ReceivedErrorResponse
 
 from modernrpc.exceptions import RPC_METHOD_NOT_FOUND, RPC_INTERNAL_ERROR, RPC_INVALID_REQUEST
-from modernrpc.tests.test_authentication_system import get_url_with_auth
 from . import python_xmlrpc
 
 
@@ -73,12 +72,9 @@ def test_xmlrpc_multicall_with_auth(xmlrpc_client):
     assert 'Authentication failed' in excinfo.value.faultString
 
 
-def test_xmlrpc_multicall_with_auth_2(all_rpc_url, superuser, common_pwd):
+def test_xmlrpc_multicall_with_auth_2(xmlrpc_client_as_superuser):
 
-    server_url = get_url_with_auth(all_rpc_url, superuser.username, common_pwd)
-    client = python_xmlrpc.ServerProxy(server_url)
-
-    multicall = python_xmlrpc.MultiCall(client)
+    multicall = python_xmlrpc.MultiCall(xmlrpc_client_as_superuser)
     multicall.add(7, 3)
     multicall.logged_superuser_required(5)
     result = multicall()
