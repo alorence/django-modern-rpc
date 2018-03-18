@@ -1,9 +1,9 @@
 import logging
+from distutils.version import LooseVersion
 
 import pytest
 
 from modernrpc.utils import logger_has_handlers, get_modernrpc_logger
-from distutils.version import LooseVersion, StrictVersion
 
 
 def test_configured_logger():
