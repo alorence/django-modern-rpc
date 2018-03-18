@@ -62,12 +62,6 @@ def delete_user_perm():
 
 
 @pytest.fixture(scope='session')
-def live_server_url(live_server):
-    """Return the url associated with unit tests Django live server"""
-    return live_server.url
-
-
-@pytest.fixture(scope='session')
 def all_rpc_url(live_server):
     """Return the default RPC test endpoint URL. See 'testsite.urls' for additional info."""
     return live_server + '/all-rpc/'
