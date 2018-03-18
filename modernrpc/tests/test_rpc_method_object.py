@@ -1,7 +1,7 @@
 # coding: utf-8
 from modernrpc.conf import settings
 from modernrpc.core import RPCMethod, registry, ALL, rpc_method, JSONRPC_PROTOCOL, XMLRPC_PROTOCOL
-from testsite.rpc_methods_stub.not_decorated import full_documented_method
+from .testsite.rpc_methods_stub.not_decorated import full_documented_method
 
 
 def dummy_function():

@@ -4,29 +4,25 @@ import xml.etree.cElementTree as ET
 
 import pytest
 import requests
-from django.utils.six.moves import xmlrpc_client
 
 from modernrpc.exceptions import RPC_INVALID_REQUEST, RPC_METHOD_NOT_FOUND, RPC_INVALID_PARAMS, \
     RPC_CUSTOM_ERROR_BASE, RPC_CUSTOM_ERROR_MAX, RPC_INTERNAL_ERROR, RPC_PARSE_ERROR
+from . import python_xmlrpc
 
 
-def test_xrpc_call_unknown_method(live_server):
+def test_xrpc_call_unknown_method(xmlrpc_client):
 
-    client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
-
-    with pytest.raises(xmlrpc_client.Fault) as excinfo:
-        client.non_existing_method()
+    with pytest.raises(python_xmlrpc.Fault) as excinfo:
+        xmlrpc_client.non_existing_method()
 
     assert 'Method not found: "non_existing_method"' in excinfo.value.faultString
     assert excinfo.value.faultCode == RPC_METHOD_NOT_FOUND
 
 
-def test_xrpc_invalid_params(live_server):
+def test_xrpc_invalid_params(xmlrpc_client):
 
-    client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
-
-    with pytest.raises(xmlrpc_client.Fault) as excinfo:
-        client.add(42)
+    with pytest.raises(python_xmlrpc.Fault) as excinfo:
+        xmlrpc_client.add(42)
 
     assert 'Invalid parameters' in excinfo.value.faultString
     # Python2: takes exactly 2 arguments (1 given)
@@ -35,12 +31,10 @@ def test_xrpc_invalid_params(live_server):
     assert excinfo.value.faultCode == RPC_INVALID_PARAMS
 
 
-def test_xrpc_invalid_params_2(live_server):
+def test_xrpc_invalid_params_2(xmlrpc_client):
 
-    client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
-
-    with pytest.raises(xmlrpc_client.Fault) as excinfo:
-        client.add(42, -51, 98)
+    with pytest.raises(python_xmlrpc.Fault) as excinfo:
+        xmlrpc_client.add(42, -51, 98)
 
     # Python2: takes exactly 2 arguments (3 given)
     # Python3: takes 2 positional arguments but 3 were given
@@ -48,23 +42,19 @@ def test_xrpc_invalid_params_2(live_server):
     assert excinfo.value.faultCode == RPC_INVALID_PARAMS
 
 
-def test_xrpc_internal_error(live_server):
+def test_xrpc_internal_error(xmlrpc_client):
 
-    client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
-
-    with pytest.raises(xmlrpc_client.Fault) as excinfo:
-        client.raise_custom_exception()
+    with pytest.raises(python_xmlrpc.Fault) as excinfo:
+        xmlrpc_client.raise_custom_exception()
 
     assert 'This is a test error' in excinfo.value.faultString
     assert RPC_CUSTOM_ERROR_BASE <= excinfo.value.faultCode <= RPC_CUSTOM_ERROR_MAX
 
 
-def test_xrpc_exception_with_data(live_server):
+def test_xrpc_exception_with_data(xmlrpc_client):
 
-    client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
-
-    with pytest.raises(xmlrpc_client.Fault) as excinfo:
-        client.raise_custom_exception_with_data()
+    with pytest.raises(python_xmlrpc.Fault) as excinfo:
+        xmlrpc_client.raise_custom_exception_with_data()
 
     # XML-RPC does not support additional data. The returned exception only
     # contains code and message
@@ -72,12 +62,10 @@ def test_xrpc_exception_with_data(live_server):
     assert RPC_CUSTOM_ERROR_BASE <= excinfo.value.faultCode <= RPC_CUSTOM_ERROR_MAX
 
 
-def test_xrpc_divide_by_zero(live_server):
+def test_xrpc_divide_by_zero(xmlrpc_client):
 
-    client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
-
-    with pytest.raises(xmlrpc_client.Fault) as excinfo:
-        client.divide(42, 0)
+    with pytest.raises(python_xmlrpc.Fault) as excinfo:
+        xmlrpc_client.divide(42, 0)
 
     # Python2: integer division or modulo by zero
     # Python3: division by zero
@@ -85,7 +73,7 @@ def test_xrpc_divide_by_zero(live_server):
     assert excinfo.value.faultCode == RPC_INTERNAL_ERROR
 
 
-def test_xrpc_invalid_request_missing_method_name(live_server):
+def test_xrpc_invalid_request_missing_method_name(all_rpc_url):
     invalid_payload = '''<?xml version="1.0"?>
 <methodCall>
   <params>
@@ -95,7 +83,7 @@ def test_xrpc_invalid_request_missing_method_name(live_server):
   </params>
 </methodCall>'''
     headers = {'content-type': 'text/xml'}
-    response = requests.post(live_server.url + '/all-rpc/', data=invalid_payload, headers=headers)
+    response = requests.post(all_rpc_url, data=invalid_payload, headers=headers)
 
     tree = ET.fromstring(response.content)
     members = tree.find('fault').find('value').find('struct')
@@ -111,12 +99,12 @@ def test_xrpc_invalid_request_missing_method_name(live_server):
     assert code == RPC_INVALID_REQUEST
 
 
-def test_xrpc_invalid_request_but_valid_xml(live_server):
+def test_xrpc_invalid_request_but_valid_xml(all_rpc_url):
     invalid_payload = '''<?xml version="1.0"?>
 <methodCall>
 </methodCall>'''
     headers = {'content-type': 'text/xml'}
-    response = requests.post(live_server.url + '/all-rpc/', data=invalid_payload, headers=headers)
+    response = requests.post(all_rpc_url, data=invalid_payload, headers=headers)
 
     tree = ET.fromstring(response.content)
     members = tree.find('fault').find('value').find('struct')
@@ -132,7 +120,7 @@ def test_xrpc_invalid_request_but_valid_xml(live_server):
     assert code == RPC_INVALID_REQUEST
 
 
-def test_xrpc_invalid_xml(live_server):
+def test_xrpc_invalid_xml(all_rpc_url):
     # "</methodName" misses the closing '>'
     invalid_payload = '''<?xml version="1.0"?>
 <methodCall>
@@ -144,7 +132,7 @@ def test_xrpc_invalid_xml(live_server):
   </params>
 </methodCall>'''
     headers = {'content-type': 'text/xml'}
-    response = requests.post(live_server.url + '/all-rpc/', data=invalid_payload, headers=headers)
+    response = requests.post(all_rpc_url, data=invalid_payload, headers=headers)
 
     tree = ET.fromstring(response.content)
     members = tree.find('fault').find('value').find('struct')
@@ -160,7 +148,7 @@ def test_xrpc_invalid_xml(live_server):
     assert code == RPC_PARSE_ERROR
 
 
-def test_xrpc_invalid_request_json_request(live_server):
+def test_xrpc_invalid_request_json_request(all_rpc_url):
     invalid_payload = json.dumps({
         "method": 'add',
         "params": [5, 6],
@@ -168,7 +156,7 @@ def test_xrpc_invalid_request_json_request(live_server):
         "id": 42,
     })
     headers = {'content-type': 'text/xml'}
-    response = requests.post(live_server.url + '/all-rpc/', data=invalid_payload, headers=headers)
+    response = requests.post(all_rpc_url, data=invalid_payload, headers=headers)
 
     tree = ET.fromstring(response.content)
     members = tree.find('fault').find('value').find('struct')
@@ -184,7 +172,7 @@ def test_xrpc_invalid_request_json_request(live_server):
     assert code == RPC_PARSE_ERROR
 
 
-def test_xrpc_invalid_request_bad_type_value(live_server):
+def test_xrpc_invalid_request_bad_type_value(all_rpc_url):
     invalid_payload = '''<?xml version="1.0"?>
 <methodCall>
   <methodName>examples.getStateName</methodName
@@ -195,7 +183,7 @@ def test_xrpc_invalid_request_bad_type_value(live_server):
   </params>
 </methodCall>'''
     headers = {'content-type': 'text/xml'}
-    response = requests.post(live_server.url + '/all-rpc/', data=invalid_payload, headers=headers)
+    response = requests.post(all_rpc_url, data=invalid_payload, headers=headers)
 
     tree = ET.fromstring(response.content)
     members = tree.find('fault').find('value').find('struct')
@@ -211,23 +199,19 @@ def test_xrpc_invalid_request_bad_type_value(live_server):
     assert code == RPC_PARSE_ERROR
 
 
-def test_xrpc_invalid_multicall(live_server):
+def test_xrpc_invalid_multicall(xmlrpc_client):
 
-    client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
-
-    with pytest.raises(xmlrpc_client.Fault) as excinfo:
-        client.system.multicall('method1')
+    with pytest.raises(python_xmlrpc.Fault) as excinfo:
+        xmlrpc_client.system.multicall('method1')
 
     assert 'argument should be a list' in excinfo.value.faultString
     assert excinfo.value.faultCode == RPC_INVALID_PARAMS
 
 
-def test_xrpc_invalid_result(live_server):
+def test_xrpc_invalid_result(xmlrpc_client):
 
-    client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
-
-    with pytest.raises(xmlrpc_client.Fault) as excinfo:
-        client.get_invalid_result()
+    with pytest.raises(python_xmlrpc.Fault) as excinfo:
+        xmlrpc_client.get_invalid_result()
 
     # We cannot test for returned error message because it is too different accross various python versions
     # assert 'cannot marshal' in excinfo.value.faultString
