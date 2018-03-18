@@ -29,7 +29,7 @@
 
         <div class="card-body">
 
-            {{ method.html_doc | safe }}
+            {{ method.html_doc | urlize | safe }}
 
             {% if method.is_args_doc_available %}
 
