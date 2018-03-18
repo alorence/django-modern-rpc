@@ -10,7 +10,7 @@ from modernrpc.exceptions import RPC_INVALID_REQUEST, RPC_METHOD_NOT_FOUND, RPC_
 from . import python_xmlrpc
 
 
-def test_xrpc_call_unknown_method(xmlrpc_client):
+def test_xmlrpc_call_unknown_method(xmlrpc_client):
 
     with pytest.raises(python_xmlrpc.Fault) as excinfo:
         xmlrpc_client.non_existing_method()
@@ -19,7 +19,7 @@ def test_xrpc_call_unknown_method(xmlrpc_client):
     assert excinfo.value.faultCode == RPC_METHOD_NOT_FOUND
 
 
-def test_xrpc_invalid_params(xmlrpc_client):
+def test_xmlrpc_invalid_params(xmlrpc_client):
 
     with pytest.raises(python_xmlrpc.Fault) as excinfo:
         xmlrpc_client.add(42)
@@ -31,7 +31,7 @@ def test_xrpc_invalid_params(xmlrpc_client):
     assert excinfo.value.faultCode == RPC_INVALID_PARAMS
 
 
-def test_xrpc_invalid_params_2(xmlrpc_client):
+def test_xmlrpc_invalid_params_2(xmlrpc_client):
 
     with pytest.raises(python_xmlrpc.Fault) as excinfo:
         xmlrpc_client.add(42, -51, 98)
@@ -42,7 +42,7 @@ def test_xrpc_invalid_params_2(xmlrpc_client):
     assert excinfo.value.faultCode == RPC_INVALID_PARAMS
 
 
-def test_xrpc_internal_error(xmlrpc_client):
+def test_xmlrpc_internal_error(xmlrpc_client):
 
     with pytest.raises(python_xmlrpc.Fault) as excinfo:
         xmlrpc_client.raise_custom_exception()
@@ -51,7 +51,7 @@ def test_xrpc_internal_error(xmlrpc_client):
     assert RPC_CUSTOM_ERROR_BASE <= excinfo.value.faultCode <= RPC_CUSTOM_ERROR_MAX
 
 
-def test_xrpc_exception_with_data(xmlrpc_client):
+def test_xmlrpc_exception_with_data(xmlrpc_client):
 
     with pytest.raises(python_xmlrpc.Fault) as excinfo:
         xmlrpc_client.raise_custom_exception_with_data()
@@ -62,7 +62,7 @@ def test_xrpc_exception_with_data(xmlrpc_client):
     assert RPC_CUSTOM_ERROR_BASE <= excinfo.value.faultCode <= RPC_CUSTOM_ERROR_MAX
 
 
-def test_xrpc_divide_by_zero(xmlrpc_client):
+def test_xmlrpc_divide_by_zero(xmlrpc_client):
 
     with pytest.raises(python_xmlrpc.Fault) as excinfo:
         xmlrpc_client.divide(42, 0)
@@ -73,7 +73,7 @@ def test_xrpc_divide_by_zero(xmlrpc_client):
     assert excinfo.value.faultCode == RPC_INTERNAL_ERROR
 
 
-def test_xrpc_invalid_request_missing_method_name(all_rpc_url):
+def test_xmlrpc_invalid_request_missing_method_name(all_rpc_url):
     invalid_payload = '''<?xml version="1.0"?>
 <methodCall>
   <params>
@@ -99,7 +99,7 @@ def test_xrpc_invalid_request_missing_method_name(all_rpc_url):
     assert code == RPC_INVALID_REQUEST
 
 
-def test_xrpc_invalid_request_but_valid_xml(all_rpc_url):
+def test_xmlrpc_invalid_request_but_valid_xml(all_rpc_url):
     invalid_payload = '''<?xml version="1.0"?>
 <methodCall>
 </methodCall>'''
@@ -120,7 +120,7 @@ def test_xrpc_invalid_request_but_valid_xml(all_rpc_url):
     assert code == RPC_INVALID_REQUEST
 
 
-def test_xrpc_invalid_xml(all_rpc_url):
+def test_xmlrpc_invalid_xml(all_rpc_url):
     # "</methodName" misses the closing '>'
     invalid_payload = '''<?xml version="1.0"?>
 <methodCall>
@@ -148,7 +148,7 @@ def test_xrpc_invalid_xml(all_rpc_url):
     assert code == RPC_PARSE_ERROR
 
 
-def test_xrpc_invalid_request_json_request(all_rpc_url):
+def test_xmlrpc_invalid_request_json_request(all_rpc_url):
     invalid_payload = json.dumps({
         "method": 'add',
         "params": [5, 6],
@@ -172,7 +172,7 @@ def test_xrpc_invalid_request_json_request(all_rpc_url):
     assert code == RPC_PARSE_ERROR
 
 
-def test_xrpc_invalid_request_bad_type_value(all_rpc_url):
+def test_xmlrpc_invalid_request_bad_type_value(all_rpc_url):
     invalid_payload = '''<?xml version="1.0"?>
 <methodCall>
   <methodName>examples.getStateName</methodName
@@ -199,7 +199,7 @@ def test_xrpc_invalid_request_bad_type_value(all_rpc_url):
     assert code == RPC_PARSE_ERROR
 
 
-def test_xrpc_invalid_multicall(xmlrpc_client):
+def test_xmlrpc_invalid_multicall(xmlrpc_client):
 
     with pytest.raises(python_xmlrpc.Fault) as excinfo:
         xmlrpc_client.system.multicall('method1')
@@ -208,7 +208,7 @@ def test_xrpc_invalid_multicall(xmlrpc_client):
     assert excinfo.value.faultCode == RPC_INVALID_PARAMS
 
 
-def test_xrpc_invalid_result(xmlrpc_client):
+def test_xmlrpc_invalid_result(xmlrpc_client):
 
     with pytest.raises(python_xmlrpc.Fault) as excinfo:
         xmlrpc_client.get_invalid_result()

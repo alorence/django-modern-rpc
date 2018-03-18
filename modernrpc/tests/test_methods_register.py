@@ -4,17 +4,27 @@ from django.core.exceptions import ImproperlyConfigured
 
 from modernrpc.core import rpc_method, registry
 from . import python_xmlrpc
+import jsonrpcclient.exceptions
 from .testsite.rpc_methods_stub.not_decorated import another_not_decorated
 
 
-def test_not_registered(live_server):
-    client = python_xmlrpc.ServerProxy(live_server.url + '/all-rpc/')
-    result = client.system.listMethods()
+def test_xmlrpc_not_registered(xmlrpc_client):
 
+    result = xmlrpc_client.system.listMethods()
     assert 'existing_but_not_decorated' not in result
 
     with pytest.raises(python_xmlrpc.Fault) as exc_info:
-        client.existing_but_not_decorated()
+        xmlrpc_client.existing_but_not_decorated()
+    assert 'Method not found: "existing_but_not_decorated"' in str(exc_info.value)
+
+
+def test_jsonrpc_not_registered(jsonrpc_client):
+
+    result = jsonrpc_client.request('system.listMethods')
+    assert 'existing_but_not_decorated' not in result
+
+    with pytest.raises(jsonrpcclient.exceptions.ReceivedErrorResponse) as exc_info:
+        jsonrpc_client.existing_but_not_decorated()
     assert 'Method not found: "existing_but_not_decorated"' in str(exc_info.value)
 
 
