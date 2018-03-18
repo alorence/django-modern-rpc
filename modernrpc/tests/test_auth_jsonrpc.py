@@ -1,121 +1,231 @@
 # coding: utf-8
+import jsonrpcclient.exceptions
 import pytest
-from jsonrpcclient.exceptions import ReceivedErrorResponse
-from jsonrpcclient.http_client import HTTPClient
 
 from modernrpc.exceptions import RPC_INTERNAL_ERROR
-from . import python_xmlrpc
 
 
-# TODO: this should be unused at the end...
-def get_url_with_auth(orig_url, username, password):
-    return orig_url.replace('://', '://{uname}:{pwd}@').format(uname=username, pwd=password)
+class JsonRpcBase:
+
+    error_klass = jsonrpcclient.exceptions.ReceivedErrorResponse
 
 
-def test_jsonrpc_anon_user_auth(live_server):
+class TestAuthAnonymousUser(JsonRpcBase):
 
-    c = HTTPClient(live_server.url + '/all-rpc/')
+    def test_logged_user_required(self, jsonrpc_client):
+        with pytest.raises(Exception) as excpinfo:
+            jsonrpc_client.logged_user_required(5)
+        assert excpinfo.value.code == RPC_INTERNAL_ERROR
+        assert 'Authentication failed' in excpinfo.value.message
 
-    assert pytest.raises(ReceivedErrorResponse, c.request, 'logged_user_required', 5).value.code == RPC_INTERNAL_ERROR
-    assert pytest.raises(ReceivedErrorResponse, c.request, 'logged_user_required_alt', 5).value.code == RPC_INTERNAL_ERROR
-    assert pytest.raises(ReceivedErrorResponse, c.request, 'logged_superuser_required', 5).value.code == RPC_INTERNAL_ERROR
-    assert pytest.raises(ReceivedErrorResponse, c.request, 'logged_superuser_required_alt', 5).value.code == RPC_INTERNAL_ERROR
-    assert pytest.raises(ReceivedErrorResponse, c.request, 'delete_user_perm_required', 5).value.code == RPC_INTERNAL_ERROR
-    assert pytest.raises(ReceivedErrorResponse, c.request, 'any_permission_required', 5).value.code == RPC_INTERNAL_ERROR
-    assert pytest.raises(ReceivedErrorResponse, c.request, 'all_permissions_required', 5).value.code == RPC_INTERNAL_ERROR
-    assert pytest.raises(ReceivedErrorResponse, c.request, 'in_group_A_required', 5).value.code == RPC_INTERNAL_ERROR
-    assert pytest.raises(ReceivedErrorResponse, c.request, 'in_groups_A_and_B_required', 5).value.code == RPC_INTERNAL_ERROR
-    e = pytest.raises(ReceivedErrorResponse, c.request, 'in_groups_A_and_B_required_alt', 5)
-    assert e.value.code == RPC_INTERNAL_ERROR
-    assert pytest.raises(ReceivedErrorResponse, c.request, 'in_group_A_or_B_required', 5).value.code == RPC_INTERNAL_ERROR
+    def test_logged_user_required_alt(self, jsonrpc_client):
+        with pytest.raises(self.error_klass) as excpinfo:
+            jsonrpc_client.logged_user_required_alt(5)
+        assert excpinfo.value.code == RPC_INTERNAL_ERROR
+        assert 'Authentication failed' in excpinfo.value.message
+
+    def test_logged_superuser_required(self, jsonrpc_client):
+        with pytest.raises(self.error_klass) as excpinfo:
+            jsonrpc_client.logged_superuser_required(5)
+        assert excpinfo.value.code == RPC_INTERNAL_ERROR
+        assert 'Authentication failed' in excpinfo.value.message
+
+    def test_logged_superuser_required_alt(self, jsonrpc_client):
+        with pytest.raises(self.error_klass) as excpinfo:
+            jsonrpc_client.logged_superuser_required_alt(5)
+        assert excpinfo.value.code == RPC_INTERNAL_ERROR
+        assert 'Authentication failed' in excpinfo.value.message
+
+    def test_delete_user_perm_required(self, jsonrpc_client):
+        with pytest.raises(self.error_klass) as excpinfo:
+            jsonrpc_client.delete_user_perm_required(5)
+        assert excpinfo.value.code == RPC_INTERNAL_ERROR
+        assert 'Authentication failed' in excpinfo.value.message
+
+    def test_any_permission_required(self, jsonrpc_client):
+        with pytest.raises(self.error_klass) as excpinfo:
+            jsonrpc_client.any_permission_required(5)
+        assert excpinfo.value.code == RPC_INTERNAL_ERROR
+        assert 'Authentication failed' in excpinfo.value.message
+
+    def test_all_permissions_required(self, jsonrpc_client):
+        with pytest.raises(self.error_klass) as excpinfo:
+            jsonrpc_client.all_permissions_required(5)
+        assert excpinfo.value.code == RPC_INTERNAL_ERROR
+        assert 'Authentication failed' in excpinfo.value.message
+
+    def test_in_group_A_required(self, jsonrpc_client):
+        with pytest.raises(self.error_klass) as excpinfo:
+            jsonrpc_client.in_group_A_required(5)
+        assert excpinfo.value.code == RPC_INTERNAL_ERROR
+        assert 'Authentication failed' in excpinfo.value.message
+
+    def test_in_groups_A_and_B_required(self, jsonrpc_client):
+        with pytest.raises(self.error_klass) as excpinfo:
+            jsonrpc_client.in_groups_A_and_B_required(5)
+        assert excpinfo.value.code == RPC_INTERNAL_ERROR
+        assert 'Authentication failed' in excpinfo.value.message
+
+    def test_in_groups_A_and_B_required_alt(self, jsonrpc_client):
+        with pytest.raises(self.error_klass) as excpinfo:
+            jsonrpc_client.in_groups_A_and_B_required_alt(5)
+        assert excpinfo.value.code == RPC_INTERNAL_ERROR
+        assert 'Authentication failed' in excpinfo.value.message
+
+    def test_in_group_A_or_B_required(self, jsonrpc_client):
+        with pytest.raises(self.error_klass) as excpinfo:
+            jsonrpc_client.in_group_A_or_B_required(5)
+        assert excpinfo.value.code == RPC_INTERNAL_ERROR
+        assert 'Authentication failed' in excpinfo.value.message
 
 
-def test_jsonrpc_superuser_auth(live_server, superuser, common_pwd):
+class TestAuthStandardUser(JsonRpcBase):
 
-    admin_auth_url = get_url_with_auth(live_server.url + '/all-rpc/', superuser.username, common_pwd)
-    c = HTTPClient(admin_auth_url)
+    def test_logged_user_required(self, jsonrpc_client_as_user):
+        assert jsonrpc_client_as_user.logged_user_required(5) == 5
 
-    assert c.logged_user_required(5) == 5
-    assert c.logged_user_required_alt(5) == 5
-    assert c.logged_superuser_required(5) == 5
-    assert c.logged_superuser_required_alt(5) == 5
-    assert c.delete_user_perm_required(5) == 5
-    assert c.any_permission_required(5) == 5
-    assert c.all_permissions_required(5) == 5
-    assert c.in_group_A_required(5) == 5
-    assert c.in_groups_A_and_B_required(5) == 5
-    assert c.in_groups_A_and_B_required_alt(5) == 5
-    assert c.in_group_A_or_B_required(5) == 5
+    def test_logged_user_required_alt(self, jsonrpc_client_as_user):
+        assert jsonrpc_client_as_user.logged_user_required_alt(5) == 5
+
+    def test_logged_superuser_required(self, jsonrpc_client_as_user):
+        with pytest.raises(self.error_klass) as excpinfo:
+            jsonrpc_client_as_user.logged_superuser_required(5)
+        assert excpinfo.value.code == RPC_INTERNAL_ERROR
+        assert 'Authentication failed' in excpinfo.value.message
+
+    def test_logged_superuser_required_alt(self, jsonrpc_client_as_user):
+        with pytest.raises(self.error_klass) as excpinfo:
+            jsonrpc_client_as_user.logged_superuser_required_alt(5)
+        assert excpinfo.value.code == RPC_INTERNAL_ERROR
+        assert 'Authentication failed' in excpinfo.value.message
+
+    def test_delete_user_perm_required(self, jsonrpc_client_as_user):
+        with pytest.raises(self.error_klass) as excpinfo:
+            jsonrpc_client_as_user.delete_user_perm_required(5)
+        assert excpinfo.value.code == RPC_INTERNAL_ERROR
+        assert 'Authentication failed' in excpinfo.value.message
+
+    def test_any_permission_required(self, jsonrpc_client_as_user):
+        with pytest.raises(self.error_klass) as excpinfo:
+            jsonrpc_client_as_user.any_permission_required(5)
+        assert excpinfo.value.code == RPC_INTERNAL_ERROR
+        assert 'Authentication failed' in excpinfo.value.message
+
+    def test_all_permissions_required(self, jsonrpc_client_as_user):
+        with pytest.raises(self.error_klass) as excpinfo:
+            jsonrpc_client_as_user.all_permissions_required(5)
+        assert excpinfo.value.code == RPC_INTERNAL_ERROR
+        assert 'Authentication failed' in excpinfo.value.message
+
+    def test_in_group_A_required(self, jsonrpc_client_as_user):
+        with pytest.raises(self.error_klass) as excpinfo:
+            jsonrpc_client_as_user.in_group_A_required(5)
+        assert excpinfo.value.code == RPC_INTERNAL_ERROR
+        assert 'Authentication failed' in excpinfo.value.message
+
+    def test_in_groups_A_and_B_required(self, jsonrpc_client_as_user):
+        with pytest.raises(self.error_klass) as excpinfo:
+            jsonrpc_client_as_user.in_groups_A_and_B_required(5)
+        assert excpinfo.value.code == RPC_INTERNAL_ERROR
+        assert 'Authentication failed' in excpinfo.value.message
+
+    def test_in_groups_A_and_B_required_alt(self, jsonrpc_client_as_user):
+        with pytest.raises(self.error_klass) as excpinfo:
+            jsonrpc_client_as_user.in_groups_A_and_B_required_alt(5)
+        assert excpinfo.value.code == RPC_INTERNAL_ERROR
+        assert 'Authentication failed' in excpinfo.value.message
+
+    def test_in_group_A_or_B_required(self, jsonrpc_client_as_user):
+        with pytest.raises(self.error_klass) as excpinfo:
+            jsonrpc_client_as_user.in_group_A_or_B_required(5)
+        assert excpinfo.value.code == RPC_INTERNAL_ERROR
+        assert 'Authentication failed' in excpinfo.value.message
 
 
-def test_jsonrpc_user_auth(live_server, john_doe, common_pwd):
+class TestAuthSuperuser(JsonRpcBase):
 
-    johndoe_auth_url = get_url_with_auth(live_server.url + '/all-rpc/', john_doe.username, common_pwd)
-    c = HTTPClient(johndoe_auth_url)
+    def test_logged_user_required(self, jsonrpc_client_as_superuser):
+        assert jsonrpc_client_as_superuser.logged_user_required(5) == 5
 
-    assert c.logged_user_required(5) == 5
-    assert c.logged_user_required_alt(5) == 5
+    def test_logged_user_required_alt(self, jsonrpc_client_as_superuser):
+        assert jsonrpc_client_as_superuser.logged_user_required_alt(5) == 5
 
-    assert pytest.raises(ReceivedErrorResponse, c.request, 'logged_superuser_required', 5).value.code == RPC_INTERNAL_ERROR
-    assert pytest.raises(ReceivedErrorResponse, c.request, 'logged_superuser_required_alt', 5).value.code == RPC_INTERNAL_ERROR
-    assert pytest.raises(ReceivedErrorResponse, c.request, 'delete_user_perm_required', 5).value.code == RPC_INTERNAL_ERROR
-    assert pytest.raises(ReceivedErrorResponse, c.request, 'any_permission_required', 5).value.code == RPC_INTERNAL_ERROR
-    assert pytest.raises(ReceivedErrorResponse, c.request, 'all_permissions_required', 5).value.code == RPC_INTERNAL_ERROR
-    assert pytest.raises(ReceivedErrorResponse, c.request, 'in_group_A_required', 5).value.code == RPC_INTERNAL_ERROR
-    assert pytest.raises(ReceivedErrorResponse, c.request, 'in_groups_A_and_B_required', 5).value.code == RPC_INTERNAL_ERROR
-    e = pytest.raises(ReceivedErrorResponse, c.request, 'in_groups_A_and_B_required_alt', 5)
-    assert e.value.code == RPC_INTERNAL_ERROR
-    assert pytest.raises(ReceivedErrorResponse, c.request, 'in_group_A_or_B_required', 5).value.code == RPC_INTERNAL_ERROR
+    def test_logged_superuser_required(self, jsonrpc_client_as_superuser):
+        assert jsonrpc_client_as_superuser.logged_superuser_required(5) == 5
+
+    def test_logged_superuser_required_alt(self, jsonrpc_client_as_superuser):
+        assert jsonrpc_client_as_superuser.logged_superuser_required_alt(5) == 5
+
+    def test_delete_user_perm_required(self, jsonrpc_client_as_superuser):
+        assert jsonrpc_client_as_superuser.delete_user_perm_required(5) == 5
+
+    def test_any_permission_required(self, jsonrpc_client_as_superuser):
+        assert jsonrpc_client_as_superuser.any_permission_required(5) == 5
+
+    def test_all_permissions_required(self, jsonrpc_client_as_superuser):
+        assert jsonrpc_client_as_superuser.all_permissions_required(5) == 5
+
+    def test_in_group_A_required(self, jsonrpc_client_as_superuser):
+        assert jsonrpc_client_as_superuser.in_group_A_required(5) == 5
+
+    def test_in_groups_A_and_B_required(self, jsonrpc_client_as_superuser):
+        assert jsonrpc_client_as_superuser.in_groups_A_and_B_required(5) == 5
+
+    def test_in_groups_A_and_B_required_alt(self, jsonrpc_client_as_superuser):
+        assert jsonrpc_client_as_superuser.in_groups_A_and_B_required_alt(5) == 5
+
+    def test_in_group_A_or_B_required(self, jsonrpc_client_as_superuser):
+        assert jsonrpc_client_as_superuser.in_group_A_or_B_required(5) == 5
 
 
-def test_jsonrpc_user_permissions(live_server, john_doe, common_pwd, delete_user_perm, add_user_perm, change_user_perm):
-
-    johndoe_auth_url = get_url_with_auth(live_server.url + '/all-rpc/', john_doe.username, common_pwd)
-    c = HTTPClient(johndoe_auth_url)
+def test_jsonrpc_user_permissions(jsonrpc_client_as_user, john_doe, delete_user_perm, add_user_perm, change_user_perm):
 
     john_doe.user_permissions.add(delete_user_perm)
 
-    assert c.delete_user_perm_required(5) == 5
-    assert c.any_permission_required(5) == 5
+    assert jsonrpc_client_as_user.delete_user_perm_required(5) == 5
+    assert jsonrpc_client_as_user.any_permission_required(5) == 5
 
-    with pytest.raises(ReceivedErrorResponse) as exc_info:
-        c.all_permissions_required(5)
+    with pytest.raises(jsonrpcclient.exceptions.ReceivedErrorResponse) as excpinfo:
+        jsonrpc_client_as_user.all_permissions_required(5)
 
-    assert exc_info.value.code == RPC_INTERNAL_ERROR
+    assert excpinfo.value.code == RPC_INTERNAL_ERROR
+    assert 'Authentication failed' in excpinfo.value.message
 
     john_doe.user_permissions.add(add_user_perm, change_user_perm)
-    assert c.all_permissions_required(5) == 5
+    assert jsonrpc_client_as_user.all_permissions_required(5) == 5
 
 
-def test_jsonrpc_user_groups(live_server, john_doe, common_pwd, group_A, group_B):
-
-    johndoe_auth_url = get_url_with_auth(live_server.url + '/all-rpc/', john_doe.username, common_pwd)
-    c = HTTPClient(johndoe_auth_url)
+def test_jsonrpc_user_groups(jsonrpc_client_as_user, john_doe, group_A, group_B):
 
     john_doe.groups.add(group_A)
 
-    assert c.in_group_A_required(5) == 5
-    assert c.in_group_A_or_B_required(5) == 5
+    assert jsonrpc_client_as_user.in_group_A_required(5) == 5
+    assert jsonrpc_client_as_user.in_group_A_or_B_required(5) == 5
 
-    assert pytest.raises(ReceivedErrorResponse, c.request, 'in_groups_A_and_B_required', 5).value.code == RPC_INTERNAL_ERROR
-    e = pytest.raises(ReceivedErrorResponse, c.request, 'in_groups_A_and_B_required_alt', 5)
-    assert e.value.code == RPC_INTERNAL_ERROR
+    with pytest.raises(jsonrpcclient.exceptions.ReceivedErrorResponse) as excpinfo:
+        jsonrpc_client_as_user.in_groups_A_and_B_required(5)
+    assert excpinfo.value.code == RPC_INTERNAL_ERROR
+    assert 'Authentication failed' in excpinfo.value.message
+
+    with pytest.raises(jsonrpcclient.exceptions.ReceivedErrorResponse) as excpinfo:
+        jsonrpc_client_as_user.in_groups_A_and_B_required_alt(5)
+    assert excpinfo.value.code == RPC_INTERNAL_ERROR
+    assert 'Authentication failed' in excpinfo.value.message
 
     john_doe.groups.add(group_B)
 
-    assert c.in_groups_A_and_B_required(5) == 5
-    assert c.in_groups_A_and_B_required_alt(5) == 5
+    assert jsonrpc_client_as_user.in_groups_A_and_B_required(5) == 5
+    assert jsonrpc_client_as_user.in_groups_A_and_B_required_alt(5) == 5
 
 
-def test_custom_predicate_allowed(live_server):
+def test_custom_predicate_allowed(jsonrpc_client):
 
-    c = HTTPClient(live_server.url + '/all-rpc/')
-    assert 'python-requests' in c.get_user_agent()
+    assert 'python-requests' in jsonrpc_client.get_user_agent()
 
 
-def test_custom_predicate_rejected(live_server):
+def test_custom_predicate_rejected(jsonrpc_client):
 
-    c = HTTPClient(live_server.url + '/all-rpc/')
-    with pytest.raises(ReceivedErrorResponse) as exc_info:
-        c.power_2(5)
-    assert exc_info.value.code == RPC_INTERNAL_ERROR
+    with pytest.raises(jsonrpcclient.exceptions.ReceivedErrorResponse) as excpinfo:
+        jsonrpc_client.power_2(5)
+    assert excpinfo.value.code == RPC_INTERNAL_ERROR
+    assert 'Authentication failed' in excpinfo.value.message
