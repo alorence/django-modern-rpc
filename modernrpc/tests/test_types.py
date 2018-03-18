@@ -229,8 +229,8 @@ def test_jsonrpc_date_2(jsonrpc_client):
 
     # Since date type is not supported by JSON-RPC spec, it is transported as string
     # to the server. By default, the decoded type depends on the Python version.
-    # Since this test suite has been configured with settings.MODERNRPC_PY2_STR_TYPE = str,
-    # the type returned will always be 'str'
+    # This test suite has been configured with settings.MODERNRPC_PY2_STR_TYPE = str,
+    # as a consequence, the type returned will always be 'str'
 
     # We have to convert date to ISO 8601, since JSON-RPC cannot serialize it
     assert re.match(r"<(class|type) 'str'>", jsonrpc_client.get_data_type(date.isoformat()))
@@ -251,14 +251,14 @@ def test_xmlrpc_list(xmlrpc_client):
 
     result = xmlrpc_client.get_list()
     assert type(result) == list
-    assert result == [1, 2, 3, ]
+    assert result == [1, 2, 3]
 
 
 def test_jsonrpc_list(jsonrpc_client):
 
     result = jsonrpc_client.get_list()
     assert type(result) == list
-    assert result == [1, 2, 3, ]
+    assert result == [1, 2, 3]
 
 
 def test_xmlrpc_struct(xmlrpc_client):
