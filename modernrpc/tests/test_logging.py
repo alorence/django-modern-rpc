@@ -1,6 +1,9 @@
 import logging
 
+import pytest
+
 from modernrpc.utils import logger_has_handlers, get_modernrpc_logger
+from distutils.version import LooseVersion, StrictVersion
 
 
 def test_configured_logger():
@@ -13,17 +16,32 @@ def test_configured_logger():
     assert logger is get_modernrpc_logger('my_app')
 
 
-def test_unconfigured_logger():
+@pytest.mark.skipif(LooseVersion(pytest.__version__) < LooseVersion('3.3'), reason='pytest >= 3.3 ONLY')
+def test_unconfigured_logger_pytest_33_and_more():
     # When trying to retrieve an unconfigured logger with logging.getLogger(), no handler is associated
+    # Note: pytest 3.3 and later automatically attach a root logger when running tests
     logger = logging.getLogger('xxx_unconfigured')
-    # Note: pytest automatically attach a root logger when running tests
     assert logger_has_handlers(logger) is True
 
-    # This logger still has no handler, but root logger has some
     logger2 = get_modernrpc_logger('xxx_unconfigured')
     assert logger_has_handlers(logger2) is True
+    # This logger still has no handler...
     assert len(logger2.handlers) == 0
+    # ...but root logger has some
     assert len(logger2.parent.handlers) > 0
+
+
+@pytest.mark.skipif(LooseVersion(pytest.__version__) >= LooseVersion('3.3'), reason='pytest < 3.3 ONLY')
+def test_unconfigured_logger_pytest_32_and_less():
+    # When trying to retrieve an unconfigured logger with logging.getLogger(), no handler is associated
+    logger = logging.getLogger('xxx_unconfigured')
+    assert logger_has_handlers(logger) is False
+
+    # If we retrieve it with get_modernrpc_logger(), the returned object has a default NullHandler attached
+    logger2 = get_modernrpc_logger('xxx_unconfigured')
+    assert logger_has_handlers(logger2) is True
+    assert len(logger2.handlers) == 1
+    assert isinstance(logger2.handlers[0], logging.NullHandler)
 
 
 def test_unconfigured_no_propagate():
