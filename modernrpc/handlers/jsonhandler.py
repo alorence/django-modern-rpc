@@ -51,8 +51,8 @@ class JSONRPCHandler(RPCHandler):
         try:
             encoder = import_string(settings.MODERNRPC_JSON_ENCODER)
             return json.dumps(obj, cls=encoder)
-        except Exception:
-            raise RPCInternalError('Unable to serialize result as valid JSON')
+        except Exception as e:
+            raise RPCInternalError('Unable to serialize result as valid JSON: ' + str(e))
 
     def process_request(self):
 

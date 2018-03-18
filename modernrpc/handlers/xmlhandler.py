@@ -62,8 +62,8 @@ class XMLRPCHandler(RPCHandler):
             # we dumps it as an array of a single value.
             return self.marshaller.dumps([obj])
 
-        except Exception:
-            raise RPCInternalError('Unable to serialize result as valid XML')
+        except Exception as e:
+            raise RPCInternalError('Unable to serialize result as valid XML: ' + str(e))
 
     def process_request(self):
 
