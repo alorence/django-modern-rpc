@@ -13,6 +13,9 @@ def test_xmlrpc_not_registered(xmlrpc_client):
     result = xmlrpc_client.system.listMethods()
     assert 'existing_but_not_decorated' not in result
 
+
+def test_xmlrpc_not_decorated(xmlrpc_client):
+
     with pytest.raises(xmlrpclib.Fault) as exc_info:
         xmlrpc_client.existing_but_not_decorated()
     assert 'Method not found: "existing_but_not_decorated"' in str(exc_info.value)
@@ -22,6 +25,9 @@ def test_jsonrpc_not_registered(jsonrpc_client):
 
     result = jsonrpc_client.request('system.listMethods')
     assert 'existing_but_not_decorated' not in result
+
+
+def test_jsonrpc_not_decorated(jsonrpc_client):
 
     with pytest.raises(jsonrpcclient.exceptions.ReceivedErrorResponse) as exc_info:
         jsonrpc_client.existing_but_not_decorated()

@@ -207,12 +207,17 @@ def test_jsonrpc_user_permissions(jsonrpc_client_as_user, john_doe, delete_user_
     assert jsonrpc_client_as_user.all_permissions_required(5) == 5
 
 
-def test_jsonrpc_user_groups(jsonrpc_client_as_user, john_doe, group_A, group_B):
+def test_jsonrpc_user_groups_1(jsonrpc_client_as_user, john_doe, group_A, group_B):
 
     john_doe.groups.add(group_A)
 
     assert jsonrpc_client_as_user.in_group_A_required(5) == 5
     assert jsonrpc_client_as_user.in_group_A_or_B_required(5) == 5
+
+
+def test_jsonrpc_user_groups_2(jsonrpc_client_as_user, john_doe, group_A, group_B):
+
+    john_doe.groups.add(group_A)
 
     with pytest.raises(jsonrpcclient.exceptions.ReceivedErrorResponse) as excpinfo:
         jsonrpc_client_as_user.in_groups_A_and_B_required(5)
@@ -224,6 +229,10 @@ def test_jsonrpc_user_groups(jsonrpc_client_as_user, john_doe, group_A, group_B)
     assert excpinfo.value.code == RPC_INTERNAL_ERROR
     assert 'Authentication failed' in excpinfo.value.message
 
+
+def test_jsonrpc_user_groups_3(jsonrpc_client_as_user, john_doe, group_A, group_B):
+
+    john_doe.groups.add(group_A)
     john_doe.groups.add(group_B)
 
     assert jsonrpc_client_as_user.in_groups_A_and_B_required(5) == 5
