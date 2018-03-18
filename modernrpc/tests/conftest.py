@@ -1,9 +1,8 @@
 # coding: utf-8
 import pytest
 from django.contrib.auth.models import Permission, Group, AnonymousUser
-from jsonrpcclient import http_client as jsonrpcclient
 
-from . import xmlrpclib
+from . import xmlrpclib, jsonrpclib
 
 
 @pytest.fixture(scope='session')
@@ -94,7 +93,7 @@ def xmlrpc_client(all_rpc_url):
 @pytest.fixture(scope='session')
 def jsonrpc_client(all_rpc_url):
     """Return the default JSON-RPC client"""
-    return jsonrpcclient.HTTPClient(all_rpc_url)
+    return jsonrpclib.HTTPClient(all_rpc_url)
 
 
 def get_url_with_auth(orig_url, username, password):
@@ -112,7 +111,7 @@ def xmlrpc_client_as_superuser(all_rpc_url, superuser, common_pwd):
 def jsonrpc_client_as_superuser(all_rpc_url, superuser, common_pwd):
     """Return the default JSON-RPC client, logged as superuser"""
     endpoint = get_url_with_auth(all_rpc_url, superuser.username, common_pwd)
-    return jsonrpcclient.HTTPClient(endpoint)
+    return jsonrpclib.HTTPClient(endpoint)
 
 
 @pytest.fixture
@@ -126,4 +125,4 @@ def xmlrpc_client_as_user(all_rpc_url, john_doe, common_pwd):
 def jsonrpc_client_as_user(all_rpc_url, john_doe, common_pwd):
     """Return the default JSON-RPC client, logged as superuser"""
     endpoint = get_url_with_auth(all_rpc_url, john_doe.username, common_pwd)
-    return jsonrpcclient.HTTPClient(endpoint)
+    return jsonrpclib.HTTPClient(endpoint)

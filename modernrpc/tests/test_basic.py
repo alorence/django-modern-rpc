@@ -4,10 +4,9 @@ import xml
 import jsonrpcclient.exceptions
 import pytest
 from django.utils import six
-from jsonrpcclient import http_client as jsonrpc
 
 from modernrpc.exceptions import RPC_METHOD_NOT_FOUND
-from . import xmlrpclib
+from . import xmlrpclib, jsonrpclib
 
 try:
     # Python 3
@@ -216,7 +215,7 @@ def test_xmlrpc_protocol_specific_error(json_only_url):
 def test_jsonrpc_protocol_specific_error(xml_only_url):
 
     # Specific jsonrpc client communicating with xml only endpoint
-    jsonrpc_client = jsonrpc.HTTPClient(xml_only_url)
+    jsonrpc_client = jsonrpclib.HTTPClient(xml_only_url)
 
     with pytest.raises(jsonrpcclient.exceptions.ParseResponseError) as excinfo:
         # There is no method available via this entry point for JSON-RPC clients.

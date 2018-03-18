@@ -7,5 +7,6 @@
 # on Python 2.
 import xmlrpc.client as xmlrpclib
 
+import jsonrpcclient.http_client as jsonrpclib
 
-__all__ = ['xmlrpclib']
+__all__ = ['xmlrpclib', 'jsonrpclib']
