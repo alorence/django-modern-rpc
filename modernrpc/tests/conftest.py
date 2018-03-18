@@ -24,7 +24,7 @@ def john_doe(django_user_model, common_pwd):
 
 
 @pytest.fixture
-def superuser(django_user_model):
+def superuser(django_user_model, common_pwd):
     """Create and return a Django superuser"""
     return django_user_model.objects.create_superuser('admin', email='admin@example.com', password=common_pwd)
 
@@ -107,28 +107,28 @@ def get_url_with_auth(orig_url, username, password):
     return orig_url.replace('://', '://{uname}:{pwd}@').format(uname=username, pwd=password)
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def xmlrpc_client_as_superuser(all_rpc_url, superuser, common_pwd):
     """Return the default XML-RPC client, logged as superuser"""
     endpoint = get_url_with_auth(all_rpc_url, superuser.username, common_pwd)
     return python_xmlrpc.ServerProxy(endpoint)
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def jsonrpc_client_as_superuser(all_rpc_url, superuser, common_pwd):
     """Return the default JSON-RPC client, logged as superuser"""
     endpoint = get_url_with_auth(all_rpc_url, superuser.username, common_pwd)
     return jsonrpcclient.HTTPClient(endpoint)
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def xmlrpc_client_as_user(all_rpc_url, john_doe, common_pwd):
     """Return the default XML-RPC client, logged as superuser"""
     endpoint = get_url_with_auth(all_rpc_url, john_doe.username, common_pwd)
     return python_xmlrpc.ServerProxy(endpoint)
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def jsonrpc_client_as_user(all_rpc_url, john_doe, common_pwd):
     """Return the default JSON-RPC client, logged as superuser"""
     endpoint = get_url_with_auth(all_rpc_url, john_doe.username, common_pwd)
