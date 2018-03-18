@@ -5,4 +5,4 @@ pytest-cov
 requests
 markdown
 docutils
-jsonrpcclient
+-e git://github.com/bcb/jsonrpcclient.git#egg=jsonrpcclient
