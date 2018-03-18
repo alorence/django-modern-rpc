@@ -1,2 +1,7 @@
 # coding: utf-8
-from django.utils.six.moves import xmlrpc_client as python_xmlrpc  # noqa: F401
+try:
+    import xmlrpc.client as xmlrpclib
+except:
+    import xmlrpclib
+
+__all__ = ['xmlrpclib']

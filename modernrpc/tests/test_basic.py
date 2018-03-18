@@ -7,7 +7,7 @@ from django.utils import six
 from jsonrpcclient import http_client as jsonrpc
 
 from modernrpc.exceptions import RPC_METHOD_NOT_FOUND
-from . import python_xmlrpc
+from . import xmlrpclib
 
 try:
     # Python 3
@@ -78,7 +78,7 @@ def test_xmlrpc_get_signature_2(xmlrpc_client):
 
 def test_xmlrpc_get_signature_invalid_method(xmlrpc_client):
 
-    with pytest.raises(python_xmlrpc.Fault):
+    with pytest.raises(xmlrpclib.Fault):
         xmlrpc_client.system.methodSignature('inexistant_method')
 
 
@@ -128,7 +128,7 @@ def test_xmlrpc_method_help_2(xmlrpc_client):
 
 def test_xmlrpc_method_help_invalid_method(xmlrpc_client):
 
-    with pytest.raises(python_xmlrpc.Fault):
+    with pytest.raises(xmlrpclib.Fault):
         xmlrpc_client.system.methodHelp('inexistant_method')
 
 
@@ -168,7 +168,7 @@ def test_xmlrpc_protocol_specific_methods_2(xmlrpc_client):
 
 def test_xmlrpc_protocol_specific_methods_invalid_method(xmlrpc_client):
 
-    with pytest.raises(python_xmlrpc.Fault) as excinfo:
+    with pytest.raises(xmlrpclib.Fault) as excinfo:
         # method_x is available only via JSON-RPC
         xmlrpc_client.method_x()
 
@@ -202,7 +202,7 @@ def test_jsonrpc_protocol_specific_methods_invalid_method(jsonrpc_client):
 def test_xmlrpc_protocol_specific_error(json_only_url):
 
     # Specific xmlrpc client communicating with json only endpoint
-    xmlrpc_client = python_xmlrpc.ServerProxy(json_only_url)
+    xmlrpc_client = xmlrpclib.ServerProxy(json_only_url)
 
     with pytest.raises(xml.parsers.expat.ExpatError) as excinfo:
         # There is no method available via this entry point for XML-RPC clients.

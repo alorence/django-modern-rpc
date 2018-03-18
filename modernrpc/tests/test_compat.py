@@ -26,39 +26,39 @@ def test_standardize_str_2():
 
 @pytest.mark.skipif(six.PY3, reason='Python 2 specific test')
 def test_standardize_str_3():
-    in_list = [145, 964, 84, ['ghjfgh', 64], [[84, 9.254, b'trdf', 645], '456', u'784', 'sdfg']]
-    expected_out = [145, 964, 84, [u'ghjfgh', 64], [[84, 9.254, b'trdf', 645], u'456', u'784', u'sdfg']]
+    input_val_ = [145, 964, 84, ['ghjfgh', 64], [[84, 9.254, b'trdf', 645], '456', u'784', 'sdfg']]
+    output_val = [145, 964, 84, [u'ghjfgh', 64], [[84, 9.254, b'trdf', 645], u'456', u'784', u'sdfg']]
     # six.text_type is 'unicode' in Python 2
-    assert standardize_strings(in_list, six.text_type) == expected_out
+    assert standardize_strings(input_val_, six.text_type) == output_val
 
 
 @pytest.mark.skipif(six.PY3, reason='Python 2 specific test')
 def test_standardize_str_4():
-    in_list = [145, 964, 84, [u'ghjfgh', 64], [[84, 9.254, b'trdf', 645], u'456', u'784', 'sdfg']]
-    expected_out = [145, 964, 84, ['ghjfgh', 64], [[84, 9.254, b'trdf', 645], '456', '784', 'sdfg']]
+    input_val_ = [145, 964, 84, [u'ghjfgh', 64], [[84, 9.254, b'trdf', 645], u'456', u'784', 'sdfg']]
+    output_val = [145, 964, 84, ['ghjfgh', 64], [[84, 9.254, b'trdf', 645], '456', '784', 'sdfg']]
     # six.binary_type is 'str' in Python 2
-    assert standardize_strings(in_list, six.binary_type) == expected_out
+    assert standardize_strings(input_val_, six.binary_type) == output_val
 
 
 @pytest.mark.skipif(six.PY3, reason='Python 2 specific test')
 def test_standardize_str_5():
-    in_list = (145, 964, 84, ['ghjfgh', 64], [(84, 9.254, b'trdf', 645), '456', u'784', 'sdfg'])
-    expected_out = (145, 964, 84, [u'ghjfgh', 64], [(84, 9.254, b'trdf', 645), u'456', u'784', u'sdfg'])
+    input_val_ = (145, 964, 84, ['ghjfgh', 64], [(84, 9.254, b'trdf', 645), '456', u'784', 'sdfg'])
+    output_val = (145, 964, 84, [u'ghjfgh', 64], [(84, 9.254, b'trdf', 645), u'456', u'784', u'sdfg'])
     # six.text_type is 'unicode' in Python 2
-    assert standardize_strings(in_list, six.text_type) == expected_out
+    assert standardize_strings(input_val_, six.text_type) == output_val
 
 
 @pytest.mark.skipif(six.PY3, reason='Python 2 specific test')
 def test_standardize_str_6():
-    in_list = (145, 964, 84, (u'ghjfgh', 64), ([84, 9.254, b'trdf', 645], u'456', u'784', 'sdfg'))
-    expected_out = (145, 964, 84, ('ghjfgh', 64), ([84, 9.254, b'trdf', 645], '456', '784', 'sdfg'))
+    input_val_ = (145, 964, 84, (u'ghjfgh', 64), ([84, 9.254, b'trdf', 645], u'456', u'784', 'sdfg'))
+    output_val = (145, 964, 84, ('ghjfgh', 64), ([84, 9.254, b'trdf', 645], '456', '784', 'sdfg'))
     # six.binary_type is 'str' in Python 2
-    assert standardize_strings(in_list, six.binary_type) == expected_out
+    assert standardize_strings(input_val_, six.binary_type) == output_val
 
 
 @pytest.mark.skipif(six.PY3, reason='Python 2 specific test')
 def test_standardize_str_7():
-    in_dict = {
+    input_dict = {
         'a': 456,
         'b': [84, 5.1, 'strdfg', u'trdt'],
         'pp': {
@@ -75,12 +75,12 @@ def test_standardize_str_7():
         },
     }
     # six.text_type is 'unicode' in Python 2
-    assert standardize_strings(in_dict, six.text_type) == expected_out
+    assert standardize_strings(input_dict, six.text_type) == expected_out
 
 
 @pytest.mark.skipif(six.PY3, reason='Python 2 specific test')
 def test_standardize_str_8():
-    in_dict = {
+    input_dict = {
         'a': 456,
         'b': [84, 5.1, u'strdfg', u'trdt'],
         'pp': {
@@ -97,7 +97,7 @@ def test_standardize_str_8():
         },
     }
     # six.binary_type is 'str' in Python 2
-    assert standardize_strings(in_dict, six.binary_type) == expected_out
+    assert standardize_strings(input_dict, six.binary_type) == expected_out
 
 
 @pytest.mark.skipif(six.PY3, reason='Python 2 specific test')

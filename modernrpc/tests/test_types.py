@@ -8,7 +8,7 @@ from django.utils.six import text_type
 from jsonrpcclient.exceptions import ReceivedErrorResponse
 
 from modernrpc.exceptions import RPC_INTERNAL_ERROR
-from . import python_xmlrpc
+from . import xmlrpclib
 
 
 def test_xmlrpc_bool(xmlrpc_client):
@@ -157,7 +157,7 @@ def test_xmlrpc_date(xmlrpc_client):
 
     result = xmlrpc_client.get_date()
 
-    assert isinstance(result, python_xmlrpc.DateTime)
+    assert isinstance(result, xmlrpclib.DateTime)
     assert '19870602' in str(result)
     assert '08:45:00' in str(result)
 
@@ -166,10 +166,10 @@ def test_xmlrpc_date_2(all_rpc_url):
 
     try:
         # Python 3
-        client = python_xmlrpc.ServerProxy(all_rpc_url, use_builtin_types=True)
+        client = xmlrpclib.ServerProxy(all_rpc_url, use_builtin_types=True)
     except TypeError:
         # Python 3
-        client = python_xmlrpc.ServerProxy(all_rpc_url, use_datetime=True)
+        client = xmlrpclib.ServerProxy(all_rpc_url, use_datetime=True)
 
     result = client.get_date()
 
@@ -197,10 +197,10 @@ def test_xmlrpc_date_4(all_rpc_url):
 
     try:
         # Python 3
-        client = python_xmlrpc.ServerProxy(all_rpc_url, use_builtin_types=True)
+        client = xmlrpclib.ServerProxy(all_rpc_url, use_builtin_types=True)
     except TypeError:
         # Python 3
-        client = python_xmlrpc.ServerProxy(all_rpc_url, use_datetime=True)
+        client = xmlrpclib.ServerProxy(all_rpc_url, use_datetime=True)
 
     base_date = datetime.datetime(2000, 6, 3, 0, 0, 0)
     result = client.add_one_month(base_date)

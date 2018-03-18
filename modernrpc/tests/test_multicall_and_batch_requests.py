@@ -6,19 +6,19 @@ import requests
 from jsonrpcclient.exceptions import ReceivedErrorResponse
 
 from modernrpc.exceptions import RPC_METHOD_NOT_FOUND, RPC_INTERNAL_ERROR, RPC_INVALID_REQUEST
-from . import python_xmlrpc
+from . import xmlrpclib
 
 
 def test_xmlrpc_multicall_standard(xmlrpc_client):
 
-    multicall = python_xmlrpc.MultiCall(xmlrpc_client)
+    multicall = xmlrpclib.MultiCall(xmlrpc_client)
     multicall.add(5, 10)
     multicall.divide(30, 5)
     multicall.add(8, 8)
     multicall.divide(6, 2)
     result = multicall()
 
-    assert isinstance(result, python_xmlrpc.MultiCallIterator)
+    assert isinstance(result, xmlrpclib.MultiCallIterator)
     assert result[0] == 15  # 5 + 10
     assert result[1] == 6   # 30 / 5
     assert result[2] == 16  # 8 + 8
@@ -27,15 +27,15 @@ def test_xmlrpc_multicall_standard(xmlrpc_client):
 
 def test_xmlrpc_multicall_with_errors(xmlrpc_client):
 
-    multicall = python_xmlrpc.MultiCall(xmlrpc_client)
+    multicall = xmlrpclib.MultiCall(xmlrpc_client)
     multicall.add(7, 3)
     multicall.unknown_method()
     multicall.add(8, 8)
     result = multicall()
 
-    assert isinstance(result, python_xmlrpc.MultiCallIterator)
+    assert isinstance(result, xmlrpclib.MultiCallIterator)
     assert result[0] == 10
-    with pytest.raises(python_xmlrpc.Fault) as excinfo:
+    with pytest.raises(xmlrpclib.Fault) as excinfo:
         print(result[1])
     assert excinfo.value.faultCode == RPC_METHOD_NOT_FOUND
     assert result[2] == 16
@@ -43,15 +43,15 @@ def test_xmlrpc_multicall_with_errors(xmlrpc_client):
 
 def test_xmlrpc_multicall_with_errors_2(xmlrpc_client):
 
-    multicall = python_xmlrpc.MultiCall(xmlrpc_client)
+    multicall = xmlrpclib.MultiCall(xmlrpc_client)
     multicall.add(7, 3)
     multicall.divide(75, 0)
     multicall.add(8, 8)
     result = multicall()
 
-    assert isinstance(result, python_xmlrpc.MultiCallIterator)
+    assert isinstance(result, xmlrpclib.MultiCallIterator)
     assert result[0] == 10
-    with pytest.raises(python_xmlrpc.Fault) as excinfo:
+    with pytest.raises(xmlrpclib.Fault) as excinfo:
         print(result[1])
     assert excinfo.value.faultCode == RPC_INTERNAL_ERROR
     assert result[2] == 16
@@ -59,14 +59,14 @@ def test_xmlrpc_multicall_with_errors_2(xmlrpc_client):
 
 def test_xmlrpc_multicall_with_auth(xmlrpc_client):
 
-    multicall = python_xmlrpc.MultiCall(xmlrpc_client)
+    multicall = xmlrpclib.MultiCall(xmlrpc_client)
     multicall.add(7, 3)
     multicall.logged_superuser_required(5)
     result = multicall()
 
-    assert isinstance(result, python_xmlrpc.MultiCallIterator)
+    assert isinstance(result, xmlrpclib.MultiCallIterator)
     assert result[0] == 10
-    with pytest.raises(python_xmlrpc.Fault) as excinfo:
+    with pytest.raises(xmlrpclib.Fault) as excinfo:
         print(result[1])
     assert excinfo.value.faultCode == RPC_INTERNAL_ERROR
     assert 'Authentication failed' in excinfo.value.faultString
@@ -74,12 +74,12 @@ def test_xmlrpc_multicall_with_auth(xmlrpc_client):
 
 def test_xmlrpc_multicall_with_auth_2(xmlrpc_client_as_superuser):
 
-    multicall = python_xmlrpc.MultiCall(xmlrpc_client_as_superuser)
+    multicall = xmlrpclib.MultiCall(xmlrpc_client_as_superuser)
     multicall.add(7, 3)
     multicall.logged_superuser_required(5)
     result = multicall()
 
-    assert isinstance(result, python_xmlrpc.MultiCallIterator)
+    assert isinstance(result, xmlrpclib.MultiCallIterator)
     assert result[0] == 10
     assert result[1] == 5
 

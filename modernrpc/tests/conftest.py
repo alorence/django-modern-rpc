@@ -3,7 +3,7 @@ import pytest
 from django.contrib.auth.models import Permission, Group, AnonymousUser
 from jsonrpcclient import http_client as jsonrpcclient
 
-from . import python_xmlrpc
+from . import xmlrpclib
 
 
 @pytest.fixture(scope='session')
@@ -94,7 +94,7 @@ def xml_only_url(live_server):
 @pytest.fixture(scope='session')
 def xmlrpc_client(all_rpc_url):
     """Return the default XML-RPC client"""
-    return python_xmlrpc.ServerProxy(all_rpc_url)
+    return xmlrpclib.ServerProxy(all_rpc_url)
 
 
 @pytest.fixture(scope='session')
@@ -111,7 +111,7 @@ def get_url_with_auth(orig_url, username, password):
 def xmlrpc_client_as_superuser(all_rpc_url, superuser, common_pwd):
     """Return the default XML-RPC client, logged as superuser"""
     endpoint = get_url_with_auth(all_rpc_url, superuser.username, common_pwd)
-    return python_xmlrpc.ServerProxy(endpoint)
+    return xmlrpclib.ServerProxy(endpoint)
 
 
 @pytest.fixture
@@ -125,7 +125,7 @@ def jsonrpc_client_as_superuser(all_rpc_url, superuser, common_pwd):
 def xmlrpc_client_as_user(all_rpc_url, john_doe, common_pwd):
     """Return the default XML-RPC client, logged as superuser"""
     endpoint = get_url_with_auth(all_rpc_url, john_doe.username, common_pwd)
-    return python_xmlrpc.ServerProxy(endpoint)
+    return xmlrpclib.ServerProxy(endpoint)
 
 
 @pytest.fixture

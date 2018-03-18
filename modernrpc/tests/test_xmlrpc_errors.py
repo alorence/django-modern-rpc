@@ -7,12 +7,12 @@ import requests
 
 from modernrpc.exceptions import RPC_INVALID_REQUEST, RPC_METHOD_NOT_FOUND, RPC_INVALID_PARAMS, \
     RPC_CUSTOM_ERROR_BASE, RPC_CUSTOM_ERROR_MAX, RPC_INTERNAL_ERROR, RPC_PARSE_ERROR
-from . import python_xmlrpc
+from . import xmlrpclib
 
 
 def test_xmlrpc_call_unknown_method(xmlrpc_client):
 
-    with pytest.raises(python_xmlrpc.Fault) as excinfo:
+    with pytest.raises(xmlrpclib.Fault) as excinfo:
         xmlrpc_client.non_existing_method()
 
     assert 'Method not found: "non_existing_method"' in excinfo.value.faultString
@@ -21,7 +21,7 @@ def test_xmlrpc_call_unknown_method(xmlrpc_client):
 
 def test_xmlrpc_invalid_params(xmlrpc_client):
 
-    with pytest.raises(python_xmlrpc.Fault) as excinfo:
+    with pytest.raises(xmlrpclib.Fault) as excinfo:
         xmlrpc_client.add(42)
 
     assert 'Invalid parameters' in excinfo.value.faultString
@@ -33,7 +33,7 @@ def test_xmlrpc_invalid_params(xmlrpc_client):
 
 def test_xmlrpc_invalid_params_2(xmlrpc_client):
 
-    with pytest.raises(python_xmlrpc.Fault) as excinfo:
+    with pytest.raises(xmlrpclib.Fault) as excinfo:
         xmlrpc_client.add(42, -51, 98)
 
     # Python2: takes exactly 2 arguments (3 given)
@@ -44,7 +44,7 @@ def test_xmlrpc_invalid_params_2(xmlrpc_client):
 
 def test_xmlrpc_internal_error(xmlrpc_client):
 
-    with pytest.raises(python_xmlrpc.Fault) as excinfo:
+    with pytest.raises(xmlrpclib.Fault) as excinfo:
         xmlrpc_client.raise_custom_exception()
 
     assert 'This is a test error' in excinfo.value.faultString
@@ -53,7 +53,7 @@ def test_xmlrpc_internal_error(xmlrpc_client):
 
 def test_xmlrpc_exception_with_data(xmlrpc_client):
 
-    with pytest.raises(python_xmlrpc.Fault) as excinfo:
+    with pytest.raises(xmlrpclib.Fault) as excinfo:
         xmlrpc_client.raise_custom_exception_with_data()
 
     # XML-RPC does not support additional data. The returned exception only
@@ -64,7 +64,7 @@ def test_xmlrpc_exception_with_data(xmlrpc_client):
 
 def test_xmlrpc_divide_by_zero(xmlrpc_client):
 
-    with pytest.raises(python_xmlrpc.Fault) as excinfo:
+    with pytest.raises(xmlrpclib.Fault) as excinfo:
         xmlrpc_client.divide(42, 0)
 
     # Python2: integer division or modulo by zero
@@ -201,7 +201,7 @@ def test_xmlrpc_invalid_request_bad_type_value(all_rpc_url):
 
 def test_xmlrpc_invalid_multicall(xmlrpc_client):
 
-    with pytest.raises(python_xmlrpc.Fault) as excinfo:
+    with pytest.raises(xmlrpclib.Fault) as excinfo:
         xmlrpc_client.system.multicall('method1')
 
     assert 'argument should be a list' in excinfo.value.faultString
@@ -210,7 +210,7 @@ def test_xmlrpc_invalid_multicall(xmlrpc_client):
 
 def test_xmlrpc_invalid_result(xmlrpc_client):
 
-    with pytest.raises(python_xmlrpc.Fault) as excinfo:
+    with pytest.raises(xmlrpclib.Fault) as excinfo:
         xmlrpc_client.get_invalid_result()
 
     # We cannot test for returned error message because it is too different accross various python versions
