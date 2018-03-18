@@ -3,11 +3,11 @@ import json
 
 import pytest
 import requests
-from django.utils.six.moves import xmlrpc_client as python_xmlrpc
 from jsonrpcclient.exceptions import ReceivedErrorResponse
 
 from modernrpc.exceptions import RPC_METHOD_NOT_FOUND, RPC_INTERNAL_ERROR, RPC_INVALID_REQUEST
 from modernrpc.tests.test_authentication_system import get_url_with_auth
+from . import python_xmlrpc
 
 
 def test_xmlrpc_multicall_standard(xmlrpc_client):

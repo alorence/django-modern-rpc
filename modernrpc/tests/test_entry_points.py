@@ -1,7 +1,7 @@
 # coding: utf-8
+import pytest
 import requests
 from django.core.exceptions import ImproperlyConfigured
-from pytest import raises
 
 from modernrpc.views import RPCEntryPoint
 
@@ -28,7 +28,7 @@ def test_invalid_entry_point(settings, rf):
     settings.MODERNRPC_HANDLERS = []
 
     entry_point = RPCEntryPoint.as_view()
-    with raises(ImproperlyConfigured) as exc_info:
+    with pytest.raises(ImproperlyConfigured) as exc_info:
         entry_point(rf.post('xxx'))
 
     assert 'handler' in str(exc_info.value)

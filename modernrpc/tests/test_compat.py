@@ -1,14 +1,13 @@
 # coding: utf-8
 import pytest
 from django.utils import six
-from pytest import raises
 
 from modernrpc.compat import standardize_strings
 
 
 @pytest.mark.skipif(six.PY2, reason='Python 3 specific test')
 def test_standardize_str_error_with_py3():
-    with raises(AssertionError) as excpinfo:
+    with pytest.raises(AssertionError) as excpinfo:
         standardize_strings('123')
     assert 'python 2 only' in str(excpinfo.value).lower()
 
@@ -108,7 +107,7 @@ def test_standardize_str_9():
 
 @pytest.mark.skipif(six.PY3, reason='Python 2 specific test')
 def test_standardize_str_10():
-    with raises(TypeError):
+    with pytest.raises(TypeError):
         assert standardize_strings("64", int)
 
 

@@ -1,8 +1,9 @@
 # coding: utf-8
 import pytest
 from django.contrib.auth.models import Permission, Group, AnonymousUser
-from django.utils.six.moves import xmlrpc_client as python_xmlrpc
 from jsonrpcclient import http_client as jsonrpcclient
+
+from . import python_xmlrpc
 
 # Password used by all tests users created here
 COMMON_PASSWORD = '123456'

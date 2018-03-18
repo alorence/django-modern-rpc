@@ -15,7 +15,7 @@ logger = get_modernrpc_logger(__name__)
 
 
 @django.core.checks.register()
-def check_required_settings_defined(app_configs, **kwargs):  # noqa
+def check_required_settings_defined(app_configs, **kwargs):
     result = []
     if not settings.MODERNRPC_METHODS_MODULES:
         result.append(

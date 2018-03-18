@@ -4,10 +4,10 @@ import xml
 import jsonrpcclient.exceptions
 import pytest
 from django.utils import six
-from django.utils.six.moves import xmlrpc_client as python_xmlrpc
 from jsonrpcclient import http_client as jsonrpc
 
 from modernrpc.exceptions import RPC_METHOD_NOT_FOUND
+from . import python_xmlrpc
 
 try:
     # Python 3

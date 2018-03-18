@@ -1,10 +1,10 @@
 # coding: utf-8
-from django.utils.six.moves import xmlrpc_client
 from jsonrpcclient.exceptions import ReceivedErrorResponse
 from jsonrpcclient.http_client import HTTPClient
 from pytest import raises
 
 from modernrpc.exceptions import RPC_INTERNAL_ERROR
+from . import python_xmlrpc
 
 
 def get_url_with_auth(orig_url, username, password):
@@ -13,25 +13,25 @@ def get_url_with_auth(orig_url, username, password):
 
 def test_xmlrpc_anon_user_auth(live_server):
 
-    c = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
+    c = python_xmlrpc.ServerProxy(live_server.url + '/all-rpc/')
 
-    assert raises(xmlrpc_client.ProtocolError, c.logged_user_required, 5).value.errcode == 403
-    assert raises(xmlrpc_client.ProtocolError, c.logged_user_required_alt, 5).value.errcode == 403
-    assert raises(xmlrpc_client.ProtocolError, c.logged_superuser_required, 5).value.errcode == 403
-    assert raises(xmlrpc_client.ProtocolError, c.logged_superuser_required_alt, 5).value.errcode == 403
-    assert raises(xmlrpc_client.ProtocolError, c.delete_user_perm_required, 5).value.errcode == 403
-    assert raises(xmlrpc_client.ProtocolError, c.any_permission_required, 5).value.errcode == 403
-    assert raises(xmlrpc_client.ProtocolError, c.all_permissions_required, 5).value.errcode == 403
-    assert raises(xmlrpc_client.ProtocolError, c.in_group_A_required, 5).value.errcode == 403
-    assert raises(xmlrpc_client.ProtocolError, c.in_groups_A_and_B_required, 5).value.errcode == 403
-    assert raises(xmlrpc_client.ProtocolError, c.in_groups_A_and_B_required_alt, 5).value.errcode == 403
-    assert raises(xmlrpc_client.ProtocolError, c.in_group_A_or_B_required, 5).value.errcode == 403
+    assert raises(python_xmlrpc.ProtocolError, c.logged_user_required, 5).value.errcode == 403
+    assert raises(python_xmlrpc.ProtocolError, c.logged_user_required_alt, 5).value.errcode == 403
+    assert raises(python_xmlrpc.ProtocolError, c.logged_superuser_required, 5).value.errcode == 403
+    assert raises(python_xmlrpc.ProtocolError, c.logged_superuser_required_alt, 5).value.errcode == 403
+    assert raises(python_xmlrpc.ProtocolError, c.delete_user_perm_required, 5).value.errcode == 403
+    assert raises(python_xmlrpc.ProtocolError, c.any_permission_required, 5).value.errcode == 403
+    assert raises(python_xmlrpc.ProtocolError, c.all_permissions_required, 5).value.errcode == 403
+    assert raises(python_xmlrpc.ProtocolError, c.in_group_A_required, 5).value.errcode == 403
+    assert raises(python_xmlrpc.ProtocolError, c.in_groups_A_and_B_required, 5).value.errcode == 403
+    assert raises(python_xmlrpc.ProtocolError, c.in_groups_A_and_B_required_alt, 5).value.errcode == 403
+    assert raises(python_xmlrpc.ProtocolError, c.in_group_A_or_B_required, 5).value.errcode == 403
 
 
 def test_xmlrpc_superuser_auth(live_server, superuser, common_pwd):
 
     admin_auth_url = get_url_with_auth(live_server.url + '/all-rpc/', superuser.username, common_pwd)
-    c = xmlrpc_client.ServerProxy(admin_auth_url)
+    c = python_xmlrpc.ServerProxy(admin_auth_url)
 
     assert c.logged_user_required(5) == 5
     assert c.logged_user_required_alt(5) == 5
@@ -49,33 +49,33 @@ def test_xmlrpc_superuser_auth(live_server, superuser, common_pwd):
 def test_xmlrpc_user_auth(live_server, john_doe, common_pwd):
 
     johndoe_auth_url = get_url_with_auth(live_server.url + '/all-rpc/', john_doe.username, common_pwd)
-    c = xmlrpc_client.ServerProxy(johndoe_auth_url)
+    c = python_xmlrpc.ServerProxy(johndoe_auth_url)
 
     assert c.logged_user_required(5) == 5
     assert c.logged_user_required_alt(5) == 5
 
-    assert raises(xmlrpc_client.ProtocolError, c.logged_superuser_required, 5).value.errcode == 403
-    assert raises(xmlrpc_client.ProtocolError, c.logged_superuser_required_alt, 5).value.errcode == 403
-    assert raises(xmlrpc_client.ProtocolError, c.delete_user_perm_required, 5).value.errcode == 403
-    assert raises(xmlrpc_client.ProtocolError, c.all_permissions_required, 5).value.errcode == 403
-    assert raises(xmlrpc_client.ProtocolError, c.any_permission_required, 5).value.errcode == 403
-    assert raises(xmlrpc_client.ProtocolError, c.in_group_A_required, 5).value.errcode == 403
-    assert raises(xmlrpc_client.ProtocolError, c.in_groups_A_and_B_required, 5).value.errcode == 403
-    assert raises(xmlrpc_client.ProtocolError, c.in_groups_A_and_B_required_alt, 5).value.errcode == 403
-    assert raises(xmlrpc_client.ProtocolError, c.in_group_A_or_B_required, 5).value.errcode == 403
+    assert raises(python_xmlrpc.ProtocolError, c.logged_superuser_required, 5).value.errcode == 403
+    assert raises(python_xmlrpc.ProtocolError, c.logged_superuser_required_alt, 5).value.errcode == 403
+    assert raises(python_xmlrpc.ProtocolError, c.delete_user_perm_required, 5).value.errcode == 403
+    assert raises(python_xmlrpc.ProtocolError, c.all_permissions_required, 5).value.errcode == 403
+    assert raises(python_xmlrpc.ProtocolError, c.any_permission_required, 5).value.errcode == 403
+    assert raises(python_xmlrpc.ProtocolError, c.in_group_A_required, 5).value.errcode == 403
+    assert raises(python_xmlrpc.ProtocolError, c.in_groups_A_and_B_required, 5).value.errcode == 403
+    assert raises(python_xmlrpc.ProtocolError, c.in_groups_A_and_B_required_alt, 5).value.errcode == 403
+    assert raises(python_xmlrpc.ProtocolError, c.in_group_A_or_B_required, 5).value.errcode == 403
 
 
 def test_xmlrpc_user_permissions(live_server, john_doe, common_pwd, delete_user_perm, add_user_perm, change_user_perm):
 
     johndoe_auth_url = get_url_with_auth(live_server.url + '/all-rpc/', john_doe.username, common_pwd)
-    c = xmlrpc_client.ServerProxy(johndoe_auth_url)
+    c = python_xmlrpc.ServerProxy(johndoe_auth_url)
 
     john_doe.user_permissions.add(delete_user_perm)
 
     assert c.delete_user_perm_required(5) == 5
     assert c.any_permission_required(5) == 5
 
-    with raises(xmlrpc_client.ProtocolError) as exc_info:
+    with raises(python_xmlrpc.ProtocolError) as exc_info:
         c.all_permissions_required(5)
 
     assert exc_info.value.errcode == 403
@@ -87,15 +87,15 @@ def test_xmlrpc_user_permissions(live_server, john_doe, common_pwd, delete_user_
 def test_xmlrpc_user_groups(live_server, john_doe, common_pwd, group_A, group_B):
 
     johndoe_auth_url = get_url_with_auth(live_server.url + '/all-rpc/', john_doe.username, common_pwd)
-    c = xmlrpc_client.ServerProxy(johndoe_auth_url)
+    c = python_xmlrpc.ServerProxy(johndoe_auth_url)
 
     john_doe.groups.add(group_A)
 
     assert c.in_group_A_required(5) == 5
     assert c.in_group_A_or_B_required(5) == 5
 
-    assert raises(xmlrpc_client.ProtocolError, c.in_groups_A_and_B_required, 5).value.errcode == 403
-    assert raises(xmlrpc_client.ProtocolError, c.in_groups_A_and_B_required_alt, 5).value.errcode == 403
+    assert raises(python_xmlrpc.ProtocolError, c.in_groups_A_and_B_required, 5).value.errcode == 403
+    assert raises(python_xmlrpc.ProtocolError, c.in_groups_A_and_B_required_alt, 5).value.errcode == 403
 
     john_doe.groups.add(group_B)
 
@@ -216,7 +216,7 @@ def test_custom_predicate_allowed(live_server):
     c = HTTPClient(live_server.url + '/all-rpc/')
     assert 'python-requests' in c.get_user_agent()
 
-    c = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
+    c = python_xmlrpc.ServerProxy(live_server.url + '/all-rpc/')
     assert 'xmlrpc' in c.get_user_agent()
 
 
@@ -227,7 +227,7 @@ def test_custom_predicate_rejected(live_server):
         c.power_2(5)
     assert exc_info.value.code == RPC_INTERNAL_ERROR
 
-    c = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
-    with raises(xmlrpc_client.ProtocolError) as exc_info:
+    c = python_xmlrpc.ServerProxy(live_server.url + '/all-rpc/')
+    with raises(python_xmlrpc.ProtocolError) as exc_info:
         c.power_2(5)
     assert exc_info.value.errcode == 403

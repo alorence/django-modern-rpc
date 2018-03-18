@@ -1,20 +1,19 @@
 # coding: utf-8
 import pytest
 from django.core.exceptions import ImproperlyConfigured
-from django.utils.six.moves import xmlrpc_client
-from pytest import raises
 
 from modernrpc.core import rpc_method, registry
-from testsite.rpc_methods_stub.not_decorated import another_not_decorated
+from . import python_xmlrpc
+from .testsite.rpc_methods_stub.not_decorated import another_not_decorated
 
 
 def test_not_registered(live_server):
-    client = xmlrpc_client.ServerProxy(live_server.url + '/all-rpc/')
+    client = python_xmlrpc.ServerProxy(live_server.url + '/all-rpc/')
     result = client.system.listMethods()
 
     assert 'existing_but_not_decorated' not in result
 
-    with pytest.raises(xmlrpc_client.Fault) as exc_info:
+    with pytest.raises(python_xmlrpc.Fault) as exc_info:
         client.existing_but_not_decorated()
     assert 'Method not found: "existing_but_not_decorated"' in str(exc_info.value)
 
@@ -55,7 +54,7 @@ def another_dummy_method_3():
 
 def test_invalid_name():
 
-    with raises(ImproperlyConfigured) as exc_info:
+    with pytest.raises(ImproperlyConfigured) as exc_info:
         registry.register_method(another_dummy_method_3)
 
     assert 'method names starting with "rpc." are reserved' in str(exc_info.value)
@@ -70,7 +69,7 @@ def another_dummy_method_4():
 
 def test_duplicated_name():
 
-    with raises(ImproperlyConfigured) as exc_info:
+    with pytest.raises(ImproperlyConfigured) as exc_info:
         registry.register_method(another_dummy_method_4)
 
     assert 'has already been registered' in str(exc_info.value)

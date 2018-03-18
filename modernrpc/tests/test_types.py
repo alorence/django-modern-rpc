@@ -5,10 +5,10 @@ import re
 import django.utils.six as six
 import pytest
 from django.utils.six import text_type
-from django.utils.six.moves import xmlrpc_client as python_xmlrpc
 from jsonrpcclient.exceptions import ReceivedErrorResponse
 
 from modernrpc.exceptions import RPC_INTERNAL_ERROR
+from . import python_xmlrpc
 
 
 def test_xmlrpc_bool(xmlrpc_client):
@@ -157,7 +157,7 @@ def test_xmlrpc_date(xmlrpc_client):
 
     result = xmlrpc_client.get_date()
 
-    assert isinstance(result, xmlrpc_client.DateTime)
+    assert isinstance(result, python_xmlrpc.DateTime)
     assert '19870602' in str(result)
     assert '08:45:00' in str(result)
 

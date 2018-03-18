@@ -1,6 +1,6 @@
 # coding: utf-8
+import pytest
 from django.http.request import HttpRequest
-from pytest import raises
 
 from modernrpc.auth import user_is_authenticated, user_is_superuser, user_has_perm, user_has_all_perms, user_in_group, \
     user_has_any_perm, user_in_all_groups, user_in_any_group, user_is_anonymous
@@ -104,7 +104,7 @@ def test_user_has_any_perm(django_user_model, anonymous_user, john_doe, superuse
 
 
 def test_user_in_group_invalid_args(group_A, john_doe):
-    with raises(TypeError):
+    with pytest.raises(TypeError):
         user_in_group(john_doe, group_A.id)
 
 

@@ -2,9 +2,9 @@
 import datetime
 
 import pytest
-from django.utils.six.moves import xmlrpc_client
 
 from modernrpc.helpers import get_builtin_date
+from . import python_xmlrpc
 
 
 def test_get_builtin_date():
@@ -33,7 +33,7 @@ def test_get_builtin_date_2():
 
 def test_get_builtin_date_3():
 
-    date3 = get_builtin_date(xmlrpc_client.DateTime(datetime.datetime(1954, 12, 19, 4, 44, 44)))
+    date3 = get_builtin_date(python_xmlrpc.DateTime(datetime.datetime(1954, 12, 19, 4, 44, 44)))
     assert isinstance(date3, datetime.datetime)
     assert date3.year == 1954
     assert date3.month == 12

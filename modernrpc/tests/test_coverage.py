@@ -2,14 +2,14 @@
 import datetime
 
 from modernrpc.conf import settings
-from test_methods_register import another_dummy_method, another_dummy_method_2, another_dummy_method_3, \
+from .test_methods_register import another_dummy_method, another_dummy_method_2, another_dummy_method_3, \
     another_dummy_method_4
-from test_rpc_method_object import dummy_function, single_line_documented, multi_line_documented_1, \
+from .test_rpc_method_object import dummy_function, single_line_documented, multi_line_documented_1, \
     multi_line_documented_2
-from testsite.rpc_methods_stub.generic import existing_but_not_decorated, another_name
-from testsite.rpc_methods_stub.not_decorated import full_documented_method, func_a, func_b, func_c, \
+from .testsite.rpc_methods_stub.generic import existing_but_not_decorated, another_name
+from .testsite.rpc_methods_stub.not_decorated import full_documented_method, func_a, func_b, func_c, \
     another_not_decorated
-from testsite.rpc_methods_stub.with_authentication import logged_user_required_alt, logged_superuser_required_alt, \
+from .testsite.rpc_methods_stub.with_authentication import logged_user_required_alt, logged_superuser_required_alt, \
     power_2
 
 
