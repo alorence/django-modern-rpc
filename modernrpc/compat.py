@@ -5,12 +5,25 @@ from modernrpc.conf import settings
 
 
 def _generic_convert_string(v, from_type, to_type, encoding):
-    """Generic method to convert from a unicode to str or from str to unicode. Works only with Python 2"""
+    """
+    Generic method to convert any argument type (string type, list, set, tuple, dict) to an equivalent,
+    with string values converted to given 'to_type' (str or unicode).
+    This method must be used with Python 2 interpreter only.
 
-    if from_type == str and isinstance(v, str):
-        return unicode(v, encoding)
+    :param v: The value to convert
+    :param from_type: The original string type to convert
+    :param to_type: The target string type to convert to
+    :param encoding: When
+    :return:
+    """
 
-    elif from_type == unicode and isinstance(v, unicode):
+    assert six.PY2, "This function should be used with Python 2 only"
+    assert from_type != to_type
+
+    if from_type == six.binary_type and isinstance(v, six.binary_type):
+        return six.text_type(v, encoding)
+
+    elif from_type == six.text_type and isinstance(v, six.text_type):
         return v.encode(encoding)
 
     elif isinstance(v, (list, tuple, set)):
@@ -32,13 +45,13 @@ def standardize_strings(arg, strtype=settings.MODERNRPC_PY2_STR_TYPE, encoding=s
     if not strtype:
         return arg
 
-    if strtype == str or strtype == 'str':
+    if strtype == six.binary_type or strtype == 'str':
         # We want to convert from unicode to str
-        return _generic_convert_string(arg, unicode, str, encoding)
+        return _generic_convert_string(arg, six.text_type, six.binary_type, encoding)
 
-    elif strtype == unicode or strtype == 'unicode':
+    elif strtype == six.text_type or strtype == 'unicode':
         # We want to convert from str to unicode
-        return _generic_convert_string(arg, str, unicode, encoding)
+        return _generic_convert_string(arg, six.binary_type, six.text_type, encoding)
 
     raise TypeError('standardize_strings() called with an invalid strtype: "{}". Allowed values: str or unicode'
                     .format(repr(strtype)))
