@@ -17,6 +17,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(SITE_ROOT, 'modernrpc-test.db'),
+        'TEST': {'NAME': os.path.join(SITE_ROOT, 'modernrpc-test.db')}
     },
 }
 
