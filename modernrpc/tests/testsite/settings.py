@@ -1,4 +1,5 @@
 # coding: utf-8
+import os
 from distutils.version import StrictVersion
 from os.path import dirname, realpath, join
 
@@ -15,7 +16,7 @@ SITE_ROOT = dirname(realpath(__file__))
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:',
+        'NAME': os.path.join(SITE_ROOT, 'modernrpc-test.db'),
     },
 }
 
