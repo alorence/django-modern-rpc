@@ -136,18 +136,6 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False,
         },
-        # This seems the only way to hide log messages from jsonrpcclient
-        # See https://github.com/bcb/jsonrpcclient/issues/45
-        'jsonrpcclient.client.request': {
-            'handlers': ['nullhandler'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-        'jsonrpcclient.client.response': {
-            'handlers': ['nullhandler'],
-            'level': 'INFO',
-            'propagate': False,
-        },
     }
 }
 
