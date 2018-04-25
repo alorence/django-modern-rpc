@@ -39,7 +39,9 @@ def http_basic_auth_get_user(request):
         auth_data = request.META['HTTP_AUTHORIZATION'].split()
         if len(auth_data) == 2 and auth_data[0].lower() == "basic":
             uname, passwd = base64.b64decode(auth_data[1]).decode('utf-8').split(':')
-            login(request, authenticate(username=uname, password=passwd))
+            django_user = authenticate(username=uname, password=passwd)
+            if django_user is not None:
+                login(request, django_user)
 
     # In all cases, return the current request's user (may be anonymous user if no login succeed)
     try:
