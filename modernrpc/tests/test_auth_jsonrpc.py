@@ -6,7 +6,12 @@ import pytest
 
 from modernrpc.exceptions import RPC_INTERNAL_ERROR
 
-# TODO: write something to explain why this is used
+# When running unit tests with Django 2, repeated calls to running LiveServer with jsonrpclcient (which internally
+# uses requests) from the same tests randomly caused requests.exceptions.ConnectionError: ('Connection aborted.',
+# RemoteDisconnected('Remote end closed connection without response',)) errors.
+# The only way to prevent that was to set a delay between each call.
+# If somebody reading this has a better solution, or knows exactly what caused this error, please open an issue or
+# a pull request. Any help is welcome!
 REPEATED_CALL_SLEEP = 0.1
 
 
