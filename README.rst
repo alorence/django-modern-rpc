@@ -31,7 +31,7 @@ Project's main features are:
 
 - Simple and pythonic API
 - Python 2.7, 3.3, 3.4, 3.5 and 3.6
-- Django 1.8, 1.9, 1.10 and 1.11
+- Django 1.8 to 2.0
 - XML-RPC_ and `JSON-RPC 2.0`_ support (JSON-RPC 1.0 not supported)
 - HTTP Basic Auth support
 - Custom authentication support

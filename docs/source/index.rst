@@ -17,7 +17,7 @@ Requirements
 ------------
 
 - Python 2.7, 3.3, 3.4, 3.5 or 3.6
-- Django 1.8 to 1.11
+- Django 1.8 to 2.0
 - By default, no additional dependency is required
 - Optionally, you may need to install ``markdown`` or ``docutils`` to support rich-text in your methods documentation.
 

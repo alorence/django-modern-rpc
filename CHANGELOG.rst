@@ -2,31 +2,40 @@
 Changelog
 *********
 
-Current development
--------------------
-**Performance improvements**
+Release 0.11.0 (2018-04-25)
+---------------------------
+**Improvements**
 
-- HTML documentation is generated only if needed and uses Django's @cached_property decorator
+- Django 2.0 is now officially supported. Tox and Travis default config have been updated to integrate Django 2.0
+  in existing tests environements.
+- Method's documentation is generated only if needed and uses Django's @cached_property decorator
+- HTML documentation default template has been updated: Bootstrap 4.1.0 stable is now used, and the rendering has been
+  improved.
 
 **API Changes**
 
 - Class RPCRequest has been removed and replaced by method ``execute_procedure(name, args, kwargs)`` in ``RPCHandler``
-  class. This method contains common logic used to retrieve a RPC method, executed authentication predicates to make
+  class. This method contains common logic used to retrieve a RPC method, execute authentication predicates to make
   sure it can be run, execute the concrete method and return the result.
-- HTML documentation is not anymore marked as "safe" using ``django.utils.safestring.mark_safe()``. You have to use
-  Django decorator ``safe`` in your template if you display this value.
+- HTML documentation content is not anymore marked as "safe" using ``django.utils.safestring.mark_safe()``. You
+  have to use Django decorator ``safe`` in your template if you display this value.
 
 **Settings**
 
-- The ``kwargs`` dict passed to RPC methods can have customized keys: set the following values:
+- The ``kwargs`` dict passed to RPC methods can have customized keys (`#18`_). Set the following values:
 
   - ``settings.MODERNRPC_KWARGS_REQUEST_KEY``
   - ``settings.MODERNRPC_KWARGS_ENTRY_POINT_KEY``
   - ``settings.MODERNRPC_KWARGS_PROTOCOL_KEY``
   - ``settings.MODERNRPC_KWARGS_HANDLER_KEY``
 
-to control dict keys and prevent conflicts with your own methods arguments.
+to override dict keys and prevent conflicts with your own methods arguments.
 
+**Other updates**
+
+- Many units tests have been improved. Some tests with many calls to LiveServer have been splitted into shorter ones.
+
+.. _#18: https://github.com/alorence/django-modern-rpc/issues/18
 
 Release 0.10.0 (2017-12-06)
 ---------------------------
