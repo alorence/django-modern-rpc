@@ -7,7 +7,7 @@ import pytest
 from modernrpc.exceptions import RPC_INTERNAL_ERROR
 
 # TODO: write something to explain why this is used
-REPEATED_CALL_SLEEP = 0.2
+REPEATED_CALL_SLEEP = 0.1
 
 
 class JsonRpcBase:
@@ -204,12 +204,14 @@ def test_jsonrpc_user_permissions(jsonrpc_client_as_user, john_doe, delete_user_
     time.sleep(REPEATED_CALL_SLEEP)
     assert jsonrpc_client_as_user.any_permission_required(5) == 5
 
+    time.sleep(REPEATED_CALL_SLEEP)
     with pytest.raises(jsonrpcclient.exceptions.ReceivedErrorResponse) as excpinfo:
         jsonrpc_client_as_user.all_permissions_required(5)
 
     assert excpinfo.value.code == RPC_INTERNAL_ERROR
     assert 'Authentication failed' in excpinfo.value.message
 
+    time.sleep(REPEATED_CALL_SLEEP)
     john_doe.user_permissions.add(add_user_perm, change_user_perm)
 
     time.sleep(REPEATED_CALL_SLEEP)
@@ -235,7 +237,7 @@ def test_jsonrpc_user_groups_2(jsonrpc_client_as_user, john_doe, group_A, group_
     assert excpinfo.value.code == RPC_INTERNAL_ERROR
     assert 'Authentication failed' in excpinfo.value.message
 
-    time.sleep(0.1)
+    time.sleep(REPEATED_CALL_SLEEP)
     with pytest.raises(jsonrpcclient.exceptions.ReceivedErrorResponse) as excpinfo:
         jsonrpc_client_as_user.in_groups_A_and_B_required_alt(5)
     assert excpinfo.value.code == RPC_INTERNAL_ERROR
@@ -244,8 +246,7 @@ def test_jsonrpc_user_groups_2(jsonrpc_client_as_user, john_doe, group_A, group_
 
 def test_jsonrpc_user_groups_3(jsonrpc_client_as_user, john_doe, group_A, group_B):
 
-    john_doe.groups.add(group_A)
-    john_doe.groups.add(group_B)
+    john_doe.groups.add(group_A, group_B)
 
     assert jsonrpc_client_as_user.in_groups_A_and_B_required(5) == 5
 
