@@ -31,19 +31,6 @@ def test_unconfigured_logger_pytest_33_and_more():
     assert len(logger2.parent.handlers) > 0
 
 
-@pytest.mark.skipif(LooseVersion(pytest.__version__) >= LooseVersion('3.3'), reason='pytest < 3.3 ONLY')
-def test_unconfigured_logger_pytest_32_and_less():
-    # When trying to retrieve an unconfigured logger with logging.getLogger(), no handler is associated
-    logger = logging.getLogger('xxx_unconfigured')
-    assert logger_has_handlers(logger) is False
-
-    # If we retrieve it with get_modernrpc_logger(), the returned object has a default NullHandler attached
-    logger2 = get_modernrpc_logger('xxx_unconfigured')
-    assert logger_has_handlers(logger2) is True
-    assert len(logger2.handlers) == 1
-    assert isinstance(logger2.handlers[0], logging.NullHandler)
-
-
 def test_unconfigured_no_propagate():
     # If a parent of unconfigured logger have no handlers AND propagate flag set to False, the returned object
     # cannot handle any log message
