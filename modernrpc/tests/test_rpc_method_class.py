@@ -1,4 +1,5 @@
 # coding: utf-8
+from modernrpc.conf import settings as modernrpc_settings
 from modernrpc.core import RPCMethod, ALL, rpc_method, JSONRPC_PROTOCOL, XMLRPC_PROTOCOL
 
 
@@ -25,7 +26,7 @@ def test_method_always_available(settings):
     rpc_method(dummy_function, 'dummy_name')
     m = RPCMethod(dummy_function)
 
-    assert m.available_for_entry_point(settings.MODERNRPC_DEFAULT_ENTRYPOINT_NAME)
+    assert m.available_for_entry_point(modernrpc_settings.MODERNRPC_DEFAULT_ENTRYPOINT_NAME)
     assert m.available_for_entry_point('random_entry_point')
 
     assert m.is_available_in_xml_rpc()
@@ -62,7 +63,7 @@ def test_method_available_for_entry_point(settings):
     rpc_method(dummy_function, 'dummy_name', entry_point='my_entry_point')
     m = RPCMethod(dummy_function)
 
-    assert not m.available_for_entry_point(settings.MODERNRPC_DEFAULT_ENTRYPOINT_NAME)
+    assert not m.available_for_entry_point(modernrpc_settings.MODERNRPC_DEFAULT_ENTRYPOINT_NAME)
     assert m.available_for_entry_point('my_entry_point')
 
 
