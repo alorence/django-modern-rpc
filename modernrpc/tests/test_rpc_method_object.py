@@ -1,6 +1,6 @@
 # coding: utf-8
 from modernrpc.conf import settings
-from modernrpc.core import RPCMethod, registry, ALL, rpc_method, JSONRPC_PROTOCOL, XMLRPC_PROTOCOL
+from modernrpc.core import RPCMethod, ALL, rpc_method, JSONRPC_PROTOCOL, XMLRPC_PROTOCOL
 from .testsite.rpc_methods_stub.not_decorated import full_documented_method
 
 
@@ -78,10 +78,10 @@ def test_docs_helpers_2():
     assert m.is_any_doc_available()
 
 
-def test_get_methods():
+def test_get_methods(rpc_registry):
 
-    methods = registry.get_all_methods(sort_methods=False)
-    sorted_methods = registry.get_all_methods(sort_methods=True)
+    methods = rpc_registry.get_all_methods(sort_methods=False)
+    sorted_methods = rpc_registry.get_all_methods(sort_methods=True)
 
     assert methods != sorted_methods
     assert len(methods) == len(sorted_methods)
@@ -90,9 +90,9 @@ def test_get_methods():
     assert all([method in methods for method in sorted_methods])
 
 
-def test_arguments_order():
+def test_arguments_order(rpc_registry):
 
-    method = registry.get_method("divide", ALL, ALL)
+    method = rpc_registry.get_method("divide", ALL, ALL)
 
     args_names = list(method.args_doc.keys())
     # We want to make sure arguments doc is stored with the same order method parameters are defined
