@@ -1,5 +1,4 @@
 # coding: utf-8
-from modernrpc.conf import settings
 from modernrpc.core import RPCMethod, ALL, rpc_method, JSONRPC_PROTOCOL, XMLRPC_PROTOCOL
 
 
@@ -21,7 +20,7 @@ def dummy_function_with_doc(name, birth_date, sex):
     return '{} ({}) born on {}'.format(name, str(sex), str(birth_date))
 
 
-def test_method_always_available():
+def test_method_always_available(settings):
 
     rpc_method(dummy_function, 'dummy_name')
     m = RPCMethod(dummy_function)
@@ -58,7 +57,7 @@ def test_method_repr():
     assert 'dummy_name' in repr(m)
 
 
-def test_method_available_for_entry_point():
+def test_method_available_for_entry_point(settings):
 
     rpc_method(dummy_function, 'dummy_name', entry_point='my_entry_point')
     m = RPCMethod(dummy_function)
