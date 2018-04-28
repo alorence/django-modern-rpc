@@ -3,14 +3,17 @@ import jsonrpcclient.exceptions
 import pytest
 from django.core.exceptions import ImproperlyConfigured
 
-from modernrpc.core import rpc_method
+import modernrpc
+from modernrpc.core import rpc_method, ALL
 from . import xmlrpclib
 
 
 def test_registry_empty_after_reset(rpc_registry):
+    # Ensure a normal init registered some rpc methods
+    assert len(rpc_registry.get_all_method_names()) > 0
     # Reset
     rpc_registry.reset()
-    # Ensure a normal init registered some rpc methods
+    # After reset, no mre remote procedure in registry
     assert len(rpc_registry.get_all_method_names()) == 0
 
 
@@ -112,6 +115,33 @@ def test_methods_list(rpc_registry):
 
     for m in sorted_list:
         assert m in raw_list
+
+
+# Tests for backward compatiility
+def test_backward_compat_register_method(rpc_registry):
+
+    assert 'dummy_remote_procedure_1' not in modernrpc.core.get_all_method_names()
+    modernrpc.core.register_rpc_method(dummy_remote_procedure_1)
+    assert 'dummy_remote_procedure_1' in modernrpc.core.get_all_method_names()
+
+
+def test_backward_compat_registry(rpc_registry):
+
+    assert rpc_registry.get_method("divide", ALL, ALL) == modernrpc.core.get_method("divide", ALL, ALL)
+    assert rpc_registry.get_all_method_names() == modernrpc.core.get_all_method_names()
+
+    # registry.get_all_methods() return a dict_values instance
+    # It needs to be casted to list to allow comparison
+    assert list(rpc_registry.get_all_methods()) == list(modernrpc.core.get_all_methods())
+
+
+def test_backward_compat_registry_reset(rpc_registry):
+    # Ensure a normal init registered some rpc methods
+    assert len(modernrpc.core.get_all_method_names()) > 0
+    # Reset
+    modernrpc.core.reset_registry()
+    # After reset, no mre remote procedure in registry
+    assert len(modernrpc.core.get_all_method_names()) == 0
 
 
 # In testsite.rpc_methods_stub.generic, a function has not been decorated

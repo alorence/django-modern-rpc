@@ -2,6 +2,18 @@
 Changelog
 *********
 
+Current development
+-------------------
+**Improvements**
+Last release introduced some undocumented breaking API changes regarding RPC registry management. Old API has been
+restored for backward compatibility. The following global functions are now back in the API:
+
+ - modernrpc.core.register_rpc_method()
+ - modernrpc.core.get_all_method_names()
+ - modernrpc.core.get_all_methods()
+ - modernrpc.core.get_method()
+ - modernrpc.core.reset_registry()
+
 Release 0.11.0 (2018-04-25)
 ---------------------------
 **Improvements**

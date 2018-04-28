@@ -367,3 +367,31 @@ def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL,
 
     # If @rpc_method is used without parenthesis
     return decorated(func)
+
+
+# Backward compatibility.
+# In release 0.11.0, following global functions have been moved to a proper _RPCRegistry class,
+# instantiated as a global "registry". For backward compatibility
+def register_rpc_method(func):
+    """For backward compatibility. Use registry.register_method() instead (with same arguments)"""
+    return registry.register_method(func)
+
+
+def get_all_method_names(entry_point=ALL, protocol=ALL, sort_methods=False):
+    """For backward compatibility. Use registry.get_all_method_names() instead (with same arguments)"""
+    return registry.get_all_method_names(entry_point=entry_point, protocol=protocol, sort_methods=sort_methods)
+
+
+def get_all_methods(entry_point=ALL, protocol=ALL, sort_methods=False):
+    """For backward compatibility. Use registry.get_all_methods() instead (with same arguments)"""
+    return registry.get_all_methods(entry_point=entry_point, protocol=protocol, sort_methods=sort_methods)
+
+
+def get_method(name, entry_point, protocol):
+    """For backward compatibility. Use registry.get_method() instead (with same arguments)"""
+    return registry.get_method(name, entry_point, protocol)
+
+
+def reset_registry():
+    """For backward compatibility. Use registry.reset() instead"""
+    return registry.reset()
