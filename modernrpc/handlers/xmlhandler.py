@@ -41,7 +41,7 @@ class XMLRPCHandler(RPCHandler):
         except xmlrpc_client.ResponseError:
             raise RPCInvalidRequest('Bad XML-RPC payload')
 
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             raise RPCInvalidRequest(e)
 
     def dumps(self, obj):

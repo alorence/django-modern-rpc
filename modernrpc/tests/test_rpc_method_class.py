@@ -1,24 +1,8 @@
 # coding: utf-8
 from modernrpc.conf import settings as modernrpc_settings
 from modernrpc.core import RPCMethod, ALL, rpc_method, JSONRPC_PROTOCOL, XMLRPC_PROTOCOL
-
-
-def dummy_function():
-    pass
-
-
-def dummy_function_with_doc(name, birth_date, sex):
-    """
-    This is the textual doc of the method
-    :param name: A name
-    :param birth_date: A birth date
-    :param sex: Male or Female
-    :type name: str
-    :type birth_date: datetime.datetim
-    :type sex: str
-    :return: A string representation of given arguments
-    """
-    return '{} ({}) born on {}'.format(name, str(sex), str(birth_date))
+from modernrpc.tests.mocks import single_line_documented, multi_line_documented_1, multi_line_documented_2, \
+    dummy_function, dummy_function_with_doc
 
 
 def test_method_always_available(settings):
@@ -127,33 +111,6 @@ def test_arguments_order(rpc_registry):
     assert args[5] == 'a'
     assert args[6] == 'b'
     assert args[7] == 'c'
-
-
-def single_line_documented():
-    """*italic*, **strong**, normal text"""
-    return 111
-
-
-def multi_line_documented_1():
-    """
-    This method has multi-lines documentation.
-
-    The content is indented when raw ``__doc__`` attribute function is read.
-    The indentation should not interfere with semantic interpretation of the docstring.
-    """
-    return 111
-
-
-def multi_line_documented_2():
-    """
-    This method has *multi-lines* **documentation**.
-
-    Here is a quote block:
-
-        abcdef 123456
-
-    """
-    return "abc"
 
 
 def test_html_documentation_simple(settings):

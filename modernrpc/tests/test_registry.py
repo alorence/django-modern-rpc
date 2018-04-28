@@ -4,7 +4,9 @@ import pytest
 from django.core.exceptions import ImproperlyConfigured
 
 import modernrpc
-from modernrpc.core import rpc_method, ALL
+from modernrpc.core import ALL
+from modernrpc.tests.mocks import dummy_remote_procedure_1, dummy_remote_procedure_2, dummy_remote_procedure_3, \
+    dummy_remote_procedure_4, not_decorated_procedure
 from . import xmlrpclib
 
 
@@ -15,12 +17,6 @@ def test_registry_empty_after_reset(rpc_registry):
     rpc_registry.reset()
     # After reset, no mre remote procedure in registry
     assert len(rpc_registry.get_all_method_names()) == 0
-
-
-# Manually registered remote procedure.
-@rpc_method
-def dummy_remote_procedure_1():
-    return 33
 
 
 def test_manual_registration(rpc_registry):
@@ -35,24 +31,12 @@ def test_double_registration(rpc_registry):
     assert rpc_registry.register_method(dummy_remote_procedure_1) == 'dummy_remote_procedure_1'
 
 
-# Manually registered remote procedure, with custom name.
-@rpc_method(name='another_name')
-def dummy_remote_procedure_2():
-    return 33
-
-
 def test_manual_registration_with_different_name(rpc_registry):
 
     assert 'another_name' not in rpc_registry.get_all_method_names()
     rpc_registry.register_method(dummy_remote_procedure_2)
     assert 'another_name' in rpc_registry.get_all_method_names()
     assert 'dummy_remote_procedure_2' not in rpc_registry.get_all_method_names()
-
-
-# Manually registered remote procedure, with invalid custom name.
-@rpc_method(name='rpc.invalid.name')
-def dummy_remote_procedure_3():
-    return 42
 
 
 def test_invalid_custom_name(rpc_registry):
@@ -65,22 +49,12 @@ def test_invalid_custom_name(rpc_registry):
     assert 'dummy_remote_procedure_3' not in rpc_registry.get_all_method_names()
 
 
-# Manually registered remote procedure, with invalid custom name (name already registered).
-@rpc_method(name='divide')
-def dummy_remote_procedure_4():
-    return 42
-
-
 def test_duplicated_name(rpc_registry):
 
     with pytest.raises(ImproperlyConfigured) as exc_info:
         rpc_registry.register_method(dummy_remote_procedure_4)
 
     assert 'has already been registered' in str(exc_info.value)
-
-
-def not_decorated_procedure():
-    pass
 
 
 def test_wrong_manual_registration(rpc_registry):
