@@ -1,11 +1,24 @@
 # coding: utf-8
 from modernrpc.conf import settings
 from modernrpc.core import RPCMethod, ALL, rpc_method, JSONRPC_PROTOCOL, XMLRPC_PROTOCOL
-from .testsite.rpc_methods_stub.not_decorated import full_documented_method
 
 
 def dummy_function():
-    return 42
+    pass
+
+
+def dummy_function_with_doc(name, birth_date, sex):
+    """
+    This is the textual doc of the method
+    :param name: A name
+    :param birth_date: A birth date
+    :param sex: Male or Female
+    :type name: str
+    :type birth_date: datetime.datetim
+    :type sex: str
+    :return: A string representation of given arguments
+    """
+    return '{} ({}) born on {}'.format(name, str(sex), str(birth_date))
 
 
 def test_method_always_available():
@@ -68,8 +81,8 @@ def test_docs_helpers():
 
 def test_docs_helpers_2():
 
-    rpc_method(full_documented_method, 'dummy_name')
-    m = RPCMethod(full_documented_method)
+    rpc_method(dummy_function_with_doc, 'dummy_name')
+    m = RPCMethod(dummy_function_with_doc)
 
     # Dummy function has no documentation
     assert m.is_doc_available()
