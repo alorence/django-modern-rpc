@@ -46,7 +46,6 @@ nosetests.xml
 coverage.xml
 *,cover
 .hypothesis/
-*.db
 
 # Translations
 *.mo
@@ -96,3 +95,6 @@ ENV/
 .vscode/
 # PyCharm
 .idea/
+
+# SQLIte Test DBs
+modernrpc-test.db*
