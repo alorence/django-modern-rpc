@@ -2,8 +2,8 @@
 Changelog
 *********
 
-Current development
--------------------
+Release 0.11.1 (2018-05135)
+---------------------------
 **Improvements**
 Last release introduced some undocumented breaking API changes regarding RPC registry management. Old API has been
 restored for backward compatibility. The following global functions are now back in the API:
@@ -13,6 +13,10 @@ restored for backward compatibility. The following global functions are now back
  - modernrpc.core.get_all_methods()
  - modernrpc.core.get_method()
  - modernrpc.core.reset_registry()
+
+In addition, some improvements have been applied to unit tests, to make sure test environment is the same after each
+test function. In addition, some exclusion patterns have been added in .coveragerc file to increase coverage report
+accuracy.
 
 Release 0.11.0 (2018-04-25)
 ---------------------------
