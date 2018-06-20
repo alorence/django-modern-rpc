@@ -1,9 +1,18 @@
 # coding: utf-8
+import time
 
 import jsonrpcclient.exceptions
 import pytest
 
 from modernrpc.exceptions import RPC_INTERNAL_ERROR
+
+# When running unit tests with Django 2, repeated calls to running LiveServer with jsonrpclcient (which internally
+# uses requests) from the same tests randomly caused requests.exceptions.ConnectionError: ('Connection aborted.',
+# RemoteDisconnected('Remote end closed connection without response',)) errors.
+# The only way to prevent that was to set a delay between each call.
+# If somebody reading this has a better solution, or knows exactly what caused this error, please open an issue or
+# a pull request. Any help is welcome!
+REPEATED_CALL_SLEEP = 0.1
 
 
 class JsonRpcBase:
@@ -196,15 +205,21 @@ def test_jsonrpc_user_permissions(jsonrpc_client_as_user, john_doe, delete_user_
     john_doe.user_permissions.add(delete_user_perm)
 
     assert jsonrpc_client_as_user.delete_user_perm_required(5) == 5
+
+    time.sleep(REPEATED_CALL_SLEEP)
     assert jsonrpc_client_as_user.any_permission_required(5) == 5
 
+    time.sleep(REPEATED_CALL_SLEEP)
     with pytest.raises(jsonrpcclient.exceptions.ReceivedErrorResponse) as excpinfo:
         jsonrpc_client_as_user.all_permissions_required(5)
 
     assert excpinfo.value.code == RPC_INTERNAL_ERROR
     assert 'Authentication failed' in excpinfo.value.message
 
+    time.sleep(REPEATED_CALL_SLEEP)
     john_doe.user_permissions.add(add_user_perm, change_user_perm)
+
+    time.sleep(REPEATED_CALL_SLEEP)
     assert jsonrpc_client_as_user.all_permissions_required(5) == 5
 
 
@@ -213,6 +228,8 @@ def test_jsonrpc_user_groups_1(jsonrpc_client_as_user, john_doe, group_A, group_
     john_doe.groups.add(group_A)
 
     assert jsonrpc_client_as_user.in_group_A_required(5) == 5
+
+    time.sleep(REPEATED_CALL_SLEEP)
     assert jsonrpc_client_as_user.in_group_A_or_B_required(5) == 5
 
 
@@ -225,6 +242,7 @@ def test_jsonrpc_user_groups_2(jsonrpc_client_as_user, john_doe, group_A, group_
     assert excpinfo.value.code == RPC_INTERNAL_ERROR
     assert 'Authentication failed' in excpinfo.value.message
 
+    time.sleep(REPEATED_CALL_SLEEP)
     with pytest.raises(jsonrpcclient.exceptions.ReceivedErrorResponse) as excpinfo:
         jsonrpc_client_as_user.in_groups_A_and_B_required_alt(5)
     assert excpinfo.value.code == RPC_INTERNAL_ERROR
@@ -236,6 +254,8 @@ def test_jsonrpc_user_groups_3(jsonrpc_client_as_user, john_doe, group_A, group_
     john_doe.groups.add(group_A, group_B)
 
     assert jsonrpc_client_as_user.in_groups_A_and_B_required(5) == 5
+
+    time.sleep(REPEATED_CALL_SLEEP)
     assert jsonrpc_client_as_user.in_groups_A_and_B_required_alt(5) == 5
 
 
