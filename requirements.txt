@@ -6,4 +6,4 @@ pytest-cov
 requests
 markdown
 docutils
-jsonrpcclient
+jsonrpcclient==2.6.0
