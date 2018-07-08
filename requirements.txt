@@ -1,9 +1,10 @@
 flake8
-pytest==3.6.1
+pytest
 pytest-django
 pytest-pythonpath
 pytest-cov
 requests
 markdown
 docutils
-jsonrpcclient==2.6.0
+# JSON-RPC dropped Python 2 support with version 3.0
+jsonrpcclient<3
