@@ -1,4 +1,6 @@
 language: python
+# Xenial seems mandatory to use python 3.7
+dist: xenial
 
 # List of Python / Django version combinations to test
 python:
