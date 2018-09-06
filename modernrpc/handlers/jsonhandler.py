@@ -37,6 +37,8 @@ class JSONRPCHandler(RPCHandler):
     def valid_content_types():
         return [
             'application/json',
+            'application/json-rpc',
+            'application/jsonrequest',
         ]
 
     def loads(self, str_data):
