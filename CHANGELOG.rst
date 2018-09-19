@@ -16,14 +16,15 @@ Current development
 Release 0.11.1 (2018-05-13)
 ---------------------------
 **Improvements**
+
 Last release introduced some undocumented breaking API changes regarding RPC registry management. Old API has been
 restored for backward compatibility. The following global functions are now back in the API:
 
- - modernrpc.core.register_rpc_method()
- - modernrpc.core.get_all_method_names()
- - modernrpc.core.get_all_methods()
- - modernrpc.core.get_method()
- - modernrpc.core.reset_registry()
+- modernrpc.core.register_rpc_method()
+- modernrpc.core.get_all_method_names()
+- modernrpc.core.get_all_methods()
+- modernrpc.core.get_method()
+- modernrpc.core.reset_registry()
 
 In addition, some improvements have been applied to unit tests, to make sure test environment is the same after each
 test function. In addition, some exclusion patterns have been added in .coveragerc file to increase coverage report
@@ -71,8 +72,8 @@ Release 0.10.0 (2017-12-06)
 - Logging system / error management
 
   - In case of error, current exception stacktrace is now passed to logger by default. This allows special handler like
-  ``django.utils.log.AdminEmailHandler`` or ``raven.handlers.logging.SentryHandler`` to use it to report more useful
-  information (`#13`_)
+    ``django.utils.log.AdminEmailHandler`` or ``raven.handlers.logging.SentryHandler`` to use it to report more useful
+    information (`#13`_)
   - Error messages have been rewritten to be consistent across all modules and classes
   - Decrease log verbosity: some ``INFO`` log messages now have ``DEBUG`` level (startup methods registration)
 
@@ -342,15 +343,15 @@ This is the very first version of the library. Only a few subset of planned feat
 
 **Current features**
 
-  * Work with Python 2.7, 3.3, 3.4 (Django 1.8 only) and 3.5
-  * Work with Django 1.8, 1.9 and 1.10
-  * JSON-RPC and XML-RPC simple requests support
-  * Multiple entry-points with defined list of methods and supported protocols
+- Work with Python 2.7, 3.3, 3.4 (Django 1.8 only) and 3.5
+- Work with Django 1.8, 1.9 and 1.10
+- JSON-RPC and XML-RPC simple requests support
+- Multiple entry-points with defined list of methods and supported protocols
 
 **Missing features**
 
-  * No authentication support
-  * Unit tests doesn't cover all the code
-  * RPC system methods utility (``listMethods``, ``methodSignature``, etc.) are not yet implemented
-  * There is no way to provide documentation in HTML form
-  * The library itself doesn't have any documentation (appart from README.md)
+- No authentication support
+- Unit tests doesn't cover all the code
+- RPC system methods utility (``listMethods``, ``methodSignature``, etc.) are not yet implemented
+- There is no way to provide documentation in HTML form
+- The library itself doesn't have any documentation (appart from README.md)
