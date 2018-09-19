@@ -273,3 +273,21 @@ def test_jsonrpc_struct(jsonrpc_client):
     result = jsonrpc_client.get_struct()
     assert type(result) == dict
     assert result == {'x': 1, 'y': 2, 'z': 3, }
+
+
+@pytest.mark.skip(msg="django-modern-rpc is not ready yet to support model instances results")
+def test_xmlrpc_model_instance(xmlrpc_client, john_doe):
+    result = xmlrpc_client.user_instance(john_doe.pk)
+
+    # XML serialisation returns an object as dict
+    assert result["username"] == john_doe.username
+    assert result["email"] == john_doe.email
+
+
+@pytest.mark.skip(msg="django-modern-rpc is not ready yet to support model instances results")
+def test_jsonrpc_model_instance(jsonrpc_client, john_doe):
+    result = jsonrpc_client.user_instance(john_doe.pk)
+
+    # XML serialisation returns an object as dict
+    assert result["username"] == john_doe.username
+    assert result["email"] == john_doe.email

@@ -1,5 +1,7 @@
 import datetime
 
+from django.contrib.auth import get_user_model
+
 from modernrpc.core import rpc_method
 
 
@@ -66,3 +68,8 @@ def get_struct():
         'y': 2,
         'z': 3
     }
+
+
+@rpc_method
+def user_instance(pk):
+    return get_user_model().objects.get(pk=pk)
