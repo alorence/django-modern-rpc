@@ -2,7 +2,18 @@
 Changelog
 *********
 
-Release 0.11.1 (2018-05135)
+Current development
+-------------------
+**Improvements**
+
+- To ensure compatibility with `JSON-RPC 1.2`_, 2 more "Content-Type" values are supported by JSON-RPC Handler:
+  "application/json-rpc" and "application/jsonrequest" (`#24`_). Thanks to @dansan
+- Django 2.1 has been added to supported tests environment. It is now officially supported.
+
+.. _JSON-RPC 1.2: https://www.jsonrpc.org/historical/json-rpc-over-http.html
+.. _#24: https://github.com/alorence/django-modern-rpc/issues/24
+
+Release 0.11.1 (2018-05-13)
 ---------------------------
 **Improvements**
 Last release introduced some undocumented breaking API changes regarding RPC registry management. Old API has been
