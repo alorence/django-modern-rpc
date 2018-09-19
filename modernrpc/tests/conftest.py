@@ -102,10 +102,14 @@ def xmlrpc_client(all_rpc_url):
     return xmlrpclib.ServerProxy(all_rpc_url)
 
 
-@pytest.fixture(scope='session')
-def jsonrpc_client(all_rpc_url):
+@pytest.fixture(scope='session', params=[None, "application/json-rpc", "application/jsonrequest"])
+def jsonrpc_client(request, all_rpc_url):
     """Return the default JSON-RPC client"""
-    return jsonrpclib.HTTPClient(all_rpc_url)
+    client = jsonrpclib.HTTPClient(all_rpc_url)
+    if request.param is not None:
+        # Allow parametrization of jsonrpc client
+        client.session.headers.update({"Content-Type": request.param})
+    return client
 
 
 def get_url_with_auth(orig_url, username, password):
