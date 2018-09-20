@@ -1,7 +1,8 @@
 language: python
 
-# List of Python / Django version combinations to test
+# List of Python / Django versions to test
 python:
+  - 3.6
   - 3.5
   - 3.4
   - 3.3
