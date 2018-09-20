@@ -2,14 +2,10 @@ language: python
 
 # List of Python / Django version combinations to test
 python:
-  - 3.7
-    dist: xenial
-    sudo: true  - 3.6
   - 3.5
   - 3.4
   - 3.3
   - 2.7
-
 env:
   - DJANGO_VERSION=2.1.*
   - DJANGO_VERSION=2.0.*
@@ -18,9 +14,14 @@ env:
   - DJANGO_VERSION=1.9.*
   - DJANGO_VERSION=1.8.*
 
-# Some Django / python version combination are not supported
-# See https://docs.djangoproject.com/en/1.11/faq/install/#what-python-version-can-i-use-with-django
 matrix:
+  # Add python 3.7 environment (see https://github.com/travis-ci/travis-ci/issues/9815)
+  include:
+    - python: 3.7
+      dist: xenial
+      sudo: true
+  # Some Django / python version combinations are not supported
+  # See https://docs.djangoproject.com/en/1.11/faq/install/#what-python-version-can-i-use-with-django
   exclude:
     - python: 3.4
       env: DJANGO_VERSION=2.1.*
