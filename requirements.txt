@@ -8,3 +8,5 @@ markdown
 docutils
 # JSON-RPC dropped Python 2 support with version 3.0
 jsonrpcclient<3
+# Do not try to update setuptools to the latest release, which dropped python 3.3 support
+setuptools<=39
