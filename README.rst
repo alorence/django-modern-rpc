@@ -3,21 +3,31 @@ django-modern-rpc
 =================
 
 .. image:: https://travis-ci.org/alorence/django-modern-rpc.svg?branch=master
+    :alt: Travis-CI (Continuous integration)
     :target: https://travis-ci.org/alorence/django-modern-rpc
 
+.. image:: https://api.codacy.com/project/badge/Grade/3962a60b6911445db8da475614842ea6
+    :alt: Codacy (Code quality)
+    :target: https://app.codacy.com/app/alorence/django-modern-rpc?utm_source=github.com&utm_medium=referral&utm_content=alorence/django-modern-rpc&utm_campaign=Badge_Grade_Dashboard
+
 .. image:: https://coveralls.io/repos/github/alorence/django-modern-rpc/badge.svg?branch=master
+    :alt: Coveralls (coverage report)
     :target: https://coveralls.io/github/alorence/django-modern-rpc?branch=master
 
 .. image:: https://codecov.io/gh/alorence/django-modern-rpc/branch/master/graph/badge.svg
+    :alt: Codecov (coverage report)
     :target: https://codecov.io/gh/alorence/django-modern-rpc
 
 .. image:: https://readthedocs.org/projects/django-modern-rpc/badge/?version=latest
+    :alt: Read The Doc
     :target: http://django-modern-rpc.readthedocs.io/
 
 .. image:: https://badge.fury.io/py/django-modern-rpc.svg
+    :alt: Pypi package info
     :target: https://badge.fury.io/py/django-modern-rpc
 
 .. image:: https://img.shields.io/badge/demo-online-brightgreen.svg
+    :alt: Link to online demo
     :target: https://modernrpc.herokuapp.com/
 
 -----------
@@ -102,8 +112,3 @@ Now, you can call the method ``add`` from a client:
 For more information, please read `the full documentation`_.
 
 .. _`the full documentation`: http://django-modern-rpc.readthedocs.io
-
-
-.. image:: https://api.codacy.com/project/badge/Grade/3962a60b6911445db8da475614842ea6
-   :alt: Codacy Badge
-   :target: https://app.codacy.com/app/alorence/django-modern-rpc?utm_source=github.com&utm_medium=referral&utm_content=alorence/django-modern-rpc&utm_campaign=Badge_Grade_Dashboard
