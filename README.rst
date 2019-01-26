@@ -102,3 +102,8 @@ Now, you can call the method ``add`` from a client:
 For more information, please read `the full documentation`_.
 
 .. _`the full documentation`: http://django-modern-rpc.readthedocs.io
+
+
+.. image:: https://api.codacy.com/project/badge/Grade/3962a60b6911445db8da475614842ea6
+   :alt: Codacy Badge
+   :target: https://app.codacy.com/app/alorence/django-modern-rpc?utm_source=github.com&utm_medium=referral&utm_content=alorence/django-modern-rpc&utm_campaign=Badge_Grade_Dashboard
