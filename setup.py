@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import re
-from codecs import open
+import codecs
 from os import path
 
 # Always prefer setuptools over distutils
@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 
 def read(*names, **kwargs):
-    with open(
+    with codecs.open(
         path.join(path.dirname(__file__), *names),
         encoding=kwargs.get("encoding", "utf8")
     ) as fp:
