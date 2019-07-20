@@ -9,7 +9,7 @@ from . import xmlrpclib, jsonrpclib
 @pytest.fixture(scope='function')
 def rpc_registry():
     # With Python 3.5+, we could use _dump = {**orig_dict} to easily perform a shallow copy
-    # Unfortunately, we still maintain compatibility with Python 2.7, 3.3 & 3.4
+    # Unfortunately, we still maintain compatibility with Python 2.7 & 3.4
     # See https://www.python.org/dev/peps/pep-0448/
     # See https://stackoverflow.com/a/46180556/1887976
     _registry_dump = modernrpc.core.registry._registry.copy()

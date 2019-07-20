@@ -40,8 +40,8 @@ project. It supports all major Django and Python versions.
 Project's main features are:
 
 - Simple and pythonic API
-- Python 2.7, 3.3, 3.4, 3.5 and 3.6
-- Django 1.8 to 2.1
+- Python 2.7 & 3.4+
+- Django 1.8+
 - XML-RPC_ and `JSON-RPC 2.0`_ support (JSON-RPC 1.0 not supported)
 - HTTP Basic Auth support
 - Custom authentication support

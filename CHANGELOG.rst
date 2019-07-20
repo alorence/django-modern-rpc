@@ -4,6 +4,10 @@ Changelog
 
 Current development
 -------------------
+**Requirements**
+
+- Python 3.3 support has been dropped.
+
 **Improvements**
 
 - To ensure compatibility with `JSON-RPC 1.2`_, 2 more "Content-Type" values are supported by JSON-RPC Handler:
