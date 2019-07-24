@@ -42,12 +42,12 @@ is useful, for example if you need to have different addresses to handle protoco
 
    from django.conf.urls import url
 
-   from modernrpc.handlers import JSONRPC, XMLRPC
+   from modernrpc.core import JSONRPC_PROTOCOL, XMLRPC_PROTOCOL
    from modernrpc.views import RPCEntryPoint
 
    urlpatterns = [
-       url(r'^json-rpc/$', RPCEntryPoint.as_view(protocol=JSONRPC)),
-       url(r'^xml-rpc/$', RPCEntryPoint.as_view(protocol=XMLRPC)),
+       url(r'^json-rpc/$', RPCEntryPoint.as_view(protocol=JSONRPC_PROTOCOL)),
+       url(r'^xml-rpc/$', RPCEntryPoint.as_view(protocol=XMLRPC_PROTOCOL)),
    ]
 
 .. _multiple_entry_points:
