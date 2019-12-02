@@ -8,3 +8,4 @@ markdown
 docutils
 # JSON-RPC dropped Python 2 support with version 3.0
 jsonrpcclient<3
+six

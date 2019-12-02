@@ -2,9 +2,8 @@
 import datetime
 import re
 
-import django.utils.six as six
+import six
 import pytest
-from django.utils.six import text_type
 from jsonrpcclient.exceptions import ReceivedErrorResponse
 
 from modernrpc.exceptions import RPC_INTERNAL_ERROR
@@ -106,7 +105,7 @@ def test_jsonrpc_string(jsonrpc_client):
     result = jsonrpc_client.get_string()
     # Unlike XML-RPC, JSON-RPC always return a unicode string. That means the type of the result value is
     # 'unicode' in Python 2 and 'str' in python 3.
-    assert type(result) == text_type
+    assert type(result) == six.text_type
     assert result == 'abcde'
 
 
@@ -141,7 +140,7 @@ def test_jsonrpc_bytes(jsonrpc_client):
         result = jsonrpc_client.get_bytes()
 
         # ... but json.loads will convert that string into an unicode object
-        assert type(result) == text_type
+        assert type(result) == six.text_type
         assert result == 'abcde'
 
     else:

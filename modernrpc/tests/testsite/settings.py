@@ -4,7 +4,7 @@ from distutils.version import StrictVersion
 from os.path import dirname, realpath, join
 
 import django
-from django.utils import six
+import six
 
 DEBUG = True
 ALLOWED_HOSTS = ['*']

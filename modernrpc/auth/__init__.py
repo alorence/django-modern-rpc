@@ -3,7 +3,7 @@ from distutils.version import StrictVersion
 
 import django
 from django.contrib.auth.models import Group
-from django.utils import six
+import six
 
 
 # Decorator
