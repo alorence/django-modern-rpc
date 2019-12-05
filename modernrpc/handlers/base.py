@@ -1,5 +1,5 @@
 # coding: utf-8
-from django.utils import six
+import six
 
 import modernrpc.compat
 from modernrpc.core import registry, REQUEST_KEY, ENTRY_POINT_KEY, PROTOCOL_KEY, HANDLER_KEY

@@ -1,6 +1,6 @@
 # coding: utf-8
 import pytest
-from django.utils import six
+import six
 
 from modernrpc.compat import standardize_strings
 

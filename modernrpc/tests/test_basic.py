@@ -3,7 +3,7 @@ import xml
 
 import jsonrpcclient.exceptions
 import pytest
-from django.utils import six
+import six
 
 from modernrpc.exceptions import RPC_METHOD_NOT_FOUND
 from . import xmlrpclib, jsonrpclib

@@ -1,7 +1,7 @@
 # coding: utf-8
 import datetime
 
-from django.utils.six.moves import xmlrpc_client
+from six.moves import xmlrpc_client
 
 
 def get_builtin_date(date, date_format="%Y-%m-%dT%H:%M:%S", raise_exception=False):

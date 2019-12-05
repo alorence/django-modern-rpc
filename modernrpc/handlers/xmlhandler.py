@@ -2,7 +2,7 @@
 import xml
 
 from django.http.response import HttpResponse
-from django.utils.six.moves import xmlrpc_client
+from six.moves import xmlrpc_client
 
 from modernrpc.conf import settings
 from modernrpc.core import XMLRPC_PROTOCOL

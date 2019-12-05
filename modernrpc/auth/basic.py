@@ -3,7 +3,7 @@ import base64
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import AnonymousUser
-from django.utils import six
+import six
 
 from modernrpc import auth
 from modernrpc.auth import user_is_authenticated

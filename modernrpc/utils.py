@@ -1,7 +1,7 @@
 import logging
 
 from django.core.cache import cache
-from django.utils import six
+import six
 
 
 def ensure_sequence(element):

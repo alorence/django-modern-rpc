@@ -2,9 +2,11 @@
 import collections
 import re
 
+import six
+
 from django.contrib.admindocs.utils import trim_docstring
 from django.core.exceptions import ImproperlyConfigured
-from django.utils import inspect, six
+from django.utils import inspect
 from django.utils.functional import cached_property
 
 from modernrpc.conf import settings

@@ -1,5 +1,5 @@
 from modernrpc.core import rpc_method
-from django.utils import six
+import six
 
 
 # Standardization to 'unicode' type
