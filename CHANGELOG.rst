@@ -2,17 +2,18 @@
 Changelog
 *********
 
-Current development
--------------------
+Release 0.12.0 (2019-12-05)
+---------------------------
 **Requirements**
 
-- Python 3.3 support has been dropped.
+- Django 2.1, 2.2 and 3.0 are now officially supported. Thanks to @atodorov for 3.0 compatibility
+- Added Python 3.7 and 3.8 support
+- Dropped Python 3.3 support
 
 **Improvements**
 
 - To ensure compatibility with `JSON-RPC 1.2`_, 2 more "Content-Type" values are supported by JSON-RPC Handler:
   "application/json-rpc" and "application/jsonrequest" (`#24`_). Thanks to @dansan
-- Django 2.1 has been added to supported tests environment. It is now officially supported.
 
 .. _JSON-RPC 1.2: https://www.jsonrpc.org/historical/json-rpc-over-http.html
 .. _#24: https://github.com/alorence/django-modern-rpc/issues/24
