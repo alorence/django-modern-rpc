@@ -64,7 +64,7 @@ class ModernRpcConfig(AppConfig):
 
             except ImportError:
                 msg = 'Unable to load module "{}" declared in settings.MODERNRPC_METHODS_MODULES. Please ensure ' \
-                      'it is available and doesn\'t contains any error'.format(module_name)
+                      'it is available and doesn\'t contain any error'.format(module_name)
                 warnings.warn(msg, category=Warning)
                 continue
 
