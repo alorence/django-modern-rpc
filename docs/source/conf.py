@@ -31,6 +31,9 @@ settings.configure()
 
 # -- Project information -----------------------------------------------------
 
+# This is needed by Readthedocs
+master_doc = 'index'
+
 # General information about the project.
 project = 'django-modern-rpc'
 copyright = '2016, Antoine Lorence'
