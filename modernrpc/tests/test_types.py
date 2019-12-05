@@ -2,8 +2,8 @@
 import datetime
 import re
 
-import six
 import pytest
+import six
 from jsonrpcclient.exceptions import ReceivedErrorResponse
 
 from modernrpc.exceptions import RPC_INTERNAL_ERROR

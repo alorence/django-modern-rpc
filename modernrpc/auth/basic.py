@@ -1,9 +1,9 @@
 # coding: utf-8
 import base64
 
+import six
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import AnonymousUser
-import six
 
 from modernrpc import auth
 from modernrpc.auth import user_is_authenticated

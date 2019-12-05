@@ -2,8 +2,8 @@
 from distutils.version import StrictVersion
 
 import django
-from django.contrib.auth.models import Group
 import six
+from django.contrib.auth.models import Group
 
 
 # Decorator

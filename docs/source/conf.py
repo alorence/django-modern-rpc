@@ -11,8 +11,9 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import sys
-from os.path import abspath, join, dirname
 import warnings
+from os.path import abspath, join, dirname
+
 sys.path.insert(0, abspath(join(abspath(dirname(__file__)), '../..')))
 
 try:

@@ -1,5 +1,6 @@
-from modernrpc.core import rpc_method
 import six
+
+from modernrpc.core import rpc_method
 
 
 # Standardization to 'unicode' type

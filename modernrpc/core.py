@@ -3,7 +3,6 @@ import collections
 import re
 
 import six
-
 from django.contrib.admindocs.utils import trim_docstring
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import inspect
@@ -353,7 +352,6 @@ def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL,
     """
 
     def decorated(_func):
-
         _func.modernrpc_enabled = True
         _func.modernrpc_name = name or _func.__name__
         _func.modernrpc_entry_point = entry_point
