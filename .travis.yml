@@ -3,6 +3,7 @@ dist: xenial
 
 # List of Python / Django versions to test
 python:
+  - 3.8
   - 3.7
   - 3.6
   - 3.5
@@ -25,6 +26,19 @@ matrix:
   # See https://docs.djangoproject.com/en/2.2/faq/install/#what-python-version-can-i-use-with-django
   # See https://docs.djangoproject.com/en/3.0/faq/install/#what-python-version-can-i-use-with-django
   exclude:
+    - python: 3.8
+      env: DJANGO_VERSION=2.1.*
+    - python: 3.8
+      env: DJANGO_VERSION=2.0.*
+    - python: 3.8
+      env: DJANGO_VERSION=1.11.*
+    - python: 3.8
+      env: DJANGO_VERSION=1.10.*
+    - python: 3.8
+      env: DJANGO_VERSION=1.9.*
+    - python: 3.8
+      env: DJANGO_VERSION=1.8.*
+
     - python: 3.7
       env: DJANGO_VERSION=1.10.*
     - python: 3.7
