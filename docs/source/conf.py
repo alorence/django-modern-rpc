@@ -10,23 +10,22 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-import sys
 import warnings
-from os.path import abspath, join, dirname
 
-sys.path.insert(0, abspath(join(abspath(dirname(__file__)), '../..')))
+from django.conf import settings
+
+import modernrpc
 
 try:
-    import sphinx_rtd_theme  # noqa : F401
+    import sphinx_rtd_theme
     sphinx_rtd = "sphinx_rtd_theme"
+    print("Use sphinx_rtd_theme version {}".format(sphinx_rtd_theme.__version__))
 except ImportError:
     # Use ReadTheDocs default theme only if it is installed.
     # Simply install it via ``pip install sphinx_rtd_theme``
     warnings.warn("Please install 'sphinx_rtd_theme' in order to build the documentation")
     sphinx_rtd = None
 
-import modernrpc  # noqa: F402
-from django.conf import settings  # noqa: F402
 settings.configure()
 
 # -- Project information -----------------------------------------------------
