@@ -2,6 +2,11 @@
 Changelog
 *********
 
+Release 0.12.1 (2020-06-11)
+---------------------------
+
+This is a bugfix release. According to #32, a patch has been applied to fix ImportError with Django 3.1.
+
 Release 0.12.0 (2019-12-05)
 ---------------------------
 **Requirements**
