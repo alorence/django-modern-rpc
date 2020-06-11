@@ -113,6 +113,26 @@ def test_arguments_order(rpc_registry):
     assert args[7] == 'c'
 
 
+def test_raw_documentation(settings):
+
+    settings.MODERNRPC_DOC_FORMAT = ''
+
+    rpc_method(single_line_documented, 'dummy_name')
+    method = RPCMethod(single_line_documented)
+    assert '*italic*, **strong**, normal text' == method.raw_docstring
+
+    rpc_method(multi_line_documented_1, 'dummy_name_2')
+    method = RPCMethod(multi_line_documented_1)
+    assert 'This method has multi-lines documentation.\n\nThe content is indented when ' \
+           'raw ``__doc__`` attribute function is read.\nThe indentation should not interfere ' \
+           'with semantic interpretation of the docstring.' == method.raw_docstring
+
+    rpc_method(multi_line_documented_2, 'dummy_name_3')
+    method = RPCMethod(multi_line_documented_2)
+    assert 'This method has *multi-lines* **documentation**.\n\nHere is ' \
+           'a quote block:\n\n    abcdef 123456' == method.raw_docstring
+
+
 def test_html_documentation_simple(settings):
 
     settings.MODERNRPC_DOC_FORMAT = ''
