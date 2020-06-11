@@ -1,12 +1,12 @@
 # coding: utf-8
 import collections
 import re
+from inspect import getargspec, cleandoc
 
 import six
-from django.contrib.admindocs.utils import trim_docstring
 from django.core.exceptions import ImproperlyConfigured
-from django.utils import inspect
 from django.utils.functional import cached_property
+from django.utils.inspect import get_func_args, func_accepts_kwargs
 
 from modernrpc.conf import settings
 from modernrpc.utils import ensure_sequence, get_modernrpc_logger
@@ -57,9 +57,9 @@ class RPCMethod(object):
         # for global functions.
         # For Python 2, we will prefer django.utils.inspect.getargspec(func)[0]. This will work as expected, even if
         # the function has been removed in Django 2.0, since Django 2 doesn't work with Python 2
-        self.args = inspect.get_func_args(func) if six.PY3 else inspect.getargspec(func)[0]
+        self.args = get_func_args(func) if six.PY3 else getargspec(func)[0]
         # Does the method accept additional kwargs dict?
-        self.accept_kwargs = inspect.func_accepts_kwargs(func)
+        self.accept_kwargs = func_accepts_kwargs(func)
 
         # Contains the signature of the method, as returned by "system.methodSignature"
         self.signature = []
@@ -92,30 +92,28 @@ class RPCMethod(object):
 
     def parse_docstring(self, content):
         """
-        Parse the given full docstring, and extract method description, arguments, and return documentation.
+        Parse the given full docstring, and extract method description, arguments and return documentation.
 
-        This method try to find arguments description and types, and put the information in "args_doc" and "signature"
-        members. Also parse return type and description, and put the information in "return_doc" member.
-        All other lines are added to the returned string
+        Try to find arguments types and descriptions, then store the result in self.args_doc and self.signature.
+        In addition, parse return type and description, and store it in self.return_doc dict.
+        All other lines are returned as string (separated by LF char)
         :param content: The full docstring
         :type content: str
         :return: The parsed method description
         :rtype: str
         """
-
         if not content:
             return
 
-        raw_docstring = ''
-        # We use the helper defined in django admindocs app to remove indentation chars from docstring,
-        # and parse it as title, body, metadata. We don't use metadata for now.
-        docstring = trim_docstring(content)
+        # Dedent given docstring
+        docstring = cleandoc(content)
 
+        desc_lines = []
         for line in docstring.split('\n'):
 
             # Empty line
             if not line:
-                raw_docstring += '\n'
+                desc_lines.append('')
                 continue
 
             param_match = PARAM_REXP.match(line)
@@ -156,8 +154,8 @@ class RPCMethod(object):
 
             # Line doesn't match with known args/return regular expressions,
             # add the line to raw help text
-            raw_docstring += line + '\n'
-        return raw_docstring
+            desc_lines.append(line)
+        return '\n'.join(desc_lines)
 
     @cached_property
     def html_doc(self):
