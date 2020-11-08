@@ -2,7 +2,7 @@ flake8
 pytest>=3.6
 # pytest-cov removed legacy pytest support
 pytest-cov<2.10
-pytest-django
+pytest-django<4.0
 pytest-pythonpath
 requests
 markdown
