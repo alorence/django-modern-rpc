@@ -1,4 +1,3 @@
-==================
 Data types support
 ==================
 JSON transport supported types are limited by JSON type system described in http://www.ietf.org/rfc/rfc4627.txt.

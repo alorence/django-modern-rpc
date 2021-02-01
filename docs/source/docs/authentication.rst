@@ -1,4 +1,3 @@
-==============
 Authentication
 ==============
 
@@ -8,7 +7,7 @@ django-modern-rpc supports authentication. It is possible to restrict access to 
 RPC method depending on conditions named "predicate".
 
 Basics
-======
+------
 
 To provide authentication features, django-modern-rpc introduce concept of "predicate". It is a python function
 taking a request as argument and returning a boolean:
@@ -73,8 +72,8 @@ True to allow access to the method.
     def my_rpc_method(a, b):
         return a + b
 
-HTTP Basic Authentication support
-=================================
+HTTP Basic Auth support
+-----------------------
 
 django-modern-rpc comes with a builtin support for `HTTP Basic Auth`_. It provides a set of decorators to directly
 extract user information from request, and test this user against Django authentication system:

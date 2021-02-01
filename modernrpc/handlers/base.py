@@ -84,7 +84,7 @@ class RPCHandler(object):
         args = args or []
         kwargs = kwargs or {}
 
-        # If the RPC method needs to access some internals, update kwargs dict
+        # If the RPC method needs to access some configuration, update kwargs dict
         if _method.accept_kwargs:
             kwargs.update({
                 REQUEST_KEY: self.request,

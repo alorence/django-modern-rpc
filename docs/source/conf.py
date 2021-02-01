@@ -1,3 +1,4 @@
+# flake8: noqa
 # Configuration file for the Sphinx documentation builder.
 #
 # This file only contains a selection of the most common options. For a full
@@ -10,39 +11,36 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
+import sys
 import warnings
-
-from django.conf import settings
-
-import modernrpc
+from os.path import abspath, join, dirname
 
 try:
+    # Use "shinx_rtd_theme" if it has been installed. Fallback to default otherwise
     import sphinx_rtd_theme
-    sphinx_rtd = "sphinx_rtd_theme"
-    print("Use sphinx_rtd_theme version {}".format(sphinx_rtd_theme.__version__))
+
+    sphinx_theme = "sphinx_rtd_theme"
 except ImportError:
-    # Use ReadTheDocs default theme only if it is installed.
-    # Simply install it via ``pip install sphinx_rtd_theme``
-    warnings.warn("Please install 'sphinx_rtd_theme' in order to build the documentation")
-    sphinx_rtd = None
+    warnings.warn("Please install 'sphinx_rtd_theme' in order to build this documentation")
+    sphinx_theme = None
+
+sys.path.insert(0, abspath(join(dirname(__file__), '../..')))
+import modernrpc  # noqa: F402
+from django.conf import settings
 
 settings.configure()
 
 # -- Project information -----------------------------------------------------
 
-# This is needed by Readthedocs
-master_doc = 'index'
-
 # General information about the project.
 project = 'django-modern-rpc'
-copyright = '2016, Antoine Lorence'
+copyright = '2021, Antoine Lorence'
 author = 'Antoine Lorence'
 
 # The full version, including alpha/beta/rc tags
 release = modernrpc.__version__
 # The short X.Y version.
 version = release.rsplit('.', 1)[0]
-
 
 # -- General configuration ---------------------------------------------------
 
@@ -61,15 +59,16 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []
-
+exclude_patterns = [
+    'drafts/*',
+]
 
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = sphinx_rtd or 'alabaster'
+html_theme = sphinx_theme or 'alabaster'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

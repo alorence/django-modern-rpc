@@ -1,6 +1,5 @@
-====================================
-Write and register remote procedures
-====================================
+RPC Methods registration
+========================
 
 Django-modern-rpc will automatically register RPC methods at startup. To ensure this automatic registration is performed
 quickly, you must provide the list of python modules where your remote methods are declared.
@@ -20,7 +19,7 @@ registration is performed at this step.
 .. _`AppConfig.ready() method`: https://docs.djangoproject.com/en/dev/ref/applications/#django.apps.AppConfig.ready
 
 Decorate your RPC methods
-=========================
+-------------------------
 
 Decorator usage is simple. You only need to add ``@rpc_method`` decorator before any method you want to provide
 via RPC calls.
@@ -37,7 +36,7 @@ via RPC calls.
 .. _rpc_method_options:
 
 Configure the registration
-==========================
+--------------------------
 
 If you decorate your methods with ``@rpc_method`` without specifying argument, the registered method will be available
 for all entry points, for any XML-RPC or JSON-RPC call and will have the name of the corresponding function.
@@ -70,8 +69,8 @@ You can also change this behavior by setting arguments to the decorator:
    def add(a, b):
        return a + b
 
-Access request, protocol and other info from a RPC method
-=========================================================
+Access additional data
+----------------------
 
 If you need to access some environment from your RPC method, simply adds ``**kwargs`` in function parameters. When the
 function will be executed, a dict will be passed as argument, providing the following information:
