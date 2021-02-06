@@ -1,12 +1,11 @@
-=========================
-Entry point configuration
-=========================
+Entry points
+============
 
 Django-modern-rpc provides a class to handle RPC calls called ``RPCEntryPoint``. This standard Django view
 will return a valid response to any valid RPC call made via HTTP POST requests.
 
 Basic declaration
-=================
+-----------------
 
 ``RPCEntryPoint`` is a standard Django view, you can declare it in your project or app's ``urls.py``:
 
@@ -28,12 +27,12 @@ you can decide to handle requests from a different URL by updating the ``regex``
 declare more entry points with different URLs.
 
 Advanced entry point configuration
-==================================
+----------------------------------
 
 You can modify the behavior of the view by passing some arguments to ``as_view()``.
 
-Limit entry point to JSON-RPC or XML-RPC only
----------------------------------------------
+Restrict entry point supported protocol
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Using ``protocol`` parameter, you can make sure a given entry point will only handle JSON-RPC or XML-RPC requests. This
 is useful, for example if you need to have different addresses to handle protocols.
@@ -53,7 +52,7 @@ is useful, for example if you need to have different addresses to handle protoco
 .. _multiple_entry_points:
 
 Declare multiple entry points
------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Using ``entry_point`` parameter, you can declare different entry points. Later, you will be able to configure your RPC
 methods to be available to one or more specific entry points.
@@ -70,7 +69,7 @@ methods to be available to one or more specific entry points.
    ]
 
 Class reference
-===============
+---------------
 
 .. autoclass:: modernrpc.views.RPCEntryPoint
    :members:

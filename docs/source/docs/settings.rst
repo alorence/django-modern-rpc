@@ -126,5 +126,3 @@ Possible values are: ``(empty)``, ``rst`` or ``markdown``.
 .. note::
     The corresponding package is not automatically installed. You have to ensure library `markdown` or `docutils` is
     installed in your environment if you set ``settings.MODERNRPC_DOC_FORMAT`` to a non-empty value
-
-

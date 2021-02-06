@@ -1,6 +1,5 @@
-=============================
-HTML Documentation generation
-=============================
+HTML Docs generation
+====================
 Django-modern-rpc can optionally process the docstring attached to your RPC methods and display it in a web page.
 This article will explain how generated documentation can bu used and customized.
 
@@ -45,7 +44,6 @@ You can customize the documentation page by setting your own template. ``RPCEntr
 .. code-block:: python
 
     urlpatterns = [
-
         # Configure the RPCEntryPoint directly by passing some arguments to as_view() method
         url(r'^rpc/', RPCEntryPoint.as_view(
                           enable_doc=True,
