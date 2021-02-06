@@ -3,88 +3,26 @@ Authentication
 
 .. versionadded:: 0.5
 
-django-modern-rpc supports authentication. It is possible to restrict access to any
-RPC method depending on conditions named "predicate".
+django-modern-rpc provides a mechanism to check authentication before executing a given RPC method.
 
-Basics
-------
+HTTP Basic Auth
+---------------
 
-To provide authentication features, django-modern-rpc introduce concept of "predicate". It is a python function
-taking a request as argument and returning a boolean:
+django-modern-rpc comes with a builtin support for `HTTP Basic Authentication`_. It provides a set of decorators
+to directly extract user information from request and test this user against Django authentication system.
 
-.. code:: python
-
-    def forbid_bots_access(request):
-        forbidden_bots = [
-            'Googlebot',  # Google
-            'Bingbot',  # Microsoft
-            'Slurp',  # Yahoo
-            'DuckDuckBot',  # DuckDuckGo
-            'Baiduspider',  # Baidu
-            'YandexBot',  # Yandex
-            'facebot',  # Facebook
-        ]
-        incoming_UA = request.META.get('HTTP_USER_AGENT')
-        if not incoming_UA:
-            return False
-
-        for bot_ua in forbidden_bots:
-            # If we detect the caller is one of the bots listed above...
-            if bot_ua.lower() in incoming_UA.lower():
-                # ... forbid access
-                return False
-
-        # In all other cases, allow access
-        return True
-
-It is associated with RPC method using ``@set_authentication_predicate`` decorator.
+.. _`HTTP Basic Authentication`: https://en.wikipedia.org/wiki/Basic_access_authentication
 
 .. code:: python
 
-    from modernrpc.core import rpc_method
-    from modernrpc.auth import set_authentication_predicate
-    from myproject.myapp.auth import forbid_bots_access
-
-    @rpc_method
-    @set_authentication_predicate(forbid_bots_access)
-    def my_rpc_method(a, b):
-        return a + b
-
-Now, the RPC method becomes unavailable to callers if User-Agent is not provided or if it has an invalid value.
-
-In addition, you can provide arguments to your predicate using ``params``:
-
-.. code:: python
-
-    @rpc_method
-    @set_authentication_predicate(my_predicate_with_params, params=('param_1', 42))
-    def my_rpc_method(a, b):
-        return a + b
-
-It is possible to declare multiple predicates for a single method. In such case, all predicates must return
-True to allow access to the method.
-
-.. code:: python
-
-    @rpc_method
-    @set_authentication_predicate(forbid_bots_access)
-    @set_authentication_predicate(my_predicate_with_params, params=('param_1', 42))
-    def my_rpc_method(a, b):
-        return a + b
-
-HTTP Basic Auth support
------------------------
-
-django-modern-rpc comes with a builtin support for `HTTP Basic Auth`_. It provides a set of decorators to directly
-extract user information from request, and test this user against Django authentication system:
-
-.. _`HTTP Basic Auth`: https://en.wikipedia.org/wiki/Basic_access_authentication
-
-.. code:: python
-
-    from modernrpc.auth.basic import http_basic_auth_login_required, http_basic_auth_superuser_required, \
-         http_basic_auth_permissions_required, http_basic_auth_any_of_permissions_required, \
-         http_basic_auth_group_member_required, http_basic_auth_all_groups_member_required
+    from modernrpc.auth.basic import (
+        http_basic_auth_login_required,
+        http_basic_auth_superuser_required,
+        http_basic_auth_permissions_required,
+        http_basic_auth_any_of_permissions_required,
+        http_basic_auth_group_member_required,
+        http_basic_auth_all_groups_member_required
+    )
     from modernrpc.core import rpc_method
 
 
@@ -135,3 +73,77 @@ extract user information from request, and test this user against Django authent
     def in_groups_A_and_B_required_alt(x):
         """Access allowed only to users contained in all the specified group"""
         return x
+
+
+Custom authentication system
+----------------------------
+
+To provide authentication features, django-modern-rpc introduce concept of "predicate". This example will show you how
+to build a custom authentication system to restrict RPC method execution to clients that present a User-Agent different
+from a known list of bots.
+
+.. code:: python
+
+    def forbid_bots_access(request):
+        """Return True when request has a User-Agent different from provided list"""
+        if "User-Agent" not in request.headers:
+            # No User-Agent provided, the request must be rejected
+            return False
+
+        forbidden_bots = [
+            'Googlebot',  # Google
+            'Bingbot',  # Microsoft
+            'Slurp',  # Yahoo
+            'DuckDuckBot',  # DuckDuckGo
+            'Baiduspider',  # Baidu
+            'YandexBot',  # Yandex
+            'facebot',  # Facebook
+        ]
+
+        req_user_agent = request.headers["User-Agent"].lower()
+        for bot_user_agent in [ua.lower() for ua in forbidden_bots]:
+            # If we detect the caller is one of the bots listed above...
+            if bot_user_agent in req_user_agent:
+                # ... forbid access
+                return False
+
+        # In all other cases, allow access
+        return True
+
+.. note::
+    A predicate always takes a request as argument and returns a boolean value
+
+It is associated with RPC method using ``@set_authentication_predicate`` decorator.
+
+.. code:: python
+
+    from modernrpc.core import rpc_method
+    from modernrpc.auth import set_authentication_predicate
+    from myproject.myapp.auth import forbid_bots_access
+
+    @rpc_method
+    @set_authentication_predicate(forbid_bots_access)
+    def my_rpc_method(a, b):
+        return a + b
+
+Now, the RPC method becomes unavailable to callers if User-Agent is not provided or if it has an invalid value.
+
+In addition, you can provide arguments to your predicate using ``params``:
+
+.. code:: python
+
+    @rpc_method
+    @set_authentication_predicate(my_predicate_with_params, params=('param_1', 42))
+    def my_rpc_method(a, b):
+        return a + b
+
+It is possible to declare multiple predicates for a single method. In such case, all predicates must return
+True to allow access to the method.
+
+.. code:: python
+
+    @rpc_method
+    @set_authentication_predicate(forbid_bots_access)
+    @set_authentication_predicate(my_predicate_with_params, params=('param_1', 42))
+    def my_rpc_method(a, b):
+        return a + b
