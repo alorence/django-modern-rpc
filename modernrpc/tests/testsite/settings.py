@@ -1,9 +1,7 @@
 # coding: utf-8
 import os
-from distutils.version import StrictVersion
 from os.path import dirname, realpath, join
 
-import django
 import six
 
 DEBUG = True
@@ -64,12 +62,6 @@ MIDDLEWARE = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 )
-
-# This allows the tests to be run against Django 1.8 to current
-# MIDDLEWARE_CLASSES is deprecated since Django 1.10, and is completely
-# removed from Django 2.0
-if StrictVersion(django.get_version()) < StrictVersion('1.10'):
-    MIDDLEWARE_CLASSES = MIDDLEWARE
 
 MEDIA_ROOT = ''
 MEDIA_URL = '/'

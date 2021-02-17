@@ -7,6 +7,7 @@ Changelog
 
 ### Misc
 
+- Dropped support for Django < 1.11 and Python 3.4
 - Documentation tree was completely reworked for clarity and simplicity. See <https://django-modern-rpc.rtfd.io>
 - Poetry is now used to configure project dependencies and build distributions. A `pyproject.toml` file was added to
   replace `setup.py`, `requirements.txt`. In the future, it should be used as single config file

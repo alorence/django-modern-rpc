@@ -31,13 +31,7 @@ class RPCHandler(object):
 
     def can_handle(self):
         # Get the content-type header from incoming request. Method differs depending on current Django version
-        try:
-            # Django >= 1.10
-            content_type = self.request.content_type
-        except AttributeError:
-            # Django up to 1.9
-            content_type = self.request.META['CONTENT_TYPE']
-
+        content_type = self.request.content_type
         if not content_type:
             # We don't accept a request with missing Content-Type request
             raise RPCInvalidRequest('Missing header: Content-Type')

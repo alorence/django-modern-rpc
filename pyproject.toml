@@ -48,8 +48,8 @@ exclude = ["modernrpc/tests"]
 "Demo" = "https://modernrpc.herokuapp.com/"
 
 [tool.poetry.dependencies]
-python = "~2.7 || ^3.4"
-django = ">=1.8"
+python = "~2.7 || ^3.5"
+django = ">=1.11"
 docutils = { version = "*", optional = true }
 markdown = { version = "*", optional = true }
 

@@ -12,7 +12,6 @@ python:
   - 3.7.9
   - 3.6.12
   - 3.5.10
-  - 3.4.8
   - 2.7.18
 env:
   - DJANGO_VERSION=3.1.*
@@ -21,9 +20,6 @@ env:
   - DJANGO_VERSION=2.1.*
   - DJANGO_VERSION=2.0.*
   - DJANGO_VERSION=1.11.*
-  - DJANGO_VERSION=1.10.*
-  - DJANGO_VERSION=1.9.*
-  - DJANGO_VERSION=1.8.*
 
 # Default job, ran on stage "test", expanded to all environments (python/django versions)
 install:
@@ -72,29 +68,6 @@ jobs:
         if: tag IS present
 
   exclude:
-    # See https://docs.djangoproject.com/en/1.8/faq/install/#what-python-version-can-i-use-with-django
-    - env: DJANGO_VERSION=1.8.*
-      python: 3.6.12
-    - env: DJANGO_VERSION=1.8.*
-      python: 3.7.9
-    - env: DJANGO_VERSION=1.8.*
-      python: 3.8
-    # -------------------------
-    - env: DJANGO_VERSION=1.9.*
-      python: 3.6.12
-    - env: DJANGO_VERSION=1.9.*
-      python: 3.7.9
-    - env: DJANGO_VERSION=1.9.*
-      python: 3.8
-
-    # See https://docs.djangoproject.com/en/1.10/faq/install/#what-python-version-can-i-use-with-django
-    - env: DJANGO_VERSION=1.10.*
-      python: 3.6.12
-    - env: DJANGO_VERSION=1.10.*
-      python: 3.7.9
-    - env: DJANGO_VERSION=1.10.*
-      python: 3.8
-
     # See https://docs.djangoproject.com/en/1.11/faq/install/#what-python-version-can-i-use-with-django
     - env: DJANGO_VERSION=1.11.*
       python: 3.8
@@ -109,28 +82,20 @@ jobs:
     - env: DJANGO_VERSION=2.1.*
       python: 2.7.18
     - env: DJANGO_VERSION=2.1.*
-      python: 3.4.8
-    - env: DJANGO_VERSION=2.1.*
       python: 3.8
 
     # See https://docs.djangoproject.com/en/2.2/faq/install/#what-python-version-can-i-use-with-django
     - env: DJANGO_VERSION=2.2.*
       python: 2.7.18
-    - env: DJANGO_VERSION=2.2.*
-      python: 3.4.8
 
     # See https://docs.djangoproject.com/en/3.0/faq/install/#what-python-version-can-i-use-with-django
     - env: DJANGO_VERSION=3.0.*
       python: 2.7.18
-    - env: DJANGO_VERSION=3.0.*
-      python: 3.4.8
     - env: DJANGO_VERSION=3.0.*
       python: 3.5.10
 
     # See https://docs.djangoproject.com/en/3.1/faq/install/#what-python-version-can-i-use-with-django
     - env: DJANGO_VERSION=3.1.*
       python: 2.7.18
-    - env: DJANGO_VERSION=3.1.*
-      python: 3.4.8
     - env: DJANGO_VERSION=3.1.*
       python: 3.5.10
