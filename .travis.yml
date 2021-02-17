@@ -1,4 +1,10 @@
 language: python
+dist: focal
+
+stages:
+  - check
+  - test
+  - publish
 
 # List of Python / Django versions to test
 python:
@@ -19,7 +25,52 @@ env:
   - DJANGO_VERSION=1.9.*
   - DJANGO_VERSION=1.8.*
 
+# Default job, ran on stage "test", expanded to all environments (python/django versions)
+install:
+  # Setup environment
+  - pip install -U poetry
+  - rm -f poetry.lock
+  - poetry install
+script:
+  # Run standard tests, collecting coverage report into 'coverage.xml'
+  - poetry run pip install -U django==$DJANGO_VERSION
+  - poetry run pytest --cov=modernrpc
+after_success:
+  - pip install coveralls codacy-coverage
+  # Submit coverage results to coveralls.io
+  - coveralls
+  # Submit coverage results to codecov.io
+  - bash <(curl -s https://codecov.io/bash)
+  # Submit coverage results to codacy.com
+  - python-codacy-coverage -r coverage.xml
+
 jobs:
+  allow_failures:
+    - stage: check
+
+  include:
+    - name: Flake8
+      stage: check
+      script:
+        - poetry run flake8
+      after_success: skip
+
+    - name: Publish on Pypi.org
+      stage: publish
+      install:
+        - pip install -U poetry
+        - poetry config repositories.testpypi https://test.pypi.org/legacy/
+      # Does nothing in script and after_success phases, but don't skip or it will cause deploy phase to be ignored
+      script: true
+      after_success: true
+      deploy:
+        provider: script
+        skip_cleanup: true
+        script: poetry publish --build -u __token__ -p $TESTPYPI_SECRET -r testpypi
+        on:
+          repo: alorence/django-modern-rpc
+        if: tag IS present
+
   exclude:
     # See https://docs.djangoproject.com/en/1.8/faq/install/#what-python-version-can-i-use-with-django
     - env: DJANGO_VERSION=1.8.*
@@ -83,33 +134,3 @@ jobs:
       python: 3.4.8
     - env: DJANGO_VERSION=3.1.*
       python: 3.5.10
-
-# Install Django specific version (from environment variable) and standard dependencies
-install:
-  - pip install Django==$DJANGO_VERSION
-  - pip install -r requirements.txt
-  - pip install -U coveralls codacy-coverage
-
-# Run standard tests
-script:
-  - pytest --cov=modernrpc
-  - flake8
-
-after_success:
-  - coveralls
-  - bash <(curl -s https://codecov.io/bash)
-  - coverage xml
-  - python-codacy-coverage -r coverage.xml
-
-# Deployment on PyPi
-deploy:
-  provider: pypi
-  user: alorence
-  password:
-    secure: l3hmlkkATAAIzuqFtJmWM4Qvfh11dVsCXlOYvlZrjSGh5g/1JIzRzqK0iWmXxD9L4V5R3tniY/jQxj9v2dWqdUBil4LnR4RR1QTaxTibRkwzIz+kOqBWc/KH7FerKpplOfU3mgS37prmIiD+ysM7iRM5cGes5VBjNVnPF2LkJ+eGJR6gijLaNGgXFQ1YW1K65VIUXO0rrzn95MTnNSF0uVR4fg96/3gTRTChp6FORHO82JAClsgEz4mpbnUrnwREbX71nbQ0sIDIHMYLckYQ3txhV07GcFG1z6N5nX+dQvhimLDPdy8ru+w01SO0e5assQltjBAz069Mw6mk2YIKkOq4pplSPMzunBMn6CDy3nY9eCeDVvm/CCRhUS6PrOSLd71ihWWvMnfC8eN/qWkf03GL0rT36gWBjRiPmZjKpGUyZZdxDHka6WN9PeABA0RSDQxL7+dsGXby7nvcfjaqerBfpsVR/AvruZIyiRUEic/HsYgPHhyzdehIonPA/wSJ8wooUc181FwoUQzFks2pSU0XIOPa/TfGneLZgbRKd/oVOj4Vp8DygXuyIbI44G36E5F3Ka3aQhRP+0DRSIoqapNOiAgdBFNqlo8sZUDYBA88M/w++5feDh7prgdTsEIw/oK4Zhspqf+opSTz9X/+vSMuLJXCzneDYm7sFOtwQPE=
-  distributions: sdist bdist_wheel
-  repo: alorence/django-modern-rpc
-  on:
-    tags: true
-    python: 3.8
-    condition: $DJANGO_VERSION = "2.2.*"

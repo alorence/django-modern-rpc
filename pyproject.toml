@@ -1,0 +1,73 @@
+[build-system]
+requires = ["poetry_core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "django-modern-rpc"
+version = "1.0.0-alpha1"
+
+authors = ["Antoine Lorence <antoine.lorence@gmail.com>"]
+description = "Simple and powerful RPC server for your Django project"
+repository = "https://github.com/alorence/django-modern-rpc"
+documentation = "https://django-modern-rpc.readthedocs.io"
+
+readme = "README.rst"
+license = "MIT"
+classifiers = [
+    "Programming Language :: Python",
+    "Development Status :: 4 - Beta",
+    "Environment :: Web Environment",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 2",
+    "Programming Language :: Python :: 2.7",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Framework :: Django",
+    "Framework :: Django :: 1.11",
+    "Framework :: Django :: 2.0",
+    "Framework :: Django :: 2.1",
+    "Framework :: Django :: 2.2",
+    "Framework :: Django :: 3.0",
+    "Framework :: Django :: 3.1",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
+    "Intended Audience :: Developers",
+]
+packages = [
+    { include = "modernrpc" }
+]
+include = ["README.rst"]
+exclude = ["modernrpc/tests"]
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/alorence/django-modern-rpc/issues"
+"Demo" = "https://modernrpc.herokuapp.com/"
+
+[tool.poetry.dependencies]
+python = "~2.7 || ^3.4"
+django = ">=1.8"
+docutils = { version = "*", optional = true }
+markdown = { version = "*", optional = true }
+
+[tool.poetry.extras]
+docutils = ["docutils"]
+markdown = ["markdown"]
+
+[tool.poetry.dev-dependencies]
+pytest = "*"
+pytest-django = "<4"
+pytest-pythonpath = "*"
+pytest-cov = "<=2.9"
+flake8 = "*"
+jsonrpcclient = "<3"
+requests = "*"
+docutils = "*"
+markdown = "*"
+
+# [tool.pytest.ini_options]
+# Pytest config will remain in pytest.ini until both python 2.7 & 3.4 support is dropped. Then, we will be able to
+# install pytest 6+ which introduce support for pyproject.toml based configuration
