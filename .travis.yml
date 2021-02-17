@@ -8,6 +8,7 @@ stages:
 
 # List of Python / Django versions to test
 python:
+  - 3.9
   - 3.8
   - 3.7.9
   - 3.6.12
@@ -71,18 +72,24 @@ jobs:
     # See https://docs.djangoproject.com/en/1.11/faq/install/#what-python-version-can-i-use-with-django
     - env: DJANGO_VERSION=1.11.*
       python: 3.8
+    - env: DJANGO_VERSION=1.11.*
+      python: 3.9
 
     # See https://docs.djangoproject.com/en/2.0/faq/install/#what-python-version-can-i-use-with-django
     - env: DJANGO_VERSION=2.0.*
       python: 2.7.18
     - env: DJANGO_VERSION=2.0.*
       python: 3.8
+    - env: DJANGO_VERSION=2.0.*
+      python: 3.9
 
     # See https://docs.djangoproject.com/en/2.1/faq/install/#what-python-version-can-i-use-with-django
     - env: DJANGO_VERSION=2.1.*
       python: 2.7.18
     - env: DJANGO_VERSION=2.1.*
       python: 3.8
+    - env: DJANGO_VERSION=2.1.*
+      python: 3.9
 
     # See https://docs.djangoproject.com/en/2.2/faq/install/#what-python-version-can-i-use-with-django
     - env: DJANGO_VERSION=2.2.*
