@@ -7,7 +7,10 @@ Changelog
 
 ### Misc
 
-- Documentation tree was completely reworked for clarity and simplicity
+- Documentation tree was completely reworked for clarity and simplicity. See <https://django-modern-rpc.rtfd.io>
+- Poetry is now used to configure project dependencies and build distributions. A `pyproject.toml` file was added to
+  replace `setup.py`, `requirements.txt`. In the future, it should be used as single config file
+  for all external tools (pytest, flake8, etc.)
 
 ## 2020-06-11: version 0.12.1
 
