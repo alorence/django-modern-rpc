@@ -7,6 +7,13 @@ to quickly :ref:`install <installation>` and :ref:`configure <configuration>` th
 
 In addition, you will find detailed documentation including the ways you can hack the default behaviors.
 
+Changelog
+---------
+
+The full changelog can be found on Github_
+
+.. _Github: https://github.com/alorence/django-modern-rpc/blob/master/CHANGELOG.md
+
 .. toctree::
    :maxdepth: 3
    :hidden:
@@ -38,5 +45,4 @@ In addition, you will find detailed documentation including the ways you can hac
    :name: misc
 
    contribute.rst
-   changelog.rst
    biblio.rst
