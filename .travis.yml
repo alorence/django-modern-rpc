@@ -61,12 +61,12 @@ jobs:
       script: true
       after_success: true
       deploy:
-        provider: script
         skip_cleanup: true
+        provider: script
         script: poetry publish --build -u __token__ -p $TESTPYPI_SECRET -r testpypi
         on:
           repo: alorence/django-modern-rpc
-        if: tag IS present
+          tags: true
 
   exclude:
     # See https://docs.djangoproject.com/en/1.11/faq/install/#what-python-version-can-i-use-with-django
