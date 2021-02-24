@@ -27,11 +27,10 @@ env:
 install:
   # Setup environment
   - pip install -U poetry
-  - rm -f poetry.lock
-  - poetry install
+  - poetry install -n -v
+  - poetry run pip install -U django==$DJANGO_VERSION
 script:
   # Run standard tests, collecting coverage report into 'coverage.xml'
-  - poetry run pip install -U django==$DJANGO_VERSION
   - poetry run pytest --cov=modernrpc
 after_success:
   - pip install coveralls codacy-coverage
