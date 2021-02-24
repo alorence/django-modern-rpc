@@ -16,6 +16,7 @@ python:
   - 3.5.10
   - 2.7.18
 env:
+  - DJANGO_VERSION=3.2b1
   - DJANGO_VERSION=3.1.*
   - DJANGO_VERSION=3.0.*
   - DJANGO_VERSION=2.2.*
@@ -105,4 +106,10 @@ jobs:
     - env: DJANGO_VERSION=3.1.*
       python: 2.7.18
     - env: DJANGO_VERSION=3.1.*
+      python: 3.5.10
+
+    # See https://docs.djangoproject.com/en/3.2/faq/install/#what-python-version-can-i-use-with-django
+    - env: DJANGO_VERSION=3.2b1
+      python: 2.7.18
+    - env: DJANGO_VERSION=3.2b1
       python: 3.5.10
