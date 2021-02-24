@@ -1,5 +1,6 @@
-language: python
+os: linux
 dist: focal
+language: python
 
 stages:
   - check
@@ -61,7 +62,7 @@ jobs:
       script: true
       after_success: true
       deploy:
-        skip_cleanup: true
+        edge: true
         provider: script
         script: poetry publish --build -u __token__ -p $TESTPYPI_SECRET -r testpypi
         on:
