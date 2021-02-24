@@ -516,14 +516,18 @@ python-versions = "*"
 
 [[package]]
 name = "singledispatch"
-version = "3.4.0.3"
-description = "This library brings functools.singledispatch from Python 3.4 to Python 2.6-3.3."
+version = "3.6.0"
+description = "Backport functools.singledispatch from Python 3.4 to Python 2.6-3.3."
 category = "dev"
 optional = false
-python-versions = "*"
+python-versions = ">=2.6"
 
 [package.dependencies]
 six = "*"
+
+[package.extras]
+docs = ["sphinx", "jaraco.packaging (>=8.2)", "rst.linker (>=1.9)"]
+testing = ["pytest (>=3.5,!=3.7.3)", "pytest-checkdocs (>=1.2.3)", "pytest-flake8", "pytest-cov", "pytest-black (>=0.3.7)", "unittest2"]
 
 [[package]]
 name = "six"
@@ -700,7 +704,7 @@ markdown = ["markdown"]
 [metadata]
 lock-version = "1.1"
 python-versions = "~2.7 || ^3.5"
-content-hash = "a253f009730c0fc521e0655716c9187523584a97e13a378caece716930f20692"
+content-hash = "08eee3bfe56c927af2188b2121e895fa7eb4edd0dbe82e6fab01db12aab35581"
 
 [metadata.files]
 appdirs = [
@@ -934,8 +938,8 @@ scandir = [
     {file = "scandir-1.10.0.tar.gz", hash = "sha256:4d4631f6062e658e9007ab3149a9b914f3548cb38bfb021c64f39a025ce578ae"},
 ]
 singledispatch = [
-    {file = "singledispatch-3.4.0.3-py2.py3-none-any.whl", hash = "sha256:833b46966687b3de7f438c761ac475213e53b306740f1abfaa86e1d1aae56aa8"},
-    {file = "singledispatch-3.4.0.3.tar.gz", hash = "sha256:5b06af87df13818d14f08a028e42f566640aef80805c3b50c5056b086e3c2b9c"},
+    {file = "singledispatch-3.6.0-py2.py3-none-any.whl", hash = "sha256:ca602b0a8389aa93e3b183f57f29edc6af202bef718c2ec53a38ef25ccc5867e"},
+    {file = "singledispatch-3.6.0.tar.gz", hash = "sha256:c4ad3947f0cd35d3d99231c37190d2ee7bcbc271c2be6e1e3f4465e73a99511c"},
 ]
 six = [
     {file = "six-1.15.0-py2.py3-none-any.whl", hash = "sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced"},
