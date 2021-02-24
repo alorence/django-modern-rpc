@@ -61,6 +61,7 @@ markdown = ["markdown"]
 pytest = "*"
 pytest-django = "<4"
 pytest-pythonpath = "*"
+pytest-sugar = "^0.9.4"
 pytest-cov = "<=2.9"
 flake8 = "*"
 jsonrpcclient = "<3"
