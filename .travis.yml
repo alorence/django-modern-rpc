@@ -53,6 +53,14 @@ jobs:
         - poetry run flake8
       after_success: skip
 
+    - name: Pylint
+      stage: check
+      script:
+        # --exit-zero will ensure the step don't fail even when errors are detected. Currently Python < 3.7 is not
+        # supported, so Python 2+3 code will generate many errors. This may change on Python 2 support drop
+        - poetry run pylint modernrpc --exit-zero
+      after_success: skip
+
     - name: Publish on Pypi.org
       stage: publish
       install:
