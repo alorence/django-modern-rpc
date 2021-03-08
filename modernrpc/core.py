@@ -1,15 +1,16 @@
 # coding: utf-8
 import collections
+import logging
 import re
-from inspect import getargspec, cleandoc
+from inspect import cleandoc, getargspec
 
 import six
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import cached_property
-from django.utils.inspect import get_func_args, func_accepts_kwargs
+from django.utils.inspect import func_accepts_kwargs, get_func_args
 
 from modernrpc.conf import settings
-from modernrpc.utils import ensure_sequence, get_modernrpc_logger
+from modernrpc.utils import ensure_sequence
 
 # Special constant meaning "all protocols" or "all entry points"
 ALL = "__all__"
@@ -31,7 +32,7 @@ PARAM_TYPE_REXP = re.compile(r'^:type ([\w]+):\s?(.*)')
 RETURN_REXP = re.compile(r'^:return:\s?(.*)')
 RETURN_TYPE_REXP = re.compile(r'^:rtype:\s?(.*)')
 
-logger = get_modernrpc_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class RPCMethod(object):

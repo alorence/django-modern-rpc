@@ -1,5 +1,6 @@
 # coding: utf-8
 import inspect
+import logging
 import warnings
 from importlib import import_module
 
@@ -9,9 +10,9 @@ from django.apps import AppConfig
 
 from modernrpc.conf import settings
 from modernrpc.core import registry
-from modernrpc.utils import get_modernrpc_logger, clean_old_cache_content
+from modernrpc.utils import clean_old_cache_content
 
-logger = get_modernrpc_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 @django.core.checks.register()

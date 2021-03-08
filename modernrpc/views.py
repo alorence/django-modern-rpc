@@ -1,18 +1,20 @@
 # coding: utf-8
+import logging
 
 from django.core.exceptions import ImproperlyConfigured
 from django.http.response import HttpResponse, HttpResponseForbidden
 from django.utils.decorators import method_decorator
 from django.utils.module_loading import import_string
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic.base import View, TemplateView
+from django.views.generic.base import TemplateView, View
 
 from modernrpc.conf import settings
 from modernrpc.core import ALL, registry
-from modernrpc.exceptions import RPCInternalError, RPCException, AuthenticationFailed
-from modernrpc.utils import ensure_sequence, get_modernrpc_logger
+from modernrpc.exceptions import (AuthenticationFailed, RPCException,
+                                  RPCInternalError)
+from modernrpc.utils import ensure_sequence
 
-logger = get_modernrpc_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class RPCEntryPoint(TemplateView):

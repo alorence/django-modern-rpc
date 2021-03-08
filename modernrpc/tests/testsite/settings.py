@@ -118,20 +118,7 @@ LOGGING = {
             'handlers': ['logfile'],
             'level': 'INFO',
             'propagate': False,
-        },
-        # test_logging.py will execute some tests on logging utilities (get_modernrpc_logger() and
-        # logger_has_handlers()). These dummy loggers are declared here
-        # See test_logging.py
-        'my_app': {
-            'handlers': ['console'],
-            'level': 'WARNING',
-            'propagate': True,
-        },
-        'my_app.a': {
-            'handlers': [],
-            'level': 'INFO',
-            'propagate': False,
-        },
+        }
     }
 }
 

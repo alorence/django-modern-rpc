@@ -1,16 +1,18 @@
 # coding: utf-8
+import logging
+
 import six
 
 import modernrpc.compat
-from modernrpc.core import registry, REQUEST_KEY, ENTRY_POINT_KEY, PROTOCOL_KEY, HANDLER_KEY
-from modernrpc.exceptions import RPCInvalidRequest, RPCUnknownMethod, AuthenticationFailed, RPCInvalidParams
-from modernrpc.utils import get_modernrpc_logger
+from modernrpc.core import (ENTRY_POINT_KEY, HANDLER_KEY, PROTOCOL_KEY,
+                            REQUEST_KEY, registry)
+from modernrpc.exceptions import (AuthenticationFailed, RPCInvalidParams,
+                                  RPCInvalidRequest, RPCUnknownMethod)
 
-logger = get_modernrpc_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class RPCHandler(object):
-
     protocol = None
 
     def __init__(self, request, entry_point):

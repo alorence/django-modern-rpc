@@ -1,14 +1,15 @@
 # coding: utf-8
 import json
+import logging
 
 from django.http.response import HttpResponse
 from django.utils.module_loading import import_string
 
 from modernrpc.conf import settings
 from modernrpc.core import JSONRPC_PROTOCOL
-from modernrpc.exceptions import RPCInternalError, RPCInvalidRequest, RPCParseError, RPCException
+from modernrpc.exceptions import (RPCException, RPCInternalError,
+                                  RPCInvalidRequest, RPCParseError)
 from modernrpc.handlers.base import RPCHandler
-from modernrpc.utils import get_modernrpc_logger
 
 try:
     # Python 3
@@ -17,7 +18,7 @@ except ImportError:
     # Python 2: json.loads will raise a ValueError when loading json
     JSONDecodeError = ValueError
 
-logger = get_modernrpc_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class JSONRPCBatchResult(object):
@@ -26,7 +27,6 @@ class JSONRPCBatchResult(object):
 
 
 class JSONRPCHandler(RPCHandler):
-
     protocol = JSONRPC_PROTOCOL
 
     def __init__(self, request, entry_point):
