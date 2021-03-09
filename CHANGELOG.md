@@ -65,9 +65,9 @@ report accuracy.
 ### API Changes
 
 - Class RPCRequest has been removed and replaced by method `execute_procedure(name, args, kwargs)` in `RPCHandler`
-  class. This method contains common logic used to retrieve a RPC method, execute authentication predicates to make sure
-  it can be run, execute the concrete method and return the result.
-- HTML documentation content is not anymore marked as "safe" using `django.utils.safestring.mark_safe()`. You have to
+  class. This method contains common logic used to retrieve an RPC method, execute authentication predicates to make
+  sure it can be run, execute the concrete method and return the result.
+- HTML documentation content is not marked as "safe" anymore, using `django.utils.safestring.mark_safe()`. You have to
   use Django decorator `safe` in your template if you display this value.
 
 #### Settings
@@ -113,15 +113,15 @@ please read carefully.
   handler to report additional information to user in case of error. This data is ignored by XML-RPC handler.
 - JSON-RPC: Batch requests are now supported (#11)
 - JSON-RPC: Named parameters are now supported (#12)
-- JSON-RPC: Notification calls are now supported. Missing id in payload is no longer considered as invalid, but is
+- JSON-RPC: Notification calls are now supported. Missing "id" in a payload is no longer considered as invalid, but is
   correctly handled. No HTTP response is returned in such case, according to the standard.
-- XML-RPC: exception raised when serializing data to XML are now catched as `InternalError` and a clear error message
+- XML-RPC: exception raised when serializing data to XML are now caught as `InternalError` and a clear error message
 
 ### API Changes
 
-- `modernrpc.handlers.JSONRPC` and `modernrpc.handlers.XMLRPC` constants have been moved and renamed. They become
+- Both `modernrpc.handlers.JSONRPC` and `modernrpc.handlers.XMLRPC` constants were moved and renamed. They become
   respectively `modernrpc.core.JSONRPC_PROTOCOL` and `modernrpc.core.XMLRPC_PROTOCOL`
-- `RPCHandler` class updated, as well as subclases `XMLRPCHandler` and `JSONRPCHandler`. `RPCHandler.parse_request()`
+- `RPCHandler` class updated, as well as subclasses `XMLRPCHandler` and `JSONRPCHandler`. `RPCHandler.parse_request()`
   is now `RPCHandler.process_request()`. The new method does not return a tuple `(method_name, params)` anymore.
   Instead, it executes the underlying RPC method using new class `RPCRequest`. If you customized your handlers, please
   make sure you updated your code (if needed).
@@ -217,7 +217,7 @@ please read carefully.
 - Better use of logging system (python builtin) to report errors & exceptions from library and RPC methods
 - Rewritten docstring parser. Markdown and reStructured formatters are still supported to generate HTML documentation
   for RPC methods. They now have unit tests to validate their behavior.
-- @rpc\_method decorator can be used with or without parenthesis (and this feature is tested)
+- @rpc_method decorator can be used with or without the parenthesis (and this feature is tested)
 - System methods have been documented
 
 ## 2016-11-17: version 0.4.1
@@ -284,7 +284,7 @@ please read carefully.
 ### Fixes
 
 - Packages `modernrpc.tests` and `testsite` were excluded from Pypi distribution (both binary and source). This action
-  was forgotten in the last release)
+  was forgotten in the last release
 
 ## 2016-10-13: version 0.2.2
 
@@ -329,4 +329,4 @@ This is the very first version of the library. Only a subset of planned features
 - Unit tests doesn't cover all the code
 - RPC system methods utility (`listMethods`, `methodSignature`, etc.) are not yet implemented
 - There is no way to provide documentation in HTML form
-- The library itself doesn't have any documentation (appart from README.md)
+- The library itself doesn't have any documentation (apart from the README.md)
