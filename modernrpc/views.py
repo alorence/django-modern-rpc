@@ -12,7 +12,7 @@ from modernrpc.conf import settings
 from modernrpc.core import ALL, registry
 from modernrpc.exceptions import (AuthenticationFailed, RPCException,
                                   RPCInternalError)
-from modernrpc.utils import ensure_sequence
+from modernrpc.helpers import ensure_sequence
 
 logger = logging.getLogger(__name__)
 

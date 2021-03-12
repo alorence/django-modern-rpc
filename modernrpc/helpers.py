@@ -33,3 +33,8 @@ def get_builtin_date(date, date_format="%Y-%m-%dT%H:%M:%S", raise_exception=Fals
                 raise
             else:
                 return None
+
+
+def ensure_sequence(element):
+    """Ensure the given argument is a sequence object (tuple, list). If not, return a list containing its value."""
+    return element if isinstance(element, (tuple, list)) else [element]

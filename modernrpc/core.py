@@ -10,7 +10,7 @@ from django.utils.functional import cached_property
 from django.utils.inspect import func_accepts_kwargs, get_func_args
 
 from modernrpc.conf import settings
-from modernrpc.utils import ensure_sequence
+from modernrpc.helpers import ensure_sequence
 
 # Special constant meaning "all protocols" or "all entry points"
 ALL = "__all__"

@@ -8,7 +8,6 @@ from django.core import checks
 
 from modernrpc.conf import settings
 from modernrpc.core import registry
-from modernrpc.utils import clean_old_cache_content
 
 logger = logging.getLogger(__name__)
 
@@ -51,9 +50,6 @@ class ModernRpcConfig(AppConfig):
         """Loop over each module listed in settings.MODERNRPC_METHODS_MODULES, import each one and register
         functions annotated with @rpc_method in the internal registry"""
 
-        # In previous version, django-modern-rpc used the django cache system to store methods registry.
-        # It is useless now, so clean the cache from old data
-        clean_old_cache_content()
         # For security (and unit tests), make sure the registry is empty before registering rpc methods
         registry.reset()
 
