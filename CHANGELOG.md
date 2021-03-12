@@ -12,8 +12,10 @@ Changelog
 - Added support for Django 3.2 (pre-version)
 - Documentation tree was completely reworked for clarity and simplicity. See <https://django-modern-rpc.rtfd.io>
 - Poetry is now used to configure project dependencies and build distributions. A `pyproject.toml` file was added to
-  replace `setup.py`, `requirements.txt`. In the future, it should be used as single config file
-  for all external tools (pytest, flake8, etc.)
+  replace `setup.py`, `setup.cfg`, `MANIFEST.in` and `requirements.txt` and to centralize all external tools settings
+  (pytest, flake8, etc.)
+- Initialization process updated: exceptions are now raised on startup for invalid RPC modules. This was asked multiple
+  times (#34, #13, #2).
 
 ## 2020-06-11: version 0.12.1
 

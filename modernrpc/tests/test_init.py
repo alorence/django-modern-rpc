@@ -2,45 +2,79 @@
 import pytest
 from django.apps.registry import apps
 
-from modernrpc.apps import check_required_settings_defined
+from modernrpc.apps import check_settings
 
 
-def test_settings_check(settings):
+def test_init_check_ok():
+    # Default settings define a MODERNRPC_METHODS_MODULES with valid values
+    result = check_settings(apps.get_app_config("modernrpc"))
+    assert not result
 
-    # With default testsite.settings, check method shouldn't complain
-    assert len(check_required_settings_defined(apps.get_app_config("modernrpc"))) == 0
 
-    # After deleting values in settings.MODERNRPC_METHODS_MODULES, the check should warn
-    settings.MODERNRPC_METHODS_MODULES = []
+@pytest.mark.parametrize('empty_value', [[], set(), tuple(), None])
+def test_settings_check_with_empty_modules_list(settings, empty_value):
+    # With empty or None value, first check must complain
+    settings.MODERNRPC_METHODS_MODULES = empty_value
 
-    result = check_required_settings_defined(apps.get_app_config("modernrpc"))
+    result = check_settings(apps.get_app_config("modernrpc"))
     assert len(result) == 1
-    assert result[0].id == 'modernrpc.E001'
+    assert result[0].id == 'modernrpc.W001'
 
 
-def test_warning_on_invalid_module_reference(settings, rpc_registry):
-
-    # Update setting value, to only contain reference to an invalid module
-    settings.MODERNRPC_METHODS_MODULES = ['invalid.module.reference']
-
-    # This will ensure a warning is thrown, due to invalid module specified
-    app = apps.get_app_config("modernrpc")
-    with pytest.warns(Warning):
-        app.ready()
-
-    # Now, we should have removed all custom methods from the registry
-    custom_rpc_methods = [m for m in rpc_registry.get_all_method_names() if not m.startswith('system.')]
-    assert len(custom_rpc_methods) == 0
-
-
-def test_registry_empty_if_settings_not_defined(settings, rpc_registry):
-
+@pytest.mark.parametrize('empty_value', [[], set(), tuple(), None])
+def test_registry_empty_if_settings_not_defined(settings, rpc_registry, empty_value):
     # Update setting value to remove any value
-    settings.MODERNRPC_METHODS_MODULES = None
+    settings.MODERNRPC_METHODS_MODULES = empty_value
 
     app = apps.get_app_config("modernrpc")
     app.ready()
 
-    # Now, we should have removed all custom methods from the registry
-    custom_rpc_methods = [m for m in rpc_registry.get_all_method_names() if not m.startswith('system.')]
-    assert len(custom_rpc_methods) == 0
+    # Registry is empty in such case
+    assert not rpc_registry.get_all_method_names()
+
+
+@pytest.mark.parametrize("module_name", [
+    'invalid.module.reference',
+    'testsite.rpc_methods_stub.module_with_invalid_import'
+])
+def test_settings_check_with_module_not_found(settings, module_name):
+    settings.MODERNRPC_METHODS_MODULES = [module_name]
+
+    result = check_settings(apps.get_app_config("modernrpc"))
+    assert len(result) == 1
+    assert result[0].id == 'modernrpc.E001'
+
+
+@pytest.mark.parametrize("module_name", [
+    'invalid.module.reference',
+    'testsite.rpc_methods_stub.module_with_invalid_import'
+])
+def test_app_init_with_module_not_found(settings, rpc_registry, module_name):
+    settings.MODERNRPC_METHODS_MODULES = [module_name]
+
+    app = apps.get_app_config("modernrpc")
+    with pytest.raises(ImportError):
+        app.ready()
+
+    # Registry is empty in such case
+    assert not rpc_registry.get_all_method_names()
+
+
+def test_settings_check_with_syntax_error_in_module(settings):
+    settings.MODERNRPC_METHODS_MODULES = ['testsite.rpc_methods_stub.module_with_syntax_errors']
+
+    result = check_settings(apps.get_app_config("modernrpc"))
+    assert len(result) == 1
+    assert result[0].id == 'modernrpc.E002'
+
+
+def test_app_init_with_syntax_error_in_module(settings, rpc_registry):
+    # modernrpc / tests / testsite / rpc_methods_stub / module_with_syntax_errors
+    settings.MODERNRPC_METHODS_MODULES = ['testsite.rpc_methods_stub.module_with_syntax_errors']
+
+    app = apps.get_app_config("modernrpc")
+    with pytest.raises(SyntaxError):
+        app.ready()
+
+    # Registry is empty in such case
+    assert not rpc_registry.get_all_method_names()
