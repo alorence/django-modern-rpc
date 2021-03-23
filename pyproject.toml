@@ -69,7 +69,6 @@ jsonrpcclient = "<3"
 requests = "*"
 docutils = "*"
 markdown = "*"
-tox-poetry = "^0.3.0"
 tox-pyenv = "^1.1.0"
 pylint = { version = "~2.7", python = ">=3.7"}
 
