@@ -6,7 +6,7 @@ from django.utils.module_loading import import_string
 
 from modernrpc.conf import settings
 from modernrpc.core import JSONRPC_PROTOCOL
-from modernrpc.exceptions import RPCInternalError, RPCInvalidRequest, RPCParseError, RPCException
+from modernrpc.exceptions import RPCInternalError, RPCInvalidRequest, RPCParseError, RPCException, AuthenticationFailed
 from modernrpc.handlers.base import RPCHandler
 from modernrpc.utils import get_modernrpc_logger
 
@@ -87,6 +87,8 @@ class JSONRPCHandler(RPCHandler):
                     # Response objects for notifications."
                     if request_id:
                         batch_result.results.append(self.json_success_response(result, override_id=request_id))
+                except AuthenticationFailed as e:
+                    raise e
 
                 except RPCException as e:
                     logger.warning('RPC Exception raised in a JSON-RPC batch handling: {}'.format(e),
