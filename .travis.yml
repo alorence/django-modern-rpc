@@ -37,8 +37,6 @@ after_success:
   - pip install coveralls codacy-coverage
   # Submit coverage results to coveralls.io
   - coveralls
-  # Submit coverage results to codecov.io
-  - bash <(curl -s https://codecov.io/bash)
   # Submit coverage results to codacy.com
   - python-codacy-coverage -r coverage.xml
 

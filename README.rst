@@ -14,10 +14,6 @@ django-modern-rpc
     :alt: Coveralls (coverage report)
     :target: https://coveralls.io/github/alorence/django-modern-rpc?branch=master
 
-.. image:: https://codecov.io/gh/alorence/django-modern-rpc/branch/master/graph/badge.svg
-    :alt: Codecov (coverage report)
-    :target: https://codecov.io/gh/alorence/django-modern-rpc
-
 .. image:: https://readthedocs.org/projects/django-modern-rpc/badge/?version=latest
     :alt: Read The Doc
     :target: http://django-modern-rpc.readthedocs.io/
