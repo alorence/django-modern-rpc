@@ -1,0 +1,108 @@
+name: unit tests & codestyle
+
+env:
+  INSTALL_POETRY_VERSION: 1.*
+  POETRY_INSTALLER_PARALLEL: false
+  POETRY_VIRTUALENVS_CREATE: false
+
+on:
+  push:
+  pull_request:
+  create:
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron:  '55 2 */7 * *'
+
+jobs:
+  tests:
+    name: Python ${{ matrix.python-version }} × Django ${{ matrix.django-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.9, 3.8, 3.7, 3.6, 3.5, 2.7]
+        django-version: [3.2, 3.1, 3.0, 2.2, 2.1, 2.0, 1.11]
+        exclude:
+          # See https://docs.djangoproject.com/en/3.2/faq/install/#what-python-version-can-i-use-with-django
+          - { django-version: 3.2, python-version: 3.5 }
+          - { django-version: 3.2, python-version: 2.7 }
+
+          # See https://docs.djangoproject.com/en/3.1/faq/install/#what-python-version-can-i-use-with-django
+          - { django-version: 3.1, python-version: 3.5 }
+          - { django-version: 3.1, python-version: 2.7 }
+
+          # See https://docs.djangoproject.com/en/3.0/faq/install/#what-python-version-can-i-use-with-django
+          - { django-version: 3.0, python-version: 3.5 }
+          - { django-version: 3.0, python-version: 2.7 }
+
+          # See https://docs.djangoproject.com/en/2.2/faq/install/#what-python-version-can-i-use-with-django
+          - { django-version: 2.2, python-version: 2.7 }
+
+          # See https://docs.djangoproject.com/en/2.1/faq/install/#what-python-version-can-i-use-with-django
+          - { django-version: 2.1, python-version: 3.9 }
+          - { django-version: 2.1, python-version: 3.8 }
+          - { django-version: 2.1, python-version: 2.7 }
+
+          # See https://docs.djangoproject.com/en/2.0/faq/install/#what-python-version-can-i-use-with-django
+          - { django-version: 2.0, python-version: 3.9 }
+          - { django-version: 2.0, python-version: 3.8 }
+          - { django-version: 2.0, python-version: 2.7 }
+
+          # See https://docs.djangoproject.com/en/1.11/faq/install/#what-python-version-can-i-use-with-django
+          - { django-version: 1.11, python-version: 3.9 }
+          - { django-version: 1.11, python-version: 3.8 }
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
+      - name: Install dependencies
+        run: |
+          poetry install --no-interaction
+          poetry run pip install -U "django==${{ matrix.django-version }}.*"
+
+      - name: Test with pytest
+        run: |
+          echo "Django version: $(poetry run django-admin --version)"
+          poetry run pytest --cov=modernrpc --cov-report=term --cov-report=xml:coverage.xml modernrpc/tests
+
+      - name: Upload coverage results to Codecov
+        run: |
+          pip install codacy-coverage
+          # Submit coverage results to codacy.com
+          python-codacy-coverage -r coverage.xml
+        env:
+          CODACY_PROJECT_TOKEN : ${{ secrets.CODACY_PROJECT_TOKEN }}
+
+  flake8:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
+      - name: Install dependencies
+        run: |
+          poetry install --no-interaction
+      - name: Flake8
+        run: poetry run flake8
+
+  pylint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
+      - name: Install dependencies
+        run: |
+          poetry install --no-interaction
+      - name: Pylint
+        run: poetry run pylint modernrpc --exit-zero
