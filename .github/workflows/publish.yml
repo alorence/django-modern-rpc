@@ -1,4 +1,4 @@
-name: publish release on Pypi
+name: Publish
 
 env:
   INSTALL_POETRY_VERSION: 1.*

@@ -1,4 +1,4 @@
-name: unit tests & codestyle
+name: Tests
 
 env:
   INSTALL_POETRY_VERSION: 1.*
