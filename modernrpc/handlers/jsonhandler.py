@@ -94,7 +94,7 @@ class JSONRPCHandler(RPCHandler):
                     batch_result.results.append(self.json_error_response(e, override_id=request_id))
 
                 except Exception as e:
-                    logger.warning('Exception raised in a JSON-RPC batch handling: {}'.format(e),
+                    logger.warning('Exception raised in a JSON-RPC batch handling: %s', e,
                                    exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
                     rpc_exception = RPCInternalError(str(e))
                     batch_result.results.append(self.json_error_response(rpc_exception, override_id=request_id))

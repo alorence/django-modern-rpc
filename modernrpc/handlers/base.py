@@ -68,8 +68,7 @@ class RPCHandler(object):
         if not _method:
             raise RPCUnknownMethod(name)
 
-        logger.debug('Check authentication / permissions for method {} and user {}'
-                     .format(name, self.request.user))
+        logger.debug('Check authentication / permissions for method %s and user %s', name, self.request.user)
 
         if not _method.check_permissions(self.request):
             raise AuthenticationFailed(name)
@@ -94,7 +93,7 @@ class RPCHandler(object):
             args = modernrpc.compat.standardize_strings(args, strtype=method_std, encoding=encoding)
             kwargs = modernrpc.compat.standardize_strings(kwargs, strtype=method_std, encoding=encoding)
 
-        logger.debug('Params: args = {} - kwargs = {}'.format(args, kwargs))
+        logger.debug('Params: args = %s - kwargs = %s', args, kwargs)
 
         try:
             # Call the rpc method, as standard python function

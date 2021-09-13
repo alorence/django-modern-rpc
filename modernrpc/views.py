@@ -86,7 +86,7 @@ class RPCEntryPoint(TemplateView):
                 if not handler.can_handle():
                     continue
 
-                logger.debug('Request will be handled by {}'.format(handler_cls.__name__))
+                logger.debug('Request will be handled by %s', handler_cls.__name__)
 
                 result = handler.process_request()
 
@@ -102,8 +102,7 @@ class RPCEntryPoint(TemplateView):
                 return handler.result_error(e)
 
             except Exception as e:
-                logger.error('Exception raised from a RPC method: "{}"'.format(e),
-                             exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
+                logger.error('Exception raised from a RPC method: "%s"', e, exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
                 return handler.result_error(RPCInternalError(str(e)))
 
         logger.error('Unable to handle incoming request.')
