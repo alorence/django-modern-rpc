@@ -1,5 +1,4 @@
 # coding: utf-8
-import os
 from os.path import dirname, realpath, join
 
 import six
@@ -14,12 +13,7 @@ SITE_ROOT = dirname(realpath(__file__))
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        # Using :memory: SQLIte DB cause a Segmentation Fault on Travis-CI server
-        # To prevent such error, we prefer using a true file-based DB.
-        # Another solution would be to use Travis Postgres or Mysql instance, but in that case
-        # we would need a different settings between local test environment and CI server one.
-        'NAME': os.path.join(SITE_ROOT, 'modernrpc-test.db'),
-        'TEST': {'NAME': os.path.join(SITE_ROOT, 'modernrpc-test.db')}
+        'NAME': ":memory:",
     },
 }
 
