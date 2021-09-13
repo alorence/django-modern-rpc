@@ -1,7 +1,7 @@
 # coding: utf-8
 from modernrpc.conf import settings as modernrpc_settings
 from modernrpc.core import RPCMethod, ALL, rpc_method, JSONRPC_PROTOCOL, XMLRPC_PROTOCOL
-from modernrpc.tests.mocks import single_line_documented, multi_line_documented_1, multi_line_documented_2, \
+from tests.mocks import single_line_documented, multi_line_documented_1, multi_line_documented_2, \
     dummy_function, dummy_function_with_doc
 
 

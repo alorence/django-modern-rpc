@@ -26,6 +26,7 @@ classifiers = [
     "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
     "Framework :: Django",
     "Framework :: Django :: 1.11",
     "Framework :: Django :: 2.0",
@@ -42,7 +43,7 @@ packages = [
     { include = "modernrpc" }
 ]
 include = ["README.md"]
-exclude = ["modernrpc/tests"]
+exclude = ["tests"]
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/alorence/django-modern-rpc/issues"

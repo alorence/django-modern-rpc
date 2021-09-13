@@ -5,7 +5,7 @@ from django.core.exceptions import ImproperlyConfigured
 
 import modernrpc
 from modernrpc.core import ALL
-from modernrpc.tests.mocks import dummy_remote_procedure_1, dummy_remote_procedure_2, dummy_remote_procedure_3, \
+from tests.mocks import dummy_remote_procedure_1, dummy_remote_procedure_2, dummy_remote_procedure_3, \
     dummy_remote_procedure_4, not_decorated_procedure
 from . import xmlrpclib
 
