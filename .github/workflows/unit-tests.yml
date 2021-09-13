@@ -71,13 +71,16 @@ jobs:
           echo "Django version: $(poetry run django-admin --version)"
           poetry run pytest --cov=modernrpc --cov-report=term --cov-report=xml:coverage.xml .
 
-      - name: Upload coverage results to Codecov
+      - name: Upload coverage results
         run: |
-          pip install codacy-coverage
+          pip install codacy-coverage coveralls
           # Submit coverage results to codacy.com
           python-codacy-coverage -r coverage.xml
+          # Submit coverage results to coveralls
+          coveralls
         env:
           CODACY_PROJECT_TOKEN : ${{ secrets.CODACY_PROJECT_TOKEN }}
+          COVERALLS_REPO_TOKEN : ${{ secrets.COVERALLS_REPO_TOKEN }}
 
   flake8:
     runs-on: ubuntu-latest
