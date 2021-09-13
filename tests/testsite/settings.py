@@ -1,5 +1,5 @@
 # coding: utf-8
-from os.path import dirname, realpath, join
+from os.path import dirname, realpath
 
 import six
 
@@ -57,8 +57,6 @@ MIDDLEWARE = (
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
-MEDIA_ROOT = ''
-MEDIA_URL = '/'
 STATIC_ROOT = ''
 STATIC_URL = '/'
 
@@ -68,53 +66,6 @@ MODERNRPC_METHODS_MODULES = [
     'testsite.rpc_methods_stub.specific_protocol',
     'testsite.rpc_methods_stub.with_authentication',
 ]
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
-        },
-        'simple': {
-            'format': '%(levelname)s %(message)s'
-        },
-        'default': {
-            'format': "[%(asctime)s] %(levelname)s [%(filename)s:%(funcName)s:%(lineno)s] %(message)s",
-            'datefmt': "%Y-%m-%d %H:%M:%S"
-        },
-    },
-    'handlers': {
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-        },
-        'nullhandler': {
-            'level': 'INFO',
-            'class': 'logging.NullHandler',
-        },
-        'logfile': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': join(SITE_ROOT, 'modernrpc.log'),
-            'maxBytes': 1024 * 1024 * 1,  # 1 MB
-            'formatter': 'default',
-            'backupCount': 5,
-            # In Django 1.11, without this attribute, a warning is thrown at server startup
-            # Use `python -Wall ./manage.py runserver` to see warnings
-            # See https://stackoverflow.com/a/30684667/1887976 for more info
-            'delay': True,
-        },
-    },
-    'loggers': {
-        # Default modernrpc logger. Will collect test execution logs into modernrpc/tests/testsite/modernrpc.log
-        'modernrpc': {
-            'handlers': ['logfile'],
-            'level': 'INFO',
-            'propagate': False,
-        }
-    }
-}
 
 if six.PY2:
     MODERNRPC_METHODS_MODULES.append('testsite.rpc_methods_stub.python2_specific')
