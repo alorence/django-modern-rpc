@@ -11,7 +11,7 @@ description = "Simple and powerful RPC server for your Django project"
 repository = "https://github.com/alorence/django-modern-rpc"
 documentation = "https://django-modern-rpc.readthedocs.io"
 
-readme = "README.rst"
+readme = "README.md"
 license = "MIT"
 classifiers = [
     "Programming Language :: Python",
@@ -41,7 +41,7 @@ classifiers = [
 packages = [
     { include = "modernrpc" }
 ]
-include = ["README.rst"]
+include = ["README.md"]
 exclude = ["modernrpc/tests"]
 
 [tool.poetry.urls]
