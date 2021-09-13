@@ -69,7 +69,7 @@ jobs:
       - name: Test with pytest
         run: |
           echo "Django version: $(poetry run django-admin --version)"
-          poetry run pytest --cov=modernrpc --cov-report=term --cov-report=xml:coverage.xml modernrpc/tests
+          poetry run pytest --cov=modernrpc --cov-report=term --cov-report=xml:coverage.xml .
 
       - name: Upload coverage results to Codecov
         run: |
