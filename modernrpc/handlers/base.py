@@ -74,7 +74,7 @@ class RPCHandler(object):
         if not _method.check_permissions(self.request):
             raise AuthenticationFailed(name)
 
-        logger.debug('RPC method {} will be executed'.format(name))
+        logger.debug('RPC method %s will be executed', name)
 
         # Replace default None value with empty instance of corresponding type
         args = args or []

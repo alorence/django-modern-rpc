@@ -47,7 +47,7 @@ class RPCEntryPoint(TemplateView):
         if not self.enable_rpc:
             self.http_method_names.remove('post')
 
-        logger.debug('RPC entry point "{}" initialized'.format(self.entry_point))
+        logger.debug('RPC entry point "%s" initialized', self.entry_point)
 
     # This disable CSRF validation for POST requests
     @method_decorator(csrf_exempt)
@@ -98,7 +98,7 @@ class RPCEntryPoint(TemplateView):
                 return handler.result_error(e, HttpResponseForbidden)
 
             except RPCException as e:
-                logger.warning('RPC exception: {}'.format(e), exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
+                logger.warning('RPC exception: %s', e, exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
                 return handler.result_error(e)
 
             except Exception as e:
