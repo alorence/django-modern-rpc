@@ -31,9 +31,9 @@ def check_settings(app_configs, **kwargs):
                 msg = 'ModuleNotFoundError exception when importing "{}" module'.format(module_name)
                 hint = str(err)
                 result.append(checks.Error(msg, hint=hint, obj=settings, id="modernrpc.E001"))
-            except Exception as e:
-                msg = '{} exception when importing "{}" module'.format(e.__class__.__name__, module_name)
-                hint = "See exception info: {}".format(e)
+            except Exception as exc:
+                msg = '{} exception when importing "{}" module'.format(exc.__class__.__name__, module_name)
+                hint = "See exception info: {}".format(exc)
                 result.append(checks.Error(msg, hint=hint, obj=settings, id="modernrpc.E002"))
 
     return result

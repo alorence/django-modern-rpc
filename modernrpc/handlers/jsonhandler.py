@@ -46,15 +46,15 @@ class JSONRPCHandler(RPCHandler):
             decoder = import_string(settings.MODERNRPC_JSON_DECODER)
             return json.loads(str_data, cls=decoder)
 
-        except JSONDecodeError as e:
-            raise RPCParseError(str(e))
+        except JSONDecodeError as jde:
+            raise RPCParseError(str(jde))
 
     def dumps(self, obj):
         try:
             encoder = import_string(settings.MODERNRPC_JSON_ENCODER)
             return json.dumps(obj, cls=encoder)
-        except Exception as e:
-            raise RPCInternalError('Unable to serialize result as valid JSON: ' + str(e))
+        except Exception as exc:
+            raise RPCInternalError('Unable to serialize result as valid JSON: ' + str(exc))
 
     def process_request(self):
 
@@ -88,15 +88,15 @@ class JSONRPCHandler(RPCHandler):
                     if request_id:
                         batch_result.results.append(self.json_success_response(result, override_id=request_id))
 
-                except RPCException as e:
-                    logger.warning('RPC Exception raised in a JSON-RPC batch handling: %s', e,
+                except RPCException as exc:
+                    logger.warning('RPC Exception raised in a JSON-RPC batch handling: %s', exc,
                                    exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
-                    batch_result.results.append(self.json_error_response(e, override_id=request_id))
+                    batch_result.results.append(self.json_error_response(exc, override_id=request_id))
 
-                except Exception as e:
-                    logger.warning('Exception raised in a JSON-RPC batch handling: %s', e,
+                except Exception as exc:
+                    logger.warning('Exception raised in a JSON-RPC batch handling: %s', exc,
                                    exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
-                    rpc_exception = RPCInternalError(str(e))
+                    rpc_exception = RPCInternalError(str(exc))
                     batch_result.results.append(self.json_error_response(rpc_exception, override_id=request_id))
 
             return batch_result

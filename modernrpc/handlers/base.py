@@ -99,7 +99,7 @@ class RPCHandler(object):
             # Call the rpc method, as standard python function
             return _method.function(*args, **kwargs)
 
-        except TypeError as e:
+        except TypeError as te:
             # If given arguments cannot be transmitted properly to python function,
             # raise an Invalid Params exceptions
-            raise RPCInvalidParams(str(e))
+            raise RPCInvalidParams(str(te))

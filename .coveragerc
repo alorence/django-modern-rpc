@@ -15,5 +15,5 @@ exclude_lines =
     pragma: no cover
 
 omit =
-  modernrpc/tests/testsite/rpc_methods_stub/*
-  modernrpc/tests/mocks.py
+  tests/testsite/rpc_methods_stub/*
+  tests/mocks.py

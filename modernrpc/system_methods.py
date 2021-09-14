@@ -78,15 +78,15 @@ def __system_multiCall(calls, **kwargs):
             # return structs from functions without confusing them with faults."
             results.append([result])
 
-        except RPCException as e:
+        except RPCException as exc:
             results.append({
-                'faultCode': e.code,
-                'faultString': e.message,
+                'faultCode': exc.code,
+                'faultString': exc.message,
             })
-        except Exception as e:
+        except Exception as exc:
             results.append({
                 'faultCode': RPC_INTERNAL_ERROR,
-                'faultString': str(e),
+                'faultString': str(exc),
             })
 
     return results

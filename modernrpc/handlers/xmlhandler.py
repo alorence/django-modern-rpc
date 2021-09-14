@@ -35,14 +35,14 @@ class XMLRPCHandler(RPCHandler):
                 # Python 2
                 return xmlrpc_client.loads(str_data, use_datetime=settings.MODERNRPC_XMLRPC_USE_BUILTIN_TYPES)
 
-        except xml.parsers.expat.ExpatError as e:
-            raise RPCParseError(e)
+        except xml.parsers.expat.ExpatError as exc:
+            raise RPCParseError(exc)
 
         except xmlrpc_client.ResponseError:
             raise RPCInvalidRequest('Bad XML-RPC payload')
 
-        except Exception as e:  # pragma: no cover
-            raise RPCInvalidRequest(e)
+        except Exception as exc:  # pragma: no cover
+            raise RPCInvalidRequest(exc)
 
     def dumps(self, obj):
 
@@ -62,8 +62,8 @@ class XMLRPCHandler(RPCHandler):
             # we dumps it as an array of a single value.
             return self.marshaller.dumps([obj])
 
-        except Exception as e:
-            raise RPCInternalError('Unable to serialize result as valid XML: ' + str(e))
+        except Exception as exc:
+            raise RPCInternalError('Unable to serialize result as valid XML: ' + str(exc))
 
     def process_request(self):
 
