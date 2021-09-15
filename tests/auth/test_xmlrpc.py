@@ -1,6 +1,7 @@
 # coding: utf-8
 import pytest
 
+from modernrpc.exceptions import RPC_INTERNAL_ERROR
 from tests import xmlrpclib
 
 
@@ -215,3 +216,30 @@ def test_custom_predicate_rejected(xmlrpc_client):
     with pytest.raises(xmlrpclib.ProtocolError) as excpinfo:
         xmlrpc_client.power_2(5)
     assert excpinfo.value.errcode == 403
+
+
+def test_xmlrpc_multicall_with_auth(xmlrpc_client):
+
+    multicall = xmlrpclib.MultiCall(xmlrpc_client)
+    multicall.add(7, 3)
+    multicall.logged_superuser_required(5)
+    result = multicall()
+
+    assert isinstance(result, xmlrpclib.MultiCallIterator)
+    assert result[0] == 10
+    with pytest.raises(xmlrpclib.Fault) as excinfo:
+        print(result[1])
+    assert excinfo.value.faultCode == RPC_INTERNAL_ERROR
+    assert 'Authentication failed' in excinfo.value.faultString
+
+
+def test_xmlrpc_multicall_with_auth_2(xmlrpc_client_as_superuser):
+
+    multicall = xmlrpclib.MultiCall(xmlrpc_client_as_superuser)
+    multicall.add(7, 3)
+    multicall.logged_superuser_required(5)
+    result = multicall()
+
+    assert isinstance(result, xmlrpclib.MultiCallIterator)
+    assert result[0] == 10
+    assert result[1] == 5

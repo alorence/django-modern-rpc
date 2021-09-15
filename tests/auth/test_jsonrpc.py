@@ -1,4 +1,5 @@
 # coding: utf-8
+import json
 import time
 
 import jsonrpcclient.exceptions
@@ -270,3 +271,36 @@ def test_custom_predicate_rejected(jsonrpc_client):
         jsonrpc_client.power_2(5)
     assert excpinfo.value.code == RPC_INTERNAL_ERROR
     assert 'Authentication failed' in excpinfo.value.message
+
+
+def test_jsonrpc_batch_with_auth(jsonrpc_client):
+
+    batch_request = json.dumps([
+        {'jsonrpc': '2.0', 'id': 1, 'method': 'add', 'params': {'a': 7, 'b': 3}},
+        {'jsonrpc': '2.0', 'id': 2, 'method': 'logged_superuser_required', 'params': [5, ]}
+    ])
+
+    result = jsonrpc_client.send(batch_request)
+
+    assert isinstance(result, list)
+    assert result[0] == {'jsonrpc': '2.0', 'id': 1, 'result': 10}
+    assert result[1] == {'jsonrpc': '2.0', 'id': 2, 'error': {
+        'code': RPC_INTERNAL_ERROR,
+        'message': 'Internal error: Authentication failed when calling "logged_superuser_required"'
+    }}
+
+
+def test_jsonrpc_batch_with_auth_2(jsonrpc_client, superuser, common_pwd):
+
+    jsonrpc_client.session.auth = (superuser.username, common_pwd)
+
+    batch_request = json.dumps([
+        {'jsonrpc': '2.0', 'id': 1, 'method': 'add', 'params': {'a': 7, 'b': 3}},
+        {'jsonrpc': '2.0', 'id': 2, 'method': 'logged_superuser_required', 'params': [5, ]}
+    ])
+
+    result = jsonrpc_client.send(batch_request)
+
+    assert isinstance(result, list)
+    assert result[0] == {'jsonrpc': '2.0', 'id': 1, 'result': 10}
+    assert result[1] == {'jsonrpc': '2.0', 'id': 2, 'result': 5}

@@ -57,33 +57,6 @@ def test_xmlrpc_multicall_with_errors_2(xmlrpc_client):
     assert result[2] == 16
 
 
-def test_xmlrpc_multicall_with_auth(xmlrpc_client):
-
-    multicall = xmlrpclib.MultiCall(xmlrpc_client)
-    multicall.add(7, 3)
-    multicall.logged_superuser_required(5)
-    result = multicall()
-
-    assert isinstance(result, xmlrpclib.MultiCallIterator)
-    assert result[0] == 10
-    with pytest.raises(xmlrpclib.Fault) as excinfo:
-        print(result[1])
-    assert excinfo.value.faultCode == RPC_INTERNAL_ERROR
-    assert 'Authentication failed' in excinfo.value.faultString
-
-
-def test_xmlrpc_multicall_with_auth_2(xmlrpc_client_as_superuser):
-
-    multicall = xmlrpclib.MultiCall(xmlrpc_client_as_superuser)
-    multicall.add(7, 3)
-    multicall.logged_superuser_required(5)
-    result = multicall()
-
-    assert isinstance(result, xmlrpclib.MultiCallIterator)
-    assert result[0] == 10
-    assert result[1] == 5
-
-
 def test_jsonrpc_multicall_error(jsonrpc_client):
 
     with pytest.raises(ReceivedErrorResponse) as excinfo:
@@ -194,39 +167,6 @@ def test_jsonrpc_batch_notifications_only(jsonrpc_client):
     result = jsonrpc_client.send(batch_request)
 
     assert result is None
-
-
-def test_jsonrpc_batch_with_auth(jsonrpc_client):
-
-    batch_request = json.dumps([
-        {'jsonrpc': '2.0', 'id': 1, 'method': 'add', 'params': {'a': 7, 'b': 3}},
-        {'jsonrpc': '2.0', 'id': 2, 'method': 'logged_superuser_required', 'params': [5, ]}
-    ])
-
-    result = jsonrpc_client.send(batch_request)
-
-    assert isinstance(result, list)
-    assert result[0] == {'jsonrpc': '2.0', 'id': 1, 'result': 10}
-    assert result[1] == {'jsonrpc': '2.0', 'id': 2, 'error': {
-        'code': RPC_INTERNAL_ERROR,
-        'message': 'Internal error: Authentication failed when calling "logged_superuser_required"'
-    }}
-
-
-def test_jsonrpc_batch_with_auth_2(jsonrpc_client, superuser, common_pwd):
-
-    jsonrpc_client.session.auth = (superuser.username, common_pwd)
-
-    batch_request = json.dumps([
-        {'jsonrpc': '2.0', 'id': 1, 'method': 'add', 'params': {'a': 7, 'b': 3}},
-        {'jsonrpc': '2.0', 'id': 2, 'method': 'logged_superuser_required', 'params': [5, ]}
-    ])
-
-    result = jsonrpc_client.send(batch_request)
-
-    assert isinstance(result, list)
-    assert result[0] == {'jsonrpc': '2.0', 'id': 1, 'result': 10}
-    assert result[1] == {'jsonrpc': '2.0', 'id': 2, 'result': 5}
 
 
 def test_jsonrpc_batch_invalid_request(all_rpc_url):
