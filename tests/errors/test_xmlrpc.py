@@ -11,7 +11,6 @@ from tests import xmlrpclib
 
 
 def test_xmlrpc_call_unknown_method(xmlrpc_client):
-
     with pytest.raises(xmlrpclib.Fault) as excinfo:
         xmlrpc_client.non_existing_method()
 
@@ -20,7 +19,6 @@ def test_xmlrpc_call_unknown_method(xmlrpc_client):
 
 
 def test_xmlrpc_invalid_params(xmlrpc_client):
-
     with pytest.raises(xmlrpclib.Fault) as excinfo:
         xmlrpc_client.add(42)
 
@@ -32,7 +30,6 @@ def test_xmlrpc_invalid_params(xmlrpc_client):
 
 
 def test_xmlrpc_invalid_params_2(xmlrpc_client):
-
     with pytest.raises(xmlrpclib.Fault) as excinfo:
         xmlrpc_client.add(42, -51, 98)
 
@@ -43,7 +40,6 @@ def test_xmlrpc_invalid_params_2(xmlrpc_client):
 
 
 def test_xmlrpc_internal_error(xmlrpc_client):
-
     with pytest.raises(xmlrpclib.Fault) as excinfo:
         xmlrpc_client.raise_custom_exception()
 
@@ -52,7 +48,6 @@ def test_xmlrpc_internal_error(xmlrpc_client):
 
 
 def test_xmlrpc_exception_with_data(xmlrpc_client):
-
     with pytest.raises(xmlrpclib.Fault) as excinfo:
         xmlrpc_client.raise_custom_exception_with_data()
 
@@ -63,7 +58,6 @@ def test_xmlrpc_exception_with_data(xmlrpc_client):
 
 
 def test_xmlrpc_divide_by_zero(xmlrpc_client):
-
     with pytest.raises(xmlrpclib.Fault) as excinfo:
         xmlrpc_client.divide(42, 0)
 
@@ -200,7 +194,6 @@ def test_xmlrpc_invalid_request_bad_type_value(all_rpc_url):
 
 
 def test_xmlrpc_invalid_multicall(xmlrpc_client):
-
     with pytest.raises(xmlrpclib.Fault) as excinfo:
         xmlrpc_client.system.multicall('method1')
 
@@ -209,7 +202,6 @@ def test_xmlrpc_invalid_multicall(xmlrpc_client):
 
 
 def test_xmlrpc_invalid_result(xmlrpc_client):
-
     with pytest.raises(xmlrpclib.Fault) as excinfo:
         xmlrpc_client.get_invalid_result()
 

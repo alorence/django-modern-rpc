@@ -8,28 +8,24 @@ from modernrpc.auth.basic import http_basic_auth_get_user
 
 
 def test_user_is_authenticated(anonymous_user, john_doe, superuser):
-
     assert not user_is_authenticated(anonymous_user)
     assert user_is_authenticated(john_doe)
     assert user_is_authenticated(superuser)
 
 
 def test_user_is_anonymous(anonymous_user, john_doe, superuser):
-
     assert user_is_anonymous(anonymous_user)
     assert not user_is_anonymous(john_doe)
     assert not user_is_anonymous(superuser)
 
 
 def test_user_is_superuser(anonymous_user, john_doe, superuser):
-
     assert not user_is_superuser(anonymous_user)
     assert not user_is_superuser(john_doe)
     assert user_is_superuser(superuser)
 
 
 def test_user_has_perm(django_user_model, anonymous_user, john_doe, superuser, delete_user_perm):
-
     perm_str = '{}.{}'.format('auth', delete_user_perm.codename)
 
     # Superuser always virtually have permissions
@@ -50,7 +46,6 @@ def test_user_has_perm(django_user_model, anonymous_user, john_doe, superuser, d
 
 
 def test_user_has_perms(django_user_model, anonymous_user, john_doe, superuser, delete_user_perm, add_user_perm):
-
     perms_str = [
         '{}.{}'.format('auth', p.codename) for p in [delete_user_perm, add_user_perm]
     ]
@@ -77,7 +72,6 @@ def test_user_has_perms(django_user_model, anonymous_user, john_doe, superuser, 
 
 
 def test_user_has_any_perm(django_user_model, anonymous_user, john_doe, superuser, delete_user_perm, add_user_perm):
-
     perms_str = [
         '{}.{}'.format('auth', p.codename) for p in [delete_user_perm, add_user_perm]
     ]
@@ -109,7 +103,6 @@ def test_user_in_group_invalid_args(group_A, john_doe):
 
 
 def test_user_in_group(group_A, anonymous_user, john_doe, superuser):
-
     # Superuser always virtually have permissions
     assert user_in_group(superuser, group_A) is True
 
@@ -122,7 +115,6 @@ def test_user_in_group(group_A, anonymous_user, john_doe, superuser):
 
 
 def test_user_in_group_str(group_A, anonymous_user, john_doe, superuser):
-
     # Superuser always virtually have permissions
     assert user_in_group(superuser, group_A.name) is True
 
@@ -135,7 +127,6 @@ def test_user_in_group_str(group_A, anonymous_user, john_doe, superuser):
 
 
 def test_user_in_any_group(group_A, group_B, anonymous_user, john_doe, superuser):
-
     groups = [group_A, group_B]
 
     # Superuser always virtually have permissions
@@ -156,7 +147,6 @@ def test_user_in_any_group(group_A, group_B, anonymous_user, john_doe, superuser
 
 
 def test_user_in_any_group_str(group_A, group_B, anonymous_user, john_doe, superuser):
-
     groups = ['A', 'B']
 
     # Superuser always virtually have permissions
@@ -177,7 +167,6 @@ def test_user_in_any_group_str(group_A, group_B, anonymous_user, john_doe, super
 
 
 def test_user_in_all_groups(group_A, group_B, anonymous_user, john_doe, superuser):
-
     groups = [group_A, group_B]
 
     # Superuser always virtually have permissions
@@ -198,7 +187,6 @@ def test_user_in_all_groups(group_A, group_B, anonymous_user, john_doe, superuse
 
 
 def test_user_in_all_groups_str(group_A, group_B, anonymous_user, john_doe, superuser):
-
     groups = ['A', 'B']
 
     # Superuser always virtually have permissions
@@ -219,7 +207,6 @@ def test_user_in_all_groups_str(group_A, group_B, anonymous_user, john_doe, supe
 
 
 def test_http_basic_get_user():
-
     # Basic django request, without authentication info
     request = HttpRequest()
 

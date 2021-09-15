@@ -10,7 +10,6 @@ from tests import xmlrpclib
 
 
 def test_xmlrpc_multicall_standard(xmlrpc_client):
-
     multicall = xmlrpclib.MultiCall(xmlrpc_client)
     multicall.add(5, 10)
     multicall.divide(30, 5)
@@ -20,13 +19,12 @@ def test_xmlrpc_multicall_standard(xmlrpc_client):
 
     assert isinstance(result, xmlrpclib.MultiCallIterator)
     assert result[0] == 15  # 5 + 10
-    assert result[1] == 6   # 30 / 5
+    assert result[1] == 6  # 30 / 5
     assert result[2] == 16  # 8 + 8
-    assert result[3] == 3   # 6 / 2
+    assert result[3] == 3  # 6 / 2
 
 
 def test_xmlrpc_multicall_with_errors(xmlrpc_client):
-
     multicall = xmlrpclib.MultiCall(xmlrpc_client)
     multicall.add(7, 3)
     multicall.unknown_method()
@@ -42,7 +40,6 @@ def test_xmlrpc_multicall_with_errors(xmlrpc_client):
 
 
 def test_xmlrpc_multicall_with_errors_2(xmlrpc_client):
-
     multicall = xmlrpclib.MultiCall(xmlrpc_client)
     multicall.add(7, 3)
     multicall.divide(75, 0)
@@ -58,7 +55,6 @@ def test_xmlrpc_multicall_with_errors_2(xmlrpc_client):
 
 
 def test_jsonrpc_multicall_error(jsonrpc_client):
-
     with pytest.raises(ReceivedErrorResponse) as excinfo:
         jsonrpc_client.request('system.multicall')
 
@@ -67,7 +63,6 @@ def test_jsonrpc_multicall_error(jsonrpc_client):
 
 
 def test_jsonrpc_batch_standard(jsonrpc_client):
-
     batch_request = json.dumps([
         {'jsonrpc': '2.0', 'id': 1, 'method': 'add', 'params': [5, 10]},
         {'jsonrpc': '2.0', 'id': 2, 'method': 'divide', 'params': [30, 5]},
@@ -82,7 +77,6 @@ def test_jsonrpc_batch_standard(jsonrpc_client):
 
 
 def test_jsonrpc_batch_with_errors(jsonrpc_client):
-
     batch_request = json.dumps([
         {'jsonrpc': '2.0', 'id': 1, 'method': 'add', 'params': [7, 3]},
         {'jsonrpc': '2.0', 'id': 2, 'method': 'unknown_method'},
@@ -100,7 +94,6 @@ def test_jsonrpc_batch_with_errors(jsonrpc_client):
 
 
 def test_jsonrpc_batch_with_errors_2(jsonrpc_client):
-
     batch_request = json.dumps([
         {'jsonrpc': '2.0', 'id': 1, 'method': 'add', 'params': [7, 3]},
         {'jsonrpc': '2.0', 'id': 2, 'method': 'divide', 'params': (75, 0)},
@@ -120,7 +113,6 @@ def test_jsonrpc_batch_with_errors_2(jsonrpc_client):
 
 
 def test_jsonrpc_batch_with_named_params(jsonrpc_client):
-
     batch_request = json.dumps([
         {'jsonrpc': '2.0', 'id': 1, 'method': 'add', 'params': {'a': 5, 'b': 10}},
         {'jsonrpc': '2.0', 'id': 2, 'method': 'divide', 'params': {'numerator': 30, 'denominator': 5}},
@@ -141,7 +133,6 @@ def test_jsonrpc_batch_with_named_params(jsonrpc_client):
 
 
 def test_jsonrpc_batch_with_notifications(jsonrpc_client):
-
     batch_request = json.dumps([
         {'jsonrpc': '2.0', 'id': 1, 'method': 'add', 'params': {'a': 5, 'b': 10}},
         {'jsonrpc': '2.0', 'method': 'method_with_kwargs'},
@@ -157,7 +148,6 @@ def test_jsonrpc_batch_with_notifications(jsonrpc_client):
 
 
 def test_jsonrpc_batch_notifications_only(jsonrpc_client):
-
     batch_request = json.dumps([
         {'jsonrpc': '2.0', 'method': 'add', 'params': {'a': 5, 'b': 10}},
         {'jsonrpc': '2.0', 'method': 'method_with_kwargs'},
@@ -170,7 +160,6 @@ def test_jsonrpc_batch_notifications_only(jsonrpc_client):
 
 
 def test_jsonrpc_batch_invalid_request(all_rpc_url):
-
     headers = {'content-type': 'application/json'}
     result = requests.post(all_rpc_url, data='[1, 2, 3]', headers=headers).json()
 

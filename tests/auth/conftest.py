@@ -1,9 +1,8 @@
-from .. import xmlrpclib, jsonrpclib
-
 import pytest
 from django.contrib.auth.models import Permission, AnonymousUser, Group
 
 from tests.conftest import get_url_with_auth
+from .. import xmlrpclib, jsonrpclib
 
 
 @pytest.fixture

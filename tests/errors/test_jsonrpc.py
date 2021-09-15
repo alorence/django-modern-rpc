@@ -12,7 +12,6 @@ from modernrpc.exceptions import RPC_INVALID_REQUEST, RPC_METHOD_NOT_FOUND, RPC_
 
 
 def test_jsonrpc_call_unknown_method(jsonrpc_client):
-
     with pytest.raises(ReceivedErrorResponse) as excinfo:
         jsonrpc_client.non_existing_method()
 
@@ -21,7 +20,6 @@ def test_jsonrpc_call_unknown_method(jsonrpc_client):
 
 
 def test_jsonrpc_invalid_request_1(all_rpc_url):
-
     # Missing 'method' in payload
 
     headers = {'content-type': 'application/json'}
@@ -39,7 +37,6 @@ def test_jsonrpc_invalid_request_1(all_rpc_url):
 
 
 def test_jsonrpc_invalid_request_2(all_rpc_url):
-
     # Missing 'jsonrpc' in payload
 
     headers = {'content-type': 'application/json'}
@@ -57,7 +54,6 @@ def test_jsonrpc_invalid_request_2(all_rpc_url):
 
 
 def test_jsonrpc_invalid_request_3(all_rpc_url):
-
     # Bad value for payload member 'jsonrpc'
 
     headers = {'content-type': 'application/json'}
@@ -75,7 +71,6 @@ def test_jsonrpc_invalid_request_3(all_rpc_url):
 
 
 def test_jsonrpc_invalid_request_4(all_rpc_url):
-
     # Closing '}' is missing from this payload => invalid json data
 
     invalid_json_payload = '''
@@ -100,7 +95,6 @@ def test_jsonrpc_invalid_request_4(all_rpc_url):
 
 
 def test_jsonrpc_invalid_request_5(all_rpc_url):
-
     # Json payload is not a struct or a list
 
     headers = {'content-type': 'application/json'}
@@ -135,7 +129,6 @@ def test_jsonrpc_no_content_type(all_rpc_url):
 
 
 def test_jsonrpc_invalid_params(jsonrpc_client):
-
     with pytest.raises(ReceivedErrorResponse) as excinfo:
         jsonrpc_client.add(42)
 
@@ -147,7 +140,6 @@ def test_jsonrpc_invalid_params(jsonrpc_client):
 
 
 def test_jsonrpc_invalid_params2(jsonrpc_client):
-
     with pytest.raises(ReceivedErrorResponse) as excinfo:
         jsonrpc_client.add(42, -51, 98)
 
@@ -159,7 +151,6 @@ def test_jsonrpc_invalid_params2(jsonrpc_client):
 
 
 def test_jsonrpc_internal_error(jsonrpc_client):
-
     with pytest.raises(ReceivedErrorResponse) as excinfo:
         jsonrpc_client.raise_custom_exception()
 
@@ -168,7 +159,6 @@ def test_jsonrpc_internal_error(jsonrpc_client):
 
 
 def test_jsonrpc_exception_with_data(jsonrpc_client):
-
     with pytest.raises(ReceivedErrorResponse) as excinfo:
         jsonrpc_client.raise_custom_exception_with_data()
 
@@ -176,7 +166,6 @@ def test_jsonrpc_exception_with_data(jsonrpc_client):
 
 
 def test_jsonrpc_divide_by_zero(jsonrpc_client):
-
     with pytest.raises(ReceivedErrorResponse) as excinfo:
         jsonrpc_client.divide(42, 0)
 
@@ -188,7 +177,6 @@ def test_jsonrpc_divide_by_zero(jsonrpc_client):
 
 
 def test_jsonrpc_invalid_result(jsonrpc_client):
-
     with pytest.raises(ReceivedErrorResponse) as excinfo:
         jsonrpc_client.get_invalid_result()
 

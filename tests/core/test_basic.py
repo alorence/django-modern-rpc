@@ -17,17 +17,14 @@ except ImportError:
 
 
 def test_xmlrpc_basic_add(xmlrpc_client):
-
     assert xmlrpc_client.add(2, 3) == 5
 
 
 def test_jsonrpc_basic_add(jsonrpc_client):
-
     assert jsonrpc_client.add(2, 3) == 5
 
 
 def test_xmlrpc_list_methods(xmlrpc_client):
-
     result = xmlrpc_client.system.listMethods()
 
     assert type(result) == list
@@ -38,7 +35,6 @@ def test_xmlrpc_list_methods(xmlrpc_client):
 
 
 def test_jsonrpc_list_methods(jsonrpc_client):
-
     # Can't call jsonrpc_client.system.listMethods() directly. jsonrpcclient doesn't support
     # remote procedure with a dotted ('.') name
     result = jsonrpc_client.request('system.listMethods')
@@ -51,7 +47,6 @@ def test_jsonrpc_list_methods(jsonrpc_client):
 
 
 def test_xmlrpc_get_signature(xmlrpc_client):
-
     signature = xmlrpc_client.system.methodSignature('add')
     # This one does not have any docstring defined
     assert type(signature) == list
@@ -59,7 +54,6 @@ def test_xmlrpc_get_signature(xmlrpc_client):
 
 
 def test_xmlrpc_get_signature_2(xmlrpc_client):
-
     signature = xmlrpc_client.system.methodSignature('divide')
     # Return type + 2 parameters = 3 elements in the signature
     assert type(signature) == list
@@ -76,13 +70,11 @@ def test_xmlrpc_get_signature_2(xmlrpc_client):
 
 
 def test_xmlrpc_get_signature_invalid_method(xmlrpc_client):
-
     with pytest.raises(xmlrpclib.Fault):
         xmlrpc_client.system.methodSignature('inexistant_method')
 
 
 def test_jsonrpc_get_signature(jsonrpc_client):
-
     signature = jsonrpc_client.request('system.methodSignature', "add")
     # This one doesn not have any docstring defined
     assert type(signature) == list
@@ -90,7 +82,6 @@ def test_jsonrpc_get_signature(jsonrpc_client):
 
 
 def test_jsonrpc_get_signature_2(jsonrpc_client):
-
     signature = jsonrpc_client.request('system.methodSignature', "divide")
     # Return type + 2 parameters = 3 elements in the signature
     assert type(signature) == list
@@ -107,32 +98,27 @@ def test_jsonrpc_get_signature_2(jsonrpc_client):
 
 
 def test_jsonrpc_get_signature_invalid_method(jsonrpc_client):
-
     with pytest.raises(jsonrpcclient.exceptions.ReceivedErrorResponse):
         jsonrpc_client.request('system.methodSignature', 'inexistant_method')
 
 
 def test_xmlrpc_method_help(xmlrpc_client):
-
     help_msg = xmlrpc_client.system.methodHelp('add')
     assert type(help_msg) == str
     assert help_msg == ''
 
 
 def test_xmlrpc_method_help_2(xmlrpc_client):
-
     help_msg = xmlrpc_client.system.methodHelp('divide')
     assert 'Divide a numerator by a denominator' in help_msg
 
 
 def test_xmlrpc_method_help_invalid_method(xmlrpc_client):
-
     with pytest.raises(xmlrpclib.Fault):
         xmlrpc_client.system.methodHelp('inexistant_method')
 
 
 def test_jsonrpc_method_help(jsonrpc_client):
-
     help_text = jsonrpc_client.request('system.methodHelp', "add")
 
     # Type = unicode in Python 2, str in Python 3
@@ -141,32 +127,27 @@ def test_jsonrpc_method_help(jsonrpc_client):
 
 
 def test_jsonrpc_method_help_2(jsonrpc_client):
-
     help_text = jsonrpc_client.request('system.methodHelp', "divide")
     assert 'Divide a numerator by a denominator' in help_text
 
 
 def test_jsonrpc_method_help_invalid_method(jsonrpc_client):
-
     with pytest.raises(jsonrpcclient.exceptions.ReceivedErrorResponse):
         jsonrpc_client.request('system.methodSignature', 'inexistant_method')
 
 
 def test_xmlrpc_protocol_specific_methods(xmlrpc_client):
-
     methods_list = xmlrpc_client.system.listMethods()
     assert 'method_x' not in methods_list
     assert 'method_y' in methods_list
 
 
 def test_xmlrpc_protocol_specific_methods_2(xmlrpc_client):
-
     # method_y is available only via XML-RPC
     assert xmlrpc_client.method_y() == 'XML only'
 
 
 def test_xmlrpc_protocol_specific_methods_invalid_method(xmlrpc_client):
-
     with pytest.raises(xmlrpclib.Fault) as excinfo:
         # method_x is available only via JSON-RPC
         xmlrpc_client.method_x()
@@ -176,20 +157,17 @@ def test_xmlrpc_protocol_specific_methods_invalid_method(xmlrpc_client):
 
 
 def test_jsonrpc_protocol_specific_methods(jsonrpc_client):
-
     methods_list = jsonrpc_client.request('system.listMethods')
     assert 'method_x' in methods_list
     assert 'method_y' not in methods_list
 
 
 def test_jsonrpc_protocol_specific_methods_2(jsonrpc_client):
-
     # method_x is available only via JSON-RPC
     assert jsonrpc_client.method_x() == 'JSON only'
 
 
 def test_jsonrpc_protocol_specific_methods_invalid_method(jsonrpc_client):
-
     # method_y is available only via XML-RPC
     with pytest.raises(jsonrpcclient.exceptions.ReceivedErrorResponse) as excinfo:
         jsonrpc_client.method_y()
@@ -199,7 +177,6 @@ def test_jsonrpc_protocol_specific_methods_invalid_method(jsonrpc_client):
 
 
 def test_xmlrpc_protocol_specific_error(json_only_url):
-
     # Specific xmlrpc client communicating with json only endpoint
     xmlrpc_client = xmlrpclib.ServerProxy(json_only_url)
 
@@ -213,7 +190,6 @@ def test_xmlrpc_protocol_specific_error(json_only_url):
 
 
 def test_jsonrpc_protocol_specific_error(xml_only_url):
-
     # Specific jsonrpc client communicating with xml only endpoint
     jsonrpc_client = jsonrpclib.HTTPClient(xml_only_url)
 

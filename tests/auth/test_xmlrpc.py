@@ -6,7 +6,6 @@ from tests import xmlrpclib
 
 
 class XmlRpcBase:
-
     error_klass = xmlrpclib.ProtocolError
 
 
@@ -170,7 +169,6 @@ class TestAuthSuperuser(XmlRpcBase):
 
 
 def test_xmlrpc_user_permissions(xmlrpc_client_as_user, john_doe, delete_user_perm, add_user_perm, change_user_perm):
-
     john_doe.user_permissions.add(delete_user_perm)
 
     assert xmlrpc_client_as_user.delete_user_perm_required(5) == 5
@@ -186,7 +184,6 @@ def test_xmlrpc_user_permissions(xmlrpc_client_as_user, john_doe, delete_user_pe
 
 
 def test_xmlrpc_user_groups(xmlrpc_client_as_user, john_doe, group_A, group_B):
-
     john_doe.groups.add(group_A)
 
     assert xmlrpc_client_as_user.in_group_A_required(5) == 5
@@ -207,19 +204,16 @@ def test_xmlrpc_user_groups(xmlrpc_client_as_user, john_doe, group_A, group_B):
 
 
 def test_custom_predicate_allowed(xmlrpc_client):
-
     assert 'xmlrpc' in xmlrpc_client.get_user_agent()
 
 
 def test_custom_predicate_rejected(xmlrpc_client):
-
     with pytest.raises(xmlrpclib.ProtocolError) as excpinfo:
         xmlrpc_client.power_2(5)
     assert excpinfo.value.errcode == 403
 
 
 def test_xmlrpc_multicall_with_auth(xmlrpc_client):
-
     multicall = xmlrpclib.MultiCall(xmlrpc_client)
     multicall.add(7, 3)
     multicall.logged_superuser_required(5)
@@ -234,7 +228,6 @@ def test_xmlrpc_multicall_with_auth(xmlrpc_client):
 
 
 def test_xmlrpc_multicall_with_auth_2(xmlrpc_client_as_superuser):
-
     multicall = xmlrpclib.MultiCall(xmlrpc_client_as_superuser)
     multicall.add(7, 3)
     multicall.logged_superuser_required(5)

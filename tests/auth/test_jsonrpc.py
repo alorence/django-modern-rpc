@@ -17,7 +17,6 @@ REPEATED_CALL_SLEEP = 0.1
 
 
 class JsonRpcBase:
-
     error_klass = jsonrpcclient.exceptions.ReceivedErrorResponse
 
 
@@ -202,7 +201,6 @@ class TestAuthSuperuser(JsonRpcBase):
 
 
 def test_jsonrpc_user_permissions(jsonrpc_client_as_user, john_doe, delete_user_perm, add_user_perm, change_user_perm):
-
     john_doe.user_permissions.add(delete_user_perm)
 
     assert jsonrpc_client_as_user.delete_user_perm_required(5) == 5
@@ -225,7 +223,6 @@ def test_jsonrpc_user_permissions(jsonrpc_client_as_user, john_doe, delete_user_
 
 
 def test_jsonrpc_user_groups_1(jsonrpc_client_as_user, john_doe, group_A, group_B):
-
     john_doe.groups.add(group_A)
 
     assert jsonrpc_client_as_user.in_group_A_required(5) == 5
@@ -235,7 +232,6 @@ def test_jsonrpc_user_groups_1(jsonrpc_client_as_user, john_doe, group_A, group_
 
 
 def test_jsonrpc_user_groups_2(jsonrpc_client_as_user, john_doe, group_A, group_B):
-
     john_doe.groups.add(group_A)
 
     with pytest.raises(jsonrpcclient.exceptions.ReceivedErrorResponse) as excpinfo:
@@ -251,7 +247,6 @@ def test_jsonrpc_user_groups_2(jsonrpc_client_as_user, john_doe, group_A, group_
 
 
 def test_jsonrpc_user_groups_3(jsonrpc_client_as_user, john_doe, group_A, group_B):
-
     john_doe.groups.add(group_A, group_B)
 
     assert jsonrpc_client_as_user.in_groups_A_and_B_required(5) == 5
@@ -261,12 +256,10 @@ def test_jsonrpc_user_groups_3(jsonrpc_client_as_user, john_doe, group_A, group_
 
 
 def test_custom_predicate_allowed(jsonrpc_client):
-
     assert 'python-requests' in jsonrpc_client.get_user_agent()
 
 
 def test_custom_predicate_rejected(jsonrpc_client):
-
     with pytest.raises(jsonrpcclient.exceptions.ReceivedErrorResponse) as excpinfo:
         jsonrpc_client.power_2(5)
     assert excpinfo.value.code == RPC_INTERNAL_ERROR
@@ -274,7 +267,6 @@ def test_custom_predicate_rejected(jsonrpc_client):
 
 
 def test_jsonrpc_batch_with_auth(jsonrpc_client):
-
     batch_request = json.dumps([
         {'jsonrpc': '2.0', 'id': 1, 'method': 'add', 'params': {'a': 7, 'b': 3}},
         {'jsonrpc': '2.0', 'id': 2, 'method': 'logged_superuser_required', 'params': [5, ]}
@@ -291,7 +283,6 @@ def test_jsonrpc_batch_with_auth(jsonrpc_client):
 
 
 def test_jsonrpc_batch_with_auth_2(jsonrpc_client, superuser, common_pwd):
-
     jsonrpc_client.session.auth = (superuser.username, common_pwd)
 
     batch_request = json.dumps([

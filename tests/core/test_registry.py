@@ -5,9 +5,9 @@ from django.core.exceptions import ImproperlyConfigured
 
 import modernrpc
 from modernrpc.core import ALL
+from tests import xmlrpclib
 from tests.mocks import dummy_remote_procedure_1, dummy_remote_procedure_2, dummy_remote_procedure_3, \
     dummy_remote_procedure_4, not_decorated_procedure
-from tests import xmlrpclib
 
 
 def test_registry_empty_after_reset(rpc_registry):
@@ -32,7 +32,6 @@ def test_double_registration(rpc_registry):
 
 
 def test_manual_registration_with_different_name(rpc_registry):
-
     assert 'another_name' not in rpc_registry.get_all_method_names()
     rpc_registry.register_method(dummy_remote_procedure_2)
     assert 'another_name' in rpc_registry.get_all_method_names()
@@ -40,7 +39,6 @@ def test_manual_registration_with_different_name(rpc_registry):
 
 
 def test_invalid_custom_name(rpc_registry):
-
     with pytest.raises(ImproperlyConfigured) as exc_info:
         rpc_registry.register_method(dummy_remote_procedure_3)
 
@@ -50,7 +48,6 @@ def test_invalid_custom_name(rpc_registry):
 
 
 def test_duplicated_name(rpc_registry):
-
     with pytest.raises(ImproperlyConfigured) as exc_info:
         rpc_registry.register_method(dummy_remote_procedure_4)
 
@@ -58,14 +55,12 @@ def test_duplicated_name(rpc_registry):
 
 
 def test_wrong_manual_registration(rpc_registry):
-
     # Trying to register a not decorated method with the latest version raises an ImproperlyConfigured exception
     with pytest.raises(ImproperlyConfigured):
         rpc_registry.register_method(not_decorated_procedure)
 
 
 def test_method_names_list(rpc_registry):
-
     raw_list = rpc_registry.get_all_method_names()
     sorted_list = rpc_registry.get_all_method_names(sort_methods=True)
 
@@ -77,7 +72,6 @@ def test_method_names_list(rpc_registry):
 
 
 def test_methods_list(rpc_registry):
-
     raw_list = rpc_registry.get_all_methods()
     sorted_list = rpc_registry.get_all_methods(sort_methods=True)
 
@@ -93,14 +87,12 @@ def test_methods_list(rpc_registry):
 
 # Tests for backward compatiility
 def test_backward_compat_register_method(rpc_registry):
-
     assert 'dummy_remote_procedure_1' not in modernrpc.core.get_all_method_names()
     modernrpc.core.register_rpc_method(dummy_remote_procedure_1)
     assert 'dummy_remote_procedure_1' in modernrpc.core.get_all_method_names()
 
 
 def test_backward_compat_registry(rpc_registry):
-
     assert rpc_registry.get_method("divide", ALL, ALL) == modernrpc.core.get_method("divide", ALL, ALL)
     assert rpc_registry.get_all_method_names() == modernrpc.core.get_all_method_names()
 
@@ -121,26 +113,22 @@ def test_backward_compat_registry_reset(rpc_registry):
 # In testsite.rpc_methods_stub.generic, a function has not been decorated
 # Ensure it is not available in registry
 def test_xmlrpc_not_registered(xmlrpc_client):
-
     result = xmlrpc_client.system.listMethods()
     assert 'existing_but_not_decorated' not in result
 
 
 def test_xmlrpc_not_decorated(xmlrpc_client):
-
     with pytest.raises(xmlrpclib.Fault) as exc_info:
         xmlrpc_client.existing_but_not_decorated()
     assert 'Method not found: "existing_but_not_decorated"' in str(exc_info.value)
 
 
 def test_jsonrpc_not_registered(jsonrpc_client):
-
     result = jsonrpc_client.request('system.listMethods')
     assert 'existing_but_not_decorated' not in result
 
 
 def test_jsonrpc_not_decorated(jsonrpc_client):
-
     with pytest.raises(jsonrpcclient.exceptions.ReceivedErrorResponse) as exc_info:
         jsonrpc_client.existing_but_not_decorated()
     assert 'Method not found: "existing_but_not_decorated"' in str(exc_info.value)

@@ -7,7 +7,6 @@ from modernrpc.views import RPCEntryPoint
 
 
 def test_forbidden_get(all_rpc_url):
-
     r = requests.get(all_rpc_url)
     assert r.status_code == 405
 
@@ -16,7 +15,6 @@ def test_forbidden_get(all_rpc_url):
 
 
 def test_allowed_get(all_rpc_doc_url):
-
     r = requests.get(all_rpc_doc_url)
     assert r.status_code == 200
 

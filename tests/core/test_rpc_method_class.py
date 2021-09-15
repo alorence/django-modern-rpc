@@ -6,7 +6,6 @@ from tests.mocks import single_line_documented, multi_line_documented_1, multi_l
 
 
 def test_method_always_available(settings):
-
     rpc_method(dummy_function, 'dummy_name')
     m = RPCMethod(dummy_function)
 
@@ -18,7 +17,6 @@ def test_method_always_available(settings):
 
 
 def test_method_xmlrpc_only():
-
     rpc_method(dummy_function, 'dummy_name', protocol=XMLRPC_PROTOCOL)
     m = RPCMethod(dummy_function)
 
@@ -27,7 +25,6 @@ def test_method_xmlrpc_only():
 
 
 def test_method_jsonrpc_only():
-
     rpc_method(dummy_function, 'dummy_name', protocol=JSONRPC_PROTOCOL)
     m = RPCMethod(dummy_function)
 
@@ -36,14 +33,12 @@ def test_method_jsonrpc_only():
 
 
 def test_method_repr():
-
     rpc_method(dummy_function, 'dummy_name', protocol=JSONRPC_PROTOCOL)
     m = RPCMethod(dummy_function)
     assert 'dummy_name' in repr(m)
 
 
 def test_method_available_for_entry_point(settings):
-
     rpc_method(dummy_function, 'dummy_name', entry_point='my_entry_point')
     m = RPCMethod(dummy_function)
 
@@ -52,7 +47,6 @@ def test_method_available_for_entry_point(settings):
 
 
 def test_docs_helpers():
-
     rpc_method(dummy_function, 'dummy_name')
     m = RPCMethod(dummy_function)
 
@@ -64,7 +58,6 @@ def test_docs_helpers():
 
 
 def test_docs_helpers_2():
-
     rpc_method(dummy_function_with_doc, 'dummy_name')
     m = RPCMethod(dummy_function_with_doc)
 
@@ -76,7 +69,6 @@ def test_docs_helpers_2():
 
 
 def test_get_methods(rpc_registry):
-
     methods = rpc_registry.get_all_methods(sort_methods=False)
     sorted_methods = rpc_registry.get_all_methods(sort_methods=True)
 
@@ -88,7 +80,6 @@ def test_get_methods(rpc_registry):
 
 
 def test_arguments_order(rpc_registry):
-
     method = rpc_registry.get_method("divide", ALL, ALL)
 
     args_names = list(method.args_doc.keys())
@@ -114,7 +105,6 @@ def test_arguments_order(rpc_registry):
 
 
 def test_raw_documentation(settings):
-
     settings.MODERNRPC_DOC_FORMAT = ''
 
     rpc_method(single_line_documented, 'dummy_name')
@@ -134,7 +124,6 @@ def test_raw_documentation(settings):
 
 
 def test_html_documentation_simple(settings):
-
     settings.MODERNRPC_DOC_FORMAT = ''
 
     rpc_method(single_line_documented, 'dummy_name')
@@ -148,7 +137,6 @@ def test_html_documentation_simple(settings):
 
 
 def test_html_documentation_markdown(settings):
-
     settings.MODERNRPC_DOC_FORMAT = 'md'
 
     rpc_method(single_line_documented, 'dummy_name')
@@ -167,7 +155,6 @@ def test_html_documentation_markdown(settings):
 
 
 def test_html_documentation_reST(settings):
-
     settings.MODERNRPC_DOC_FORMAT = 'rst'
 
     rpc_method(single_line_documented, 'dummy_name')
