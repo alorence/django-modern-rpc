@@ -4,6 +4,7 @@ import logging
 from django.core.exceptions import ImproperlyConfigured
 from django.http.response import HttpResponse, HttpResponseForbidden
 from django.utils.decorators import method_decorator
+from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import TemplateView, View
@@ -32,7 +33,7 @@ class RPCEntryPoint(TemplateView):
     def __init__(self, **kwargs):
         super(RPCEntryPoint, self).__init__(**kwargs)
 
-        if not self.get_handler_classes():
+        if not self.handler_classes:
             raise ImproperlyConfigured("At least 1 handler must be instantiated.")
 
         # Copy static list http_method_names locally (in instance), so we can dynamically customize it
@@ -56,9 +57,9 @@ class RPCEntryPoint(TemplateView):
         is mandatory to ensure RPC calls wil be correctly handled"""
         return super(RPCEntryPoint, self).dispatch(request, *args, **kwargs)
 
-    def get_handler_classes(self):
+    @cached_property
+    def handler_classes(self):
         """Return the list of handlers to use when receiving RPC requests."""
-
         handler_classes = [import_string(handler_cls) for handler_cls in settings.MODERNRPC_HANDLERS]
 
         if self.protocol == ALL:
@@ -78,7 +79,7 @@ class RPCEntryPoint(TemplateView):
 
         logger.debug('RPC request received...')
 
-        for handler_cls in self.get_handler_classes():
+        for handler_cls in self.handler_classes:
 
             handler = handler_cls(request, self.entry_point)
 
