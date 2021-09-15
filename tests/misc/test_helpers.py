@@ -4,7 +4,7 @@ import datetime
 import pytest
 
 from modernrpc.helpers import get_builtin_date
-from . import xmlrpclib
+from tests import xmlrpclib
 
 
 @pytest.mark.parametrize("date", [

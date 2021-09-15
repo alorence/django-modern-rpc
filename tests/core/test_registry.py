@@ -7,7 +7,7 @@ import modernrpc
 from modernrpc.core import ALL
 from tests.mocks import dummy_remote_procedure_1, dummy_remote_procedure_2, dummy_remote_procedure_3, \
     dummy_remote_procedure_4, not_decorated_procedure
-from . import xmlrpclib
+from tests import xmlrpclib
 
 
 def test_registry_empty_after_reset(rpc_registry):

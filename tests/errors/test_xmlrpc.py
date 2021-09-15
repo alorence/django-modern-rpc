@@ -7,7 +7,7 @@ import requests
 
 from modernrpc.exceptions import RPC_INVALID_REQUEST, RPC_METHOD_NOT_FOUND, RPC_INVALID_PARAMS, \
     RPC_CUSTOM_ERROR_BASE, RPC_CUSTOM_ERROR_MAX, RPC_INTERNAL_ERROR, RPC_PARSE_ERROR
-from . import xmlrpclib
+from tests import xmlrpclib
 
 
 def test_xmlrpc_call_unknown_method(xmlrpc_client):

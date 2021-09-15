@@ -6,7 +6,7 @@ import pytest
 import six
 
 from modernrpc.exceptions import RPC_METHOD_NOT_FOUND
-from . import xmlrpclib, jsonrpclib
+from tests import xmlrpclib, jsonrpclib
 
 try:
     # Python 3

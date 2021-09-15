@@ -1,7 +1,7 @@
 # coding: utf-8
 import pytest
 
-from . import xmlrpclib
+from tests import xmlrpclib
 
 
 class XmlRpcBase:

@@ -7,7 +7,7 @@ import six
 from jsonrpcclient.exceptions import ReceivedErrorResponse
 
 from modernrpc.exceptions import RPC_INTERNAL_ERROR
-from . import xmlrpclib
+from tests import xmlrpclib
 
 
 def test_xmlrpc_bool(xmlrpc_client):

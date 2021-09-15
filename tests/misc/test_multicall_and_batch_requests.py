@@ -6,7 +6,7 @@ import requests
 from jsonrpcclient.exceptions import ReceivedErrorResponse
 
 from modernrpc.exceptions import RPC_METHOD_NOT_FOUND, RPC_INTERNAL_ERROR, RPC_INVALID_REQUEST
-from . import xmlrpclib
+from tests import xmlrpclib
 
 
 def test_xmlrpc_multicall_standard(xmlrpc_client):
