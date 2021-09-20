@@ -15,9 +15,29 @@ logger = logging.getLogger(__name__)
 class RPCHandler(object):
     protocol = None
 
-    def __init__(self, request, entry_point):
-        self.request = request
+    def __init__(self, entry_point):
         self.entry_point = entry_point
+
+    def parse_request(self, data):
+        """Parse given request data and build a RPC payload"""
+        raise NotImplementedError()
+
+    def build_result_success(self, data, **kwargs):
+        raise NotImplementedError()
+
+    def build_result_error(self, code, message, **kwargs):
+        raise NotImplementedError()
+
+    @staticmethod
+    def valid_content_types():
+        raise NotImplementedError("You must override valid_content_types()")
+
+    def can_handle(self, request):
+        if not request.content_type:
+            # We don't accept a request with missing Content-Type request
+            raise RPCInvalidRequest('Missing header: Content-Type')
+
+        return request.content_type.lower() in self.valid_content_types()
 
     def loads(self, str_data):
         """Convert serialized string data to valid Python data, depending on current handler protocol"""
@@ -26,19 +46,6 @@ class RPCHandler(object):
     def dumps(self, obj):
         """Convert Python data to serialized form, according to current handler protocol."""
         raise NotImplementedError("You must override dumps()")
-
-    @staticmethod
-    def valid_content_types():
-        raise NotImplementedError("You must override valid_content_types()")
-
-    def can_handle(self):
-        # Get the content-type header from incoming request. Method differs depending on current Django version
-        content_type = self.request.content_type
-        if not content_type:
-            # We don't accept a request with missing Content-Type request
-            raise RPCInvalidRequest('Missing header: Content-Type')
-
-        return content_type.lower() in self.valid_content_types()
 
     def process_request(self):
         """

@@ -65,11 +65,12 @@ def __system_multiCall(calls, **kwargs):
     if not isinstance(calls, list):
         raise RPCInvalidParams('system.multicall first argument should be a list, {} given.'.format(type(calls)))
 
-    handler = kwargs.get(HANDLER_KEY)
-
     results = []
 
     for call in calls:
+
+
+
         try:
             result = handler.execute_procedure(call['methodName'], args=call.get('params'))
 

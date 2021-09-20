@@ -6,7 +6,7 @@ from django.http.response import HttpResponse
 from django.utils.module_loading import import_string
 
 from modernrpc.conf import settings
-from modernrpc.core import JSONRPC_PROTOCOL
+from modernrpc.core import JSONRPC_PROTOCOL, RPCRequest
 from modernrpc.exceptions import (RPCException, RPCInternalError,
                                   RPCInvalidRequest, RPCParseError)
 from modernrpc.handlers.base import RPCHandler
@@ -29,9 +29,11 @@ class JSONRPCBatchResult(object):
 class JSONRPCHandler(RPCHandler):
     protocol = JSONRPC_PROTOCOL
 
-    def __init__(self, request, entry_point):
-        super(JSONRPCHandler, self).__init__(request, entry_point)
-        self.request_id = None
+    def __init__(self, entry_point):
+        super(JSONRPCHandler, self).__init__(entry_point)
+
+        self.decoder = import_string(settings.MODERNRPC_JSON_DECODER)
+        self.encoder = import_string(settings.MODERNRPC_JSON_ENCODER)
 
     @staticmethod
     def valid_content_types():
@@ -40,6 +42,37 @@ class JSONRPCHandler(RPCHandler):
             'application/json-rpc',
             'application/jsonrequest',
         ]
+
+    def parse_request(self, data):
+
+        try:
+            payload = json.loads(data, cls=self.decoder)
+        except JSONDecodeError as err:
+            raise RPCParseError(str(err))
+
+        return RPCRequest(payload["method"], payload["params"])
+
+    def build_result_success(self, data, **kwargs):
+
+        result_payload = {
+            'id': kwargs.get("request_id"),
+            'jsonrpc': '2.0',
+            'result': data,
+        }
+        return json.dumps(result_payload, cls=self.encoder)
+
+    def build_result_error(self, code, message, **kwargs):
+        result = {
+            'id': kwargs.get("request_id"),
+            'jsonrpc': '2.0',
+            'error': {
+                'code': code,
+                'message': message,
+            }
+        }
+        if "error_data" in kwargs:
+            result["error"]["data"] = kwargs["error_data"]
+        return json.dumps(result, cls=self.encoder)
 
     def loads(self, str_data):
         try:
@@ -143,8 +176,7 @@ class JSONRPCHandler(RPCHandler):
 
         if isinstance(data, JSONRPCBatchResult):
 
-            # Result data for Batch requests is ready to dump, no need to insert it in a
-            # response payload
+            # Result data for Batch requests is ready to dump, no need to insert it in a response payload
             # As stated in standard:
             # "If there are no Response objects contained within the Response array as it is to be sent to the client,
             # the server MUST NOT return an empty Array and should return nothing at all."
