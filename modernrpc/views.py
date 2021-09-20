@@ -110,16 +110,24 @@ class RPCEntryPoint(TemplateView):
         try:
             result_data = rpc_request.call(request, handler, self.entry_point, self.protocol)
 
-        except RPCException as exc:
+        except AuthenticationFailed as exc:
             result_error = handler.build_result_error(exc.code, exc.message)
-            return HttpResponse(result_error)
+            result_content = handler.build_full_result(result_error)
+            return HttpResponseForbidden(result_content)
+
+        except RPCException as exc:
+            result_error = handler.build_result_error(exc.code, exc.message, data=exc.data)
+            result_content = handler.build_full_result(result_error)
+            return HttpResponse(result_content)
 
         except Exception as exc:
             result_error = handler.build_result_error(RPC_INTERNAL_ERROR, "Unknown error when executing rpc method...")
-            return HttpResponse(result_error)
+            result_content = handler.build_full_result(result_error)
+            return HttpResponse(result_content)
 
         response_data = handler.build_result_success(result_data, **{"id": rpc_request.request_id})
-        return HttpResponse(response_data)
+        result_content = handler.build_full_result(response_data)
+        return HttpResponse(result_content)
 
     def get_context_data(self, **kwargs):
         """Update context data with list of RPC methods of the current entry point.

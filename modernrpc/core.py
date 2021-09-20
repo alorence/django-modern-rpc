@@ -9,11 +9,11 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import cached_property
 from django.utils.inspect import func_accepts_kwargs, get_func_args
 
-from modernrpc.conf import settings
-from modernrpc.exceptions import RPCInvalidParams, RPCInternalError, RPCUnknownMethod, AuthenticationFailed
-from modernrpc.helpers import ensure_sequence
 import modernrpc.compat
-
+from modernrpc.conf import settings
+from modernrpc.exceptions import RPCInvalidParams, RPCInternalError, RPCUnknownMethod, AuthenticationFailed, \
+    RPCException
+from modernrpc.helpers import ensure_sequence
 
 # Special constant meaning "all protocols" or "all entry points"
 ALL = "__all__"
@@ -194,7 +194,6 @@ class RPCMethod(object):
             for i, predicate in enumerate(self.predicates)
         )
 
-
     def available_for_protocol(self, protocol):
         """Check if the current function can be executed from a request defining the given protocol"""
         if self.protocol == ALL or protocol == ALL:
@@ -334,6 +333,7 @@ registry = _RPCRegistry()
 
 class RPCRequest(object):
     """Wrapper for JSON-RPC or XML-RPC request data."""
+
     def __init__(self, method_name, params=None, request_id=None):
         self.method_name = method_name
         self.request_id = request_id
@@ -352,7 +352,7 @@ class RPCRequest(object):
 
         _method = registry.get_method(self.method_name, entry_point, protocol)
         if not _method:
-            raise RPCUnknownMethod("Method not found: {}".format(self.method_name))
+            raise RPCUnknownMethod(self.method_name)
 
         if not _method.check_permissions(request):
             raise AuthenticationFailed(self.method_name)
@@ -382,11 +382,14 @@ class RPCRequest(object):
             # If given arguments cannot be transmitted properly to python function,
             # raise an Invalid Params exceptions
             raise RPCInvalidParams(str(te))
+
+        except RPCException:
+            raise
+
         except Exception as exc:
             # If given arguments cannot be transmitted properly to python function,
             # raise an Invalid Params exceptions
             raise RPCInternalError(str(exc))
-
 
 
 def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL,

@@ -1,14 +1,11 @@
 # coding: utf-8
-import xml
 from textwrap import dedent
 
 import six
-from django.http.response import HttpResponse
 from six.moves import xmlrpc_client
 
 from modernrpc.conf import settings
 from modernrpc.core import XMLRPC_PROTOCOL, RPCRequest
-from modernrpc.exceptions import RPCParseError, RPCInvalidRequest, RPCInternalError
 from modernrpc.handlers.base import RPCHandler
 
 
@@ -44,6 +41,14 @@ class XMLRPCHandler(RPCHandler):
         # Build an RPCRequest instance with parsed request data
         return RPCRequest(method_name, params)
 
+    def build_full_result(self, response_content, **kwargs):
+        return dedent("""
+            <?xml version="1.0"?>
+            <methodResponse>
+                %s
+            </methodResponse>
+        """ % response_content).strip()
+
     def build_result_success(self, data, **kwargs):
         # xmlrpc_client.Marshaller expects a list of objects to dumps.
         # It will output a '<params></params>' block and loops onto given objects to inject, for each one,
@@ -54,20 +59,7 @@ class XMLRPCHandler(RPCHandler):
         #
         # So, to make sure the return value always contain a single '<param><value><type>X</type></value></param>',
         # we dumps it as an array of a single value.
-        result = """
-            <?xml version="1.0"?>
-            <methodResponse>
-                %s
-            </methodResponse>
-        """ % self.marshaller.dumps([data])
-
-        return dedent(result.strip())
+        return self.marshaller.dumps([data])
 
     def build_result_error(self, code, message, **kwargs):
-        result = """
-            <?xml version="1.0"?>
-            <methodResponse>
-                %s
-            </methodResponse>
-        """ % self.marshaller.dumps(xmlrpc_client.Fault(code, message))
-        return dedent(result.strip())
+        return self.marshaller.dumps(xmlrpc_client.Fault(code, message))
