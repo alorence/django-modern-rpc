@@ -104,7 +104,7 @@ class RPCEntryPoint(TemplateView):
 
         try:
             rpc_request = handler.parse_request(request_body)
-        except Exception:
+        except Exception as exc:
             return HttpResponse(handler.build_result_error(RPC_INVALID_REQUEST, "The request cannot be parsed"))
 
         try:

@@ -44,13 +44,12 @@ class JSONRPCHandler(RPCHandler):
         ]
 
     def parse_request(self, data):
-
         try:
             payload = json.loads(data, cls=self.decoder)
         except JSONDecodeError as err:
             raise RPCParseError(str(err))
 
-        return RPCRequest(payload["method"], payload["params"])
+        return RPCRequest(payload["method"], payload.get("params"))
 
     def build_result_success(self, data, **kwargs):
 

@@ -334,34 +334,19 @@ registry = _RPCRegistry()
 
 class RPCRequest(object):
     """Wrapper for JSON-RPC or XML-RPC request data."""
-    def __init__(self, method_name, params, request_id=None):
-        self._method_name = method_name
-        self._request_id = request_id
+    def __init__(self, method_name, params=None, request_id=None):
+        self.method_name = method_name
+        self.request_id = request_id
 
-        if isinstance(params, dict):
-            self._kwargs = params
-            self._args = []
-        elif isinstance(params, (list, set, tuple)):
-            self._args = params
-            self._kwargs = {}
-        else:
-            raise ValueError("RPCRequest initial params has an unsupported type: {}".format(type(params)))
-
-    @property
-    def method_name(self):
-        return self._method_name
-
-    @property
-    def args(self):
-        return self._args
-
-    @property
-    def kwargs(self):
-        return self._kwargs
-
-    @property
-    def request_id(self):
-        return self._request_id
+        self.args = []
+        self.kwargs = {}
+        if params is not None:
+            if isinstance(params, dict):
+                self.kwargs = params
+            elif isinstance(params, (list, set, tuple)):
+                self.args = params
+            else:
+                raise ValueError("RPCRequest initial params has an unsupported type: {}".format(type(params)))
 
     def call(self, request, handler, entry_point, protocol):
 
