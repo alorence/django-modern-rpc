@@ -41,29 +41,31 @@ class JSONRPCHandler(RPCHandler):
             'application/jsonrequest',
         ]
 
-    def parse_request(self, data):
+    def parse_request(self, request_body):
         try:
-            payload = json.loads(data, cls=self.decoder)
+            payload = json.loads(request_body, cls=self.decoder)
         except JSONDecodeError as err:
             raise RPCParseError(str(err))
 
-        if "method" not in payload:
+        return RPCRequest(
+            payload.get("method"),
+            payload.get("params"),
+            jsonrpc=payload.get("jsonrpc"),
+            request_id=payload.get("id")
+        )
+
+    def validate_request(self, rpc_request):
+        if not rpc_request.method_name:
             raise RPCInvalidRequest('Missing parameter "method"')
+        elif not rpc_request.jsonrpc:
+            raise RPCInvalidRequest('Missing parameter "jsonrpc"')
+        elif rpc_request.jsonrpc != "2.0":
+            raise RPCInvalidRequest('jsonrpc version must be set to 2.0')
 
-        return RPCRequest(payload["method"], payload.get("params"))
-
-    def build_full_result(self, response_content, **kwargs):
-        result_payload = {
-            'id': kwargs.get("request_id"),
-            'jsonrpc': '2.0',
-        }
-        result_payload.update(response_content)
-        return json.dumps(result_payload, cls=self.encoder)
-
-    def build_result_success(self, data, **kwargs):
+    def format_success_data(self, data, **kwargs):
         return {'result': data}
 
-    def build_result_error(self, code, message, **kwargs):
+    def format_error_data(self, code, message, **kwargs):
         result = {
             'error': {
                 'code': code,
@@ -73,3 +75,11 @@ class JSONRPCHandler(RPCHandler):
         if "error_data" in kwargs:
             result["error"]["data"] = kwargs["error_data"]
         return result
+
+    def build_full_result(self, response_content, **kwargs):
+        result_payload = {
+            'id': kwargs.get("request_id"),
+            'jsonrpc': '2.0',
+        }
+        result_payload.update(response_content)
+        return json.dumps(result_payload, cls=self.encoder)

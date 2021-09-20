@@ -23,15 +23,25 @@ class RPCHandler(object):
 
         return request.content_type.lower() in self.valid_content_types()
 
-    def parse_request(self, data):
-        """Parse given request data and build a RPC payload"""
+    def parse_request(self, request_body):
+        """Parse given request body and build a RPC request wrapper"""
+        raise NotImplementedError()
+
+    def validate_request(self, rpc_request):
+        """Check current request to ensure it is valid regarding protocol specifications
+
+        Default implementation does nothing
+        :rpc_request: The request to validate
+        :type rpc_request: RPCRequest
+        """
+        pass
+
+    def format_success_data(self, data, **kwargs):
+        raise NotImplementedError()
+
+    def format_error_data(self, code, message, **kwargs):
         raise NotImplementedError()
 
     def build_full_result(self, response_content, **kwargs):
         raise NotImplementedError()
 
-    def build_result_success(self, data, **kwargs):
-        raise NotImplementedError()
-
-    def build_result_error(self, code, message, **kwargs):
-        raise NotImplementedError()

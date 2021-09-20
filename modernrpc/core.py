@@ -334,9 +334,11 @@ registry = _RPCRegistry()
 class RPCRequest(object):
     """Wrapper for JSON-RPC or XML-RPC request data."""
 
-    def __init__(self, method_name, params=None, request_id=None):
+    def __init__(self, method_name, params=None, **kwargs):
         self.method_name = method_name
-        self.request_id = request_id
+
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
         self.args = []
         self.kwargs = {}

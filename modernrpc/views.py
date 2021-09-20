@@ -97,35 +97,41 @@ class RPCEntryPoint(TemplateView):
         handler: RPCHandler = first_true(self.handlers, pred=lambda candidate: candidate.can_handle(request))
 
         if not handler:
-            # TODO: better message here
-            return HttpResponseBadRequest("Unable to handle the request")
+            return HttpResponse(
+                'Unable to handle your request. Please ensure you called '
+                'the right entry point. If not, this could be a server error.'
+            )
 
         request_body = request.body.decode(request.encoding or self.default_encoding)
 
         try:
             rpc_request = handler.parse_request(request_body)
-            result_data = rpc_request.call(request, handler, self.entry_point, self.protocol)
+            handler.validate_request(rpc_request)
+            result_data = rpc_request.call(request, handler, self.entry_point, handler.protocol)
 
         except AuthenticationFailed as exc:
-            result_error = handler.build_result_error(exc.code, exc.message)
+            result_error = handler.format_error_data(exc.code, exc.message)
             result_content = handler.build_full_result(result_error)
             return HttpResponseForbidden(result_content)
 
         except RPCException as exc:
-            result_error = handler.build_result_error(exc.code, exc.message, error_data=exc.data)
+            result_error = handler.format_error_data(exc.code, exc.message, error_data=exc.data)
             result_content = handler.build_full_result(result_error)
             return HttpResponse(result_content)
 
         except Exception as exc:
-            result_error = handler.build_result_error(RPC_INTERNAL_ERROR, "Unknown error when executing rpc method...")
+            result_error = handler.format_error_data(
+                RPC_INTERNAL_ERROR,
+                "Unknown error when executing rpc method: {}".format(str(exc))
+            )
             result_content = handler.build_full_result(result_error)
             return HttpResponse(result_content)
 
         try:
-            response_data = handler.build_result_success(result_data, **{"id": rpc_request.request_id})
+            response_data = handler.format_success_data(result_data)
             return HttpResponse(handler.build_full_result(response_data))
         except Exception as exc:
-            result_error = handler.build_result_error(RPC_INTERNAL_ERROR, "Unable to serialize result: {}".format(str(exc)))
+            result_error = handler.format_error_data(RPC_INTERNAL_ERROR, "Unable to serialize result: {}".format(str(exc)))
             return HttpResponse(handler.build_full_result(result_error))
 
     def get_context_data(self, **kwargs):

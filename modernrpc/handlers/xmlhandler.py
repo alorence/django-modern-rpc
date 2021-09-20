@@ -26,14 +26,14 @@ class XMLRPCHandler(RPCHandler):
             'text/xml',
         ]
 
-    def parse_request(self, data):
+    def parse_request(self, request_body):
         if six.PY3:
             kwargs = {"use_builtin_types": self.use_builtin_types}
         else:
             kwargs = {"use_datetime": self.use_builtin_types}
 
         try:
-            params, method_name = xmlrpc_client.loads(data, **kwargs)
+            params, method_name = xmlrpc_client.loads(request_body, **kwargs)
         except:
             # TODO: handle parse errors
             raise
@@ -41,15 +41,7 @@ class XMLRPCHandler(RPCHandler):
         # Build an RPCRequest instance with parsed request data
         return RPCRequest(method_name, params)
 
-    def build_full_result(self, response_content, **kwargs):
-        return dedent("""
-            <?xml version="1.0"?>
-            <methodResponse>
-                %s
-            </methodResponse>
-        """ % response_content).strip()
-
-    def build_result_success(self, data, **kwargs):
+    def format_success_data(self, data, **kwargs):
         # xmlrpc_client.Marshaller expects a list of objects to dumps.
         # It will output a '<params></params>' block and loops onto given objects to inject, for each one,
         # a '<param><value><type>X</type></value></param>' block.
@@ -61,5 +53,13 @@ class XMLRPCHandler(RPCHandler):
         # we dumps it as an array of a single value.
         return self.marshaller.dumps([data])
 
-    def build_result_error(self, code, message, **kwargs):
+    def format_error_data(self, code, message, **kwargs):
         return self.marshaller.dumps(xmlrpc_client.Fault(code, message))
+
+    def build_full_result(self, response_content, **kwargs):
+        return dedent("""
+            <?xml version="1.0"?>
+            <methodResponse>
+                %s
+            </methodResponse>
+        """ % response_content).strip()
