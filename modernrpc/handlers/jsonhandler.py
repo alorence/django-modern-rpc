@@ -6,7 +6,7 @@ from django.utils.module_loading import import_string
 
 from modernrpc.conf import settings
 from modernrpc.core import JSONRPC_PROTOCOL, RPCRequest
-from modernrpc.exceptions import (RPCParseError)
+from modernrpc.exceptions import (RPCParseError, RPCInvalidRequest)
 from modernrpc.handlers.base import RPCHandler
 
 try:
@@ -46,6 +46,9 @@ class JSONRPCHandler(RPCHandler):
             payload = json.loads(data, cls=self.decoder)
         except JSONDecodeError as err:
             raise RPCParseError(str(err))
+
+        if "method" not in payload:
+            raise RPCInvalidRequest('Missing parameter "method"')
 
         return RPCRequest(payload["method"], payload.get("params"))
 
