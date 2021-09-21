@@ -42,6 +42,6 @@ class RPCHandler(object):
     def format_error_data(self, code, message, **kwargs):
         raise NotImplementedError()
 
-    def build_full_result(self, response_content, **kwargs):
+    def build_full_result(self, rpc_request, response_content, **kwargs):
         raise NotImplementedError()
 

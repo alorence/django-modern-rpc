@@ -6,6 +6,7 @@ from six.moves import xmlrpc_client
 
 from modernrpc.conf import settings
 from modernrpc.core import XMLRPC_PROTOCOL, RPCRequest
+from modernrpc.exceptions import RPCInvalidRequest
 from modernrpc.handlers.base import RPCHandler
 
 
@@ -34,9 +35,8 @@ class XMLRPCHandler(RPCHandler):
 
         try:
             params, method_name = xmlrpc_client.loads(request_body, **kwargs)
-        except:
-            # TODO: handle parse errors
-            raise
+        except Exception as exc:
+            raise RPCInvalidRequest("Error while parsing XML-RPC request: {}".format(str(exc)))
 
         # Build an RPCRequest instance with parsed request data
         return RPCRequest(method_name, params)
@@ -56,10 +56,10 @@ class XMLRPCHandler(RPCHandler):
     def format_error_data(self, code, message, **kwargs):
         return self.marshaller.dumps(xmlrpc_client.Fault(code, message))
 
-    def build_full_result(self, response_content, **kwargs):
-        return dedent("""
+    def build_full_result(self, rpc_request, response_content, **kwargs):
+        return dedent(("""
             <?xml version="1.0"?>
             <methodResponse>
                 %s
             </methodResponse>
-        """ % response_content).strip()
+        """ % response_content).strip())

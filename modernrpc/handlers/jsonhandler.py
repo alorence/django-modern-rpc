@@ -47,6 +47,9 @@ class JSONRPCHandler(RPCHandler):
         except JSONDecodeError as err:
             raise RPCParseError(str(err))
 
+        if not isinstance(payload, dict):
+            raise RPCInvalidRequest("Bad JSON-RPC payload")
+
         return RPCRequest(
             payload.get("method"),
             payload.get("params"),
@@ -76,10 +79,15 @@ class JSONRPCHandler(RPCHandler):
             result["error"]["data"] = kwargs["error_data"]
         return result
 
-    def build_full_result(self, response_content, **kwargs):
+    def build_full_result(self, rpc_request, response_content, **kwargs):
+        if rpc_request is None:
+            rpc_request = RPCRequest(None, None, request_id=None, jsonrpc="2.0")
+        elif not getattr(rpc_request, "request_id"):
+            return ""
+
         result_payload = {
-            'id': kwargs.get("request_id"),
-            'jsonrpc': '2.0',
+            'id': rpc_request.request_id,
+            'jsonrpc': rpc_request.jsonrpc,
         }
         result_payload.update(response_content)
         return json.dumps(result_payload, cls=self.encoder)
