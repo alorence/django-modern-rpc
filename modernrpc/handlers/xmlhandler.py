@@ -5,8 +5,8 @@ import six
 from six.moves import xmlrpc_client
 
 from modernrpc.conf import settings
-from modernrpc.core import XMLRPC_PROTOCOL, RPCRequest
-from modernrpc.exceptions import RPCInvalidRequest
+from modernrpc.core import XMLRPC_PROTOCOL, SingleRPCRequest
+from modernrpc.exceptions import RPCInvalidRequest, RPCException
 from modernrpc.handlers.base import RPCHandler
 
 
@@ -39,24 +39,37 @@ class XMLRPCHandler(RPCHandler):
             raise RPCInvalidRequest("Error while parsing XML-RPC request: {}".format(str(exc)))
 
         # Build an RPCRequest instance with parsed request data
-        return RPCRequest(method_name, params)
+        return SingleRPCRequest(method_name, params)
 
-    def format_success_data(self, data, **kwargs):
-        # xmlrpc_client.Marshaller expects a list of objects to dumps.
-        # It will output a '<params></params>' block and loops onto given objects to inject, for each one,
-        # a '<param><value><type>X</type></value></param>' block.
-        # This is not the return defined in XML-RPC standard, see http://xmlrpc.scripting.com/spec.html:
-        # "The body of the response is a single XML structure, a <methodResponse>, which can contain
-        # a single <params> which contains a single <param> which contains a single <value>."
-        #
-        # So, to make sure the return value always contain a single '<param><value><type>X</type></value></param>',
-        # we dumps it as an array of a single value.
-        return self.marshaller.dumps([data])
+    # def format_success_data(self, data, **kwargs):
+    #     # xmlrpc_client.Marshaller expects a list of objects to dumps.
+    #     # It will output a '<params></params>' block and loops onto given objects to inject, for each one,
+    #     # a '<param><value><type>X</type></value></param>' block.
+    #     # This is not the return defined in XML-RPC standard, see http://xmlrpc.scripting.com/spec.html:
+    #     # "The body of the response is a single XML structure, a <methodResponse>, which can contain
+    #     # a single <params> which contains a single <param> which contains a single <value>."
+    #     #
+    #     # So, to make sure the return value always contain a single '<param><value><type>X</type></value></param>',
+    #     # we dumps it as an array of a single value.
+    #     return self.marshaller.dumps([data])
+    #
+    # def format_error_data(self, code, message, **kwargs):
+    #     return self.marshaller.dumps(xmlrpc_client.Fault(code, message))
+    #
+    # def build_full_result(self, rpc_request, response_content, **kwargs):
+    #     return dedent(("""
+    #         <?xml version="1.0"?>
+    #         <methodResponse>
+    #             %s
+    #         </methodResponse>
+    #     """ % response_content).strip())
 
-    def format_error_data(self, code, message, **kwargs):
-        return self.marshaller.dumps(xmlrpc_client.Fault(code, message))
+    def build_response_data(self, res, rpc_request):
+        if isinstance(res, RPCException):
+            response_content = self.marshaller.dumps(xmlrpc_client.Fault(res.code, res.message))
+        else:
+            response_content = self.marshaller.dumps([res])
 
-    def build_full_result(self, rpc_request, response_content, **kwargs):
         return dedent(("""
             <?xml version="1.0"?>
             <methodResponse>

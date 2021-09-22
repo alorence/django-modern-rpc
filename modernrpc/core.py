@@ -332,13 +332,16 @@ registry = _RPCRegistry()
 
 
 class RPCRequest(object):
+
+    def call(self, request, handler, entry_point, protocol):
+        raise NotImplemented()
+
+
+class SingleRPCRequest(RPCRequest):
     """Wrapper for JSON-RPC or XML-RPC request data."""
 
     def __init__(self, method_name, params=None, **kwargs):
         self.method_name = method_name
-
-        for key, value in kwargs.items():
-            setattr(self, key, value)
 
         self.args = []
         self.kwargs = {}
@@ -349,6 +352,11 @@ class RPCRequest(object):
                 self.args = params
             else:
                 raise ValueError("RPCRequest initial params has an unsupported type: {}".format(type(params)))
+
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+        self.result = None
 
     def call(self, request, handler, entry_point, protocol):
 
@@ -392,6 +400,24 @@ class RPCRequest(object):
             # If given arguments cannot be transmitted properly to python function,
             # raise an Invalid Params exceptions
             raise RPCInternalError(str(exc))
+
+
+class BatchRPCRequest(RPCRequest):
+
+    def __init__(self):
+        self.rpc_requests = []
+
+    def add_request(self, method_name, params, **kwargs):
+        self.rpc_requests.append(SingleRPCRequest(method_name, params, **kwargs))
+
+    def call(self, request, handler, entry_point, protocol):
+        results = []
+        for req in self.rpc_requests:
+            try:
+                results.append(req.call(request, handler, entry_point, protocol))
+            except Exception as exc:
+                results.append(exc)
+        return results
 
 
 def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL,

@@ -18,6 +18,7 @@ MODERNRPC_XMLRPC_DEFAULT_ENCODING = None
 
 # List of handler classes used by default in any ``RPCEntryPoint`` instance
 MODERNRPC_HANDLERS = [
+    'modernrpc.handlers.JSONRPCBatchHandler',
     'modernrpc.handlers.JSONRPCHandler',
     'modernrpc.handlers.XMLRPCHandler',
 ]

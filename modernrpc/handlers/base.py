@@ -36,12 +36,14 @@ class RPCHandler(object):
         """
         pass
 
-    def format_success_data(self, data, **kwargs):
-        raise NotImplementedError()
+    # def format_success_data(self, data, **kwargs):
+    #     raise NotImplementedError()
+    #
+    # def format_error_data(self, code, message, **kwargs):
+    #     raise NotImplementedError()
+    #
+    # def build_full_result(self, rpc_request, response_content, **kwargs):
+    #     raise NotImplementedError()
 
-    def format_error_data(self, code, message, **kwargs):
+    def build_response_data(self, result, rpc_request):
         raise NotImplementedError()
-
-    def build_full_result(self, rpc_request, response_content, **kwargs):
-        raise NotImplementedError()
-
