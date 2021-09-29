@@ -5,8 +5,8 @@ import logging
 from django.utils.module_loading import import_string
 
 from modernrpc.conf import settings
-from modernrpc.core import JSONRPC_PROTOCOL, SingleRPCRequest, BatchRPCRequest
-from modernrpc.exceptions import RPCParseError, RPCInvalidRequest, RPCException
+from modernrpc.core import JSONRPC_PROTOCOL, RpcRequest, RpcResult
+from modernrpc.exceptions import RPCParseError, RPCInvalidRequest, RPC_INTERNAL_ERROR
 from modernrpc.handlers.base import RPCHandler
 
 try:
@@ -45,21 +45,26 @@ class JSONRPCHandler(RPCHandler):
         try:
             payload = json.loads(request_body, cls=self.decoder)
         except JSONDecodeError as err:
-            raise RPCParseError(str(err))
+            raise RPCParseError("Error while parsing XML-RPC request: {}".format(err))
 
         if isinstance(payload, list):
-            rpc_request = BatchRPCRequest()
+            requests = []
             for single_payload in payload:
-                rpc_request.add_request(
-                    single_payload.get("method"),
-                    single_payload.get("params"),
-                    jsonrpc=single_payload.get("jsonrpcp"),
-                    request_id=single_payload.get("id")
-                )
-            return rpc_request
+                try:
+                    requests.append(
+                        RpcRequest(
+                            single_payload.get("method"),
+                            single_payload.get("params"),
+                            jsonrpc=single_payload.get("jsonrpc"),
+                            request_id=single_payload.get("id"),
+                        )
+                    )
+                except Exception:
+                    requests.append(RpcRequest(None))
+            return requests
 
         elif isinstance(payload, dict):
-            return SingleRPCRequest(
+            return RpcRequest(
                 payload.get("method"),
                 payload.get("params"),
                 jsonrpc=payload.get("jsonrpc"),
@@ -76,95 +81,62 @@ class JSONRPCHandler(RPCHandler):
         elif rpc_request.jsonrpc != "2.0":
             raise RPCInvalidRequest('jsonrpc version must be set to 2.0')
 
-    # def format_success_data(self, data, **kwargs):
-    #     return {'result': data}
-    #
-    # def format_error_data(self, code, message, **kwargs):
-    #     result = {
-    #         'error': {
-    #             'code': code,
-    #             'message': message,
-    #         }
-    #     }
-    #     if "error_data" in kwargs:
-    #         result["error"]["data"] = kwargs["error_data"]
-    #     return result
-    #
-    # def build_full_result(self, rpc_request, response_content, **kwargs):
-    #     if rpc_request is None:
-    #         rpc_request = SingleRPCRequest(None, None, request_id=None, jsonrpc="2.0")
-    #     elif not getattr(rpc_request, "request_id"):
-    #         return ""
-    #
-    #     result_payload = {
-    #         'id': rpc_request.request_id,
-    #         'jsonrpc': rpc_request.jsonrpc,
-    #     }
-    #     result_payload.update(response_content)
-    #     return json.dumps(result_payload, cls=self.encoder)
-
-    def build_response_data(self, res, rpc_request):
-
-        if rpc_request is None:
-            rpc_request = SingleRPCRequest(None, None, request_id=None, jsonrpc="2.0")
-
-        elif not getattr(rpc_request, "request_id"):
-            return ""
-
+    def _build_error_result_data(self, rpc_result):
         result_payload = {
-            'id': rpc_request.request_id,
-            'jsonrpc': rpc_request.jsonrpc,
+            'id': rpc_result.request_id,
+            'jsonrpc': "2.0",
+            "error": {
+                'code': rpc_result.error_code,
+                'message': rpc_result.error_message
+            },
         }
-
-        if isinstance(res, RPCException):
-            result_payload["error"] = {'code': res.code, 'message': res.message}
-            if res.data:
-                result_payload["error"]["data"] = res.data
-        else:
-            result_payload["result"] = res
-
+        if rpc_result.error_data:
+            result_payload["error"]["data"] = rpc_result.error_data
         return json.dumps(result_payload, cls=self.encoder)
 
-
-class JSONRPCBatchHandler(JSONRPCHandler):
-
-    def can_handle(self, request):
-        if not super(JSONRPCBatchHandler, self).can_handle(request):
-            return False
-
-        res = request.body[0] == ord("[") and request.body[-1] == ord("]")
-        return res
-
-    def parse_request(self, request_body):
+    def _build_success_result_data(self, rpc_result):
+        result_payload = {
+            'id': rpc_result.request_id,
+            'jsonrpc': "2.0",
+            "result": rpc_result.success_data,
+        }
         try:
-            payload = json.loads(request_body, cls=self.decoder)
-        except JSONDecodeError as err:
-            raise RPCParseError(str(err))
+            return json.dumps(result_payload, cls=self.encoder)
+        except TypeError:
+            rpc_result.set_error(RPC_INTERNAL_ERROR, "Unable to serialize result")
+            return self._build_error_result_data(rpc_result)
 
-        rpc_request = BatchRPCRequest()
-        for single_payload in payload:
-            rpc_request.add_request(
-                single_payload.get("method"),
-                single_payload.get("params"),
-                jsonrpc=single_payload.get("jsonrpc"),
-                request_id=single_payload.get("id")
-            )
-        return rpc_request
+    def _build_single_response_data(self, single_result):
+        """
+        :param single_result:
+        :type single_result: RpcResult
+        :return:
+        """
 
-    def validate_request(self, rpc_request):
-        # Validation is performed in each single request
-        return True
+        if single_result.is_error():
+            return self._build_error_result_data(single_result)
 
-    def build_response_data(self, results, rpc_request):
-        final_results = []
-        for req, res in zip(rpc_request.rpc_requests, results):
-            result_payload = {'id': req.request_id, 'jsonrpc': req.jsonrpc}
-            if isinstance(res, RPCException):
-                result_payload["error"] = {'code': res.code, 'message': res.message}
-                if res.data:
-                    result_payload["error"]["data"] = res.data
-            else:
-                result_payload["result"] = res
-            final_results.append(result_payload)
+        if single_result.request_id is None:
+            # Notification
+            return ""
 
-        return json.dumps(final_results, cls=self.encoder)
+        return self._build_success_result_data(single_result)
+
+    def build_response_data(self, res):
+        """
+        :param res:
+        :type res: List[RpcResult] | RpcResult
+        :return:
+        """
+        if isinstance(res, list):
+            final_result = [
+                self._build_single_response_data(r)
+                for r in res
+            ]
+
+            batch_response_data = ",\n".join(filter(None, final_result))
+            if batch_response_data:
+                return "[{}]".format(batch_response_data)
+            return ""
+        else:
+            return self._build_single_response_data(res)

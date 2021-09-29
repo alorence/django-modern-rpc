@@ -1,7 +1,7 @@
 # coding: utf-8
 from modernrpc.core import ENTRY_POINT_KEY, PROTOCOL_KEY, registry, rpc_method, HANDLER_KEY, XMLRPC_PROTOCOL, \
-    RPCRequest, REQUEST_KEY, SingleRPCRequest
-from modernrpc.exceptions import RPCInvalidParams, RPCException, RPC_INTERNAL_ERROR
+    REQUEST_KEY, RpcRequest
+from modernrpc.exceptions import RPCInvalidParams
 
 
 @rpc_method(name='system.listMethods')
@@ -66,29 +66,24 @@ def __system_multiCall(calls, **kwargs):
     if not isinstance(calls, list):
         raise RPCInvalidParams('system.multicall first argument should be a list, {} given.'.format(type(calls)))
 
+    handler = kwargs.get(HANDLER_KEY)
+    request = kwargs.get(REQUEST_KEY)
     results = []
 
     for call in calls:
 
-        rpc_request = SingleRPCRequest(call['methodName'], call.get('params'))
+        rpc_request = RpcRequest(call['methodName'], call.get('params'))
+        rpc_result = handler.process_request(request, rpc_request)
 
-        try:
-            result = rpc_request.call(kwargs[REQUEST_KEY], kwargs[HANDLER_KEY], kwargs[ENTRY_POINT_KEY], kwargs[PROTOCOL_KEY])
-
+        if rpc_result.is_error():
+            results.append({
+                'faultCode': rpc_result.error_code,
+                'faultString': rpc_result.error_message,
+            })
+        else:
             # From https://mirrors.talideon.com/articles/multicall.html:
             # "Notice that regular return values are always nested inside a one-element array. This allows you to
             # return structs from functions without confusing them with faults."
-            results.append([result])
-
-        except RPCException as exc:
-            results.append({
-                'faultCode': exc.code,
-                'faultString': exc.message,
-            })
-        except Exception as exc:
-            results.append({
-                'faultCode': RPC_INTERNAL_ERROR,
-                'faultString': str(exc),
-            })
+            results.append([rpc_result.success_data])
 
     return results

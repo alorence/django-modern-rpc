@@ -1,7 +1,17 @@
 # coding: utf-8
 import logging
 
-from modernrpc.exceptions import (RPCInvalidRequest)
+import six
+
+import modernrpc.compat
+from modernrpc.core import RpcResult, registry, REQUEST_KEY, ENTRY_POINT_KEY, PROTOCOL_KEY, HANDLER_KEY
+from modernrpc.exceptions import (
+    RPCInvalidRequest,
+    RPCException,
+    RPC_METHOD_NOT_FOUND,
+    RPC_INTERNAL_ERROR,
+    RPC_INVALID_PARAMS
+)
 
 logger = logging.getLogger(__name__)
 
@@ -36,14 +46,75 @@ class RPCHandler(object):
         """
         pass
 
-    # def format_success_data(self, data, **kwargs):
-    #     raise NotImplementedError()
-    #
-    # def format_error_data(self, code, message, **kwargs):
-    #     raise NotImplementedError()
-    #
-    # def build_full_result(self, rpc_request, response_content, **kwargs):
-    #     raise NotImplementedError()
+    def process_request(self, request, rpc_request):
+        """
+        :param request:
+        :type rpc_request: HttpRequest
+        :param rpc_request:
+        :type rpc_request: RpcRequest
+        :return:
+        :rtype: RpcResult
+        """
+        rpc_result = RpcResult(rpc_request.request_id)
+        try:
+            self.validate_request(rpc_request)
+        except RPCException as exc:
+            rpc_result.set_error(exc.code, exc.message)
+            return rpc_result
 
-    def build_response_data(self, result, rpc_request):
+        _method = registry.get_method(rpc_request.method_name, self.entry_point, self.protocol)
+        if not _method:
+            rpc_result.set_error(RPC_METHOD_NOT_FOUND, 'Method not found: "{}"'.format(rpc_request.method_name))
+            return rpc_result
+
+        if not _method.check_permissions(request):
+            rpc_result.set_error(
+                RPC_INTERNAL_ERROR, 'Authentication failed when calling "{}"'.format(rpc_request.method_name)
+            )
+            return rpc_result
+
+        args, kwargs = rpc_request.args, rpc_request.kwargs
+        # If the RPC method needs to access some configuration, update kwargs dict
+        if _method.accept_kwargs:
+            kwargs.update({
+                REQUEST_KEY: request,
+                ENTRY_POINT_KEY: self.entry_point,
+                PROTOCOL_KEY: self.protocol,
+                HANDLER_KEY: self,
+            })
+
+        if six.PY2:
+            method_std, encoding = _method.str_standardization, _method.str_std_encoding
+            args = modernrpc.compat.standardize_strings(args, strtype=method_std, encoding=encoding)
+            kwargs = modernrpc.compat.standardize_strings(kwargs, strtype=method_std, encoding=encoding)
+
+        logger.debug('Params: args = %s - kwargs = %s', args, kwargs)
+
+        try:
+            # Call the rpc method, as standard python function
+            rpc_result.set_success(_method.function(*args, **kwargs))
+
+        except TypeError as te:
+            # If given arguments cannot be transmitted properly to python function,
+            # raise an Invalid Params exceptions
+            # raise RPCInvalidParams(str(te))
+            rpc_result.set_error(RPC_INVALID_PARAMS, "Invalid parameters: {}".format(te))
+
+        except RPCException as re:
+            rpc_result.set_error(re.code, re.message, data=re.data)
+
+        except Exception as exc:
+            # If given arguments cannot be transmitted properly to python function,
+            # raise an Invalid Params exceptions
+            # raise RPCInternalError(str(exc))
+            rpc_result.set_error(RPC_INTERNAL_ERROR, "Internal error: {}".format(exc))
+
+        return rpc_result
+
+    def build_response_data(self, result):
+        """
+        :param result:
+        :type result: modernrpc.core.RpcResult
+        :return:
+        """
         raise NotImplementedError()

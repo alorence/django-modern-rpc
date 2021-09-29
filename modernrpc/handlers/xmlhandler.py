@@ -1,12 +1,13 @@
 # coding: utf-8
+from pyexpat import ExpatError
 from textwrap import dedent
 
 import six
 from six.moves import xmlrpc_client
 
 from modernrpc.conf import settings
-from modernrpc.core import XMLRPC_PROTOCOL, SingleRPCRequest
-from modernrpc.exceptions import RPCInvalidRequest, RPCException
+from modernrpc.core import XMLRPC_PROTOCOL, RpcRequest
+from modernrpc.exceptions import RPCParseError, RPCInvalidRequest
 from modernrpc.handlers.base import RPCHandler
 
 
@@ -36,39 +37,25 @@ class XMLRPCHandler(RPCHandler):
         try:
             params, method_name = xmlrpc_client.loads(request_body, **kwargs)
         except Exception as exc:
-            raise RPCInvalidRequest("Error while parsing XML-RPC request: {}".format(str(exc)))
+            raise RPCParseError("Error while parsing XML-RPC request: {}".format(exc))
 
         # Build an RPCRequest instance with parsed request data
-        return SingleRPCRequest(method_name, params)
+        return RpcRequest(method_name, params)
 
-    # def format_success_data(self, data, **kwargs):
-    #     # xmlrpc_client.Marshaller expects a list of objects to dumps.
-    #     # It will output a '<params></params>' block and loops onto given objects to inject, for each one,
-    #     # a '<param><value><type>X</type></value></param>' block.
-    #     # This is not the return defined in XML-RPC standard, see http://xmlrpc.scripting.com/spec.html:
-    #     # "The body of the response is a single XML structure, a <methodResponse>, which can contain
-    #     # a single <params> which contains a single <param> which contains a single <value>."
-    #     #
-    #     # So, to make sure the return value always contain a single '<param><value><type>X</type></value></param>',
-    #     # we dumps it as an array of a single value.
-    #     return self.marshaller.dumps([data])
-    #
-    # def format_error_data(self, code, message, **kwargs):
-    #     return self.marshaller.dumps(xmlrpc_client.Fault(code, message))
-    #
-    # def build_full_result(self, rpc_request, response_content, **kwargs):
-    #     return dedent(("""
-    #         <?xml version="1.0"?>
-    #         <methodResponse>
-    #             %s
-    #         </methodResponse>
-    #     """ % response_content).strip())
+    def validate_request(self, rpc_request):
+        if not rpc_request.method_name:
+            raise RPCInvalidRequest('Missing methodName')
 
-    def build_response_data(self, res, rpc_request):
-        if isinstance(res, RPCException):
-            response_content = self.marshaller.dumps(xmlrpc_client.Fault(res.code, res.message))
+    def build_response_data(self, res):
+        """
+        :param res:
+        :type res: modernrpc.core.RpcResult
+        :return:
+        """
+        if res.is_error():
+            response_content = self.marshaller.dumps(xmlrpc_client.Fault(res.error_code, res.error_message))
         else:
-            response_content = self.marshaller.dumps([res])
+            response_content = self.marshaller.dumps([res.success_data])
 
         return dedent(("""
             <?xml version="1.0"?>

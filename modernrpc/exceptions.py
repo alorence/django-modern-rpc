@@ -81,7 +81,7 @@ class RPCException(Exception):
 
 
 class RPCParseError(RPCException):
-    """Raised by handlers if the request can't be read as valid JSOn or XML data."""
+    """Raised by handlers if the request can't be read as valid JSON or XML data."""
     def __init__(self, message, data=None):
         err_msg = 'Parse error, unable to read the request: {}'.format(message)
         super(RPCParseError, self).__init__(RPC_PARSE_ERROR, err_msg, data)

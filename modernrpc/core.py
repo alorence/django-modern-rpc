@@ -9,10 +9,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import cached_property
 from django.utils.inspect import func_accepts_kwargs, get_func_args
 
-import modernrpc.compat
 from modernrpc.conf import settings
-from modernrpc.exceptions import RPCInvalidParams, RPCInternalError, RPCUnknownMethod, AuthenticationFailed, \
-    RPCException
 from modernrpc.helpers import ensure_sequence
 
 # Special constant meaning "all protocols" or "all entry points"
@@ -331,16 +328,11 @@ class _RPCRegistry(object):
 registry = _RPCRegistry()
 
 
-class RPCRequest(object):
-
-    def call(self, request, handler, entry_point, protocol):
-        raise NotImplemented()
-
-
-class SingleRPCRequest(RPCRequest):
+class RpcRequest(object):
     """Wrapper for JSON-RPC or XML-RPC request data."""
 
     def __init__(self, method_name, params=None, **kwargs):
+        self.request_id = None
         self.method_name = method_name
 
         self.args = []
@@ -358,66 +350,40 @@ class SingleRPCRequest(RPCRequest):
 
         self.result = None
 
-    def call(self, request, handler, entry_point, protocol):
 
-        _method = registry.get_method(self.method_name, entry_point, protocol)
-        if not _method:
-            raise RPCUnknownMethod(self.method_name)
+class RpcResult(object):
 
-        if not _method.check_permissions(request):
-            raise AuthenticationFailed(self.method_name)
+    def __init__(self, request_id=None):
+        self.request_id = request_id
+        self._response_is_error = None
+        self._data = None
 
-        args, kwargs = self.args, self.kwargs
-        # If the RPC method needs to access some configuration, update kwargs dict
-        if _method.accept_kwargs:
-            kwargs.update({
-                REQUEST_KEY: request,
-                ENTRY_POINT_KEY: entry_point,
-                PROTOCOL_KEY: protocol,
-                HANDLER_KEY: handler,
-            })
+    def is_error(self):
+        return self._response_is_error
 
-        if six.PY2:
-            method_std, encoding = _method.str_standardization, _method.str_std_encoding
-            args = modernrpc.compat.standardize_strings(args, strtype=method_std, encoding=encoding)
-            kwargs = modernrpc.compat.standardize_strings(kwargs, strtype=method_std, encoding=encoding)
+    def set_success(self, data):
+        self._response_is_error = False
+        self._data = data
 
-        logger.debug('Params: args = %s - kwargs = %s', args, kwargs)
+    def set_error(self, code, message, data=None):
+        self._response_is_error = True
+        self._data = (code, message, data)
 
-        try:
-            # Call the rpc method, as standard python function
-            return _method.function(*args, **kwargs)
+    @property
+    def success_data(self):
+        return self._data
 
-        except TypeError as te:
-            # If given arguments cannot be transmitted properly to python function,
-            # raise an Invalid Params exceptions
-            raise RPCInvalidParams(str(te))
+    @property
+    def error_code(self):
+        return self._data[0]
 
-        except RPCException:
-            raise
+    @property
+    def error_message(self):
+        return self._data[1]
 
-        except Exception as exc:
-            # If given arguments cannot be transmitted properly to python function,
-            # raise an Invalid Params exceptions
-            raise RPCInternalError(str(exc))
-
-
-class BatchRPCRequest(RPCRequest):
-
-    def __init__(self):
-        self.rpc_requests = []
-
-    def add_request(self, method_name, params, **kwargs):
-        self.rpc_requests.append(SingleRPCRequest(method_name, params, **kwargs))
-
-    def call(self, request, handler, entry_point, protocol):
-        results = []
-        for req in self.rpc_requests:
-            try:
-                results.append(req.call(request, handler, entry_point, protocol))
-            except Exception as exc:
-                results.append(exc)
-        return results
+    @property
+    def error_data(self):
+        return self._data[2]
 
 
 def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL,

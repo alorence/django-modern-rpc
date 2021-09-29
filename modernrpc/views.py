@@ -1,10 +1,8 @@
 # coding: utf-8
 import logging
 
-import six
 from django.core.exceptions import ImproperlyConfigured
-from django.http import HttpResponseBadRequest
-from django.http.response import HttpResponse, HttpResponseForbidden
+from django.http.response import HttpResponse
 from django.utils.decorators import method_decorator
 from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
@@ -12,13 +10,11 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import TemplateView, View
 from more_itertools import first_true
 
-import modernrpc.compat
 from modernrpc.conf import settings
-from modernrpc.core import ALL, registry, REQUEST_KEY, ENTRY_POINT_KEY, PROTOCOL_KEY, HANDLER_KEY, BatchRPCRequest
-from modernrpc.exceptions import (AuthenticationFailed, RPCException,
-                                  RPCInternalError, RPCUnknownMethod, RPCInvalidParams, RPC_INVALID_REQUEST,
-                                  RPC_METHOD_NOT_FOUND, RPC_INTERNAL_ERROR)
-from modernrpc.handlers.base import RPCHandler
+from modernrpc.core import (
+    registry, ALL, RpcRequest, RpcResult
+)
+from modernrpc.exceptions import RPCParseError, RPC_PARSE_ERROR
 from modernrpc.helpers import ensure_sequence
 
 logger = logging.getLogger(__name__)
@@ -104,15 +100,32 @@ class RPCEntryPoint(TemplateView):
 
         request_body = request.body.decode(request.encoding or self.default_encoding)
 
-        rpc_request = handler.parse_request(request_body)
-        handler.validate_request(rpc_request)
-
         try:
-            result = rpc_request.call(request, handler, self.entry_point, handler.protocol)
-        except RPCException as exc:
-            return HttpResponse(handler.build_response_data(exc, rpc_request))
+            rpc_request = handler.parse_request(request_body)
 
-        return HttpResponse(handler.build_response_data(result, rpc_request))
+        except RPCParseError as err:
+            result = RpcResult()
+            result.set_error(err.code, err.message)
+
+        except Exception as exc:
+            result = RpcResult()
+            result.set_error(RPC_PARSE_ERROR, "Unable to parse incoming request")
+
+        else:
+            if isinstance(rpc_request, list):
+                result = []
+                for single_request in rpc_request:
+                    result.append(handler.process_request(request, single_request))
+
+            elif isinstance(rpc_request, RpcRequest):
+                result = handler.process_request(request, rpc_request)
+
+            else:
+                # TODO: return an error here
+                pass
+
+        result_data = handler.build_response_data(result)
+        return HttpResponse(result_data)
 
     def get_context_data(self, **kwargs):
         """Update context data with list of RPC methods of the current entry point.

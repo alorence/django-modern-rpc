@@ -278,7 +278,7 @@ def test_jsonrpc_batch_with_auth(jsonrpc_client):
     assert result[0] == {'jsonrpc': '2.0', 'id': 1, 'result': 10}
     assert result[1] == {'jsonrpc': '2.0', 'id': 2, 'error': {
         'code': RPC_INTERNAL_ERROR,
-        'message': 'Internal error: Authentication failed when calling "logged_superuser_required"'
+        'message': 'Authentication failed when calling "logged_superuser_required"'
     }}
 
 
