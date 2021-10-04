@@ -110,7 +110,7 @@ def test_xmlrpc_invalid_request_but_valid_xml(all_rpc_url):
         elif member.find('name').text == 'faultString':
             message = member.find('value').find('string').text
 
-    assert 'Invalid request: Bad XML-RPC payload' in message
+    assert 'The request appear to be invalid' in message
     assert code == RPC_INVALID_REQUEST
 
 

@@ -14,7 +14,7 @@ from modernrpc.conf import settings
 from modernrpc.core import (
     registry, ALL, RpcRequest, RpcResult
 )
-from modernrpc.exceptions import RPCParseError, RPC_PARSE_ERROR
+from modernrpc.exceptions import RPCParseError, RPC_PARSE_ERROR, RPCInvalidRequest
 from modernrpc.helpers import ensure_sequence
 
 logger = logging.getLogger(__name__)
@@ -103,7 +103,7 @@ class RPCEntryPoint(TemplateView):
         try:
             rpc_request = handler.parse_request(request_body)
 
-        except RPCParseError as err:
+        except (RPCParseError, RPCInvalidRequest) as err:
             result = RpcResult()
             result.set_error(err.code, err.message)
 

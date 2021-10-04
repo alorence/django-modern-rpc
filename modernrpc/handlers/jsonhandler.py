@@ -71,7 +71,9 @@ class JSONRPCHandler(RPCHandler):
                 request_id=payload.get("id")
             )
 
-        raise RPCInvalidRequest("Bad JSON-RPC payload")
+        raise RPCInvalidRequest(
+            "Invalid JSON-RPC payload: must be a JSON struct for standard request, or a list for batch request."
+        )
 
     def validate_request(self, rpc_request):
         if not rpc_request.method_name:
@@ -102,8 +104,8 @@ class JSONRPCHandler(RPCHandler):
         }
         try:
             return json.dumps(result_payload, cls=self.encoder)
-        except TypeError:
-            rpc_result.set_error(RPC_INTERNAL_ERROR, "Unable to serialize result")
+        except TypeError as te:
+            rpc_result.set_error(RPC_INTERNAL_ERROR, "Unable to serialize result: {}".format(te))
             return self._build_error_result_data(rpc_result)
 
     def _build_single_response_data(self, single_result):

@@ -106,7 +106,7 @@ def test_jsonrpc_invalid_request_5(all_rpc_url):
     assert response['id'] is None
     error = response['error']
 
-    assert 'Invalid request: Bad JSON-RPC payload' in error['message']
+    assert 'Invalid JSON-RPC payload' in error['message']
     assert error['code'] == RPC_INVALID_REQUEST
 
 

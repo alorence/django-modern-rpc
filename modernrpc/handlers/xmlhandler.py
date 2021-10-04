@@ -7,7 +7,7 @@ from six.moves import xmlrpc_client
 
 from modernrpc.conf import settings
 from modernrpc.core import XMLRPC_PROTOCOL, RpcRequest
-from modernrpc.exceptions import RPCParseError, RPCInvalidRequest
+from modernrpc.exceptions import RPCParseError, RPCInvalidRequest, RPC_INTERNAL_ERROR
 from modernrpc.handlers.base import RPCHandler
 
 
@@ -36,8 +36,12 @@ class XMLRPCHandler(RPCHandler):
 
         try:
             params, method_name = xmlrpc_client.loads(request_body, **kwargs)
-        except Exception as exc:
+
+        except ExpatError as exc:
             raise RPCParseError("Error while parsing XML-RPC request: {}".format(exc))
+
+        except Exception:
+            raise RPCInvalidRequest("The request appear to be invalid.")
 
         # Build an RPCRequest instance with parsed request data
         return RpcRequest(method_name, params)
@@ -55,7 +59,11 @@ class XMLRPCHandler(RPCHandler):
         if res.is_error():
             response_content = self.marshaller.dumps(xmlrpc_client.Fault(res.error_code, res.error_message))
         else:
-            response_content = self.marshaller.dumps([res.success_data])
+            try:
+                response_content = self.marshaller.dumps([res.success_data])
+            except Exception as exc:
+                fault = xmlrpc_client.Fault(RPC_INTERNAL_ERROR, "Unable to serialize result: {}".format(exc))
+                response_content = self.marshaller.dumps(fault)
 
         return dedent(("""
             <?xml version="1.0"?>

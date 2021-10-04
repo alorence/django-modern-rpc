@@ -232,9 +232,10 @@ def test_custom_predicate_allowed(xmlrpc_client):
 
 
 def test_custom_predicate_rejected(xmlrpc_client):
-    with pytest.raises(xmlrpclib.ProtocolError) as excpinfo:
+    with pytest.raises(xmlrpclib.Fault) as excpinfo:
         xmlrpc_client.power_2(5)
-    assert excpinfo.value.errcode == 403
+    assert excpinfo.value.faultCode == RPC_INTERNAL_ERROR
+    assert 'Authentication failed' in excpinfo.value.faultString
 
 
 def test_xmlrpc_multicall_with_auth(xmlrpc_client):
