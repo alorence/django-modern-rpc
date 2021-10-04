@@ -90,18 +90,13 @@ class RPCHandler(object):
             rpc_result.set_success(_method.function(*args, **kwargs))
 
         except TypeError as te:
-            # If given arguments cannot be transmitted properly to python function,
-            # raise an Invalid Params exceptions
-            # raise RPCInvalidParams(str(te))
+            # If given params cannot be transmitted properly to python function
             rpc_result.set_error(RPC_INVALID_PARAMS, "Invalid parameters: {}".format(te))
 
         except RPCException as re:
             rpc_result.set_error(re.code, re.message, data=re.data)
 
         except Exception as exc:
-            # If given arguments cannot be transmitted properly to python function,
-            # raise an Invalid Params exceptions
-            # raise RPCInternalError(str(exc))
             rpc_result.set_error(RPC_INTERNAL_ERROR, "Internal error: {}".format(exc))
 
         return rpc_result

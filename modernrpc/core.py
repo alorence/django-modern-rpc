@@ -348,8 +348,6 @@ class RpcRequest(object):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-        self.result = None
-
 
 class RpcResult(object):
 
