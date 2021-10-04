@@ -3,7 +3,7 @@ name: Tests
 on:
   push:
     branches-ignore:
-      - 'core_refactoring'
+      - '*-no-ci'
   pull_request:
   create:
   schedule:
