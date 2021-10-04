@@ -1,24 +1,26 @@
 # coding: utf-8
-import xml
+from pyexpat import ExpatError
+from textwrap import dedent
 
-from django.http.response import HttpResponse
+import six
 from six.moves import xmlrpc_client
 
 from modernrpc.conf import settings
-from modernrpc.core import XMLRPC_PROTOCOL
-from modernrpc.exceptions import RPCParseError, RPCInvalidRequest, RPCInternalError
+from modernrpc.core import XMLRPC_PROTOCOL, RpcRequest
+from modernrpc.exceptions import RPCParseError, RPCInvalidRequest, RPC_INTERNAL_ERROR
 from modernrpc.handlers.base import RPCHandler
 
 
 class XMLRPCHandler(RPCHandler):
-
     protocol = XMLRPC_PROTOCOL
 
-    def __init__(self, request, entry_point):
-        super(XMLRPCHandler, self).__init__(request, entry_point)
+    def __init__(self, entry_point):
+        super(XMLRPCHandler, self).__init__(entry_point)
+
         # Marshaller is used to dumps data into valid XML-RPC response. See self.dumps() for more info
         self.marshaller = xmlrpc_client.Marshaller(encoding=settings.MODERNRPC_XMLRPC_DEFAULT_ENCODING,
                                                    allow_none=settings.MODERNRPC_XMLRPC_ALLOW_NONE)
+        self.use_builtin_types = settings.MODERNRPC_XMLRPC_USE_BUILTIN_TYPES
 
     @staticmethod
     def valid_content_types():
@@ -26,77 +28,46 @@ class XMLRPCHandler(RPCHandler):
             'text/xml',
         ]
 
-    def loads(self, str_data):
-        try:
-            try:
-                # Python 3
-                return xmlrpc_client.loads(str_data, use_builtin_types=settings.MODERNRPC_XMLRPC_USE_BUILTIN_TYPES)
-            except TypeError:
-                # Python 2
-                return xmlrpc_client.loads(str_data, use_datetime=settings.MODERNRPC_XMLRPC_USE_BUILTIN_TYPES)
-
-        except xml.parsers.expat.ExpatError as exc:
-            raise RPCParseError(exc)
-
-        except xmlrpc_client.ResponseError:
-            raise RPCInvalidRequest('Bad XML-RPC payload')
-
-        except Exception as exc:  # pragma: no cover
-            raise RPCInvalidRequest(exc)
-
-    def dumps(self, obj):
+    def parse_request(self, request_body):
+        if six.PY3:
+            kwargs = {"use_builtin_types": self.use_builtin_types}
+        else:
+            kwargs = {"use_datetime": self.use_builtin_types}
 
         try:
-            # Marshaller has a specific handling of Fault instance. It is given without modification
-            if isinstance(obj, xmlrpc_client.Fault):
-                return self.marshaller.dumps(obj)
+            params, method_name = xmlrpc_client.loads(request_body, **kwargs)
 
-            # xmlrpc_client.Marshaller expects a list of objects to dumps.
-            # It will output a '<params></params>' block and loops onto given objects to inject, for each one,
-            # a '<param><value><type>X</type></value></param>' block.
-            # This is not the return defined in XML-RPC standard, see http://xmlrpc.scripting.com/spec.html:
-            # "The body of the response is a single XML structure, a <methodResponse>, which can contain
-            # a single <params> which contains a single <param> which contains a single <value>."
-            #
-            # So, to make sure the return value always contain a single '<param><value><type>X</type></value></param>',
-            # we dumps it as an array of a single value.
-            return self.marshaller.dumps([obj])
+        except ExpatError as exc:
+            raise RPCParseError("Error while parsing XML-RPC request: {}".format(exc))
 
-        except Exception as exc:
-            raise RPCInternalError('Unable to serialize result as valid XML: ' + str(exc))
+        except Exception:
+            raise RPCInvalidRequest("The request appear to be invalid.")
 
-    def process_request(self):
+        # Build an RPCRequest instance with parsed request data
+        return RpcRequest(method_name, params)
 
-        encoding = self.request.encoding or 'utf-8'
-        data = self.request.body.decode(encoding)
-
-        params, method_name = self.loads(data)
-
-        if method_name is None:
+    def validate_request(self, rpc_request):
+        if not rpc_request.method_name:
             raise RPCInvalidRequest('Missing methodName')
 
-        return self.execute_procedure(method_name, args=params)
+    def build_response_data(self, res):
+        """
+        :param res:
+        :type res: modernrpc.core.RpcResult
+        :return:
+        """
+        if res.is_error():
+            response_content = self.marshaller.dumps(xmlrpc_client.Fault(res.error_code, res.error_message))
+        else:
+            try:
+                response_content = self.marshaller.dumps([res.success_data])
+            except Exception as exc:
+                fault = xmlrpc_client.Fault(RPC_INTERNAL_ERROR, "Unable to serialize result: {}".format(exc))
+                response_content = self.marshaller.dumps(fault)
 
-    @staticmethod
-    def xml_http_response(data, http_response_cls=HttpResponse):
-        response = http_response_cls(data)
-        response['Content-Type'] = 'text/xml'
-        return response
-
-    def result_success(self, data):
-
-        raw_response = '<?xml version="1.0"?>'
-        raw_response += '<methodResponse>'
-        raw_response += self.dumps(data)
-        raw_response += '</methodResponse>'
-
-        return self.xml_http_response(raw_response)
-
-    def result_error(self, exception, http_response_cls=HttpResponse):
-
-        raw_response = '<?xml version="1.0"?>'
-        raw_response += '<methodResponse>'
-        raw_response += self.dumps(xmlrpc_client.Fault(exception.code, exception.message))
-        raw_response += '</methodResponse>'
-
-        return self.xml_http_response(raw_response, http_response_cls=http_response_cls)
+        return dedent(("""
+            <?xml version="1.0"?>
+            <methodResponse>
+                %s
+            </methodResponse>
+        """ % response_content).strip())

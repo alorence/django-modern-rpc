@@ -1,4 +1,4 @@
 [flake8]
 exclude = .git, __pycache__, build, dist, venv*, .idea, .vscode, .cache, *.egg-info, .pytest_cache, .tox
-max-complexity = 10
+max-complexity = 12
 max-line-length = 120

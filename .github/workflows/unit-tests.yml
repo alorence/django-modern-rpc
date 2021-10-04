@@ -1,17 +1,19 @@
 name: Tests
 
-env:
-  INSTALL_POETRY_VERSION: 1.*
-  POETRY_INSTALLER_PARALLEL: false
-  POETRY_VIRTUALENVS_CREATE: false
-
 on:
   push:
+    branches-ignore:
+      - '*-no-ci'
   pull_request:
   create:
   schedule:
     # * is a special character in YAML so you have to quote this string
     - cron:  '55 2 */7 * *'
+
+env:
+  INSTALL_POETRY_VERSION: 1.*
+  POETRY_INSTALLER_PARALLEL: false
+  POETRY_VIRTUALENVS_CREATE: false
 
 jobs:
   tests:

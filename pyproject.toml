@@ -75,7 +75,7 @@ pylint = { version = "~2.7", python = ">=3.7"}
 
 [tool.pylint]
 # Override default pylint configurations
-# To update, run `pyling --generate-rcfile` for default reference or check the docs:
+# To update, run `pylint --generate-rcfile` for default reference or check the docs:
 #  - http://pylint.pycqa.org/en/latest/technical_reference/features.html
 [tool.pylint.format]
 max-line-length=120

@@ -265,9 +265,10 @@ class _RPCRegistry(object):
         logger.debug('Register RPC method "%s"', name)
 
         if name.startswith('rpc.'):
-            raise ImproperlyConfigured('According to RPC standard, method names starting with "rpc." are reserved for '
-                                       'system extensions and must not be used. See '
-                                       'http://www.jsonrpc.org/specification#extensions for more information.')
+            raise ImproperlyConfigured(
+                'According to RPC standard, method names starting with "rpc." are reserved for system extensions and '
+                'must not be used. See https://www.jsonrpc.org/specification#extensions for more information.'
+            )
 
         # Encapsulate the function in a RPCMethod object
         method = RPCMethod(func)
@@ -325,6 +326,62 @@ class _RPCRegistry(object):
 
 
 registry = _RPCRegistry()
+
+
+class RpcRequest(object):
+    """Wrapper for JSON-RPC or XML-RPC request data."""
+
+    def __init__(self, method_name, params=None, **kwargs):
+        self.request_id = None
+        self.method_name = method_name
+
+        self.args = []
+        self.kwargs = {}
+        if params is not None:
+            if isinstance(params, dict):
+                self.kwargs = params
+            elif isinstance(params, (list, set, tuple)):
+                self.args = params
+            else:
+                raise ValueError("RPCRequest initial params has an unsupported type: {}".format(type(params)))
+
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+
+class RpcResult(object):
+
+    def __init__(self, request_id=None):
+        self.request_id = request_id
+        self._response_is_error = None
+        self._data = None
+
+    def is_error(self):
+        return self._response_is_error
+
+    def set_success(self, data):
+        self._response_is_error = False
+        self._data = data
+
+    def set_error(self, code, message, data=None):
+        self._response_is_error = True
+        self._data = (code, message, data)
+
+    @property
+    def success_data(self):
+        return self._data
+
+    @property
+    def error_code(self):
+        return self._data[0]
+
+    @property
+    def error_message(self):
+        return self._data[1]
+
+    @property
+    def error_data(self):
+        return self._data[2]
 
 
 def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL,

@@ -66,7 +66,7 @@ def test_jsonrpc_invalid_request_3(all_rpc_url):
     req_data = json.dumps(payload, cls=DjangoJSONEncoder)
     response = requests.post(all_rpc_url, data=req_data, headers=headers).json()
 
-    assert 'The attribute "jsonrpc" must contain "2.0"' in response['error']['message']
+    assert 'jsonrpc version must be set to 2.0' in response['error']['message']
     assert RPC_INVALID_REQUEST == response['error']['code']
 
 
@@ -78,7 +78,8 @@ def test_jsonrpc_invalid_request_4(all_rpc_url):
             "method": "add",
             "params": [},
             "jsonrpc": "2.0",
-            "id": 74,
+            "id": 74
+        }
     '''
     headers = {'content-type': 'application/json'}
     response = requests.post(all_rpc_url, data=invalid_json_payload, headers=headers).json()
@@ -105,7 +106,7 @@ def test_jsonrpc_invalid_request_5(all_rpc_url):
     assert response['id'] is None
     error = response['error']
 
-    assert 'Invalid request: Bad JSON-RPC payload' in error['message']
+    assert 'Invalid JSON-RPC payload' in error['message']
     assert error['code'] == RPC_INVALID_REQUEST
 
 
@@ -118,14 +119,9 @@ def test_jsonrpc_no_content_type(all_rpc_url):
     }
     req_data = json.dumps(payload)
     headers = {'content-type': ''}
-    response = requests.post(all_rpc_url, data=req_data, headers=headers).json()
+    response = requests.post(all_rpc_url, data=req_data, headers=headers)
 
-    assert 'error' in response
-    assert 'result' not in response
-    assert response['id'] is None
-    error = response['error']
-    assert 'Missing header' in error['message']
-    assert error['code'] == RPC_INVALID_REQUEST
+    assert "Unable to handle your request, the Content-Type header is mandatory" in response.text
 
 
 def test_jsonrpc_invalid_params(jsonrpc_client):
@@ -180,5 +176,5 @@ def test_jsonrpc_invalid_result(jsonrpc_client):
     with pytest.raises(ReceivedErrorResponse) as excinfo:
         jsonrpc_client.get_invalid_result()
 
-    assert 'Unable to serialize result as' in excinfo.value.message
+    assert 'Unable to serialize result' in excinfo.value.message
     assert excinfo.value.code == RPC_INTERNAL_ERROR

@@ -2,17 +2,19 @@
 import logging
 
 from django.core.exceptions import ImproperlyConfigured
-from django.http.response import HttpResponse, HttpResponseForbidden
+from django.http.response import HttpResponse
 from django.utils.decorators import method_decorator
 from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import TemplateView, View
+from more_itertools import first_true
 
 from modernrpc.conf import settings
-from modernrpc.core import ALL, registry
-from modernrpc.exceptions import (AuthenticationFailed, RPCException,
-                                  RPCInternalError)
+from modernrpc.core import (
+    registry, ALL, RpcRequest, RpcResult
+)
+from modernrpc.exceptions import RPCParseError, RPC_PARSE_ERROR, RPCInvalidRequest
 from modernrpc.helpers import ensure_sequence
 
 logger = logging.getLogger(__name__)
@@ -48,6 +50,8 @@ class RPCEntryPoint(TemplateView):
         if not self.enable_rpc:
             self.http_method_names.remove('post')
 
+        self.default_encoding = "utf-8"
+
         logger.debug('RPC entry point "%s" initialized', self.entry_point)
 
     # This disable CSRF validation for POST requests
@@ -60,12 +64,19 @@ class RPCEntryPoint(TemplateView):
     @cached_property
     def handler_classes(self):
         """Return the list of handlers to use when receiving RPC requests."""
-        handler_classes = [import_string(handler_cls) for handler_cls in settings.MODERNRPC_HANDLERS]
+        handler_classes = [
+            import_string(handler_cls) for handler_cls in settings.MODERNRPC_HANDLERS
+        ]
 
         if self.protocol == ALL:
             return handler_classes
         else:
             return [cls for cls in handler_classes if cls.protocol in ensure_sequence(self.protocol)]
+
+    @cached_property
+    def handlers(self):
+        for cls in self.handler_classes:
+            yield cls(self.protocol)
 
     def post(self, request, *args, **kwargs):
         """
@@ -76,41 +87,51 @@ class RPCEntryPoint(TemplateView):
         :param kwargs: Additional named arguments
         :return: A HttpResponse containing XML-RPC or JSON-RPC response, depending on the incoming request
         """
-
         logger.debug('RPC request received...')
 
-        for handler_cls in self.handler_classes:
+        if not request.content_type:
+            return HttpResponse(
+                'Unable to handle your request, the Content-Type header is mandatory to allow server to determine the '
+                'right handler to interpret your request..'
+            )
 
-            handler = handler_cls(request, self.entry_point)
+        # Retrieve the first RPC handler able to parse our request
+        handler = first_true(self.handlers, pred=lambda candidate: candidate.can_handle(request))
 
-            try:
-                if not handler.can_handle():
-                    continue
+        if not handler:
+            return HttpResponse(
+                'Unable to handle your request. Please ensure you called '
+                'the right entry point. If not, this could be a server error.'
+            )
 
-                logger.debug('Request will be handled by %s', handler_cls.__name__)
+        request_body = request.body.decode(request.encoding or self.default_encoding)
 
-                result = handler.process_request()
+        try:
+            rpc_request = handler.parse_request(request_body)
 
-                return handler.result_success(result)
+        except (RPCParseError, RPCInvalidRequest) as err:
+            result = RpcResult()
+            result.set_error(err.code, err.message)
 
-            except AuthenticationFailed as auth_exc:
-                # Customize HttpResponse instance used when AuthenticationFailed was raised
-                logger.warning(auth_exc)
-                return handler.result_error(auth_exc, HttpResponseForbidden)
+        except Exception:
+            result = RpcResult()
+            result.set_error(RPC_PARSE_ERROR, "Unable to parse incoming request")
 
-            except RPCException as exc:
-                logger.warning('RPC exception: %s', exc, exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
-                return handler.result_error(exc)
+        else:
+            if isinstance(rpc_request, list):
+                result = []
+                for single_request in rpc_request:
+                    result.append(handler.process_request(request, single_request))
 
-            except Exception as exc:
-                logger.error('Exception raised from a RPC method: "%s"', exc,
-                             exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
-                return handler.result_error(RPCInternalError(str(exc)))
+            elif isinstance(rpc_request, RpcRequest):
+                result = handler.process_request(request, rpc_request)
 
-        logger.error('Unable to handle incoming request.')
+            else:
+                # TODO: return an error here
+                pass
 
-        return HttpResponse('Unable to handle your request. Please ensure you called the right entry point. If not, '
-                            'this could be a server error.')
+        result_data = handler.build_response_data(result)
+        return HttpResponse(result_data)
 
     def get_context_data(self, **kwargs):
         """Update context data with list of RPC methods of the current entry point.

@@ -4,10 +4,13 @@ import logging
 import six
 
 import modernrpc.compat
-from modernrpc.core import (ENTRY_POINT_KEY, HANDLER_KEY, PROTOCOL_KEY,
-                            REQUEST_KEY, registry)
-from modernrpc.exceptions import (AuthenticationFailed, RPCInvalidParams,
-                                  RPCInvalidRequest, RPCUnknownMethod)
+from modernrpc.core import RpcResult, registry, REQUEST_KEY, ENTRY_POINT_KEY, PROTOCOL_KEY, HANDLER_KEY
+from modernrpc.exceptions import (
+    RPCException,
+    RPC_METHOD_NOT_FOUND,
+    RPC_INTERNAL_ERROR,
+    RPC_INVALID_PARAMS
+)
 
 logger = logging.getLogger(__name__)
 
@@ -15,74 +18,61 @@ logger = logging.getLogger(__name__)
 class RPCHandler(object):
     protocol = None
 
-    def __init__(self, request, entry_point):
-        self.request = request
+    def __init__(self, entry_point):
         self.entry_point = entry_point
-
-    def loads(self, str_data):
-        """Convert serialized string data to valid Python data, depending on current handler protocol"""
-        raise NotImplementedError("You must override loads()")
-
-    def dumps(self, obj):
-        """Convert Python data to serialized form, according to current handler protocol."""
-        raise NotImplementedError("You must override dumps()")
 
     @staticmethod
     def valid_content_types():
         raise NotImplementedError("You must override valid_content_types()")
 
-    def can_handle(self):
-        # Get the content-type header from incoming request. Method differs depending on current Django version
-        content_type = self.request.content_type
-        if not content_type:
-            # We don't accept a request with missing Content-Type request
-            raise RPCInvalidRequest('Missing header: Content-Type')
+    def can_handle(self, request):
+        return request.content_type.lower() in self.valid_content_types()
 
-        return content_type.lower() in self.valid_content_types()
+    def parse_request(self, request_body):
+        """Parse given request body and build a RPC request wrapper"""
+        raise NotImplementedError()
 
-    def process_request(self):
+    def validate_request(self, rpc_request):
+        """Check current request to ensure it is valid regarding protocol specifications
+
+        Default implementation does nothing
+        :rpc_request: The request to validate
+        :type rpc_request: RPCRequest
         """
-        Parse self.request to extract payload. Parse it to retrieve RPC call information, and
-        execute the corresponding RPC Method. At any time, raise an exception when detecting error.
-        :return: The result of RPC Method execution
+        pass
+
+    def process_request(self, request, rpc_request):
         """
-        raise NotImplementedError("You must override process_request()")
-
-    def result_success(self, data):
-        """Return a HttpResponse instance containing the result payload for the given data"""
-        raise NotImplementedError("You must override result_success()")
-
-    def result_error(self, exception, http_response_cls=None):
-        """Return a HttpResponse instance containing the result payload for the given exception"""
-        raise NotImplementedError("You must override result_error()")
-
-    def execute_procedure(self, name, args=None, kwargs=None):
+        :param request:
+        :type rpc_request: HttpRequest
+        :param rpc_request:
+        :type rpc_request: RpcRequest
+        :return:
+        :rtype: RpcResult
         """
-        Call the concrete python function corresponding to given RPC Method `name` and return the result.
+        rpc_result = RpcResult(rpc_request.request_id)
+        try:
+            self.validate_request(rpc_request)
+        except RPCException as exc:
+            rpc_result.set_error(exc.code, exc.message)
+            return rpc_result
 
-        Raise RPCUnknownMethod, AuthenticationFailed, RPCInvalidParams or any Exception sub-class.
-        """
-
-        _method = registry.get_method(name, self.entry_point, self.protocol)
-
+        _method = registry.get_method(rpc_request.method_name, self.entry_point, self.protocol)
         if not _method:
-            raise RPCUnknownMethod(name)
+            rpc_result.set_error(RPC_METHOD_NOT_FOUND, 'Method not found: "{}"'.format(rpc_request.method_name))
+            return rpc_result
 
-        logger.debug('Check authentication / permissions for method %s and user %s', name, self.request.user)
+        if not _method.check_permissions(request):
+            rpc_result.set_error(
+                RPC_INTERNAL_ERROR, 'Authentication failed when calling "{}"'.format(rpc_request.method_name)
+            )
+            return rpc_result
 
-        if not _method.check_permissions(self.request):
-            raise AuthenticationFailed(name)
-
-        logger.debug('RPC method %s will be executed', name)
-
-        # Replace default None value with empty instance of corresponding type
-        args = args or []
-        kwargs = kwargs or {}
-
+        args, kwargs = rpc_request.args, rpc_request.kwargs
         # If the RPC method needs to access some configuration, update kwargs dict
         if _method.accept_kwargs:
             kwargs.update({
-                REQUEST_KEY: self.request,
+                REQUEST_KEY: request,
                 ENTRY_POINT_KEY: self.entry_point,
                 PROTOCOL_KEY: self.protocol,
                 HANDLER_KEY: self,
@@ -97,9 +87,24 @@ class RPCHandler(object):
 
         try:
             # Call the rpc method, as standard python function
-            return _method.function(*args, **kwargs)
+            rpc_result.set_success(_method.function(*args, **kwargs))
 
         except TypeError as te:
-            # If given arguments cannot be transmitted properly to python function,
-            # raise an Invalid Params exceptions
-            raise RPCInvalidParams(str(te))
+            # If given params cannot be transmitted properly to python function
+            rpc_result.set_error(RPC_INVALID_PARAMS, "Invalid parameters: {}".format(te))
+
+        except RPCException as re:
+            rpc_result.set_error(re.code, re.message, data=re.data)
+
+        except Exception as exc:
+            rpc_result.set_error(RPC_INTERNAL_ERROR, "Internal error: {}".format(exc))
+
+        return rpc_result
+
+    def build_response_data(self, result):
+        """
+        :param result:
+        :type result: modernrpc.core.RpcResult
+        :return:
+        """
+        raise NotImplementedError()
