@@ -89,6 +89,12 @@ class RPCEntryPoint(TemplateView):
         """
         logger.debug('RPC request received...')
 
+        if not request.content_type:
+            return HttpResponse(
+                'Unable to handle your request, the Content-Type header is mandatory to allow server to determine the '
+                'right handler to interpret your request..'
+            )
+
         # Retrieve the first RPC handler able to parse our request
         handler = first_true(self.handlers, pred=lambda candidate: candidate.can_handle(request))
 
@@ -107,7 +113,7 @@ class RPCEntryPoint(TemplateView):
             result = RpcResult()
             result.set_error(err.code, err.message)
 
-        except Exception as exc:
+        except Exception:
             result = RpcResult()
             result.set_error(RPC_PARSE_ERROR, "Unable to parse incoming request")
 

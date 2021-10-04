@@ -119,14 +119,9 @@ def test_jsonrpc_no_content_type(all_rpc_url):
     }
     req_data = json.dumps(payload)
     headers = {'content-type': ''}
-    response = requests.post(all_rpc_url, data=req_data, headers=headers).json()
+    response = requests.post(all_rpc_url, data=req_data, headers=headers)
 
-    assert 'error' in response
-    assert 'result' not in response
-    assert response['id'] is None
-    error = response['error']
-    assert 'Missing header' in error['message']
-    assert error['code'] == RPC_INVALID_REQUEST
+    assert "Unable to handle your request, the Content-Type header is mandatory" in response.text
 
 
 def test_jsonrpc_invalid_params(jsonrpc_client):

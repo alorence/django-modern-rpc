@@ -6,7 +6,6 @@ import six
 import modernrpc.compat
 from modernrpc.core import RpcResult, registry, REQUEST_KEY, ENTRY_POINT_KEY, PROTOCOL_KEY, HANDLER_KEY
 from modernrpc.exceptions import (
-    RPCInvalidRequest,
     RPCException,
     RPC_METHOD_NOT_FOUND,
     RPC_INTERNAL_ERROR,
@@ -27,10 +26,6 @@ class RPCHandler(object):
         raise NotImplementedError("You must override valid_content_types()")
 
     def can_handle(self, request):
-        if not request.content_type:
-            # We don't accept a request with missing Content-Type request
-            raise RPCInvalidRequest('Missing header: Content-Type')
-
         return request.content_type.lower() in self.valid_content_types()
 
     def parse_request(self, request_body):
