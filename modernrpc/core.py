@@ -4,7 +4,7 @@ import logging
 import re
 from inspect import cleandoc, getargspec
 
-import six
+import future.utils
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import cached_property
 from django.utils.inspect import func_accepts_kwargs, get_func_args
@@ -58,7 +58,7 @@ class RPCMethod(object):
         # for global functions.
         # For Python 2, we will prefer django.utils.inspect.getargspec(func)[0]. This will work as expected, even if
         # the function has been removed in Django 2.0, since Django 2 doesn't work with Python 2
-        self.args = get_func_args(func) if six.PY3 else getargspec(func)[0]
+        self.args = get_func_args(func) if future.utils.PY3 else getargspec(func)[0]
         # Does the method accept additional kwargs dict?
         self.accept_kwargs = func_accepts_kwargs(func)
 

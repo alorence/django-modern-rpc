@@ -1,9 +1,9 @@
 # coding: utf-8
+import xmlrpc.client as xmlrpc_client
 from pyexpat import ExpatError
 from textwrap import dedent
 
-import six
-from six.moves import xmlrpc_client
+import future.utils
 
 from modernrpc.conf import settings
 from modernrpc.core import XMLRPC_PROTOCOL, RpcRequest
@@ -29,7 +29,7 @@ class XMLRPCHandler(RPCHandler):
         ]
 
     def parse_request(self, request_body):
-        if six.PY3:
+        if future.utils.PY3:
             kwargs = {"use_builtin_types": self.use_builtin_types}
         else:
             kwargs = {"use_datetime": self.use_builtin_types}

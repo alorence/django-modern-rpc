@@ -37,7 +37,9 @@ def test_get_builtin_date_4():
 def test_get_builtin_date_invalid():
     # Invalid month: 2016-16-04
     assert get_builtin_date("2016-16-04T21:54:00") is None
+    # Invalid day 2016-12-32
     assert get_builtin_date("2016-12-32T21:54:00") is None
+    # Invalid hour format, missing seconds
     assert get_builtin_date("2016-12-20T21:54") is None
 
 

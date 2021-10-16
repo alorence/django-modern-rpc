@@ -1,4 +1,5 @@
 # coding: utf-8
+import future.utils
 import six
 
 from modernrpc.conf import settings
@@ -16,8 +17,7 @@ def _generic_convert_string(v, from_type, to_type, encoding):
     :param encoding: When
     :return:
     """
-
-    assert six.PY2, "This function should be used with Python 2 only"
+    assert future.utils.PY2, "This function should be used with Python 2 only"
     assert from_type != to_type
 
     if from_type == six.binary_type and isinstance(v, six.binary_type):
@@ -30,7 +30,7 @@ def _generic_convert_string(v, from_type, to_type, encoding):
         return type(v)([_generic_convert_string(element, from_type, to_type, encoding) for element in v])
 
     elif isinstance(v, dict):
-        return {k: _generic_convert_string(v, from_type, to_type, encoding) for k, v in v.iteritems()}
+        return {k: _generic_convert_string(v, from_type, to_type, encoding) for k, v in v.items()}
 
     return v
 
@@ -40,7 +40,7 @@ def standardize_strings(arg, strtype=settings.MODERNRPC_PY2_STR_TYPE, encoding=s
     Python 2 only. Lookup given *arg* and convert its str or unicode value according to MODERNRPC_PY2_STR_TYPE and
     MODERNRPC_PY2_STR_ENCODING settings.
     """
-    assert six.PY2, "This function should be used with Python 2 only"
+    assert future.utils.PY2, "This function should be used with Python 2 only"
 
     if not strtype:
         return arg

@@ -1,7 +1,7 @@
 # coding: utf-8
 from os.path import dirname, realpath
 
-import six
+import future.utils
 
 DEBUG = True
 ALLOWED_HOSTS = ['*']
@@ -67,7 +67,7 @@ MODERNRPC_METHODS_MODULES = [
     'testsite.rpc_methods_stub.with_authentication',
 ]
 
-if six.PY2:
+if future.utils.PY2:
     MODERNRPC_METHODS_MODULES.append('testsite.rpc_methods_stub.python2_specific')
 
 MODERNRPC_PY2_STR_TYPE = str

@@ -7,25 +7,25 @@ from . import xmlrpclib, jsonrpclib
 @pytest.fixture(scope='session')
 def all_rpc_url(live_server):
     """Return the default RPC test endpoint URL. See 'testsite.urls' for additional info."""
-    return live_server + '/all-rpc/'
+    return live_server.url + '/all-rpc/'
 
 
 @pytest.fixture(scope='session')
 def all_rpc_doc_url(live_server):
     """Return the URL to view configured to serve RPC documentation. See 'testsite.urls' for additional info."""
-    return live_server + '/all-rpc-doc/'
+    return live_server.url + '/all-rpc-doc/'
 
 
 @pytest.fixture(scope='session')
 def json_only_url(live_server):
     """Return the JSON-RPC specific endpoint URL. See 'testsite.urls' for additional info."""
-    return live_server + '/json-only/'
+    return live_server.url + '/json-only/'
 
 
 @pytest.fixture(scope='session')
 def xml_only_url(live_server):
     """Return the XML-RPC specific endpoint URL. See 'testsite.urls' for additional info."""
-    return live_server + '/xml-only/'
+    return live_server.url + '/xml-only/'
 
 
 @pytest.fixture(scope='session')

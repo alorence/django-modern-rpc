@@ -1,7 +1,7 @@
 # coding: utf-8
 import logging
 
-import six
+import future.utils
 
 import modernrpc.compat
 from modernrpc.core import RpcResult, registry, REQUEST_KEY, ENTRY_POINT_KEY, PROTOCOL_KEY, HANDLER_KEY
@@ -78,7 +78,7 @@ class RPCHandler(object):
                 HANDLER_KEY: self,
             })
 
-        if six.PY2:
+        if future.utils.PY2:
             method_std, encoding = _method.str_standardization, _method.str_std_encoding
             args = modernrpc.compat.standardize_strings(args, strtype=method_std, encoding=encoding)
             kwargs = modernrpc.compat.standardize_strings(kwargs, strtype=method_std, encoding=encoding)

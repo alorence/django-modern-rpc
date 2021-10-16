@@ -2,6 +2,7 @@
 import datetime
 import re
 
+import future.utils
 import pytest
 import six
 from jsonrpcclient.exceptions import ReceivedErrorResponse
@@ -116,7 +117,7 @@ def test_xmlrpc_bytes(xmlrpc_client):
 
 
 def test_jsonrpc_bytes(jsonrpc_client):
-    if six.PY2:
+    if future.utils.PY2:
 
         # Python 2: no problem, returned result is a standard string...
         result = jsonrpc_client.get_bytes()

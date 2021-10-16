@@ -52,7 +52,7 @@ exclude = ["tests"]
 [tool.poetry.dependencies]
 python = "~2.7 || ^3.5"
 django = ">=1.11"
-six = "*"
+future = { version = "*", python = "<3"}
 docutils = { version = "*", optional = true }
 markdown = { version = "*", optional = true }
 
