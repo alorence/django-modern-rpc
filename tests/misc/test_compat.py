@@ -1,64 +1,55 @@
 # coding: utf-8
 import future.utils
 import pytest
-import six
 
 from modernrpc.compat import standardize_strings
 
 
 @pytest.mark.skipif(future.utils.PY2, reason='Python 3 specific test')
 def test_standardize_str_error_with_py3():
-    with pytest.raises(AssertionError) as excpinfo:
-        standardize_strings('123')
-    assert 'python 2 only' in str(excpinfo.value).lower()
+    assert isinstance(standardize_strings('123'), str)
 
 
 @pytest.mark.skipif(future.utils.PY3, reason='Python 2 specific test')
-def test_standardize_str_1():
-    # six.text_type is 'unicode' in Python 2
-    assert standardize_strings('abc', six.text_type) == u'abc'
+def test_standardize_str_to_unicode():
+    assert standardize_strings('abc', unicode) == u'abc'
 
 
 @pytest.mark.skipif(future.utils.PY3, reason='Python 2 specific test')
-def test_standardize_str_2():
-    # six.binary_type is 'str' in Python 2
-    assert standardize_strings(u'abc', six.binary_type) == 'abc'
+def test_standardize_unicode_to_str():
+    assert standardize_strings(u'abc', str) == 'abc'
 
 
 @pytest.mark.skipif(future.utils.PY3, reason='Python 2 specific test')
-def test_standardize_str_3():
+def test_standardize_list_to_unicode():
     input_val_ = [145, 964, 84, ['ghjfgh', 64], [[84, 9.254, b'trdf', 645], '456', u'784', 'sdfg']]
     output_val = [145, 964, 84, [u'ghjfgh', 64], [[84, 9.254, b'trdf', 645], u'456', u'784', u'sdfg']]
-    # six.text_type is 'unicode' in Python 2
-    assert standardize_strings(input_val_, six.text_type) == output_val
+    assert standardize_strings(input_val_, unicode) == output_val
 
 
 @pytest.mark.skipif(future.utils.PY3, reason='Python 2 specific test')
-def test_standardize_str_4():
+def test_standardize_list_to_str():
     input_val_ = [145, 964, 84, [u'ghjfgh', 64], [[84, 9.254, b'trdf', 645], u'456', u'784', 'sdfg']]
     output_val = [145, 964, 84, ['ghjfgh', 64], [[84, 9.254, b'trdf', 645], '456', '784', 'sdfg']]
-    # six.binary_type is 'str' in Python 2
-    assert standardize_strings(input_val_, six.binary_type) == output_val
+    assert standardize_strings(input_val_, str) == output_val
 
 
 @pytest.mark.skipif(future.utils.PY3, reason='Python 2 specific test')
-def test_standardize_str_5():
+def test_standardize_set_to_unicode():
     input_val_ = (145, 964, 84, ['ghjfgh', 64], [(84, 9.254, b'trdf', 645), '456', u'784', 'sdfg'])
     output_val = (145, 964, 84, [u'ghjfgh', 64], [(84, 9.254, b'trdf', 645), u'456', u'784', u'sdfg'])
-    # six.text_type is 'unicode' in Python 2
-    assert standardize_strings(input_val_, six.text_type) == output_val
+    assert standardize_strings(input_val_, unicode) == output_val
 
 
 @pytest.mark.skipif(future.utils.PY3, reason='Python 2 specific test')
-def test_standardize_str_6():
+def test_standardize_set_to_str():
     input_val_ = (145, 964, 84, (u'ghjfgh', 64), ([84, 9.254, b'trdf', 645], u'456', u'784', 'sdfg'))
     output_val = (145, 964, 84, ('ghjfgh', 64), ([84, 9.254, b'trdf', 645], '456', '784', 'sdfg'))
-    # six.binary_type is 'str' in Python 2
-    assert standardize_strings(input_val_, six.binary_type) == output_val
+    assert standardize_strings(input_val_, str) == output_val
 
 
 @pytest.mark.skipif(future.utils.PY3, reason='Python 2 specific test')
-def test_standardize_str_7():
+def test_standardize_dict_to_unicode():
     input_dict = {
         'a': 456,
         'b': [84, 5.1, 'strdfg', u'trdt'],
@@ -75,12 +66,11 @@ def test_standardize_str_7():
             'y': [u'rtg', u'poi', u'aze']
         },
     }
-    # six.text_type is 'unicode' in Python 2
-    assert standardize_strings(input_dict, six.text_type) == expected_out
+    assert standardize_strings(input_dict, unicode) == expected_out
 
 
 @pytest.mark.skipif(future.utils.PY3, reason='Python 2 specific test')
-def test_standardize_str_8():
+def test_standardize_dict_to_str():
     input_dict = {
         'a': 456,
         'b': [84, 5.1, u'strdfg', u'trdt'],
@@ -97,17 +87,16 @@ def test_standardize_str_8():
             'y': ['rtg', 'poi', 'aze']
         },
     }
-    # six.binary_type is 'str' in Python 2
-    assert standardize_strings(input_dict, six.binary_type) == expected_out
+    assert standardize_strings(input_dict, str) == expected_out
 
 
 @pytest.mark.skipif(future.utils.PY3, reason='Python 2 specific test')
-def test_standardize_str_9():
+def test_standardize_nothing():
     assert standardize_strings(54, None) == 54
 
 
 @pytest.mark.skipif(future.utils.PY3, reason='Python 2 specific test')
-def test_standardize_str_10():
+def test_standardize_invalid_type():
     with pytest.raises(TypeError):
         assert standardize_strings("64", int)
 

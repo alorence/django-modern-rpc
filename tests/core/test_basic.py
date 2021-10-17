@@ -1,9 +1,9 @@
 # coding: utf-8
 import xml
 
+import future.utils
 import jsonrpcclient.exceptions
 import pytest
-import six
 
 from modernrpc.exceptions import RPC_METHOD_NOT_FOUND
 from tests import xmlrpclib, jsonrpclib
@@ -122,7 +122,7 @@ def test_jsonrpc_method_help(jsonrpc_client):
     help_text = jsonrpc_client.request('system.methodHelp', "add")
 
     # Type = unicode in Python 2, str in Python 3
-    assert type(help_text) == six.text_type
+    assert type(help_text) == future.utils.text_type
     assert help_text == ''
 
 

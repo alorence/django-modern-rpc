@@ -80,8 +80,8 @@ class RPCHandler(object):
 
         if future.utils.PY2:
             method_std, encoding = _method.str_standardization, _method.str_std_encoding
-            args = modernrpc.compat.standardize_strings(args, strtype=method_std, encoding=encoding)
-            kwargs = modernrpc.compat.standardize_strings(kwargs, strtype=method_std, encoding=encoding)
+            args = modernrpc.compat.standardize_strings(args, target_type=method_std, encoding=encoding)
+            kwargs = modernrpc.compat.standardize_strings(kwargs, target_type=method_std, encoding=encoding)
 
         logger.debug('Params: args = %s - kwargs = %s', args, kwargs)
 

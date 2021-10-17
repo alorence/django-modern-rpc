@@ -118,7 +118,6 @@ def test_xmlrpc_bytes(xmlrpc_client):
 
 def test_jsonrpc_bytes(jsonrpc_client):
     if future.utils.PY2:
-
         # Python 2: no problem, returned result is a standard string...
         result = jsonrpc_client.get_bytes()
 
@@ -127,7 +126,6 @@ def test_jsonrpc_bytes(jsonrpc_client):
         assert result == 'abcde'
 
     else:
-
         # Python 3: JSON cannot transport a bytearray
         with pytest.raises(ReceivedErrorResponse) as excinfo:
             jsonrpc_client.get_bytes()
