@@ -1,7 +1,6 @@
 # coding: utf-8
 import base64
 
-import future.utils
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import AnonymousUser
 
@@ -82,7 +81,7 @@ def http_basic_auth_superuser_required(func=None):
 def http_basic_auth_permissions_required(permissions):
     """Decorator. Use it to specify a RPC method is available only to logged users with given permissions"""
 
-    if isinstance(permissions, future.utils.string_types):
+    if isinstance(permissions, str):
         return auth.set_authentication_predicate(http_basic_auth_check_user, [auth.user_has_perm, permissions])
     else:
         return auth.set_authentication_predicate(http_basic_auth_check_user, [auth.user_has_all_perms, permissions])
@@ -98,7 +97,7 @@ def http_basic_auth_any_of_permissions_required(permissions):
 def http_basic_auth_group_member_required(groups):
     """Decorator. Use it to specify a RPC method is available only to logged users with given permissions"""
 
-    if isinstance(groups, future.utils.string_types):
+    if isinstance(groups, str):
         # Check user is in a group
         return auth.set_authentication_predicate(http_basic_auth_check_user, [auth.user_in_group, groups])
     else:

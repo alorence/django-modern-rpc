@@ -3,8 +3,6 @@ import xmlrpc.client as xmlrpc_client
 from pyexpat import ExpatError
 from textwrap import dedent
 
-import future.utils
-
 from modernrpc.conf import settings
 from modernrpc.core import XMLRPC_PROTOCOL, RpcRequest
 from modernrpc.exceptions import RPCParseError, RPCInvalidRequest, RPC_INTERNAL_ERROR
@@ -29,13 +27,8 @@ class XMLRPCHandler(RPCHandler):
         ]
 
     def parse_request(self, request_body):
-        if future.utils.PY3:
-            kwargs = {"use_builtin_types": self.use_builtin_types}
-        else:
-            kwargs = {"use_datetime": self.use_builtin_types}
-
         try:
-            params, method_name = xmlrpc_client.loads(request_body, **kwargs)
+            params, method_name = xmlrpc_client.loads(request_body, use_builtin_types=self.use_builtin_types)
 
         except ExpatError as exc:
             raise RPCParseError("Error while parsing XML-RPC request: {}".format(exc))

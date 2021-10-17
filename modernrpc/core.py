@@ -2,9 +2,8 @@
 import collections
 import logging
 import re
-from inspect import cleandoc, getargspec
+from inspect import cleandoc
 
-import future.utils
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import cached_property
 from django.utils.inspect import func_accepts_kwargs, get_func_args
@@ -52,12 +51,7 @@ class RPCMethod(object):
         self.predicates_params = getattr(func, 'modernrpc_auth_predicates_params', ())
 
         # List method's positional arguments
-        # We can't use django.utils.inspect.get_func_args() with Python 2, because this function remove the first
-        # argument in returned list. This is supposed to remove the first 'self' argument, but doesn't fork well
-        # for global functions.
-        # For Python 2, we will prefer django.utils.inspect.getargspec(func)[0]. This will work as expected, even if
-        # the function has been removed in Django 2.0, since Django 2 doesn't work with Python 2
-        self.args = get_func_args(func) if future.utils.PY3 else getargspec(func)[0]
+        self.args = get_func_args(func)
         # Does the method accept additional kwargs dict?
         self.accept_kwargs = func_accepts_kwargs(func)
 

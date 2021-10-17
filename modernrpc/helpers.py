@@ -24,8 +24,7 @@ def get_builtin_date(date, date_format="%Y-%m-%dT%H:%M:%S", raise_exception=Fals
         # the date is decoded as DateTime object
         return datetime.datetime.strptime(date.value, "%Y%m%dT%H:%M:%S")
     else:
-        # If date is given as str (or unicode for python 2)
-        # This is the normal behavior for JSON-RPC
+        # If date is given as str. This is the normal behavior for JSON-RPC
         try:
             return datetime.datetime.strptime(date, date_format)
         except ValueError:
