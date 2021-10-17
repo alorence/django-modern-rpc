@@ -76,6 +76,11 @@ pylint = { version = "~2.7", python = ">=3.7"}
 [tool.pylint.format]
 max-line-length=120
 
-# [tool.pytest.ini_options]
-# Pytest config will remain in pytest.ini until both python 2.7 & 3.4 support is dropped. Then, we will be able to
-# install pytest 6+ which introduce support for pyproject.toml based configuration
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "testsite.settings"
+norecursedirs = [
+    ".git", "__pycache__", "build", "dist", "venv*", ".idea", ".vscode", ".cache", ".pytest_cache", ".tox",
+]
+python_paths = "tests"
+testpaths = "tests"
+python_files = ["test_*.py", "dummy_*.py"]
