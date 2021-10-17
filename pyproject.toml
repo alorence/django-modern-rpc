@@ -19,8 +19,6 @@ classifiers = [
     "Environment :: Web Environment",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 2",
-    "Programming Language :: Python :: 2.7",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.5",
     "Programming Language :: Python :: 3.6",
@@ -28,8 +26,6 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Framework :: Django",
-    "Framework :: Django :: 1.11",
-    "Framework :: Django :: 2.0",
     "Framework :: Django :: 2.1",
     "Framework :: Django :: 2.2",
     "Framework :: Django :: 3.0",
@@ -50,8 +46,8 @@ exclude = ["tests"]
 "Demo" = "https://modernrpc.herokuapp.com/"
 
 [tool.poetry.dependencies]
-python = "~2.7 || ^3.5"
-django = ">=1.11"
+python = "^3.5"
+django = ">=2.1"
 future = { version = "*", python = "<3"}
 docutils = { version = "*", optional = true }
 markdown = { version = "*", optional = true }
