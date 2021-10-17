@@ -119,7 +119,7 @@ pyflakes = ">=2.3.0,<2.4.0"
 name = "future"
 version = "0.16.0"
 description = "Clean single-source support for Python 3 and 2"
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 
@@ -518,7 +518,7 @@ markdown = ["markdown"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.5"
-content-hash = "7a5c2f713f9660e681f2bc2ed14633400057851639c53542d426f3ad40f20858"
+content-hash = "4c136723d82df98e2e7f54fe1d104d30f7d3d308612d8384165862d179fe830f"
 
 [metadata.files]
 astroid = [
