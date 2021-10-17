@@ -27,7 +27,7 @@ def check_settings(app_configs, **kwargs):
             try:
                 import_module(module_name)
             except ImportError as err:
-                # ModuleNotFoundError may be catched here, when library will require python 3.6+
+                # ModuleNotFoundError may be caught here, when library will require python 3.6+
                 msg = 'ModuleNotFoundError exception when importing "{}" module'.format(module_name)
                 hint = str(err)
                 result.append(checks.Error(msg, hint=hint, obj=settings, id="modernrpc.E001"))

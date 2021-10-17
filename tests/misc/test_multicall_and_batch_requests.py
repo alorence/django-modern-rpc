@@ -106,9 +106,7 @@ def test_jsonrpc_batch_with_errors_2(jsonrpc_client):
     assert result[0] == {'jsonrpc': '2.0', 'id': 1, 'result': 10}
     assert result[1]['id'] == 2
     assert result[1]['error']['code'] == RPC_INTERNAL_ERROR
-    # py2: integer division or modulo by zero
-    # py2: division by zero
-    assert 'by zero' in result[1]['error']['message']
+    assert 'Internal error: division by zero' == result[1]['error']['message']
     assert result[2] == {'jsonrpc': '2.0', 'id': 3, 'result': 16}
 
 

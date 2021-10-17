@@ -1,19 +1,11 @@
 # coding: utf-8
 import xml
 
-import future.utils
 import jsonrpcclient.exceptions
 import pytest
 
 from modernrpc.exceptions import RPC_METHOD_NOT_FOUND
 from tests import xmlrpclib, jsonrpclib
-
-try:
-    # Python 3
-    from json.decoder import JSONDecodeError
-except ImportError:
-    # Python 2: json.loads will raise a ValueError when loading json
-    JSONDecodeError = ValueError
 
 
 def test_xmlrpc_basic_add(xmlrpc_client):
@@ -120,9 +112,7 @@ def test_xmlrpc_method_help_invalid_method(xmlrpc_client):
 
 def test_jsonrpc_method_help(jsonrpc_client):
     help_text = jsonrpc_client.request('system.methodHelp', "add")
-
-    # Type = unicode in Python 2, str in Python 3
-    assert type(help_text) == future.utils.text_type
+    assert type(help_text) == str
     assert help_text == ''
 
 
@@ -197,7 +187,7 @@ def test_jsonrpc_protocol_specific_error(xml_only_url):
         # There is no method available via this entry point for JSON-RPC clients.
         # The returned error message cannot be encapsulated in a proper JSON-RPC response (since the entry
         # point is not configured to handle and respond via this protocol). The returned error message is RAW,
-        # so JSON-RPC cannot parse it and generate a JSONDecodeError, or a ValueError in python 2
+        # so JSON-RPC cannot parse it and generate a ParseResponseError
         jsonrpc_client.request('system.listMethods')
 
     assert 'The response was not valid JSON' in str(excinfo.value)

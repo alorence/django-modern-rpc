@@ -1,6 +1,5 @@
 # coding: utf-8
 
-import future.utils
 from django.contrib.auth.models import Group
 
 
@@ -70,7 +69,7 @@ def user_in_group(user, group):
     """Returns True if the given user is in given group"""
     if isinstance(group, Group):
         return user_is_superuser(user) or group in user.groups.all()
-    elif isinstance(group, future.utils.string_types):
+    elif isinstance(group, str):
         return user_is_superuser(user) or user.groups.filter(name=group).exists()
     raise TypeError("'group' argument must be a string or a Group instance")
 

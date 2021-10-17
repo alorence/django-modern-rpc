@@ -19,8 +19,6 @@ classifiers = [
     "Environment :: Web Environment",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 2",
-    "Programming Language :: Python :: 2.7",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.5",
     "Programming Language :: Python :: 3.6",
@@ -28,8 +26,6 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Framework :: Django",
-    "Framework :: Django :: 1.11",
-    "Framework :: Django :: 2.0",
     "Framework :: Django :: 2.1",
     "Framework :: Django :: 2.2",
     "Framework :: Django :: 3.0",
@@ -50,9 +46,9 @@ exclude = ["tests"]
 "Demo" = "https://modernrpc.herokuapp.com/"
 
 [tool.poetry.dependencies]
-python = "~2.7 || ^3.5"
-django = ">=1.11"
-future = { version = "*", python = "<3"}
+python = "^3.5"
+django = ">=2.1"
+more-itertools = "^8.10"
 docutils = { version = "*", optional = true }
 markdown = { version = "*", optional = true }
 
@@ -62,9 +58,9 @@ markdown = ["markdown"]
 
 [tool.poetry.dev-dependencies]
 pytest = "*"
-pytest-django = "<4"
+pytest-django = ""
 pytest-pythonpath = "*"
-pytest-sugar = "^0.9.4"
+pytest-sugar = "^0.9"
 pytest-cov = "*"
 flake8 = "*"
 jsonrpcclient = "<3"
@@ -80,6 +76,11 @@ pylint = { version = "~2.7", python = ">=3.7"}
 [tool.pylint.format]
 max-line-length=120
 
-# [tool.pytest.ini_options]
-# Pytest config will remain in pytest.ini until both python 2.7 & 3.4 support is dropped. Then, we will be able to
-# install pytest 6+ which introduce support for pyproject.toml based configuration
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "testsite.settings"
+norecursedirs = [
+    ".git", "__pycache__", "build", "dist", "venv*", ".idea", ".vscode", ".cache", ".pytest_cache", ".tox",
+]
+python_paths = "tests"
+testpaths = "tests"
+python_files = ["test_*.py", "dummy_*.py"]

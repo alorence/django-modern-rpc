@@ -1,6 +1,7 @@
 # coding: utf-8
 import json
 import logging
+from json.decoder import JSONDecodeError
 
 from django.utils.module_loading import import_string
 
@@ -8,13 +9,6 @@ from modernrpc.conf import settings
 from modernrpc.core import JSONRPC_PROTOCOL, RpcRequest, RpcResult  # noqa: F401
 from modernrpc.exceptions import RPCParseError, RPCInvalidRequest, RPC_INTERNAL_ERROR
 from modernrpc.handlers.base import RPCHandler
-
-try:
-    # Python 3
-    from json.decoder import JSONDecodeError
-except ImportError:
-    # Python 2: json.loads will raise a ValueError when loading json
-    JSONDecodeError = ValueError
 
 logger = logging.getLogger(__name__)
 

@@ -1,9 +1,6 @@
 # coding: utf-8
 import logging
 
-import future.utils
-
-import modernrpc.compat
 from modernrpc.core import RpcResult, registry, REQUEST_KEY, ENTRY_POINT_KEY, PROTOCOL_KEY, HANDLER_KEY
 from modernrpc.exceptions import (
     RPCException,
@@ -77,11 +74,6 @@ class RPCHandler(object):
                 PROTOCOL_KEY: self.protocol,
                 HANDLER_KEY: self,
             })
-
-        if future.utils.PY2:
-            method_std, encoding = _method.str_standardization, _method.str_std_encoding
-            args = modernrpc.compat.standardize_strings(args, target_type=method_std, encoding=encoding)
-            kwargs = modernrpc.compat.standardize_strings(kwargs, target_type=method_std, encoding=encoding)
 
         logger.debug('Params: args = %s - kwargs = %s', args, kwargs)
 

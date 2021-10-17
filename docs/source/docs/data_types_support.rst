@@ -16,7 +16,7 @@ The basic types are handled the same way with the 2 supported protocols. Those t
 - bool
 - int
 - float
-- string (Python 3 only, see Strings_ for information with Python 2)
+- string
 
 As long as a RPC method arguments or return value is of one of the above types, the behavior is consistent across all
 Python version and protocols.
@@ -50,76 +50,6 @@ define in your ``settings.py``::
    MODERNRPC_XMLRPC_ALLOW_NONE = False
 
 As a result, the XML handler will raise a ``TypeError`` when trying to serialize a response containing a ``None`` value.
-
-Strings
--------
-If your project runs in a Python 3 environment, the behavior is consistent for XML-RPC and JSON-RPC protocol.
-
-In a Python 2 project, XML deserializer will transmit string values as ``str`` when JSON deserializer will
-produce ``unicode`` values. If this behavior is problematic in your project, you have to manually handle both cases for
-each string you manipulate in your RPC methods. As an alternative, django-modern-rpc can dynamically standardize
-incoming arguments to ensure contained strings are converted to have always the same type from method point of view.
-
-.. note::
-
-    The strings standardization apply on strings arguments, but also on list and structures. The process inspects
-    recursively all arguments to perform the conversion of string values. This can be inefficient for big structures or
-    lists, that's why this feature is not enabled by default.
-
-You have 2 options to configure this process:
-
-.. _GlobalStringStandardization:
-
-Global String standardization (project level)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-In your ``settings.py``, define the variable ``MODERNRPC_PY2_STR_TYPE`` with type value ``str`` or ``unicode``. This
-will automatically converts any incoming string argument to the specified type. In such case, you will need to also
-configure ``settings.MODERNRPC_PY2_STR_ENCODING`` with the strings encoding (default is ``UTF-8``)
-
-In ``settings.py``
-
-.. code:: python
-
-    MODERNRPC_PY2_STR_TYPE = str
-    MODERNRPC_PY2_STR_ENCODING = 'UTF-8'
-
-
-In ``rpc_methods``
-
-.. code:: python
-
-    @rpc_method
-    def print_incoming_type(data):
-        """Returns a string representation of input argument type"""
-        if isinstance(data, unicode):
-            return 'Incoming arg is a unicode object'
-        elif isinstance(data, str):
-            return 'Incoming arg is a str object'
-
-        return 'Incoming arg has type {}'.format(type(data))
-
-In this example, calling ``print_incoming_type('abcd')`` from a Python 2 project will always return ``Incoming arg is
-a str object``, no matter which protocol were used to make the request (JSON-RPC or XML-RPC)
-
-Method level String standardization
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-In the same way, if you need to have a different behavior for a specific RPC method, the equivalent of
-``settings.MODERNRPC_PY2_STR_TYPE`` and ``settings.MODERNRPC_PY2_STR_ENCODING`` variables can be defined at method
-level:
-
-.. code:: python
-
-    @rpc_method(str_standardization=unicode, str_standardization_encoding='UTF-8')
-    def print_incoming_type(data):
-        """Returns a string representation of input argument type"""
-        if isinstance(data, unicode):
-            return 'Incoming arg is a unicode object'
-        elif isinstance(data, str):
-            return 'Incoming arg is a str object'
-
-        return 'Incoming arg has type {}'.format(type(data))
-
-This parameters will override the global settings for a specific RPC method.
 
 Dates
 -----

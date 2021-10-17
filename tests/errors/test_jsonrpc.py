@@ -128,10 +128,7 @@ def test_jsonrpc_invalid_params(jsonrpc_client):
     with pytest.raises(ReceivedErrorResponse) as excinfo:
         jsonrpc_client.add(42)
 
-    assert 'Invalid parameters' in excinfo.value.message
-    # Python2: takes exactly 2 arguments (1 given)
-    # Python3: 1 required positional argument
-    assert 'argument' in excinfo.value.message
+    assert excinfo.value.message == "Invalid parameters: add() missing 1 required positional argument: 'b'"
     assert excinfo.value.code == RPC_INVALID_PARAMS
 
 
@@ -139,10 +136,7 @@ def test_jsonrpc_invalid_params2(jsonrpc_client):
     with pytest.raises(ReceivedErrorResponse) as excinfo:
         jsonrpc_client.add(42, -51, 98)
 
-    assert 'Invalid parameters' in excinfo.value.message
-    # Python2: takes exactly 2 arguments (3 given)
-    # Python3: takes 2 positional arguments but 3 were given
-    assert 'arguments' in excinfo.value.message
+    assert excinfo.value.message == "Invalid parameters: add() takes 2 positional arguments but 3 were given"
     assert excinfo.value.code == RPC_INVALID_PARAMS
 
 
@@ -165,10 +159,7 @@ def test_jsonrpc_divide_by_zero(jsonrpc_client):
     with pytest.raises(ReceivedErrorResponse) as excinfo:
         jsonrpc_client.divide(42, 0)
 
-    assert 'Internal error' in excinfo.value.message
-    # Python2: integer division or modulo by zero
-    # Python3: division by zero
-    assert 'by zero' in excinfo.value.message
+    assert excinfo.value.message == "Internal error: division by zero"
     assert excinfo.value.code == RPC_INTERNAL_ERROR
 
 
