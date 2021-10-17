@@ -4,7 +4,6 @@ import re
 
 import future.utils
 import pytest
-import six
 from jsonrpcclient.exceptions import ReceivedErrorResponse
 
 from modernrpc.exceptions import RPC_INTERNAL_ERROR
@@ -92,7 +91,7 @@ def test_jsonrpc_string(jsonrpc_client):
     result = jsonrpc_client.get_string()
     # Unlike XML-RPC, JSON-RPC always return a unicode string. That means the type of the result value is
     # 'unicode' in Python 2 and 'str' in python 3.
-    assert type(result) == six.text_type
+    assert type(result) == str
     assert result == 'abcde'
 
 
@@ -122,7 +121,7 @@ def test_jsonrpc_bytes(jsonrpc_client):
         result = jsonrpc_client.get_bytes()
 
         # ... but json.loads will convert that string into an unicode object
-        assert type(result) == six.text_type
+        assert type(result) == str
         assert result == 'abcde'
 
     else:
