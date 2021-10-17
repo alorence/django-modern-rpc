@@ -2,7 +2,6 @@
 import datetime
 import re
 
-import future.utils
 import pytest
 from jsonrpcclient.exceptions import ReceivedErrorResponse
 
@@ -81,33 +80,22 @@ def test_jsonrpc_float(jsonrpc_client):
 
 def test_xmlrpc_string(xmlrpc_client):
     result = xmlrpc_client.get_string()
-    # Unlike JSON-RPC, XML-RPC always return a str. That means the result is unicode
-    # in Python 3 and ASCII in Python 2. This may be addressed in the future
     assert type(result) == str
     assert result == 'abcde'
 
 
 def test_jsonrpc_string(jsonrpc_client):
     result = jsonrpc_client.get_string()
-    # Unlike XML-RPC, JSON-RPC always return a unicode string. That means the type of the result value is
-    # 'unicode' in Python 2 and 'str' in python 3.
     assert type(result) == str
     assert result == 'abcde'
 
 
 def test_xmlrpc_input_string(xmlrpc_client):
-    # Python 2 : "<type 'str'>"
-    # Python 3 : "<class 'str'>"
-    assert re.match(r"<(class|type) 'str'>", xmlrpc_client.get_data_type('abcd'))
+    assert xmlrpc_client.get_data_type('abcd') == "<class 'str'>"
 
 
 def test_jsonrpc_input_string(jsonrpc_client):
-    # Python 2 : "<type 'str'>"
-    # Python 3 : "<class 'str'>"
-    # By default on Python 2, json-rpc call to this method will return 'unicode'
-    # This test suite has been configured with settings.MODERNRPC_PY2_STR_TYPE = str, so
-    # arguments passed to RPC methods via XML or JSON will be converted to the same type (str in that case)
-    assert re.match(r"<(class|type) 'str'>", jsonrpc_client.get_data_type('abcd'))
+    assert jsonrpc_client.get_data_type('abcd') == "<class 'str'>"
 
 
 def test_xmlrpc_bytes(xmlrpc_client):
@@ -116,20 +104,10 @@ def test_xmlrpc_bytes(xmlrpc_client):
 
 
 def test_jsonrpc_bytes(jsonrpc_client):
-    if future.utils.PY2:
-        # Python 2: no problem, returned result is a standard string...
-        result = jsonrpc_client.get_bytes()
+    with pytest.raises(ReceivedErrorResponse) as excinfo:
+        jsonrpc_client.get_bytes()
 
-        # ... but json.loads will convert that string into an unicode object
-        assert type(result) == str
-        assert result == 'abcde'
-
-    else:
-        # Python 3: JSON cannot transport a bytearray
-        with pytest.raises(ReceivedErrorResponse) as excinfo:
-            jsonrpc_client.get_bytes()
-
-        assert excinfo.value.code == RPC_INTERNAL_ERROR
+    assert excinfo.value.code == RPC_INTERNAL_ERROR
 
 
 def test_xmlrpc_date(xmlrpc_client):

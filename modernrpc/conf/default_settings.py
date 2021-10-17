@@ -29,9 +29,6 @@ MODERNRPC_DEFAULT_ENTRYPOINT_NAME = '__default_entry_point__'
 # Possible values are: '', 'rst' or 'md'
 MODERNRPC_DOC_FORMAT = ''
 
-MODERNRPC_PY2_STR_TYPE = None
-MODERNRPC_PY2_STR_ENCODING = 'UTF-8'
-
 # Set to False if you need to disable exception logging
 MODERNRPC_LOG_EXCEPTIONS = True
 

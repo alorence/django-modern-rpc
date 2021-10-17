@@ -1,8 +1,6 @@
 # coding: utf-8
 from os.path import dirname, realpath
 
-import future.utils
-
 DEBUG = True
 ALLOWED_HOSTS = ['*']
 SECRET_KEY = 'dummy'
@@ -67,8 +65,4 @@ MODERNRPC_METHODS_MODULES = [
     'testsite.rpc_methods_stub.with_authentication',
 ]
 
-if future.utils.PY2:
-    MODERNRPC_METHODS_MODULES.append('testsite.rpc_methods_stub.python2_specific')
-
-MODERNRPC_PY2_STR_TYPE = str
 MODERNRPC_LOG_EXCEPTIONS = False

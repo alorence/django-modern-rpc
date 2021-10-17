@@ -46,8 +46,7 @@ class RPCMethod(object):
         self._external_name = getattr(func, 'modernrpc_name', func.__name__)
         self.entry_point = getattr(func, 'modernrpc_entry_point')
         self.protocol = getattr(func, 'modernrpc_protocol')
-        self.str_standardization = getattr(func, 'str_standardization')
-        self.str_std_encoding = getattr(func, 'str_standardization_encoding')
+
         # Authentication related attributes
         self.predicates = getattr(func, 'modernrpc_auth_predicates', None)
         self.predicates_params = getattr(func, 'modernrpc_auth_predicates_params', ())
@@ -384,9 +383,7 @@ class RpcResult(object):
         return self._data[2]
 
 
-def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL,
-               str_standardization=settings.MODERNRPC_PY2_STR_TYPE,
-               str_standardization_encoding=settings.MODERNRPC_PY2_STR_ENCODING):
+def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL):
     """
     Mark a standard python function as RPC method.
 
@@ -396,15 +393,9 @@ def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL,
     :param name: Used as RPC method name instead of original function name
     :param entry_point: Default: ALL. Used to limit usage of the RPC method for a specific set of entry points
     :param protocol: Default: ALL. Used to limit usage of the RPC method for a specific protocol (JSONRPC or XMLRPC)
-    :param str_standardization: Default: settings.MODERNRPC_PY2_STR_TYPE. Configure string standardization on python 2.
-    Ignored on python 3.
-    :param str_standardization_encoding: Default: settings.MODERNRPC_PY2_STR_ENCODING. Configure the encoding used
-    to perform string standardization conversion. Ignored on python 3.
     :type name: str
     :type entry_point: str
     :type protocol: str
-    :type str_standardization: type str or unicode
-    :type str_standardization_encoding: str
     """
 
     def decorated(_func):
@@ -412,8 +403,6 @@ def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL,
         _func.modernrpc_name = name or _func.__name__
         _func.modernrpc_entry_point = entry_point
         _func.modernrpc_protocol = protocol
-        _func.str_standardization = str_standardization
-        _func.str_standardization_encoding = str_standardization_encoding
 
         return _func
 
