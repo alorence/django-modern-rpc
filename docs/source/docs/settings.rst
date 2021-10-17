@@ -24,14 +24,14 @@ You can configure how JSON-RPC handler will serialize and unserialize data:
 
 Default: ``'json.decoder.JSONDecoder'``
 
-Decoder class used to convert python data to JSON
+Decoder class used to convert JSON data to python values.
 
 ``MODERNRPC_JSON_ENCODER``
 --------------------------
 
 Default: ``'django.core.serializers.json.DjangoJSONEncoder'``
 
-Encoder class used to convert JSON to python values. Internally, modernrpc uses the default `Django JSON encoder`_,
+Encoder class used to convert python values to JSON data. Internally, modernrpc uses the default `Django JSON encoder`_,
 which improves the builtin python encoder by adding support for additional types (DateTime, UUID, etc.).
 
 .. _Django JSON encoder: https://docs.djangoproject.com/en/dev/topics/serialization/#djangojsonencoder
