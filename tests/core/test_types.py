@@ -118,13 +118,7 @@ def test_xmlrpc_date(xmlrpc_client):
 
 
 def test_xmlrpc_date_2(all_rpc_url):
-    try:
-        # Python 3
-        client = xmlrpclib.ServerProxy(all_rpc_url, use_builtin_types=True)
-    except TypeError:
-        # Python 3
-        client = xmlrpclib.ServerProxy(all_rpc_url, use_datetime=True)
-
+    client = xmlrpclib.ServerProxy(all_rpc_url, use_builtin_types=True)
     result = client.get_date()
 
     assert isinstance(result, datetime.datetime)
