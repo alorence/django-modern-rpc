@@ -1,6 +1,5 @@
 # coding: utf-8
 import datetime
-import re
 
 import pytest
 from jsonrpcclient.exceptions import ReceivedErrorResponse
@@ -141,19 +140,11 @@ def test_xmlrpc_date_2(all_rpc_url):
 def test_xmlrpc_date_3(xmlrpc_client):
     date = datetime.datetime(1990, 1, 1, 0, 0, 0)
     result = xmlrpc_client.get_data_type(date)
-
-    # Python 2 : "<type 'datetime.datetime'>"
-    # Python 3 : "<class 'datetime.datetime'>"
-    assert re.match(r"<(class|type) 'datetime.datetime'>", result)
+    assert result == "<class 'datetime.datetime'>"
 
 
 def test_xmlrpc_date_4(all_rpc_url):
-    try:
-        # Python 3
-        client = xmlrpclib.ServerProxy(all_rpc_url, use_builtin_types=True)
-    except TypeError:
-        # Python 3
-        client = xmlrpclib.ServerProxy(all_rpc_url, use_datetime=True)
+    client = xmlrpclib.ServerProxy(all_rpc_url, use_builtin_types=True)
 
     base_date = datetime.datetime(2000, 6, 3, 0, 0, 0)
     result = client.add_one_month(base_date)
@@ -179,12 +170,8 @@ def test_jsonrpc_date_2(jsonrpc_client):
     date = datetime.datetime(1990, 1, 1, 0, 0, 0)
 
     # Since date type is not supported by JSON-RPC spec, it is transported as string
-    # to the server. By default, the decoded type depends on the Python version.
-    # This test suite has been configured with settings.MODERNRPC_PY2_STR_TYPE = str,
-    # as a consequence, the type returned will always be 'str'
-
-    # We have to convert date to ISO 8601, since JSON-RPC cannot serialize it
-    assert re.match(r"<(class|type) 'str'>", jsonrpc_client.get_data_type(date.isoformat()))
+    # to the server. We have to convert date to ISO 8601, since JSON-RPC cannot serialize it
+    assert jsonrpc_client.get_data_type(date.isoformat()) == "<class 'str'>"
 
 
 def test_jsonrpc_date_3(jsonrpc_client):

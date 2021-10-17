@@ -22,10 +22,7 @@ def test_xmlrpc_invalid_params(xmlrpc_client):
     with pytest.raises(xmlrpclib.Fault) as excinfo:
         xmlrpc_client.add(42)
 
-    assert 'Invalid parameters' in excinfo.value.faultString
-    # Python2: takes exactly 2 arguments (1 given)
-    # Python3: 1 required positional argument
-    assert 'argument' in excinfo.value.faultString
+    assert excinfo.value.faultString == "Invalid parameters: add() missing 1 required positional argument: 'b'"
     assert excinfo.value.faultCode == RPC_INVALID_PARAMS
 
 
@@ -33,9 +30,7 @@ def test_xmlrpc_invalid_params_2(xmlrpc_client):
     with pytest.raises(xmlrpclib.Fault) as excinfo:
         xmlrpc_client.add(42, -51, 98)
 
-    # Python2: takes exactly 2 arguments (3 given)
-    # Python3: takes 2 positional arguments but 3 were given
-    assert 'arguments' in excinfo.value.faultString
+    assert excinfo.value.faultString == "Invalid parameters: add() takes 2 positional arguments but 3 were given"
     assert excinfo.value.faultCode == RPC_INVALID_PARAMS
 
 
@@ -51,8 +46,7 @@ def test_xmlrpc_exception_with_data(xmlrpc_client):
     with pytest.raises(xmlrpclib.Fault) as excinfo:
         xmlrpc_client.raise_custom_exception_with_data()
 
-    # XML-RPC does not support additional data. The returned exception only
-    # contains code and message
+    # XML-RPC does not support additional data. The returned exception only contains code and message
     assert 'This exception has additional data' in excinfo.value.faultString
     assert RPC_CUSTOM_ERROR_BASE <= excinfo.value.faultCode <= RPC_CUSTOM_ERROR_MAX
 
@@ -61,9 +55,7 @@ def test_xmlrpc_divide_by_zero(xmlrpc_client):
     with pytest.raises(xmlrpclib.Fault) as excinfo:
         xmlrpc_client.divide(42, 0)
 
-    # Python2: integer division or modulo by zero
-    # Python3: division by zero
-    assert 'by zero' in excinfo.value.faultString
+    assert excinfo.value.faultString == "Internal error: division by zero"
     assert excinfo.value.faultCode == RPC_INTERNAL_ERROR
 
 
