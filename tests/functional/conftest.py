@@ -1,14 +1,15 @@
 # coding: utf-8
 import base64
-import json
+import itertools
+import json.decoder
 import pyexpat
 import xmlrpc.client
 from abc import ABC, abstractmethod
 
-import jsonrpcclient.exceptions
-import jsonrpcclient.http_client
+import jsonrpcclient.clients.http_client
 import pytest
-import requests
+from jsonrpcclient.exceptions import ReceivedErrorResponseError
+from jsonrpcclient.requests import Request, Notification
 
 
 class JsonrpcErrorResponse(Exception):
@@ -85,98 +86,46 @@ class AbstractJsonRpcTestClient(AbstractRpcTestClient):
         pass
 
 
-class RequestBasedJsonRpcClient(AbstractJsonRpcTestClient):
-    """requests based client"""
+class JsonrpcclientlibClient(AbstractJsonRpcTestClient):
     error_response_exception = JsonrpcErrorResponse
     invalid_response_exception = json.decoder.JSONDecodeError
     auth_error_exception = JsonrpcErrorResponse
 
     batch_result_klass = list
 
-    def call(self, method, *args, **kwargs):
-        headers = self._get_headers()
-
-        try:
-            is_notify = kwargs.pop("notify")
-        except KeyError:
-            is_notify = False
-
-        payload = {
-            "jsonrpc": "2.0",
-            "method": method,
-            "params": kwargs or args,
-            "id": self.request_id
-        }
-
-        response_content = requests.post(self._url, data=json.dumps(payload), headers=headers).json()
-
-        if is_notify:
-            return
-        try:
-            return response_content["result"]
-        except KeyError:
-            raise JsonrpcErrorResponse(
-                response_content['error']['code'],
-                response_content['error']['message'],
-                response_content["error"].get("data"),
-            )
-
-    def batch_request(self, calls_data):
-        headers = self._get_headers()
-
-        batch = []
-        for method, args, *extra_params in calls_data:
-            req = {'jsonrpc': '2.0', 'method': method, 'params': args}
-            if "notify_only" not in extra_params:
-                req["id"] = self.request_id
-            batch.append(req)
-
-        response = requests.post(self._url, data=json.dumps(batch), headers=headers)
-        if response.content:
-            return response.json()
-        return None
-
-
-class JsonrpcclientlibClient(AbstractJsonRpcTestClient):
-    error_response_exception = jsonrpcclient.exceptions.ReceivedErrorResponse
-    invalid_response_exception = jsonrpcclient.exceptions.ParseResponseError
-    auth_error_exception = jsonrpcclient.exceptions.ReceivedErrorResponse
-
-    batch_result_klass = list
-
     def __init__(self, url, **kwargs):
         super().__init__(url, **kwargs)
-        self._client = jsonrpcclient.HTTPClient(url)
+        self._id_generator = itertools.count(0)
+        self._client = jsonrpcclient.clients.http_client.HTTPClient(self._url, id_generator=self._id_generator)
+        # self._client = jsonrpcclient.clients.http_client.HTTPClient(self._url)
 
     def call(self, method, *args, **kwargs):
-        headers_dump = {**self._client.session.headers}
-        self._client.session.headers.update(self._get_headers())
-
         if "notify" in kwargs and kwargs.pop("notify"):
-            self._client.notify(method, *args, **kwargs)
-            self._client.session.headers = headers_dump
-            return
+            req = Notification(method, *args, **kwargs)
+        else:
+            req = Request(method, *args, **kwargs)
 
-        result = self._client.request(method, *args, **kwargs)
-        self._client.session.headers = headers_dump
-
-        return result
+        try:
+            response = self._client.send(req, headers=self._get_headers())
+        except ReceivedErrorResponseError as exc:
+            raise JsonrpcErrorResponse(exc.response.code, exc.response.message, exc.response.data)
+        return response.data.result
 
     def batch_request(self, calls_data):
-        headers_dump = {**self._client.session.headers}
-        self._client.session.headers.update(self._get_headers())
-
         batch = []
-        for method, args, *extra_params in calls_data:
-            req = {'jsonrpc': '2.0', 'method': method, 'params': args}
-            if "notify_only" not in extra_params:
-                req["id"] = self.request_id
-            batch.append(req)
+        for method, params, *extra_params in calls_data:
+            if isinstance(params, list):
+                args, kwargs = params, {}
+            elif isinstance(params, dict):
+                args, kwargs = [], params
 
-        result = self._client.send(batch)
-        self._client.session.headers = headers_dump
+            if "notify_only" in extra_params:
+                batch.append(Notification(method, *args, **kwargs))
+            else:
+                batch.append(Request(method, *args, **kwargs, id_generator=self._id_generator))
 
-        return result
+        response = self._client.send(batch, headers=self._get_headers())
+        return None if not response.raw.content else response.raw.json()
 
 
 class PythonXmlRpcClient(AbstractXmlRpcTestClient):
@@ -244,16 +193,14 @@ def xmlrpc_client_with_builtin_types(live_server, endpoint_path, client_auth, re
     return klass(live_server.url + endpoint_path, auth=client_auth, use_builtin_types=True)
 
 
-@pytest.fixture(scope="function", params=[RequestBasedJsonRpcClient, JsonrpcclientlibClient])
+@pytest.fixture(scope="function", params=[JsonrpcclientlibClient])
 def jsonrpc_client(live_server, endpoint_path, client_auth, jsonrpc_content_type, request):
     """A json-rpc only client"""
     klass = request.param
     return klass(live_server.url + endpoint_path, auth=client_auth, jsonrpc_content_type=jsonrpc_content_type)
 
 
-@pytest.fixture(scope="function", params=[
-    RequestBasedJsonRpcClient, JsonrpcclientlibClient, PythonXmlRpcClient
-])
+@pytest.fixture(scope="function", params=[JsonrpcclientlibClient, PythonXmlRpcClient])
 def any_rpc_client(live_server, endpoint_path, client_auth, jsonrpc_content_type, request):
     """A RPC client (xml-rpc or json-rpc)"""
     klass = request.param

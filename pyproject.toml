@@ -58,12 +58,12 @@ markdown = ["markdown"]
 
 [tool.poetry.dev-dependencies]
 pytest = "*"
-pytest-django = ""
+pytest-django = "*"
 pytest-pythonpath = "*"
 pytest-sugar = "^0.9"
 pytest-cov = "*"
 flake8 = "*"
-jsonrpcclient = "<3"
+jsonrpcclient = "^3.3"
 requests = "*"
 docutils = "*"
 markdown = "*"
