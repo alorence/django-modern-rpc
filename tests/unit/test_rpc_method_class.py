@@ -1,7 +1,7 @@
 # coding: utf-8
 from modernrpc.conf import settings as modernrpc_settings
-from modernrpc.core import RPCMethod, ALL, rpc_method, JSONRPC_PROTOCOL, XMLRPC_PROTOCOL
-from tests.mocks import single_line_documented, multi_line_documented_1, multi_line_documented_2, \
+from modernrpc.core import RPCMethod, rpc_method, JSONRPC_PROTOCOL, XMLRPC_PROTOCOL
+from tests.unit.stubs import single_line_documented, multi_line_documented_1, multi_line_documented_2, \
     dummy_function, dummy_function_with_doc
 
 
@@ -66,42 +66,6 @@ def test_docs_helpers_2():
     assert m.is_args_doc_available()
     assert m.is_return_doc_available()
     assert m.is_any_doc_available()
-
-
-def test_get_methods(rpc_registry):
-    methods = rpc_registry.get_all_methods(sort_methods=False)
-    sorted_methods = rpc_registry.get_all_methods(sort_methods=True)
-
-    assert methods != sorted_methods
-    assert len(methods) == len(sorted_methods)
-    # Ensure all methods from on is referenced in other
-    assert all([method in sorted_methods for method in methods])
-    assert all([method in methods for method in sorted_methods])
-
-
-def test_arguments_order(rpc_registry):
-    method = rpc_registry.get_method("divide", ALL, ALL)
-
-    args_names = list(method.args_doc.keys())
-    # We want to make sure arguments doc is stored with the same order method parameters are defined
-    assert args_names[0] == 'numerator'
-    assert args_names[1] == 'denominator'
-    assert args_names[2] == 'x'
-    assert args_names[3] == 'y'
-    assert args_names[4] == 'z'
-    assert args_names[5] == 'a'
-    assert args_names[6] == 'b'
-    assert args_names[7] == 'c'
-
-    args = method.args
-    assert args[0] == 'numerator'
-    assert args[1] == 'denominator'
-    assert args[2] == 'x'
-    assert args[3] == 'y'
-    assert args[4] == 'z'
-    assert args[5] == 'a'
-    assert args[6] == 'b'
-    assert args[7] == 'c'
 
 
 def test_raw_documentation(settings):

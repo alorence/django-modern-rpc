@@ -16,7 +16,7 @@ def add(a, b):
 
 
 @rpc_method
-def divide(numerator, denominator, x=50, y=90, z=120, a=1, b=5, c=10):
+def divide(numerator, denominator, x="xx", y=b"zz", z=None, a=3.14, b=5, c=10):
     """
     Divide a numerator by a denominator
 
@@ -30,10 +30,10 @@ def divide(numerator, denominator, x=50, y=90, z=120, a=1, b=5, c=10):
     :param c: useless, needed to check arguments ordering
     :type numerator: int or double
     :type denominator: int or double
-    :type x: int
-    :type y: int
-    :type z: int
-    :type a: int
+    :type x: str
+    :type y: bytes
+    :type z: list
+    :type a: float
     :type b: int
     :type c: int
     :return:
@@ -74,8 +74,8 @@ def raise_custom_exception_with_data():
 
 @rpc_method()
 def add_one_month(date):
-    """Adds 31 days to the given date, and returns the result."""
-    return get_builtin_date(date) + datetime.timedelta(days=31)
+    """Adds 30 days to the given date, and returns the result."""
+    return get_builtin_date(date) + datetime.timedelta(days=30)
 
 
 def existing_but_not_decorated():
