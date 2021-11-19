@@ -113,16 +113,16 @@ class JSONRPCHandler(RPCHandler):
 
         return self._build_success_result_data(single_result)
 
-    def build_response_data(self, res):
+    def build_response_data(self, result):
         """
-        :param res:
-        :type res: List[RpcResult] | RpcResult
+        :param result:
+        :type result: List[RpcResult] | RpcResult
         :return:
         """
-        if isinstance(res, list):
+        if isinstance(result, list):
             final_result = [
                 self._build_single_response_data(r)
-                for r in res
+                for r in result
             ]
 
             batch_response_data = ",\n".join(filter(None, final_result))
@@ -131,4 +131,4 @@ class JSONRPCHandler(RPCHandler):
             return ""
 
         # Standard response
-        return self._build_single_response_data(res)
+        return self._build_single_response_data(result)
