@@ -58,12 +58,12 @@ markdown = ["markdown"]
 
 [tool.poetry.dev-dependencies]
 pytest = "*"
-pytest-django = ""
+pytest-django = "*"
 pytest-pythonpath = "*"
 pytest-sugar = "^0.9"
 pytest-cov = "*"
 flake8 = "*"
-jsonrpcclient = "<3"
+jsonrpcclient = "^3.3"
 requests = "*"
 docutils = "*"
 markdown = "*"
@@ -77,10 +77,10 @@ pylint = { version = "~2.7", python = ">=3.7"}
 max-line-length=120
 
 [tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "testsite.settings"
-norecursedirs = [
-    ".git", "__pycache__", "build", "dist", "venv*", ".idea", ".vscode", ".cache", ".pytest_cache", ".tox",
-]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+
+# pytest-pythonpath settings; Ensure tests are run within ./tests directory so "testsite.settings" can be imported
 python_paths = "tests"
-testpaths = "tests"
-python_files = ["test_*.py", "dummy_*.py"]
+# pytest-django settings
+DJANGO_SETTINGS_MODULE = "testsite.settings"

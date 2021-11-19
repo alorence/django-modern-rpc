@@ -11,7 +11,7 @@ SITE_ROOT = dirname(realpath(__file__))
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ":memory:",
+        'NAME': "file::memory:",
     },
 }
 

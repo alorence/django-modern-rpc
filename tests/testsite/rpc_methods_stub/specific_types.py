@@ -53,7 +53,7 @@ def get_date():
 @rpc_method()
 def get_data_type(data):
     """Returns a string representation of input argument type"""
-    return str(type(data))
+    return type(data).__name__
 
 
 @rpc_method()

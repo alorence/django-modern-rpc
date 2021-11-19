@@ -51,26 +51,26 @@ def all_permissions_required(x):
 
 @http_basic_auth_group_member_required(groups='A')
 @rpc_method
-def in_group_A_required(x):
+def in_group_a_required(x):
     return x
 
 
 @http_basic_auth_group_member_required(groups=['A'])
 @http_basic_auth_group_member_required(groups='B')
 @rpc_method
-def in_groups_A_and_B_required(x):
+def in_group_a_and_b_required(x):
     return x
 
 
 @http_basic_auth_all_groups_member_required(groups=['A', 'B'])
 @rpc_method
-def in_groups_A_and_B_required_alt(x):
+def in_group_a_and_b_required_alt(x):
     return x
 
 
 @http_basic_auth_group_member_required(groups=['A', 'B'])
 @rpc_method
-def in_group_A_or_B_required(x):
+def in_group_a_or_b_required(x):
     return x
 
 

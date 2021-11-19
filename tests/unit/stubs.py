@@ -1,3 +1,4 @@
+# coding: utf-8
 from modernrpc.core import rpc_method
 
 
