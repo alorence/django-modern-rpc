@@ -97,7 +97,7 @@ class RPCMethod:
         :rtype: str
         """
         if not content:
-            return
+            return ""
 
         # Dedent given docstring
         docstring = cleandoc(content)
