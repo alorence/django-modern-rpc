@@ -69,8 +69,8 @@ class RPCEntryPoint(TemplateView):
 
         if self.protocol == ALL:
             return handler_classes
-        else:
-            return [cls for cls in handler_classes if cls.protocol in ensure_sequence(self.protocol)]
+
+        return [cls for cls in handler_classes if cls.protocol in ensure_sequence(self.protocol)]
 
     @cached_property
     def handlers(self):

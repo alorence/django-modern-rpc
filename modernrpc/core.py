@@ -273,10 +273,10 @@ class _RPCRegistry(object):
             # with @rpc_method(), it could be imported in different places of the code
             if method == existing_method:
                 return method.name
+
             # But if we try to use the same name to register 2 different methods, we
             # must inform the developer there is an error in the code
-            else:
-                raise ImproperlyConfigured("A RPC method with name {} has already been registered".format(method.name))
+            raise ImproperlyConfigured("A RPC method with name {} has already been registered".format(method.name))
 
         # Store the method
         self._registry[method.name] = method

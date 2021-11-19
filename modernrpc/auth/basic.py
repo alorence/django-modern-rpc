@@ -24,7 +24,6 @@ def http_basic_auth_get_user(request):
     """Inspect the given request to find a logged user. If not found, the header HTTP_AUTHORIZATION
     is read for 'Basic Auth' login and password, and try to authenticate against default UserModel.
     Always return a User instance (possibly anonymous, meaning authentication failed)"""
-
     try:
         # If standard auth middleware already authenticated a user, use it
         if user_is_authenticated(request.user):
@@ -52,7 +51,6 @@ def http_basic_auth_get_user(request):
 # Decorator
 def http_basic_auth_login_required(func=None):
     """Decorator. Use it to specify a RPC method is available only to logged users"""
-
     wrapper = auth.set_authentication_predicate(http_basic_auth_check_user, [auth.user_is_authenticated])
 
     # If @http_basic_auth_login_required() is used (with parenthesis)
@@ -66,7 +64,6 @@ def http_basic_auth_login_required(func=None):
 # Decorator
 def http_basic_auth_superuser_required(func=None):
     """Decorator. Use it to specify a RPC method is available only to logged superusers"""
-
     wrapper = auth.set_authentication_predicate(http_basic_auth_check_user, [auth.user_is_superuser])
 
     # If @http_basic_auth_superuser_required() is used (with parenthesis)
@@ -83,8 +80,8 @@ def http_basic_auth_permissions_required(permissions):
 
     if isinstance(permissions, str):
         return auth.set_authentication_predicate(http_basic_auth_check_user, [auth.user_has_perm, permissions])
-    else:
-        return auth.set_authentication_predicate(http_basic_auth_check_user, [auth.user_has_all_perms, permissions])
+
+    return auth.set_authentication_predicate(http_basic_auth_check_user, [auth.user_has_all_perms, permissions])
 
 
 # Decorator
@@ -100,13 +97,12 @@ def http_basic_auth_group_member_required(groups):
     if isinstance(groups, str):
         # Check user is in a group
         return auth.set_authentication_predicate(http_basic_auth_check_user, [auth.user_in_group, groups])
-    else:
-        # Check user is in many group
-        return auth.set_authentication_predicate(http_basic_auth_check_user, [auth.user_in_any_group, groups])
+
+    # Check user is in many group
+    return auth.set_authentication_predicate(http_basic_auth_check_user, [auth.user_in_any_group, groups])
 
 
 # Decorator
 def http_basic_auth_all_groups_member_required(groups):
     """Decorator. Use it to specify a RPC method is available only to logged users with given permissions"""
-
     return auth.set_authentication_predicate(http_basic_auth_check_user, [auth.user_in_all_groups, groups])

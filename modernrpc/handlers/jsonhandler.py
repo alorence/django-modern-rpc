@@ -52,7 +52,7 @@ class JSONRPCHandler(RPCHandler):
                     requests.append(RpcRequest(None))
             return requests
 
-        elif isinstance(payload, dict):
+        if isinstance(payload, dict):
             return RpcRequest(
                 payload.get("method"),
                 payload.get("params"),
@@ -67,9 +67,9 @@ class JSONRPCHandler(RPCHandler):
     def validate_request(self, rpc_request):
         if not rpc_request.method_name:
             raise RPCInvalidRequest('Missing parameter "method"')
-        elif not rpc_request.jsonrpc:
+        if not rpc_request.jsonrpc:
             raise RPCInvalidRequest('Missing parameter "jsonrpc"')
-        elif rpc_request.jsonrpc != "2.0":
+        if rpc_request.jsonrpc != "2.0":
             raise RPCInvalidRequest('jsonrpc version must be set to 2.0')
 
     def _build_error_result_data(self, rpc_result):
@@ -129,5 +129,6 @@ class JSONRPCHandler(RPCHandler):
             if batch_response_data:
                 return "[{}]".format(batch_response_data)
             return ""
-        else:
-            return self._build_single_response_data(res)
+
+        # Standard response
+        return self._build_single_response_data(res)
