@@ -76,4 +76,3 @@ All information about logging configuration can be found in `official Django doc
    the common Python 2 error message "No handlers could be found for logger XXX".
 
 .. _official Django docs: https://docs.djangoproject.com/en/dev/topics/logging/#configuring-logging
-
