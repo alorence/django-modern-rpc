@@ -83,12 +83,12 @@ class RPCHandler(ABC):
             # Call the rpc method, as standard python function
             rpc_result.set_success(_method.function(*args, **kwargs))
 
-        except TypeError as te:
+        except TypeError as exc:
             # If given params cannot be transmitted properly to python function
-            rpc_result.set_error(RPC_INVALID_PARAMS, "Invalid parameters: {}".format(te))
+            rpc_result.set_error(RPC_INVALID_PARAMS, "Invalid parameters: {}".format(exc))
 
-        except RPCException as re:
-            rpc_result.set_error(re.code, re.message, data=re.data)
+        except RPCException as exc:
+            rpc_result.set_error(exc.code, exc.message, data=exc.data)
 
         except Exception as exc:
             rpc_result.set_error(RPC_INTERNAL_ERROR, "Internal error: {}".format(exc))

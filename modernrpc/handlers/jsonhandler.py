@@ -93,8 +93,8 @@ class JSONRPCHandler(RPCHandler):
         }
         try:
             return json.dumps(result_payload, cls=self.encoder)
-        except TypeError as te:
-            rpc_result.set_error(RPC_INTERNAL_ERROR, "Unable to serialize result: {}".format(te))
+        except TypeError as exc:
+            rpc_result.set_error(RPC_INTERNAL_ERROR, "Unable to serialize result: {}".format(exc))
             return self._build_error_result_data(rpc_result)
 
     def _build_single_response_data(self, single_result):
