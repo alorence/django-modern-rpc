@@ -13,7 +13,7 @@ class XMLRPCHandler(RPCHandler):
     protocol = XMLRPC_PROTOCOL
 
     def __init__(self, entry_point):
-        super(XMLRPCHandler, self).__init__(entry_point)
+        super().__init__(entry_point)
 
         # Marshaller is used to dumps data into valid XML-RPC response. See self.dumps() for more info
         self.marshaller = xmlrpc_client.Marshaller(encoding=settings.MODERNRPC_XMLRPC_DEFAULT_ENCODING,
@@ -43,17 +43,17 @@ class XMLRPCHandler(RPCHandler):
         if not rpc_request.method_name:
             raise RPCInvalidRequest('Missing methodName')
 
-    def build_response_data(self, res):
+    def build_response_data(self, result):
         """
-        :param res:
-        :type res: modernrpc.core.RpcResult
+        :param result:
+        :type result: modernrpc.core.RpcResult
         :return:
         """
-        if res.is_error():
-            response_content = self.marshaller.dumps(xmlrpc_client.Fault(res.error_code, res.error_message))
+        if result.is_error():
+            response_content = self.marshaller.dumps(xmlrpc_client.Fault(result.error_code, result.error_message))
         else:
             try:
-                response_content = self.marshaller.dumps([res.success_data])
+                response_content = self.marshaller.dumps([result.success_data])
             except Exception as exc:
                 fault = xmlrpc_client.Fault(RPC_INTERNAL_ERROR, "Unable to serialize result: {}".format(exc))
                 response_content = self.marshaller.dumps(fault)

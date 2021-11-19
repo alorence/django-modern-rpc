@@ -34,7 +34,7 @@ RETURN_TYPE_REXP = re.compile(r'^:rtype:\s?(.*)')
 logger = logging.getLogger(__name__)
 
 
-class RPCMethod(object):
+class RPCMethod:
 
     def __init__(self, func):
 
@@ -97,7 +97,7 @@ class RPCMethod(object):
         :rtype: str
         """
         if not content:
-            return
+            return ""
 
         # Dedent given docstring
         docstring = cleandoc(content)
@@ -186,14 +186,14 @@ class RPCMethod(object):
 
     def available_for_protocol(self, protocol):
         """Check if the current function can be executed from a request defining the given protocol"""
-        if self.protocol == ALL or protocol == ALL:
+        if ALL in (self.protocol, protocol):
             return True
 
         return protocol in ensure_sequence(self.protocol)
 
     def available_for_entry_point(self, entry_point):
         """Check if the current function can be executed from a request to the given entry point"""
-        if self.entry_point == ALL or entry_point == ALL:
+        if ALL in (self.entry_point, entry_point):
             return True
 
         return entry_point in ensure_sequence(self.entry_point)
@@ -231,7 +231,7 @@ class RPCMethod(object):
         return self.is_args_doc_available() or self.is_return_doc_available() or self.is_doc_available()
 
 
-class _RPCRegistry(object):
+class _RPCRegistry:
 
     def __init__(self):
         self._registry = {}
@@ -273,10 +273,10 @@ class _RPCRegistry(object):
             # with @rpc_method(), it could be imported in different places of the code
             if method == existing_method:
                 return method.name
+
             # But if we try to use the same name to register 2 different methods, we
             # must inform the developer there is an error in the code
-            else:
-                raise ImproperlyConfigured("A RPC method with name {} has already been registered".format(method.name))
+            raise ImproperlyConfigured("A RPC method with name {} has already been registered".format(method.name))
 
         # Store the method
         self._registry[method.name] = method
@@ -321,7 +321,7 @@ class _RPCRegistry(object):
 registry = _RPCRegistry()
 
 
-class RpcRequest(object):
+class RpcRequest:
     """Wrapper for JSON-RPC or XML-RPC request data."""
 
     def __init__(self, method_name, params=None, **kwargs):
@@ -342,7 +342,7 @@ class RpcRequest(object):
             setattr(self, key, value)
 
 
-class RpcResult(object):
+class RpcResult:
 
     def __init__(self, request_id=None):
         self.request_id = request_id

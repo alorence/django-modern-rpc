@@ -104,4 +104,3 @@ or
 
     # In settings.py
     MODERNRPC_DOC_FORMAT = 'rst'
-

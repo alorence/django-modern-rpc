@@ -67,12 +67,12 @@ class AbstractRpcTestClient(ABC):
 
 class AbstractJsonRpcTestClient(AbstractRpcTestClient):
     def __init__(self, url, **kwargs):
-        super(AbstractJsonRpcTestClient, self).__init__(url, **kwargs)
+        super().__init__(url, **kwargs)
         self._content_type = kwargs.get("jsonrpc_content_type", "application/json")
 
     def _get_headers(self):
         headers = {"Content-Type": self._content_type}
-        headers.update(super(AbstractJsonRpcTestClient, self)._get_headers())
+        headers.update(super()._get_headers())
         return headers
 
     @abstractmethod
@@ -138,7 +138,7 @@ class PythonXmlRpcClient(AbstractXmlRpcTestClient):
     multicall_result_klass = xmlrpc.client.MultiCallIterator
 
     def __init__(self, url, **kwargs):
-        super(PythonXmlRpcClient, self).__init__(url, **kwargs or {})
+        super().__init__(url, **kwargs or {})
         self._use_builtin_types = kwargs.get("use_builtin_types", False)
 
         self._transport = xmlrpc.client.Transport(use_builtin_types=self._use_builtin_types)

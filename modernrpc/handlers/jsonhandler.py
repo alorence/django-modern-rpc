@@ -6,7 +6,7 @@ from json.decoder import JSONDecodeError
 from django.utils.module_loading import import_string
 
 from modernrpc.conf import settings
-from modernrpc.core import JSONRPC_PROTOCOL, RpcRequest, RpcResult  # noqa: F401
+from modernrpc.core import JSONRPC_PROTOCOL, RpcRequest
 from modernrpc.exceptions import RPCParseError, RPCInvalidRequest, RPC_INTERNAL_ERROR
 from modernrpc.handlers.base import RPCHandler
 
@@ -17,7 +17,7 @@ class JSONRPCHandler(RPCHandler):
     protocol = JSONRPC_PROTOCOL
 
     def __init__(self, entry_point):
-        super(JSONRPCHandler, self).__init__(entry_point)
+        super().__init__(entry_point)
 
         self.decoder = import_string(settings.MODERNRPC_JSON_DECODER)
         self.encoder = import_string(settings.MODERNRPC_JSON_ENCODER)
@@ -52,7 +52,7 @@ class JSONRPCHandler(RPCHandler):
                     requests.append(RpcRequest(None))
             return requests
 
-        elif isinstance(payload, dict):
+        if isinstance(payload, dict):
             return RpcRequest(
                 payload.get("method"),
                 payload.get("params"),
@@ -67,9 +67,9 @@ class JSONRPCHandler(RPCHandler):
     def validate_request(self, rpc_request):
         if not rpc_request.method_name:
             raise RPCInvalidRequest('Missing parameter "method"')
-        elif not rpc_request.jsonrpc:
+        if not rpc_request.jsonrpc:
             raise RPCInvalidRequest('Missing parameter "jsonrpc"')
-        elif rpc_request.jsonrpc != "2.0":
+        if rpc_request.jsonrpc != "2.0":
             raise RPCInvalidRequest('jsonrpc version must be set to 2.0')
 
     def _build_error_result_data(self, rpc_result):
@@ -93,8 +93,8 @@ class JSONRPCHandler(RPCHandler):
         }
         try:
             return json.dumps(result_payload, cls=self.encoder)
-        except TypeError as te:
-            rpc_result.set_error(RPC_INTERNAL_ERROR, "Unable to serialize result: {}".format(te))
+        except TypeError as exc:
+            rpc_result.set_error(RPC_INTERNAL_ERROR, "Unable to serialize result: {}".format(exc))
             return self._build_error_result_data(rpc_result)
 
     def _build_single_response_data(self, single_result):
@@ -113,21 +113,22 @@ class JSONRPCHandler(RPCHandler):
 
         return self._build_success_result_data(single_result)
 
-    def build_response_data(self, res):
+    def build_response_data(self, result):
         """
-        :param res:
-        :type res: List[RpcResult] | RpcResult
+        :param result:
+        :type result: List[RpcResult] | RpcResult
         :return:
         """
-        if isinstance(res, list):
+        if isinstance(result, list):
             final_result = [
                 self._build_single_response_data(r)
-                for r in res
+                for r in result
             ]
 
             batch_response_data = ",\n".join(filter(None, final_result))
             if batch_response_data:
                 return "[{}]".format(batch_response_data)
             return ""
-        else:
-            return self._build_single_response_data(res)
+
+        # Standard response
+        return self._build_single_response_data(result)

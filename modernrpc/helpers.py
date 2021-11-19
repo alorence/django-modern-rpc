@@ -19,19 +19,18 @@ def get_builtin_date(date, date_format="%Y-%m-%dT%H:%M:%S", raise_exception=Fals
         # Default XML-RPC handler is configured to decode dateTime.iso8601 type
         # to builtin datetime.datetim instance
         return date
-    elif isinstance(date, xmlrpc_client.DateTime):
+    if isinstance(date, xmlrpc_client.DateTime):
         # If constant settings.MODERNRPC_XMLRPC_USE_BUILTIN_TYPES has been set to True
         # the date is decoded as DateTime object
         return datetime.datetime.strptime(date.value, "%Y%m%dT%H:%M:%S")
-    else:
-        # If date is given as str. This is the normal behavior for JSON-RPC
-        try:
-            return datetime.datetime.strptime(date, date_format)
-        except ValueError:
-            if raise_exception:
-                raise
-            else:
-                return None
+
+    # If date is given as str. This is the normal behavior for JSON-RPC
+    try:
+        return datetime.datetime.strptime(date, date_format)
+    except ValueError:
+        if raise_exception:
+            raise
+        return None
 
 
 def ensure_sequence(element):
