@@ -17,7 +17,7 @@ class JSONRPCHandler(RPCHandler):
     protocol = JSONRPC_PROTOCOL
 
     def __init__(self, entry_point):
-        super(JSONRPCHandler, self).__init__(entry_point)
+        super().__init__(entry_point)
 
         self.decoder = import_string(settings.MODERNRPC_JSON_DECODER)
         self.encoder = import_string(settings.MODERNRPC_JSON_ENCODER)

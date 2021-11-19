@@ -13,7 +13,7 @@ class XMLRPCHandler(RPCHandler):
     protocol = XMLRPC_PROTOCOL
 
     def __init__(self, entry_point):
-        super(XMLRPCHandler, self).__init__(entry_point)
+        super().__init__(entry_point)
 
         # Marshaller is used to dumps data into valid XML-RPC response. See self.dumps() for more info
         self.marshaller = xmlrpc_client.Marshaller(encoding=settings.MODERNRPC_XMLRPC_DEFAULT_ENCODING,

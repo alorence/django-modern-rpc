@@ -18,11 +18,11 @@ Here is an example:
 
    class MyException1(RPCException):
        def __init__(self, message):
-           super(MyException1, self).__init__(RPC_CUSTOM_ERROR_BASE + 1, message)
+           super().__init__(RPC_CUSTOM_ERROR_BASE + 1, message)
 
    class MyException2(RPCException):
        def __init__(self, message):
-           super(MyException2, self).__init__(RPC_CUSTOM_ERROR_BASE + 2, message)
+           super().__init__(RPC_CUSTOM_ERROR_BASE + 2, message)
 
 Anyway, any exception raised during the RPC method execution will generate a ``RPCInternalError`` with an error message
 constructed from the underlying error. As a result, the RPC client will have a correct message describing what went

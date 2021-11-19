@@ -32,7 +32,7 @@ class RPCEntryPoint(TemplateView):
     enable_rpc = True
 
     def __init__(self, **kwargs):
-        super(RPCEntryPoint, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         if not self.handler_classes:
             raise ImproperlyConfigured("At least 1 handler must be instantiated.")
@@ -58,7 +58,7 @@ class RPCEntryPoint(TemplateView):
     def dispatch(self, request, *args, **kwargs):
         """Overrides the default dispatch method, to disable CSRF validation on POST requests. This
         is mandatory to ensure RPC calls wil be correctly handled"""
-        return super(RPCEntryPoint, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     @cached_property
     def handler_classes(self):
@@ -140,4 +140,4 @@ class RPCEntryPoint(TemplateView):
         kwargs.update({
             'methods': registry.get_all_methods(self.entry_point, sort_methods=True),
         })
-        return super(RPCEntryPoint, self).get_context_data(**kwargs)
+        return super().get_context_data(**kwargs)

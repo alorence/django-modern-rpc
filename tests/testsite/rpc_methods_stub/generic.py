@@ -52,7 +52,7 @@ def another_name():
 class MyCustomException(RPCException):
 
     def __init__(self):
-        super(MyCustomException, self).__init__(RPC_CUSTOM_ERROR_BASE + 5, 'This is a test error')
+        super().__init__(RPC_CUSTOM_ERROR_BASE + 5, 'This is a test error')
 
 
 @rpc_method
@@ -63,7 +63,7 @@ def raise_custom_exception():
 class MyCustomExceptionWithData(RPCException):
 
     def __init__(self, data):
-        super(MyCustomExceptionWithData, self)\
+        super()\
             .__init__(RPC_CUSTOM_ERROR_BASE + 5, 'This exception has additional data', data)
 
 
