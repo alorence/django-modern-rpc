@@ -6,7 +6,7 @@ from json.decoder import JSONDecodeError
 from django.utils.module_loading import import_string
 
 from modernrpc.conf import settings
-from modernrpc.core import JSONRPC_PROTOCOL, RpcRequest, RpcResult  # noqa: F401
+from modernrpc.core import JSONRPC_PROTOCOL, RpcRequest
 from modernrpc.exceptions import RPCParseError, RPCInvalidRequest, RPC_INTERNAL_ERROR
 from modernrpc.handlers.base import RPCHandler
 
