@@ -8,7 +8,6 @@ from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import TemplateView, View
-from more_itertools import first_true
 
 from modernrpc.conf import settings
 from modernrpc.core import (
@@ -96,7 +95,9 @@ class RPCEntryPoint(TemplateView):
             )
 
         # Retrieve the first RPC handler able to parse our request
-        handler = first_true(self.handlers, pred=lambda candidate: candidate.can_handle(request))
+        # This weird next(filter(iterable, predicate), default) structure is basically the more_itertools.first_true()
+        # utility. This is written here to avoid dependency to more-itertools package
+        handler = next(filter(lambda candidate: candidate.can_handle(request), self.handlers), None)
 
         if not handler:
             return HttpResponse(
