@@ -12,7 +12,7 @@ from modernrpc.exceptions import (
 logger = logging.getLogger(__name__)
 
 
-class RPCHandler(object):
+class RPCHandler:
     protocol = None
 
     def __init__(self, entry_point):

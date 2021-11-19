@@ -5,7 +5,7 @@ from modernrpc.exceptions import RPCInvalidParams
 
 
 @rpc_method(name='system.listMethods')
-def __system_listMethods(**kwargs):
+def __system_list_methods(**kwargs):
     """Returns a list of all methods available in the current entry point"""
     entry_point = kwargs.get(ENTRY_POINT_KEY)
     protocol = kwargs.get(PROTOCOL_KEY)
@@ -14,7 +14,7 @@ def __system_listMethods(**kwargs):
 
 
 @rpc_method(name='system.methodSignature')
-def __system_methodSignature(method_name, **kwargs):
+def __system_method_signature(method_name, **kwargs):
     """
     Returns an array describing the signature of the given method name.
 
@@ -35,7 +35,7 @@ def __system_methodSignature(method_name, **kwargs):
 
 
 @rpc_method(name='system.methodHelp')
-def __system_methodHelp(method_name, **kwargs):
+def __system_method_help(method_name, **kwargs):
     """
     Returns the documentation of the given method name.
 
@@ -53,7 +53,7 @@ def __system_methodHelp(method_name, **kwargs):
 
 
 @rpc_method(name='system.multicall', protocol=XMLRPC_PROTOCOL)
-def __system_multiCall(calls, **kwargs):
+def __system_multi_call(calls, **kwargs):
     """
     Call multiple RPC methods at once.
 

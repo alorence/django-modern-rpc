@@ -34,7 +34,7 @@ RETURN_TYPE_REXP = re.compile(r'^:rtype:\s?(.*)')
 logger = logging.getLogger(__name__)
 
 
-class RPCMethod(object):
+class RPCMethod:
 
     def __init__(self, func):
 
@@ -231,7 +231,7 @@ class RPCMethod(object):
         return self.is_args_doc_available() or self.is_return_doc_available() or self.is_doc_available()
 
 
-class _RPCRegistry(object):
+class _RPCRegistry:
 
     def __init__(self):
         self._registry = {}
@@ -321,7 +321,7 @@ class _RPCRegistry(object):
 registry = _RPCRegistry()
 
 
-class RpcRequest(object):
+class RpcRequest:
     """Wrapper for JSON-RPC or XML-RPC request data."""
 
     def __init__(self, method_name, params=None, **kwargs):
@@ -342,7 +342,7 @@ class RpcRequest(object):
             setattr(self, key, value)
 
 
-class RpcResult(object):
+class RpcResult:
 
     def __init__(self, request_id=None):
         self.request_id = request_id
