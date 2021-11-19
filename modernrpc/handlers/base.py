@@ -1,5 +1,6 @@
 # coding: utf-8
 import logging
+from abc import ABC, abstractmethod
 
 from modernrpc.core import RpcResult, registry, REQUEST_KEY, ENTRY_POINT_KEY, PROTOCOL_KEY, HANDLER_KEY
 from modernrpc.exceptions import (
@@ -12,23 +13,25 @@ from modernrpc.exceptions import (
 logger = logging.getLogger(__name__)
 
 
-class RPCHandler:
+class RPCHandler(ABC):
     protocol = None
 
     def __init__(self, entry_point):
         self.entry_point = entry_point
 
     @staticmethod
+    @abstractmethod
     def valid_content_types():
-        raise NotImplementedError("You must override valid_content_types()")
+        """Return the list of content-types supported by the concrete handler"""
 
     def can_handle(self, request):
         return request.content_type.lower() in self.valid_content_types()
 
+    @abstractmethod
     def parse_request(self, request_body):
         """Parse given request body and build a RPC request wrapper"""
-        raise NotImplementedError()
 
+    @abstractmethod
     def validate_request(self, rpc_request):
         """Check current request to ensure it is valid regarding protocol specifications
 
@@ -36,7 +39,6 @@ class RPCHandler:
         :rpc_request: The request to validate
         :type rpc_request: RPCRequest
         """
-        pass
 
     def process_request(self, request, rpc_request):
         """
@@ -93,10 +95,10 @@ class RPCHandler:
 
         return rpc_result
 
+    @abstractmethod
     def build_response_data(self, result):
         """
         :param result:
         :type result: modernrpc.core.RpcResult
         :return:
         """
-        raise NotImplementedError()
