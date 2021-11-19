@@ -186,14 +186,14 @@ class RPCMethod:
 
     def available_for_protocol(self, protocol):
         """Check if the current function can be executed from a request defining the given protocol"""
-        if self.protocol == ALL or protocol == ALL:
+        if ALL in (self.protocol, protocol):
             return True
 
         return protocol in ensure_sequence(self.protocol)
 
     def available_for_entry_point(self, entry_point):
         """Check if the current function can be executed from a request to the given entry point"""
-        if self.entry_point == ALL or entry_point == ALL:
+        if ALL in (self.entry_point, entry_point):
             return True
 
         return entry_point in ensure_sequence(self.entry_point)
