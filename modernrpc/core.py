@@ -1,15 +1,14 @@
 # coding: utf-8
-import collections
 import logging
-import re
-from inspect import cleandoc
+from collections import OrderedDict
+from typing import List, Dict
 
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import cached_property
-from django.utils.inspect import func_accepts_kwargs, get_func_args
 
 from modernrpc.conf import settings
 from modernrpc.helpers import ensure_sequence
+from modernrpc.introspection import Introspector, DocstringParser
 
 # Special constant meaning "all protocols" or "all entry points"
 ALL = "__all__"
@@ -24,25 +23,16 @@ ENTRY_POINT_KEY = settings.MODERNRPC_KWARGS_ENTRY_POINT_KEY
 PROTOCOL_KEY = settings.MODERNRPC_KWARGS_PROTOCOL_KEY
 HANDLER_KEY = settings.MODERNRPC_KWARGS_HANDLER_KEY
 
-# Define regular expressions used to parse docstring
-PARAM_REXP = re.compile(r'^:param ([\w]+):\s?(.*)')
-PARAM_TYPE_REXP = re.compile(r'^:type ([\w]+):\s?(.*)')
-
-RETURN_REXP = re.compile(r'^:return:\s?(.*)')
-RETURN_TYPE_REXP = re.compile(r'^:rtype:\s?(.*)')
-
 logger = logging.getLogger(__name__)
 
 
 class RPCMethod:
 
     def __init__(self, func):
-
         # Store the reference to the registered function
         self.function = func
 
         # @rpc_method decorator parameters
-        self._external_name = getattr(func, 'modernrpc_name', func.__name__)
         self.entry_point = getattr(func, 'modernrpc_entry_point')
         self.protocol = getattr(func, 'modernrpc_protocol')
 
@@ -50,30 +40,19 @@ class RPCMethod:
         self.predicates = getattr(func, 'modernrpc_auth_predicates', None)
         self.predicates_params = getattr(func, 'modernrpc_auth_predicates_params', ())
 
-        # List method's positional arguments
-        self.args = get_func_args(func)
-        # Does the method accept additional kwargs dict?
-        self.accept_kwargs = func_accepts_kwargs(func)
-
-        # Contains the signature of the method, as returned by "system.methodSignature"
-        self.signature = []
-        # Contains doc about arguments and their type. We store this in an ordered dict, so the args documentation
-        # keep the order defined in docstring
-        self.args_doc = collections.OrderedDict()
-        # Contains doc about return type and return value
-        self.return_doc = {}
-        # Docstring parsing. This will initialize self.signature, self.args_doc and self.return_doc
-        self.raw_docstring = self.parse_docstring(self.function.__doc__)
+        # Introspection
+        self.introspector = Introspector(self.function)
+        self.doc_parser = DocstringParser(self.function)
 
     @property
     def name(self):
-        return self._external_name
+        return getattr(self.function, 'modernrpc_name', self.function.__name__)
 
     def __repr__(self):
         return 'RPC Method ' + self.name
 
     def __str__(self):
-        return '{}({})'.format(self._external_name, ', '.join(self.args))
+        return '{}({})'.format(self.name, ', '.join(self.introspector.args))
 
     def __eq__(self, other):
         return \
@@ -84,97 +63,10 @@ class RPCMethod:
             self.predicates == other.predicates and \
             self.predicates_params == other.predicates_params
 
-    def parse_docstring(self, content):
-        """
-        Parse the given full docstring, and extract method description, arguments and return documentation.
-
-        Try to find arguments types and descriptions, then store the result in self.args_doc and self.signature.
-        In addition, parse return type and description, and store it in self.return_doc dict.
-        All other lines are returned as string (separated by LF char)
-        :param content: The full docstring
-        :type content: str
-        :return: The parsed method description
-        :rtype: str
-        """
-        if not content:
-            return ""
-
-        # Dedent given docstring
-        docstring = cleandoc(content)
-
-        desc_lines = []
-        for line in docstring.split('\n'):
-
-            # Empty line
-            if not line:
-                desc_lines.append('')
-                continue
-
-            param_match = PARAM_REXP.match(line)
-            if param_match:
-
-                param_name, description = param_match.group(1, 2)
-                if param_name == 'kwargs':
-                    continue
-
-                doc = self.args_doc.setdefault(param_name, {})
-                doc['text'] = description
-                continue
-
-            param_type_match = PARAM_TYPE_REXP.match(line)
-            if param_type_match:
-
-                param_name, param_type = param_type_match.group(1, 2)
-                if param_name == 'kwargs':
-                    continue
-
-                doc = self.args_doc.setdefault(param_name, {})
-                doc['type'] = param_type
-                self.signature.append(param_type)
-                continue
-
-            return_match = RETURN_REXP.match(line)
-            if return_match:
-                return_description = return_match.group(1)
-                self.return_doc['text'] = return_description
-                continue
-
-            return_type_match = RETURN_TYPE_REXP.match(line)
-            if return_type_match:
-                return_description = return_type_match.group(1)
-                self.return_doc['type'] = return_description
-                self.signature.insert(0, return_description)
-                continue
-
-            # Line doesn't match with known args/return regular expressions,
-            # add the line to raw help text
-            desc_lines.append(line)
-        return '\n'.join(desc_lines)
-
-    @cached_property
-    def html_doc(self):
-        """Methods docstring, as HTML"""
-        if not self.raw_docstring:
-            result = ''
-
-        elif settings.MODERNRPC_DOC_FORMAT.lower() in ('rst', 'restructred', 'restructuredtext'):
-            from docutils.core import publish_parts
-            result = publish_parts(self.raw_docstring, writer_name='html')['body']
-
-        elif settings.MODERNRPC_DOC_FORMAT.lower() in ('md', 'markdown'):
-            import markdown
-            result = markdown.markdown(self.raw_docstring)
-
-        else:
-            result = "<p>{}</p>".format(self.raw_docstring.replace('\n\n', '</p><p>').replace('\n', ' '))
-
-        return result
-
     def check_permissions(self, request):
         """Call the predicate(s) associated with the RPC method, to check if the current request
         can actually call the method.
         Return a boolean indicating if the method should be executed (True) or not (False)"""
-
         if not self.predicates:
             return True
 
@@ -185,17 +77,15 @@ class RPCMethod:
         )
 
     def available_for_protocol(self, protocol):
-        """Check if the current function can be executed from a request defining the given protocol"""
+        """Check if the current function can be executed from a request through the given protocol"""
         if ALL in (self.protocol, protocol):
             return True
-
         return protocol in ensure_sequence(self.protocol)
 
     def available_for_entry_point(self, entry_point):
         """Check if the current function can be executed from a request to the given entry point"""
         if ALL in (self.entry_point, entry_point):
             return True
-
         return entry_point in ensure_sequence(self.entry_point)
 
     def is_valid_for(self, entry_point, protocol):
@@ -204,31 +94,51 @@ class RPCMethod:
         return self.available_for_entry_point(entry_point) and self.available_for_protocol(protocol)
 
     def is_available_in_json_rpc(self):
-        """Shortcut checking if the current method can be executed on JSONRPC protocol.
-        Used in HTML documentation to easily display protocols supported by a RPC method"""
+        """Shortcut checking if the current method can be executed on JSON-RPC protocol.
+        Used in HTML documentation to easily display protocols supported by an RPC method"""
         return self.available_for_protocol(JSONRPC_PROTOCOL)
 
     def is_available_in_xml_rpc(self):
-        """Shortcut checking if the current method can be executed on XMLRPC protocol.
-        Used in HTML documentation to easily display protocols supported by a RPC method"""
+        """Shortcut checking if the current method can be executed on XML-RPC protocol.
+        Used in HTML documentation to easily display protocols supported by an RPC method"""
         return self.available_for_protocol(XMLRPC_PROTOCOL)
 
-    # Helpers to simplify templates generation
-    def is_doc_available(self):
-        """Returns True if a textual documentation is available for this method"""
-        return bool(self.html_doc)
+    @cached_property
+    def accept_kwargs(self):
+        return self.introspector.accept_kwargs
 
-    def is_return_doc_available(self):
-        """Returns True if this method's return is documented"""
-        return bool(self.return_doc and (self.return_doc.get('text') or self.return_doc.get('type')))
+    @cached_property
+    def args(self) -> List[str]:
+        """Methods arguments"""
+        return self.introspector.args
 
-    def is_args_doc_available(self):
-        """Returns True if any of the method's arguments is documented"""
-        return self.args_doc
+    @cached_property
+    def raw_docstring(self) -> str:
+        """Methods docstring, as raw text"""
+        return self.doc_parser.raw_docstring
 
-    def is_any_doc_available(self):
-        """Returns True if there is a textual documentation or a documentation on arguments or return of the method."""
-        return self.is_args_doc_available() or self.is_return_doc_available() or self.is_doc_available()
+    @cached_property
+    def html_doc(self) -> str:
+        """Methods docstring, as HTML"""
+        return self.doc_parser.html_doc
+
+    @cached_property
+    def args_doc(self) -> OrderedDict:
+        """"""
+        result = OrderedDict()
+        for arg in self.introspector.args:
+            result[arg] = {
+                "type": self.doc_parser.args_types.get(arg, "") or self.introspector.args_types.get(arg, ""),
+                "text": self.doc_parser.args_doc.get(arg, "")
+            }
+        return result
+
+    @cached_property
+    def return_doc(self) -> Dict[str, str]:
+        return {
+            "type": self.doc_parser.return_type or self.introspector.return_type,
+            "text": self.doc_parser.return_doc
+        }
 
 
 class _RPCRegistry:

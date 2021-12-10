@@ -31,7 +31,15 @@ def __system_method_signature(method_name, **kwargs):
     method = registry.get_method(method_name, entry_point, protocol)
     if method is None:
         raise RPCInvalidParams('Unknown method {}. Unable to retrieve signature.'.format(method_name))
-    return method.signature
+
+    signature = [method.return_doc.get("type")] + [
+        arg_doc.get("type") for arg_doc in method.args_doc.values()
+    ]
+    # FIXME: multiple issue in this implementation !
+    #  - getSignature must return an array of possible signature, each possibility as an array
+    #  - Undefined signature must return the string "undef"
+    # See http://xmlrpc-c.sourceforge.net/introspection.html
+    return [t for t in signature if t]
 
 
 @rpc_method(name='system.methodHelp')

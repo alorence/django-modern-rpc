@@ -30,26 +30,26 @@ class TestSystemMethods:
         signature = any_rpc_client.call('system.methodSignature', 'add')
         # This one doesn't have any docstring defined
         assert type(signature) == list
-        assert len(signature) == 0
+        assert signature == []
 
     def test_get_signature(self, any_rpc_client):
         signature = any_rpc_client.call('system.methodSignature', 'divide')
         # divide() rpc method has 2 parameters used to perform the division. It also have 6 unused parameters (to
         # test arguments ordering in another test). Return type + 8 parameters = 9 elements in the signature
-        assert type(signature) == list
-        assert len(signature) == 9
-        # Return type
-        assert signature[0] == 'int or double'
-        # numerator & denominator
-        assert signature[1] == 'int or double'
-        assert signature[2] == 'int or double'
-        # Additional arguments (unused in method): x, y, z, a, b, c
-        assert signature[3] == 'str'
-        assert signature[4] == 'bytes'
-        assert signature[5] == 'list'
-        assert signature[6] == 'float'
-        assert signature[7] == 'int'
-        assert signature[8] == 'int'
+        assert signature == [
+            # Return type
+            "int or double",
+            # numerator & denominator
+            "int or double",
+            "int or double",
+            # Additional arguments (unused in method): x, y, z, a, b, c
+            "str",
+            "bytes",
+            "list",
+            "float",
+            "int",
+            "int",
+        ]
 
     def test_get_signature_3(self, any_rpc_client):
         exc_match = r'Invalid parameters: Unknown method nonexistent_method. Unable to retrieve signature.'
