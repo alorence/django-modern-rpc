@@ -1,0 +1,55 @@
+<div class="modernrpc-single-method">
+
+    <div id="modernrpc-heading_{{ method.name|slugify }}">
+
+        <h3>{{ method }}</h3>
+
+        <div class="modernrpc-protocols">
+            {% if method.is_available_in_json_rpc %}
+                <span>JSON-RPC</span>
+            {% endif %}
+            {% if method.is_available_in_xml_rpc %}
+                <span>XML-RPC</span>
+            {% endif %}
+        </div> <!-- /.modernrpc-protocols -->
+
+        <div class="card-body">
+
+            {{ method.html_doc | safe | urlize }}
+
+            {% if method.args_doc %}
+
+                <h6>Parameters:</h6>
+                <ul>
+                    {% for name, param_help in method.args_doc.items %}
+                        <li>
+                            <strong>{{ name }}</strong>
+                            {% if param_help.type %}
+                                ({{ param_help.type }}) -
+                            {% endif %}
+                            {{ param_help.text }}
+                        </li>
+                    {% endfor %}
+                </ul>
+
+            {% endif %}
+
+            {% if method.return_doc.type or method.return_doc.text %}
+                <h6>Return:</h6>
+                <ul>
+                    <li>
+                        {% if method.return_doc.type %}
+                            {{ method.return_doc.type }} -
+                        {% endif %}
+                        {{ method.return_doc.text }}
+                    </li>
+                </ul>
+            {% else %}
+                <em>No documentation available yet</em>
+            {% endif %}
+
+        </div> <!-- /card-body -->
+
+    </div> <!-- /#modernrpc-heading_<methodname> -->
+
+</div> <!-- /.modernrpc-single-method -->
