@@ -8,8 +8,8 @@ def dummy_empty():
     pass
 
 
-class TestRpcMethod:
-    """Check wether entry_points and protocol specifications works as expected when registering method"""
+class TestRpcMethodEntryPointProtocol:
+    """Check whether entry_points and protocol specifications works as expected when registering method"""
 
     def test_method_always_available(self):
         rpc_method(dummy_empty, 'dummy_name')
@@ -48,33 +48,36 @@ class TestRpcMethod:
         assert m.available_for_entry_point('my_entry_point')
 
 
-class TestNoDocNoTypeFunction:
+@rpc_method
+def dummy_no_doc_no_args():
+    pass
+
+
+class TestNoDocNoArgs:
     """Make sure docstring and introspection works as expected"""
 
     def test_args_and_return(self):
-        rpc_method(dummy_empty)
-        m = RPCMethod(dummy_empty)
+        m = RPCMethod(dummy_no_doc_no_args)
         assert m.args == []
         assert m.args_doc == {}
         assert m.return_doc == {"type": "", "text": ""}
 
     def test_doc(self):
-        rpc_method(dummy_empty)
-        m = RPCMethod(dummy_empty)
+        m = RPCMethod(dummy_no_doc_no_args)
         assert m.raw_docstring == ""
         assert m.html_doc == ""
 
 
 @rpc_method
-def dummy_with_args_no_doc(a, b, c):
+def dummy_no_doc_with_args(a, b, c):
     pass
 
 
-class TestNoDocNoTypeFunctionWithArgs:
+class TestNoDocWithArgs:
     """Make sure docstring and introspection works as expected"""
 
     def test_args_and_return(self):
-        m = RPCMethod(dummy_with_args_no_doc)
+        m = RPCMethod(dummy_no_doc_with_args)
         assert m.args == ["a", "b", "c"]
         assert m.args_doc == {
             'a': {'type': '', 'text': ''},
@@ -84,7 +87,7 @@ class TestNoDocNoTypeFunctionWithArgs:
         assert m.return_doc == {"type": "", "text": ""}
 
     def test_doc(self):
-        m = RPCMethod(dummy_with_args_no_doc)
+        m = RPCMethod(dummy_no_doc_with_args)
         assert m.raw_docstring == ""
         assert m.html_doc == ""
 
@@ -94,8 +97,8 @@ def dummy_args_with_typehints(a: int, b: str, c: list) -> dict:
     pass
 
 
-class TestNoDocNoTypeFunctionWithArgsTypehints:
-    """Make sure docstring and introspection works as expected"""
+class TestArgsTypeHint:
+    """Type hinting is correctly returned using introspection module"""
 
     def test_args_and_return(self):
         m = RPCMethod(dummy_args_with_typehints)
@@ -114,7 +117,7 @@ class TestNoDocNoTypeFunctionWithArgsTypehints:
 
 
 @rpc_method
-def dummy_args_with_typehints_and_text(a: str, b: dict, c: float) -> float:
+def dummy_typehints_and_standard_docstring(a: str, b: dict, c: float) -> float:
     """
 
     :param a: param A
@@ -124,11 +127,11 @@ def dummy_args_with_typehints_and_text(a: str, b: dict, c: float) -> float:
     """
 
 
-class TestEmptyDocTypeHintsFunction:
-    """Make sure docstring and introspection works as expected"""
+class TestWithTypeHintAndDocstring:
+    """Typehint + standard reStructuredText docstring"""
 
     def test_args_and_return(self):
-        m = RPCMethod(dummy_args_with_typehints_and_text)
+        m = RPCMethod(dummy_typehints_and_standard_docstring)
 
         assert m.args == ["a", "b", "c"]
         assert m.args_doc == {
@@ -139,14 +142,14 @@ class TestEmptyDocTypeHintsFunction:
         assert m.return_doc == {"type": "float", "text": "A decimal value"}
 
     def test_doc(self):
-        m = RPCMethod(dummy_args_with_typehints_and_text)
+        m = RPCMethod(dummy_typehints_and_standard_docstring)
 
         assert m.raw_docstring == ""
         assert m.html_doc == ""
 
 
 @rpc_method
-def dummy_with_typehints_doctypes_and_text(x: list, y: str) -> dict:
+def dummy_typehints_and_rst_docstring_types(x: list, y: str) -> dict:
     """This is the docstring part of the function
 
     It also contains a multi-line description
@@ -159,11 +162,11 @@ def dummy_with_typehints_doctypes_and_text(x: list, y: str) -> dict:
     """
 
 
-class TestWithDoctypesAndTypeHintsFunction:
-    """Make sure docstring and introspection works as expected"""
+class TestWithTypeHintAndDocstringTypes:
+    """Legacy standard docstring must override typehint"""
 
     def test_args_and_return(self):
-        m = RPCMethod(dummy_with_typehints_doctypes_and_text)
+        m = RPCMethod(dummy_typehints_and_rst_docstring_types)
 
         assert m.args == ["x", "y"]
         assert m.args_doc == {
@@ -173,7 +176,7 @@ class TestWithDoctypesAndTypeHintsFunction:
         assert m.return_doc == {"type": "str", "text": "efgh"}
 
     def test_doc(self):
-        m = RPCMethod(dummy_with_typehints_doctypes_and_text)
+        m = RPCMethod(dummy_typehints_and_rst_docstring_types)
 
         assert m.raw_docstring == (
             "This is the docstring part of the function\n\nIt also contains a multi-line description"
@@ -183,7 +186,8 @@ class TestWithDoctypesAndTypeHintsFunction:
         )
 
 
-def dummy_function_with_doc(name, birthdate, sex):
+@rpc_method
+def dummy_rst_docstring(name, birthdate, sex):
     """
     This is the textual doc of the method
     :param name: A name
@@ -197,12 +201,55 @@ def dummy_function_with_doc(name, birthdate, sex):
     return '{} ({}) born on {}'.format(name, str(sex), str(birthdate))
 
 
+class TestWithDoctstringOnlyFunction:
+    """No typehint but everything in reStructuredText docstring"""
+
+    def test_args_and_return(self):
+        m = RPCMethod(dummy_rst_docstring)
+
+        assert m.args == ['name', 'birthdate', 'sex']
+        assert dict(m.args_doc) == {
+            'name': {'type': 'str', 'text': 'A name'},
+            'birthdate': {'type': 'datetime.datetime', 'text': 'A birthdate'},
+            'sex': {'type': 'str', 'text': 'Male or Female'}
+        }
+        assert m.return_doc == {"type": "", "text": "A string representation of given arguments"}
+
+    def test_doc(self):
+        m = RPCMethod(dummy_rst_docstring)
+        assert m.raw_docstring == "This is the textual doc of the method"
+        assert m.html_doc == "<p>This is the textual doc of the method</p>"
+
+
+@rpc_method
 def single_line_documented():
     """*italic*, **strong**, normal text"""
     return 111
 
 
-def multi_line_documented_1():
+class TestSingleLineDoc:
+    """Standard single-line docstring with various parsers"""
+
+    @staticmethod
+    def method():
+        return RPCMethod(single_line_documented)
+
+    def test_raw_doc(self):
+        method = self.method()
+        assert '*italic*, **strong**, normal text' == method.raw_docstring
+        assert '<p>*italic*, **strong**, normal text</p>' == method.html_doc
+
+    def test_markdown_to_html(self, settings):
+        settings.MODERNRPC_DOC_FORMAT = 'md'
+        assert '<p><em>italic</em>, <strong>strong</strong>, normal text</p>' == self.method().html_doc
+
+    def test_rst_to_html(self, settings):
+        settings.MODERNRPC_DOC_FORMAT = 'rst'
+        assert '<p><em>italic</em>, <strong>strong</strong>, normal text</p>\n' == self.method().html_doc
+
+
+@rpc_method
+def multiline_doc_simple():
     """
     This method has multi-lines documentation.
 
@@ -212,7 +259,45 @@ def multi_line_documented_1():
     return 111
 
 
-def multi_line_documented_2():
+class TestMultiLinesDocSimple:
+    """Standard multi-line docstring"""
+
+    @staticmethod
+    def method():
+        return RPCMethod(multiline_doc_simple)
+
+    def test_raw_doc(self):
+        method = self.method()
+        assert method.raw_docstring == (
+            "This method has multi-lines documentation.\n\n"
+            "The content is indented when raw ``__doc__`` attribute function is read.\n"
+            "The indentation should not interfere with semantic interpretation of the docstring."
+        )
+        assert self.method().html_doc == (
+            '<p>This method has multi-lines documentation.</p>'
+            '<p>The content is indented when raw ``__doc__`` attribute function is read. '
+            'The indentation should not interfere with semantic interpretation of the docstring.</p>'
+        )
+
+    def test_markdown_to_html(self, settings):
+        settings.MODERNRPC_DOC_FORMAT = 'md'
+        assert self.method().html_doc == (
+            '<p>This method has multi-lines documentation.</p>\n'
+            '<p>The content is indented when raw <code>__doc__</code> attribute function is read.\n'
+            'The indentation should not interfere with semantic interpretation of the docstring.</p>'
+        )
+
+    def test_rst_to_html(self, settings):
+        settings.MODERNRPC_DOC_FORMAT = 'rst'
+        assert self.method().html_doc == (
+            '<p>This method has multi-lines documentation.</p>\n'
+            '<p>The content is indented when raw <tt class="docutils literal">__doc__</tt> attribute function is '
+            'read.\nThe indentation should not interfere with semantic interpretation of the docstring.</p>\n'
+        )
+
+
+@rpc_method
+def multiline_doc_with_block():
     """
     This method has *multi-lines* **documentation**.
 
@@ -224,67 +309,36 @@ def multi_line_documented_2():
     return "abc"
 
 
-class TestMethodDocumentation:
-    def test_raw_documentation(self, settings):
-        settings.MODERNRPC_DOC_FORMAT = ''
+class TestMultiLinesWithBlock:
+    """Standard multi-line docstring with an indented block"""
 
-        rpc_method(single_line_documented, 'dummy_name')
-        method = RPCMethod(single_line_documented)
-        assert '*italic*, **strong**, normal text' == method.raw_docstring
+    @staticmethod
+    def method():
+        return RPCMethod(multiline_doc_with_block)
 
-        rpc_method(multi_line_documented_1, 'dummy_name_2')
-        method = RPCMethod(multi_line_documented_1)
-        assert ('This method has multi-lines documentation.\n\nThe content is indented when '
-                'raw ``__doc__`` attribute function is read.\nThe indentation should not interfere '
-                'with semantic interpretation of the docstring.') == method.raw_docstring
+    def test_raw_doc(self):
+        method = self.method()
+        assert method.raw_docstring == (
+            "This method has *multi-lines* **documentation**.\n\nHere is a quote block:\n\n    abcdef 123456"
+        )
+        assert self.method().html_doc == (
+            "<p>This method has *multi-lines* **documentation**.</p>"
+            "<p>Here is a quote block:</p>"
+            "<p>    abcdef 123456</p>"
+        )
 
-        rpc_method(multi_line_documented_2, 'dummy_name_3')
-        method = RPCMethod(multi_line_documented_2)
-        assert ('This method has *multi-lines* **documentation**.\n\nHere is '
-                'a quote block:\n\n    abcdef 123456') == method.raw_docstring
-
-    def test_html_documentation_simple(self, settings):
-        settings.MODERNRPC_DOC_FORMAT = ''
-
-        rpc_method(single_line_documented, 'dummy_name')
-        method = RPCMethod(single_line_documented)
-        assert '*italic*, **strong**, normal text' in method.html_doc
-
-        rpc_method(multi_line_documented_1, 'dummy_name_2')
-        method = RPCMethod(multi_line_documented_1)
-        # We ensure no <br/> is added to the text when the original docstring contained single \n characters
-        assert 'attribute function is read. The indentation should not' in method.html_doc
-
-    def test_html_documentation_markdown(self, settings):
+    def test_markdown_to_html(self, settings):
         settings.MODERNRPC_DOC_FORMAT = 'md'
+        assert self.method().html_doc == (
+            "<p>This method has <em>multi-lines</em> <strong>documentation</strong>.</p>\n"
+            "<p>Here is a quote block:</p>\n"
+            "<pre><code>abcdef 123456\n</code></pre>"
+        )
 
-        rpc_method(single_line_documented, 'dummy_name')
-        method = RPCMethod(single_line_documented)
-        assert '<em>italic</em>, <strong>strong</strong>, normal text' in method.html_doc
-
-        rpc_method(multi_line_documented_1, 'dummy_name_2')
-        method = RPCMethod(multi_line_documented_1)
-        assert '<blockquote>' not in method.html_doc
-
-        rpc_method(multi_line_documented_2, 'dummy_name_3')
-        method = RPCMethod(multi_line_documented_2)
-        assert '<em>multi-lines</em>' in method.html_doc.replace('\n', '')
-        assert '<strong>documentation</strong>' in method.html_doc.replace('\n', '')
-        assert '<pre><code>abcdef 123456</code></pre>' in method.html_doc.replace('\n', '')
-
-    def test_html_documentation_reST(self, settings):
+    def test_rst_to_html(self, settings):
         settings.MODERNRPC_DOC_FORMAT = 'rst'
-
-        rpc_method(single_line_documented, 'dummy_name')
-        method = RPCMethod(single_line_documented)
-        assert '<em>italic</em>, <strong>strong</strong>, normal text' in method.html_doc
-
-        rpc_method(multi_line_documented_1, 'dummy_name_2')
-        method = RPCMethod(multi_line_documented_1)
-        assert '<blockquote>' not in method.html_doc
-
-        rpc_method(multi_line_documented_2, 'dummy_name_3')
-        method = RPCMethod(multi_line_documented_2)
-        assert '<em>multi-lines</em>' in method.html_doc.replace('\n', '')
-        assert '<strong>documentation</strong>' in method.html_doc.replace('\n', '')
-        assert '<blockquote>abcdef 123456</blockquote>' in method.html_doc.replace('\n', '')
+        assert self.method().html_doc == (
+            '<p>This method has <em>multi-lines</em> <strong>documentation</strong>.</p>\n'
+            '<p>Here is a quote block:</p>\n'
+            '<blockquote>\nabcdef 123456</blockquote>\n'
+        )
