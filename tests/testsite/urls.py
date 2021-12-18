@@ -1,6 +1,6 @@
 from django.urls import path
 
-from modernrpc.core import JSONRPC_PROTOCOL, XMLRPC_PROTOCOL
+from modernrpc.core import Protocol
 from modernrpc.views import RPCEntryPoint
 
 urlpatterns = [
@@ -16,6 +16,6 @@ urlpatterns = [
          name="bootstrap4_entry_point_doc"
          ),
 
-    path('json-only/', RPCEntryPoint.as_view(protocol=JSONRPC_PROTOCOL), name="json_rpc_entry_point"),
-    path('xml-only/', RPCEntryPoint.as_view(protocol=XMLRPC_PROTOCOL), name="xml_rpc_entry_point"),
+    path('json-only/', RPCEntryPoint.as_view(protocol=Protocol.JSON_RPC), name="json_rpc_entry_point"),
+    path('xml-only/', RPCEntryPoint.as_view(protocol=Protocol.XML_RPC), name="xml_rpc_entry_point"),
 ]

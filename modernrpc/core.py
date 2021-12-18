@@ -1,6 +1,7 @@
 # coding: utf-8
 import logging
 from collections import OrderedDict
+from enum import Enum
 from typing import List, Dict
 
 from django.core.exceptions import ImproperlyConfigured
@@ -11,11 +12,7 @@ from modernrpc.helpers import ensure_sequence
 from modernrpc.introspection import Introspector, DocstringParser
 
 # Special constant meaning "all protocols" or "all entry points"
-ALL = "__all__"
-
-# Protocols identifiers
-JSONRPC_PROTOCOL = '__json_rpc'
-XMLRPC_PROTOCOL = '__xml_rpc'
+GENERIC_ALL = ALL = "__all__"
 
 # Keys used in kwargs dict given to RPC methods
 REQUEST_KEY = settings.MODERNRPC_KWARGS_REQUEST_KEY
@@ -24,6 +21,12 @@ PROTOCOL_KEY = settings.MODERNRPC_KWARGS_PROTOCOL_KEY
 HANDLER_KEY = settings.MODERNRPC_KWARGS_HANDLER_KEY
 
 logger = logging.getLogger(__name__)
+
+
+class Protocol(str, Enum):
+    ALL = GENERIC_ALL
+    JSON_RPC = '__json_rpc'
+    XML_RPC = '__xml_rpc'
 
 
 class RPCMethod:
@@ -76,9 +79,9 @@ class RPCMethod:
             for i, predicate in enumerate(self.predicates)
         )
 
-    def available_for_protocol(self, protocol):
+    def available_for_protocol(self, protocol: Protocol):
         """Check if the current function can be executed from a request through the given protocol"""
-        if ALL in (self.protocol, protocol):
+        if Protocol.ALL in (self.protocol, protocol):
             return True
         return protocol in ensure_sequence(self.protocol)
 
@@ -96,12 +99,12 @@ class RPCMethod:
     def is_available_in_json_rpc(self):
         """Shortcut checking if the current method can be executed on JSON-RPC protocol.
         Used in HTML documentation to easily display protocols supported by an RPC method"""
-        return self.available_for_protocol(JSONRPC_PROTOCOL)
+        return self.available_for_protocol(Protocol.JSON_RPC)
 
     def is_available_in_xml_rpc(self):
         """Shortcut checking if the current method can be executed on XML-RPC protocol.
         Used in HTML documentation to easily display protocols supported by an RPC method"""
-        return self.available_for_protocol(XMLRPC_PROTOCOL)
+        return self.available_for_protocol(Protocol.XML_RPC)
 
     @cached_property
     def accept_kwargs(self):
@@ -287,7 +290,7 @@ class RpcResult:
         return self._data[2]
 
 
-def rpc_method(func=None, name=None, entry_point=ALL, protocol=ALL):
+def rpc_method(func=None, name=None, entry_point=ALL, protocol: Protocol = Protocol.ALL):
     """
     Mark a standard python function as RPC method.
 

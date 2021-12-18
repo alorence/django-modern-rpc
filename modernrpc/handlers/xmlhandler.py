@@ -4,13 +4,13 @@ from pyexpat import ExpatError
 from textwrap import dedent
 
 from modernrpc.conf import settings
-from modernrpc.core import XMLRPC_PROTOCOL, RpcRequest
+from modernrpc.core import Protocol, RpcRequest
 from modernrpc.exceptions import RPCParseError, RPCInvalidRequest, RPC_INTERNAL_ERROR
 from modernrpc.handlers.base import RPCHandler
 
 
 class XMLRPCHandler(RPCHandler):
-    protocol = XMLRPC_PROTOCOL
+    protocol = Protocol.XML_RPC
 
     def __init__(self, entry_point):
         super().__init__(entry_point)

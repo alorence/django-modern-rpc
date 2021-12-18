@@ -6,7 +6,7 @@ from json.decoder import JSONDecodeError
 from django.utils.module_loading import import_string
 
 from modernrpc.conf import settings
-from modernrpc.core import JSONRPC_PROTOCOL, RpcRequest
+from modernrpc.core import Protocol, RpcRequest
 from modernrpc.exceptions import RPCParseError, RPCInvalidRequest, RPC_INTERNAL_ERROR
 from modernrpc.handlers.base import RPCHandler
 
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class JSONRPCHandler(RPCHandler):
-    protocol = JSONRPC_PROTOCOL
+    protocol = Protocol.JSON_RPC
 
     def __init__(self, entry_point):
         super().__init__(entry_point)

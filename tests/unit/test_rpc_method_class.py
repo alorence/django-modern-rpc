@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from modernrpc.conf import settings as modernrpc_settings
-from modernrpc.core import RPCMethod, rpc_method, JSONRPC_PROTOCOL, XMLRPC_PROTOCOL
+from modernrpc.core import RPCMethod, rpc_method, Protocol
 
 
 def dummy_empty():
@@ -22,21 +22,21 @@ class TestRpcMethodEntryPointProtocol:
         assert m.is_available_in_json_rpc()
 
     def test_method_xmlrpc_only(self):
-        rpc_method(dummy_empty, 'dummy_name', protocol=XMLRPC_PROTOCOL)
+        rpc_method(dummy_empty, 'dummy_name', protocol=Protocol.XML_RPC)
         m = RPCMethod(dummy_empty)
 
         assert m.is_available_in_xml_rpc()
         assert not m.is_available_in_json_rpc()
 
     def test_method_jsonrpc_only(self):
-        rpc_method(dummy_empty, 'dummy_name', protocol=JSONRPC_PROTOCOL)
+        rpc_method(dummy_empty, 'dummy_name', protocol=Protocol.JSON_RPC)
         m = RPCMethod(dummy_empty)
 
         assert not m.is_available_in_xml_rpc()
         assert m.is_available_in_json_rpc()
 
     def test_method_repr(self):
-        rpc_method(dummy_empty, 'dummy_name', protocol=JSONRPC_PROTOCOL)
+        rpc_method(dummy_empty, 'dummy_name', protocol=Protocol.JSON_RPC)
         m = RPCMethod(dummy_empty)
         assert 'dummy_name' in repr(m)
 
