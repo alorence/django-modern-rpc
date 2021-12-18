@@ -4,9 +4,10 @@
 """
 import inspect
 import re
-from typing import Callable, Dict
+from typing import Callable, Dict, List
 
 from django.utils.functional import cached_property
+
 from modernrpc.conf import settings
 
 # Define regular expressions used to parse docstring
@@ -28,7 +29,7 @@ class Introspector:
 
     @cached_property
     def accept_kwargs(self) -> bool:
-
+        """Determine if function signature contains **kwargs special argument"""
         if self.signature.parameters:
             # Note: cast to list() is required by python 3.5 only, to allow use of reversed() helper
             last_param = next(reversed(list(self.signature.parameters)))
@@ -36,11 +37,13 @@ class Introspector:
         return False
 
     @cached_property
-    def args(self):
+    def args(self) -> List[str]:
+        """List all function arguments"""
         return [param for param in self.signature.parameters]
 
     @cached_property
     def return_type(self) -> str:
+        """Return the return type as defined from signature typehint"""
         return "" if self.signature.return_annotation == self.signature.empty \
             else getattr(self.signature.return_annotation, "__name__", str(self.signature.return_annotation))
 
@@ -56,6 +59,8 @@ class Introspector:
 
 
 class DocstringParser:
+    """Extract documentation and parse it to extract params docs & types and return doc & type. It also converts
+    long docstring part to an HTML representation using parser from settings"""
 
     def __init__(self, function: Callable):
         self.func = function
@@ -68,14 +73,14 @@ class DocstringParser:
     @cached_property
     def raw_docstring(self) -> str:
         """Return the text part of the docstring block, excluding legacy typehints and parameters and return docs"""
-        docstring = self.full_docstring
+        content = self.full_docstring
         for pattern in [PARAM_REXP, PARAM_TYPE_REXP, RETURN_REXP, RETURN_TYPE_REXP]:
-            docstring = pattern.sub("", docstring)
-        return docstring.strip()
+            content = pattern.sub("", content)
+        return content.strip()
 
     @cached_property
-    def html_doc(self):
-        """Convert the text part of the dosctring to an HTML representation, using the parser set in settings"""
+    def html_doc(self) -> str:
+        """Convert the text part of the docstring to an HTML representation, using the parser set in settings"""
         if not self.raw_docstring:
             return ""
 
@@ -91,26 +96,62 @@ class DocstringParser:
 
     @cached_property
     def args_doc(self) -> Dict[str, str]:
+        """Return a dict with argument name as key and documentation as value. The dict will contain only
+        documented arguments.
+        Basically this method parse and extract reST documented arguments:
+
+            :param <argname>: Documentation for <argname>
+
+        Alternatively, it also supports @param format:
+
+            @param <argname>: Documentation for <argname>
+        """
         return {
             param: desc for param, desc in PARAM_REXP.findall(self.full_docstring)
         }
 
     @cached_property
     def args_types(self) -> Dict[str, str]:
+        """Return a dict with argument name as key and documented type as value. The dict will contain only
+        documented arguments.
+        Basically this method parse and extract reST doctype documentation:
+
+            :type <argname>: int or str
+
+        Alternatively, it also supports @type format:
+
+            @type <argname>: int or str
+        """
         return {
             param: _type for param, _type in PARAM_TYPE_REXP.findall(self.full_docstring)
         }
 
     @cached_property
     def return_doc(self) -> str:
+        """Return the documentation for method return value, as found in docstring:
+
+            :return: Documentation on return value
+
+        Alternatively, it also supports @return format:
+
+            @return: Documentation on return value
+
+        Return an empty string if return documentation is not found
+        """
         res = RETURN_REXP.search(self.full_docstring)
-        if res:
-            return res.group(1)
-        return ""
+        return res.group(1) if res else ""
 
     @cached_property
     def return_type(self) -> str:
+        """Return the documentation for method return type, as found in docstring:
+
+            :rtype: list
+
+        Alternatively, it also supports @rtype format:
+
+            @rtype: list
+
+        Return an empty string if return type information is not found
+        """
         res = RETURN_TYPE_REXP.search(self.full_docstring)
-        if res:
-            return res.group(1)
-        return ""
+        return res.group(1) if res else ""
