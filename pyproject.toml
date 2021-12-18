@@ -85,3 +85,4 @@ python_files = ["test_*.py"]
 python_paths = "tests"
 # pytest-django settings
 DJANGO_SETTINGS_MODULE = "testsite.settings"
+FAIL_INVALID_TEMPLATE_VARS = true

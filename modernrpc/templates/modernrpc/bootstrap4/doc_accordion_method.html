@@ -28,7 +28,7 @@
 
             {{ method.html_doc | safe | urlize }}
 
-            {% if method.is_args_doc_available %}
+            {% if method.args_doc %}
 
                 <h6>Parameters:</h6>
                 <ul>
@@ -45,7 +45,7 @@
 
             {% endif %}
 
-            {% if method.is_return_doc_available %}
+            {% if method.return_doc.type or method.return_doc.text %}
 
                 <h6>Return:</h6>
                 <ul>
@@ -57,9 +57,7 @@
                     </li>
                 </ul>
 
-            {% endif %}
-
-            {% if not method.is_any_doc_available %}
+            {% else %}
                 <em>No documentation available yet</em>
             {% endif %}
 

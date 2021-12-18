@@ -196,15 +196,3 @@ class TestRegistry:
         # Ensure all methods from on is referenced in other
         assert all([method in sorted_methods for method in methods])
         assert all([method in methods for method in sorted_methods])
-
-    def test_arguments_order(self, rpc_registry):
-        method = rpc_registry.get_method("divide", ALL, ALL)
-
-        args_names = list(method.args_doc.keys())
-        # We want to make sure arguments doc is stored with the same order method parameters are defined
-        assert args_names == [
-            "numerator", "denominator", "x", "y", "z", "a", "b", "c"
-        ]
-        assert method.args == [
-            "numerator", "denominator", "x", "y", "z", "a", "b", "c"
-        ]

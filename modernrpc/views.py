@@ -24,7 +24,7 @@ class RPCEntryPoint(TemplateView):
     This is the main entry point class. It inherits standard Django View class.
     """
 
-    template_name = 'modernrpc/doc_index.html'
+    template_name = 'modernrpc/default/index.html'
 
     entry_point = settings.MODERNRPC_DEFAULT_ENTRYPOINT_NAME
     protocol = ALL
