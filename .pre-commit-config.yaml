@@ -17,3 +17,7 @@ repos:
     hooks:
       - id: mypy
         additional_dependencies: [django-stubs, types-docutils, types-Markdown, types-requests]
+  - repo: https://github.com/psf/black
+    rev: 21.12b0
+    hooks:
+      - id: black

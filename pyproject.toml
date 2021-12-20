@@ -73,7 +73,8 @@ django-stubs = { version = "^1.9.0", python = ">=3.6" }
 types-docutils = { version = "^0.17.1", python = ">=3.6" }
 types-Markdown = { version = "^3.3.9", python = ">=3.6" }
 types-requests = { version = "^2.26.2", python = ">=3.6" }
-# Force zipp version as long as python 3.5 is supported
+# These fixed versions are mandatory for python 3.5
+typing-extensions = "^3.10.0.2"
 zipp = "^1.2"
 
 [tool.pylint]
