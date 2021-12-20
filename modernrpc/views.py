@@ -19,6 +19,8 @@ from modernrpc.helpers import ensure_sequence
 logger = logging.getLogger(__name__)
 
 
+# This disables CSRF validation for POST requests
+@method_decorator(csrf_exempt, name="dispatch")
 class RPCEntryPoint(TemplateView):
     """
     This is the main entry point class. It inherits standard Django View class.
@@ -52,13 +54,6 @@ class RPCEntryPoint(TemplateView):
         self.default_encoding = "utf-8"
 
         logger.debug('RPC entry point "%s" initialized', self.entry_point)
-
-    # This disables CSRF validation for POST requests
-    @method_decorator(csrf_exempt)
-    def dispatch(self, request, *args, **kwargs):
-        """Overrides the default dispatch method, to disable CSRF validation on POST requests. This
-        is mandatory to ensure RPC calls wil be correctly handled"""
-        return super().dispatch(request, *args, **kwargs)
 
     @cached_property
     def handler_classes(self):
