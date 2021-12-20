@@ -26,9 +26,9 @@ class JSONRPCHandler(RPCHandler):
     @staticmethod
     def valid_content_types() -> List[str]:
         return [
-            'application/json',
-            'application/json-rpc',
-            'application/jsonrequest',
+            "application/json",
+            "application/json-rpc",
+            "application/jsonrequest",
         ]
 
     def parse_request(self, request_body):
@@ -58,7 +58,7 @@ class JSONRPCHandler(RPCHandler):
                 payload.get("method"),
                 payload.get("params"),
                 jsonrpc=payload.get("jsonrpc"),
-                request_id=payload.get("id")
+                request_id=payload.get("id"),
             )
 
         raise RPCInvalidRequest(
@@ -71,15 +71,15 @@ class JSONRPCHandler(RPCHandler):
         if not rpc_request.jsonrpc:
             raise RPCInvalidRequest('Missing parameter "jsonrpc"')
         if rpc_request.jsonrpc != "2.0":
-            raise RPCInvalidRequest('jsonrpc version must be set to 2.0')
+            raise RPCInvalidRequest("jsonrpc version must be set to 2.0")
 
     def _build_error_result_data(self, rpc_result):
         result_payload = {
-            'id': rpc_result.request_id,
-            'jsonrpc': "2.0",
+            "id": rpc_result.request_id,
+            "jsonrpc": "2.0",
             "error": {
-                'code': rpc_result.error_code,
-                'message': rpc_result.error_message
+                "code": rpc_result.error_code,
+                "message": rpc_result.error_message,
             },
         }
         if rpc_result.error_data:
@@ -88,14 +88,16 @@ class JSONRPCHandler(RPCHandler):
 
     def _build_success_result_data(self, rpc_result: RpcResult) -> str:
         result_payload = {
-            'id': rpc_result.request_id,
-            'jsonrpc': "2.0",
+            "id": rpc_result.request_id,
+            "jsonrpc": "2.0",
             "result": rpc_result.success_data,
         }
         try:
             return json.dumps(result_payload, cls=self.encoder)
         except TypeError as exc:
-            rpc_result.set_error(RPC_INTERNAL_ERROR, "Unable to serialize result: {}".format(exc))
+            rpc_result.set_error(
+                RPC_INTERNAL_ERROR, "Unable to serialize result: {}".format(exc)
+            )
             return self._build_error_result_data(rpc_result)
 
     def _build_single_response_data(self, single_result: RpcResult) -> str:
@@ -119,10 +121,7 @@ class JSONRPCHandler(RPCHandler):
         :return:
         """
         if isinstance(result, list):
-            final_result = [
-                self._build_single_response_data(r)
-                for r in result
-            ]
+            final_result = [self._build_single_response_data(r) for r in result]
 
             batch_response_data = ",\n".join(filter(None, final_result))
             if batch_response_data:

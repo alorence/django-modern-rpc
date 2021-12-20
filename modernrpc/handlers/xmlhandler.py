@@ -16,19 +16,23 @@ class XMLRPCHandler(RPCHandler):
         super().__init__(entry_point)
 
         # Marshaller is used to dumps data into valid XML-RPC response. See self.dumps() for more info
-        self.marshaller = xmlrpc_client.Marshaller(encoding=settings.MODERNRPC_XMLRPC_DEFAULT_ENCODING,
-                                                   allow_none=settings.MODERNRPC_XMLRPC_ALLOW_NONE)
+        self.marshaller = xmlrpc_client.Marshaller(
+            encoding=settings.MODERNRPC_XMLRPC_DEFAULT_ENCODING,
+            allow_none=settings.MODERNRPC_XMLRPC_ALLOW_NONE,
+        )
         self.use_builtin_types = settings.MODERNRPC_XMLRPC_USE_BUILTIN_TYPES
 
     @staticmethod
     def valid_content_types():
         return [
-            'text/xml',
+            "text/xml",
         ]
 
     def parse_request(self, request_body):
         try:
-            params, method_name = xmlrpc_client.loads(request_body, use_builtin_types=self.use_builtin_types)
+            params, method_name = xmlrpc_client.loads(
+                request_body, use_builtin_types=self.use_builtin_types
+            )
 
         except ExpatError as exc:
             raise RPCParseError("Error while parsing XML-RPC request: {}".format(exc))
@@ -41,7 +45,7 @@ class XMLRPCHandler(RPCHandler):
 
     def validate_request(self, rpc_request: RpcRequest) -> None:
         if not rpc_request.method_name:
-            raise RPCInvalidRequest('Missing methodName')
+            raise RPCInvalidRequest("Missing methodName")
 
     def build_response_data(self, result: RpcResult) -> str:
         """
@@ -49,17 +53,26 @@ class XMLRPCHandler(RPCHandler):
         :return:
         """
         if result.is_error():
-            response_content = self.marshaller.dumps(xmlrpc_client.Fault(result.error_code, result.error_message))
+            response_content = self.marshaller.dumps(
+                xmlrpc_client.Fault(result.error_code, result.error_message)
+            )
         else:
             try:
                 response_content = self.marshaller.dumps([result.success_data])
             except Exception as exc:
-                fault = xmlrpc_client.Fault(RPC_INTERNAL_ERROR, "Unable to serialize result: {}".format(exc))
+                fault = xmlrpc_client.Fault(
+                    RPC_INTERNAL_ERROR, "Unable to serialize result: {}".format(exc)
+                )
                 response_content = self.marshaller.dumps(fault)
 
-        return dedent(("""
+        return dedent(
+            (
+                """
             <?xml version="1.0"?>
             <methodResponse>
                 %s
             </methodResponse>
-        """ % response_content).strip())
+        """
+                % response_content
+            ).strip()
+        )

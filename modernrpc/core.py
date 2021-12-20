@@ -28,23 +28,22 @@ logger = logging.getLogger(__name__)
 
 class Protocol(str, Enum):
     ALL = GENERIC_ALL
-    JSON_RPC = '__json_rpc'
-    XML_RPC = '__xml_rpc'
+    JSON_RPC = "__json_rpc"
+    XML_RPC = "__xml_rpc"
 
 
 class RPCMethod:
-
     def __init__(self, func: FunctionType):
         # Store the reference to the registered function
         self.function = func
 
         # @rpc_method decorator parameters
-        self.entry_point = getattr(func, 'modernrpc_entry_point')
-        self.protocol = getattr(func, 'modernrpc_protocol')
+        self.entry_point = getattr(func, "modernrpc_entry_point")
+        self.protocol = getattr(func, "modernrpc_protocol")
 
         # Authentication related attributes
-        self.predicates = getattr(func, 'modernrpc_auth_predicates', None)
-        self.predicates_params = getattr(func, 'modernrpc_auth_predicates_params', ())
+        self.predicates = getattr(func, "modernrpc_auth_predicates", None)
+        self.predicates_params = getattr(func, "modernrpc_auth_predicates_params", ())
 
         # Introspection
         self.introspector = Introspector(self.function)
@@ -52,22 +51,23 @@ class RPCMethod:
 
     @property
     def name(self) -> str:
-        return getattr(self.function, 'modernrpc_name', self.function.__name__)
+        return getattr(self.function, "modernrpc_name", self.function.__name__)
 
     def __repr__(self) -> str:
-        return 'RPC Method ' + self.name
+        return "RPC Method " + self.name
 
     def __str__(self) -> str:
-        return '{}({})'.format(self.name, ', '.join(self.introspector.args))
+        return "{}({})".format(self.name, ", ".join(self.introspector.args))
 
     def __eq__(self, other) -> bool:
-        return \
-            self.function == other.function and \
-            self.name == other.name and \
-            self.entry_point == other.entry_point and \
-            self.protocol == other.protocol and \
-            self.predicates == other.predicates and \
-            self.predicates_params == other.predicates_params
+        return (
+            self.function == other.function
+            and self.name == other.name
+            and self.entry_point == other.entry_point
+            and self.protocol == other.protocol
+            and self.predicates == other.predicates
+            and self.predicates_params == other.predicates_params
+        )
 
     def check_permissions(self, request: HttpRequest) -> bool:
         """Call the predicate(s) associated with the RPC method, to check if the current request
@@ -97,10 +97,16 @@ class RPCMethod:
     def is_valid_for(self, entry_point: str, protocol: Protocol) -> bool:
         """Check if the current function can be executed from a request to the given entry point
         and with the given protocol"""
-        return self.available_for_entry_point(entry_point) and self.available_for_protocol(protocol)
+        return self.available_for_entry_point(
+            entry_point
+        ) and self.available_for_protocol(protocol)
 
-    is_available_in_json_rpc = functools.partialmethod(available_for_protocol, Protocol.JSON_RPC)
-    is_available_in_xml_rpc = functools.partialmethod(available_for_protocol, Protocol.XML_RPC)
+    is_available_in_json_rpc = functools.partialmethod(
+        available_for_protocol, Protocol.JSON_RPC
+    )
+    is_available_in_xml_rpc = functools.partialmethod(
+        available_for_protocol, Protocol.XML_RPC
+    )
 
     @cached_property
     def accept_kwargs(self) -> bool:
@@ -127,8 +133,9 @@ class RPCMethod:
         result = OrderedDict()
         for arg in self.introspector.args:
             result[arg] = {
-                "type": self.doc_parser.args_types.get(arg, "") or self.introspector.args_types.get(arg, ""),
-                "text": self.doc_parser.args_doc.get(arg, "")
+                "type": self.doc_parser.args_types.get(arg, "")
+                or self.introspector.args_types.get(arg, ""),
+                "text": self.doc_parser.args_doc.get(arg, ""),
             }
         return result
 
@@ -136,12 +143,11 @@ class RPCMethod:
     def return_doc(self) -> Dict[str, str]:
         return {
             "type": self.doc_parser.return_type or self.introspector.return_type,
-            "text": self.doc_parser.return_doc
+            "text": self.doc_parser.return_doc,
         }
 
 
 class _RPCRegistry:
-
     def __init__(self):
         self._registry = {}
 
@@ -157,19 +163,22 @@ class _RPCRegistry:
         :param func: A function previously decorated using @rpc_method
         :return: The name of registered method
         """
-        if not getattr(func, 'modernrpc_enabled', False):
-            raise ImproperlyConfigured('Error: trying to register {} as RPC method, but it has not been decorated.'
-                                       .format(func.__name__))
+        if not getattr(func, "modernrpc_enabled", False):
+            raise ImproperlyConfigured(
+                "Error: trying to register {} as RPC method, but it has not been decorated.".format(
+                    func.__name__
+                )
+            )
 
         # Define the external name of the function
-        name = getattr(func, 'modernrpc_name', func.__name__)
+        name = getattr(func, "modernrpc_name", func.__name__)
 
         logger.debug('Register RPC method "%s"', name)
 
-        if name.startswith('rpc.'):
+        if name.startswith("rpc."):
             raise ImproperlyConfigured(
                 'According to RPC standard, method names starting with "rpc." are reserved for system extensions and '
-                'must not be used. See https://www.jsonrpc.org/specification#extensions for more information.'
+                "must not be used. See https://www.jsonrpc.org/specification#extensions for more information."
             )
 
         # Encapsulate the function in a RPCMethod object
@@ -185,11 +194,15 @@ class _RPCRegistry:
 
             # But if we try to use the same name to register 2 different methods, we
             # must inform the developer there is an error in the code
-            raise ImproperlyConfigured("A RPC method with name {} has already been registered".format(method.name))
+            raise ImproperlyConfigured(
+                "A RPC method with name {} has already been registered".format(
+                    method.name
+                )
+            )
 
         # Store the method
         self._registry[method.name] = method
-        logger.debug('Method registered. len(registry): %d', len(self._registry))
+        logger.debug("Method registered. len(registry): %d", len(self._registry))
 
         return method.name
 
@@ -197,11 +210,13 @@ class _RPCRegistry:
         return len(self._registry)
 
     def get_all_method_names(
-            self, entry_point=ALL, protocol: Protocol = Protocol.ALL, sort_methods=False
+        self, entry_point=ALL, protocol: Protocol = Protocol.ALL, sort_methods=False
     ) -> List[str]:
         """Return the names of all RPC methods registered supported by the given entry_point / protocol pair"""
         method_names = [
-            name for name, method in self._registry.items() if method.is_valid_for(entry_point, protocol)
+            name
+            for name, method in self._registry.items()
+            if method.is_valid_for(entry_point, protocol)
         ]
 
         if sort_methods:
@@ -210,19 +225,30 @@ class _RPCRegistry:
         return method_names
 
     def get_all_methods(
-            self, entry_point: str = ALL, protocol: Protocol = Protocol.ALL, sort_methods=False
+        self,
+        entry_point: str = ALL,
+        protocol: Protocol = Protocol.ALL,
+        sort_methods=False,
     ) -> List[RPCMethod]:
         """Return a list of all methods in the registry supported by the given entry_point / protocol pair"""
 
-        items = sorted(self._registry.items()) if sort_methods else self._registry.items()
+        items = (
+            sorted(self._registry.items()) if sort_methods else self._registry.items()
+        )
         return [
-            method for (_, method) in items if method.is_valid_for(entry_point, protocol)
+            method
+            for (_, method) in items
+            if method.is_valid_for(entry_point, protocol)
         ]
 
-    def get_method(self, name: str, entry_point: str, protocol: Protocol) -> Optional[RPCMethod]:
+    def get_method(
+        self, name: str, entry_point: str, protocol: Protocol
+    ) -> Optional[RPCMethod]:
         """Retrieve a method from the given name"""
 
-        if name in self._registry and self._registry[name].is_valid_for(entry_point, protocol):
+        if name in self._registry and self._registry[name].is_valid_for(
+            entry_point, protocol
+        ):
             return self._registry[name]
 
         return None
@@ -246,14 +272,17 @@ class RpcRequest:
             elif isinstance(params, (list, set, tuple)):
                 self.args = list(params)
             else:
-                raise ValueError("RPCRequest initial params has an unsupported type: {}".format(type(params)))
+                raise ValueError(
+                    "RPCRequest initial params has an unsupported type: {}".format(
+                        type(params)
+                    )
+                )
 
         for key, value in kwargs.items():
             setattr(self, key, value)
 
 
 class RpcResult:
-
     def __init__(self, request_id: str = None):
         self.request_id = request_id
         self._response_is_error = False
@@ -287,7 +316,12 @@ class RpcResult:
         return self._data[2]
 
 
-def rpc_method(func=None, name: str = None, entry_point: str = ALL, protocol: Protocol = Protocol.ALL):
+def rpc_method(
+    func=None,
+    name: str = None,
+    entry_point: str = ALL,
+    protocol: Protocol = Protocol.ALL,
+):
     """
     Mark a standard python function as RPC method.
 
@@ -325,12 +359,16 @@ def register_rpc_method(func):
 
 def get_all_method_names(entry_point=ALL, protocol=ALL, sort_methods=False):
     """For backward compatibility. Use registry.get_all_method_names() instead (with same arguments)"""
-    return registry.get_all_method_names(entry_point=entry_point, protocol=protocol, sort_methods=sort_methods)
+    return registry.get_all_method_names(
+        entry_point=entry_point, protocol=protocol, sort_methods=sort_methods
+    )
 
 
 def get_all_methods(entry_point=ALL, protocol=ALL, sort_methods=False):
     """For backward compatibility. Use registry.get_all_methods() instead (with same arguments)"""
-    return registry.get_all_methods(entry_point=entry_point, protocol=protocol, sort_methods=sort_methods)
+    return registry.get_all_methods(
+        entry_point=entry_point, protocol=protocol, sort_methods=sort_methods
+    )
 
 
 def get_method(name, entry_point, protocol):

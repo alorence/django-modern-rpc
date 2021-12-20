@@ -6,9 +6,9 @@ from typing import Union, Optional, Any, Sequence
 
 
 def get_builtin_date(
-        date: Union[str, datetime.datetime, xmlrpc_client.DateTime],
-        date_format: str = "%Y-%m-%dT%H:%M:%S",
-        raise_exception: bool = False
+    date: Union[str, datetime.datetime, xmlrpc_client.DateTime],
+    date_format: str = "%Y-%m-%dT%H:%M:%S",
+    raise_exception: bool = False,
 ) -> Optional[datetime.datetime]:
     """
     Try to convert a date to a builtin instance of ``datetime.datetime``.

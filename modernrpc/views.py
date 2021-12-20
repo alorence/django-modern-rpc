@@ -10,9 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import TemplateView, View
 
 from modernrpc.conf import settings
-from modernrpc.core import (
-    registry, ALL, RpcRequest, RpcResult
-)
+from modernrpc.core import registry, ALL, RpcRequest, RpcResult
 from modernrpc.exceptions import RPCParseError, RPC_PARSE_ERROR, RPCInvalidRequest
 from modernrpc.helpers import ensure_sequence
 
@@ -26,7 +24,7 @@ class RPCEntryPoint(TemplateView):
     This is the main entry point class. It inherits standard Django View class.
     """
 
-    template_name = 'modernrpc/default/index.html'
+    template_name = "modernrpc/default/index.html"
 
     entry_point = settings.MODERNRPC_DEFAULT_ENTRYPOINT_NAME
     protocol = ALL
@@ -45,11 +43,11 @@ class RPCEntryPoint(TemplateView):
         # Customize allowed HTTP methods name to forbid access to GET when this EntryPoint
         # must not display docs...
         if not self.enable_doc:
-            self.http_method_names.remove('get')
+            self.http_method_names.remove("get")
 
         # ... and also forbid access to POST when this EntryPoint must not support RPC request (docs only view)
         if not self.enable_rpc:
-            self.http_method_names.remove('post')
+            self.http_method_names.remove("post")
 
         self.default_encoding = "utf-8"
 
@@ -65,7 +63,11 @@ class RPCEntryPoint(TemplateView):
         if self.protocol == ALL:
             return handler_classes
 
-        return [cls for cls in handler_classes if cls.protocol in ensure_sequence(self.protocol)]
+        return [
+            cls
+            for cls in handler_classes
+            if cls.protocol in ensure_sequence(self.protocol)
+        ]
 
     @cached_property
     def handlers(self):
@@ -81,23 +83,25 @@ class RPCEntryPoint(TemplateView):
         :param kwargs: Additional named arguments
         :return: A HttpResponse containing XML-RPC or JSON-RPC response, depending on the incoming request
         """
-        logger.debug('RPC request received...')
+        logger.debug("RPC request received...")
 
         if not request.content_type:
             return HttpResponse(
-                'Unable to handle your request, the Content-Type header is mandatory to allow server to determine the '
-                'right handler to interpret your request..'
+                "Unable to handle your request, the Content-Type header is mandatory to allow server to determine the "
+                "right handler to interpret your request.."
             )
 
         # Retrieve the first RPC handler able to parse our request
         # This weird next(filter(iterable, predicate), default) structure is basically the more_itertools.first_true()
         # utility. This is written here to avoid dependency to more-itertools package
-        handler = next(filter(lambda candidate: candidate.can_handle(request), self.handlers), None)
+        handler = next(
+            filter(lambda candidate: candidate.can_handle(request), self.handlers), None
+        )
 
         if not handler:
             return HttpResponse(
-                'Unable to handle your request. Please ensure you called '
-                'the right entry point. If not, this could be a server error.'
+                "Unable to handle your request. Please ensure you called "
+                "the right entry point. If not, this could be a server error."
             )
 
         request_body = request.body.decode(request.encoding or self.default_encoding)
@@ -132,7 +136,11 @@ class RPCEntryPoint(TemplateView):
     def get_context_data(self, **kwargs):
         """Update context data with list of RPC methods of the current entry point.
         Will be used to display methods documentation page"""
-        kwargs.update({
-            'methods': registry.get_all_methods(self.entry_point, sort_methods=True),
-        })
+        kwargs.update(
+            {
+                "methods": registry.get_all_methods(
+                    self.entry_point, sort_methods=True
+                ),
+            }
+        )
         return super().get_context_data(**kwargs)

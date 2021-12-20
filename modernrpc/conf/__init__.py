@@ -6,7 +6,6 @@ from modernrpc.conf import default_settings
 
 
 class ModernRpcSettings:
-
     def __getattr__(self, item):
 
         try:

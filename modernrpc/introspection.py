@@ -11,10 +11,10 @@ from django.utils.functional import cached_property
 from modernrpc.conf import settings
 
 # Define regular expressions used to parse docstring
-PARAM_REXP = re.compile(r'^[:@]param (\w+):\s?(.*)$', flags=re.MULTILINE)
-PARAM_TYPE_REXP = re.compile(r'^[:@]type (\w+):\s?(.*)$', flags=re.MULTILINE)
-RETURN_REXP = re.compile(r'^[:@]return:\s?(.*)$', flags=re.MULTILINE)
-RETURN_TYPE_REXP = re.compile(r'^[:@]rtype:\s?(.*)$', flags=re.MULTILINE)
+PARAM_REXP = re.compile(r"^[:@]param (\w+):\s?(.*)$", flags=re.MULTILINE)
+PARAM_TYPE_REXP = re.compile(r"^[:@]type (\w+):\s?(.*)$", flags=re.MULTILINE)
+RETURN_REXP = re.compile(r"^[:@]return:\s?(.*)$", flags=re.MULTILINE)
+RETURN_TYPE_REXP = re.compile(r"^[:@]rtype:\s?(.*)$", flags=re.MULTILINE)
 
 
 class Introspector:
@@ -33,7 +33,10 @@ class Introspector:
         if self.signature.parameters:
             # Note: cast to list() is required by python 3.5 only, to allow use of reversed() helper
             last_param = next(reversed(list(self.signature.parameters)))
-            return self.signature.parameters[last_param].kind == inspect.Parameter.VAR_KEYWORD
+            return (
+                self.signature.parameters[last_param].kind
+                == inspect.Parameter.VAR_KEYWORD
+            )
         return False
 
     @cached_property
@@ -44,8 +47,15 @@ class Introspector:
     @cached_property
     def return_type(self) -> str:
         """Return the return type as defined from signature typehint"""
-        return "" if self.signature.return_annotation == self.signature.empty \
-            else getattr(self.signature.return_annotation, "__name__", str(self.signature.return_annotation))
+        return (
+            ""
+            if self.signature.return_annotation == self.signature.empty
+            else getattr(
+                self.signature.return_annotation,
+                "__name__",
+                str(self.signature.return_annotation),
+            )
+        )
 
     @cached_property
     def args_types(self) -> Dict[str, str]:
@@ -84,15 +94,23 @@ class DocstringParser:
         if not self.raw_docstring:
             return ""
 
-        if settings.MODERNRPC_DOC_FORMAT.lower() in ('rst', 'restructred', 'restructuredtext'):
+        if settings.MODERNRPC_DOC_FORMAT.lower() in (
+            "rst",
+            "restructred",
+            "restructuredtext",
+        ):
             from docutils.core import publish_parts
-            return publish_parts(self.raw_docstring, writer_name='html')['body']
 
-        if settings.MODERNRPC_DOC_FORMAT.lower() in ('md', 'markdown'):
+            return publish_parts(self.raw_docstring, writer_name="html")["body"]
+
+        if settings.MODERNRPC_DOC_FORMAT.lower() in ("md", "markdown"):
             import markdown
+
             return markdown.markdown(self.raw_docstring)
 
-        return "<p>{}</p>".format(self.raw_docstring.replace('\n\n', '</p><p>').replace('\n', ' '))
+        return "<p>{}</p>".format(
+            self.raw_docstring.replace("\n\n", "</p><p>").replace("\n", " ")
+        )
 
     @cached_property
     def args_doc(self) -> Dict[str, str]:
