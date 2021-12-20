@@ -2,11 +2,12 @@
 import json
 import logging
 from json.decoder import JSONDecodeError
+from typing import List, Union
 
 from django.utils.module_loading import import_string
 
 from modernrpc.conf import settings
-from modernrpc.core import Protocol, RpcRequest
+from modernrpc.core import Protocol, RpcRequest, RpcResult
 from modernrpc.exceptions import RPCParseError, RPCInvalidRequest, RPC_INTERNAL_ERROR
 from modernrpc.handlers.base import RPCHandler
 
@@ -23,7 +24,7 @@ class JSONRPCHandler(RPCHandler):
         self.encoder = import_string(settings.MODERNRPC_JSON_ENCODER)
 
     @staticmethod
-    def valid_content_types():
+    def valid_content_types() -> List[str]:
         return [
             'application/json',
             'application/json-rpc',
@@ -85,7 +86,7 @@ class JSONRPCHandler(RPCHandler):
             result_payload["error"]["data"] = rpc_result.error_data
         return json.dumps(result_payload, cls=self.encoder)
 
-    def _build_success_result_data(self, rpc_result):
+    def _build_success_result_data(self, rpc_result: RpcResult) -> str:
         result_payload = {
             'id': rpc_result.request_id,
             'jsonrpc': "2.0",
@@ -97,10 +98,9 @@ class JSONRPCHandler(RPCHandler):
             rpc_result.set_error(RPC_INTERNAL_ERROR, "Unable to serialize result: {}".format(exc))
             return self._build_error_result_data(rpc_result)
 
-    def _build_single_response_data(self, single_result):
+    def _build_single_response_data(self, single_result: RpcResult) -> str:
         """
         :param single_result:
-        :type single_result: RpcResult
         :return:
         """
 
@@ -113,10 +113,9 @@ class JSONRPCHandler(RPCHandler):
 
         return self._build_success_result_data(single_result)
 
-    def build_response_data(self, result):
+    def build_response_data(self, result: Union[RpcResult, List[RpcResult]]) -> str:
         """
         :param result:
-        :type result: List[RpcResult] | RpcResult
         :return:
         """
         if isinstance(result, list):

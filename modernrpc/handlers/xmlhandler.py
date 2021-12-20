@@ -4,7 +4,7 @@ from pyexpat import ExpatError
 from textwrap import dedent
 
 from modernrpc.conf import settings
-from modernrpc.core import Protocol, RpcRequest
+from modernrpc.core import Protocol, RpcRequest, RpcResult
 from modernrpc.exceptions import RPCParseError, RPCInvalidRequest, RPC_INTERNAL_ERROR
 from modernrpc.handlers.base import RPCHandler
 
@@ -39,14 +39,13 @@ class XMLRPCHandler(RPCHandler):
         # Build an RPCRequest instance with parsed request data
         return RpcRequest(method_name, params)
 
-    def validate_request(self, rpc_request):
+    def validate_request(self, rpc_request: RpcRequest) -> None:
         if not rpc_request.method_name:
             raise RPCInvalidRequest('Missing methodName')
 
-    def build_response_data(self, result):
+    def build_response_data(self, result: RpcResult) -> str:
         """
         :param result:
-        :type result: modernrpc.core.RpcResult
         :return:
         """
         if result.is_error():

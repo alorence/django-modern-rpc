@@ -1,13 +1,13 @@
 # coding: utf-8
+from typing import List
 
 # List of python modules containing RPC methods.
-MODERNRPC_METHODS_MODULES = []
+MODERNRPC_METHODS_MODULES = []  # type: List[str]
 
 # Decoder class used to convert python data to JSON
 MODERNRPC_JSON_DECODER = 'json.decoder.JSONDecoder'
 # Encoder class used to convert JSON data to python values
 MODERNRPC_JSON_ENCODER = 'django.core.serializers.json.DjangoJSONEncoder'
-
 
 # Control how builtin types are handled by XML-RPC serializer and deserializer
 MODERNRPC_XMLRPC_USE_BUILTIN_TYPES = True

@@ -55,6 +55,7 @@ Pre-defined exceptions uses the following error codes::
     RPC_CUSTOM_ERROR_MAX = -32000
 
 """
+from typing import Any
 
 RPC_PARSE_ERROR = -32700
 RPC_INVALID_REQUEST = -32600
@@ -73,7 +74,7 @@ class RPCException(Exception):
     This is the base class of all RPC exception. Custom exceptions raised by your RPC methods
     should inherits from RPCException.
     """
-    def __init__(self, code, message, data=None):
+    def __init__(self, code: int, message: str, data: Any = None):
         super().__init__('[{}] {}'.format(code, message))
         self.code = code
         self.message = message
@@ -82,40 +83,40 @@ class RPCException(Exception):
 
 class RPCParseError(RPCException):
     """Raised by handlers if the request can't be read as valid JSON or XML data."""
-    def __init__(self, message, data=None):
+    def __init__(self, message: str, data: Any = None):
         err_msg = 'Parse error, unable to read the request: {}'.format(message)
         super().__init__(RPC_PARSE_ERROR, err_msg, data)
 
 
 class RPCInvalidRequest(RPCException):
     """Raised by handlers if incoming JSON or XML data is not a valid JSON-RPC or XML-RPC data."""
-    def __init__(self, message, data=None):
+    def __init__(self, message: str, data: Any = None):
         err_msg = 'Invalid request: {}'.format(message)
         super().__init__(RPC_INVALID_REQUEST, err_msg, data)
 
 
 class RPCUnknownMethod(RPCException):
     """Raised by handlers the RPC method called is not defined for the current entry point and protocol."""
-    def __init__(self, name, data=None):
+    def __init__(self, name: str, data: Any = None):
         err_msg = 'Method not found: "{}"'.format(name)
         super().__init__(RPC_METHOD_NOT_FOUND, err_msg, data)
 
 
 class RPCInvalidParams(RPCException):
     """Raised by handlers if the RPC method's params does not match the parameters in RPC request"""
-    def __init__(self, message, data=None):
+    def __init__(self, message: str, data: Any = None):
         err_msg = 'Invalid parameters: {}'.format(message)
         super().__init__(RPC_INVALID_PARAMS, err_msg, data)
 
 
 class RPCInternalError(RPCException):
     """Raised by handlers if any standard exception is raised during the execution of the RPC method."""
-    def __init__(self, message, data=None):
+    def __init__(self, message: str, data: Any = None):
         err_msg = 'Internal error: {}'.format(message)
         super().__init__(RPC_INTERNAL_ERROR, err_msg, data)
 
 
 class AuthenticationFailed(RPCInternalError):
     """Raised when authentication system forbade execution of a RPC Method"""
-    def __init__(self, method_name):
+    def __init__(self, method_name: str):
         super().__init__('Authentication failed when calling "{}"'.format(method_name))

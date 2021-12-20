@@ -1,8 +1,16 @@
 # coding: utf-8
 import logging
 from abc import ABC, abstractmethod
+from typing import List
 
-from modernrpc.core import RpcResult, registry, REQUEST_KEY, ENTRY_POINT_KEY, PROTOCOL_KEY, HANDLER_KEY
+from django.http import HttpRequest
+
+from modernrpc.core import (
+    registry,
+    Protocol,
+    RpcRequest, RpcResult,
+    REQUEST_KEY, ENTRY_POINT_KEY, PROTOCOL_KEY, HANDLER_KEY,
+)
 from modernrpc.exceptions import (
     RPCException,
     RPC_METHOD_NOT_FOUND,
@@ -14,40 +22,36 @@ logger = logging.getLogger(__name__)
 
 
 class RPCHandler(ABC):
-    protocol = None
+    protocol = None  # type: Protocol
 
     def __init__(self, entry_point):
         self.entry_point = entry_point
 
     @staticmethod
     @abstractmethod
-    def valid_content_types():
+    def valid_content_types() -> List[str]:
         """Return the list of content-types supported by the concrete handler"""
 
-    def can_handle(self, request):
-        return request.content_type.lower() in self.valid_content_types()
+    def can_handle(self, request: HttpRequest):
+        return getattr(request, "content_type", "").lower() in self.valid_content_types()
 
     @abstractmethod
-    def parse_request(self, request_body):
+    def parse_request(self, request_body: str) -> RpcRequest:
         """Parse given request body and build a RPC request wrapper"""
 
     @abstractmethod
-    def validate_request(self, rpc_request):
+    def validate_request(self, rpc_request: RpcRequest):
         """Check current request to ensure it is valid regarding protocol specifications
 
         Default implementation does nothing
         :rpc_request: The request to validate
-        :type rpc_request: RPCRequest
         """
 
-    def process_request(self, request, rpc_request):
+    def process_request(self, request: HttpRequest, rpc_request: RpcRequest) -> RpcResult:
         """
         :param request:
-        :type rpc_request: HttpRequest
         :param rpc_request:
-        :type rpc_request: RpcRequest
         :return:
-        :rtype: RpcResult
         """
         rpc_result = RpcResult(rpc_request.request_id)
         try:
@@ -96,9 +100,8 @@ class RPCHandler(ABC):
         return rpc_result
 
     @abstractmethod
-    def build_response_data(self, result):
+    def build_response_data(self, result: RpcResult) -> str:
         """
         :param result:
-        :type result: modernrpc.core.RpcResult
         :return:
         """

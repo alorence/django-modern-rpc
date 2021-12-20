@@ -2,6 +2,7 @@
 import inspect
 import logging
 from importlib import import_module
+from typing import List
 
 from django.apps import AppConfig
 from django.core import checks
@@ -46,7 +47,7 @@ class ModernRpcConfig(AppConfig):
     def ready(self):
         self.rpc_methods_registration()
 
-    def rpc_methods_registration(self):
+    def rpc_methods_registration(self) -> None:
         """Loop over each module listed in settings.MODERNRPC_METHODS_MODULES, import each one and register
         functions annotated with @rpc_method in the internal registry"""
 
@@ -64,7 +65,7 @@ class ModernRpcConfig(AppConfig):
         logger.info('django-modern-rpc initialized: %d RPC methods registered', registry.total_count())
 
     @staticmethod
-    def import_modules(modules_list):
+    def import_modules(modules_list: List[str]):
         for module_name in modules_list:
             # Import the module in current scope
             rpc_module = import_module(module_name)

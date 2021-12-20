@@ -53,7 +53,7 @@ class RPCEntryPoint(TemplateView):
 
         logger.debug('RPC entry point "%s" initialized', self.entry_point)
 
-    # This disable CSRF validation for POST requests
+    # This disables CSRF validation for POST requests
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         """Overrides the default dispatch method, to disable CSRF validation on POST requests. This

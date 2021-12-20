@@ -1,7 +1,12 @@
 # coding: utf-8
+from typing import Any, Union, List, Dict
+
+from django.http import HttpRequest
+
 from modernrpc.core import ENTRY_POINT_KEY, PROTOCOL_KEY, registry, rpc_method, HANDLER_KEY, REQUEST_KEY, RpcRequest, \
     Protocol
 from modernrpc.exceptions import RPCInvalidParams
+from modernrpc.handlers.base import RPCHandler
 
 
 @rpc_method(name='system.listMethods')
@@ -67,16 +72,14 @@ def __system_multi_call(calls, **kwargs):
 
     :param calls: An array of struct like {"methodName": string, "params": array }
     :param kwargs: Internal data
-    :type calls: list
-    :type kwargs: dict
     :return:
     """
     if not isinstance(calls, list):
         raise RPCInvalidParams('system.multicall first argument should be a list, {} given.'.format(type(calls)))
 
-    handler = kwargs.get(HANDLER_KEY)
-    request = kwargs.get(REQUEST_KEY)
-    results = []
+    handler = kwargs[HANDLER_KEY]  # type: RPCHandler
+    request = kwargs[REQUEST_KEY]  # type: HttpRequest
+    results = []  # type: List[Union[Dict[str, Any], List[Any]]]
 
     for call in calls:
 
