@@ -39,7 +39,7 @@ class Introspector:
     @cached_property
     def args(self) -> List[str]:
         """List all function arguments"""
-        return [param for param in self.signature.parameters]
+        return list(self.signature.parameters.keys())
 
     @cached_property
     def return_type(self) -> str:
@@ -106,9 +106,7 @@ class DocstringParser:
 
             @param <argname>: Documentation for <argname>
         """
-        return {
-            param: desc for param, desc in PARAM_REXP.findall(self.full_docstring)
-        }
+        return dict(PARAM_REXP.findall(self.full_docstring))
 
     @cached_property
     def args_types(self) -> Dict[str, str]:
@@ -122,9 +120,7 @@ class DocstringParser:
 
             @type <argname>: int or str
         """
-        return {
-            param: _type for param, _type in PARAM_TYPE_REXP.findall(self.full_docstring)
-        }
+        return dict(PARAM_TYPE_REXP.findall(self.full_docstring))
 
     @cached_property
     def return_doc(self) -> str:
