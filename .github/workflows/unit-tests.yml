@@ -97,3 +97,17 @@ jobs:
           poetry install --no-interaction
       - name: Pylint
         run: poetry run pylint modernrpc --exit-zero
+
+  mypy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
+      - name: Install dependencies
+        run: |
+          poetry install --no-interaction
+      - name: Pylint
+        run: poetry run mypy -p modernrpc
