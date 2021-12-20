@@ -21,10 +21,12 @@ try:
 
     sphinx_theme = "sphinx_rtd_theme"
 except ImportError:
-    warnings.warn("Please install 'sphinx_rtd_theme' in order to build this documentation")
-    sphinx_theme = None
+    warnings.warn(
+        "Please install 'sphinx_rtd_theme' in order to build this documentation"
+    )
+    sphinx_theme = ""
 
-sys.path.insert(0, abspath(join(dirname(__file__), '../..')))
+sys.path.insert(0, abspath(join(dirname(__file__), "../..")))
 import modernrpc  # noqa: F402
 from django.conf import settings
 
@@ -33,14 +35,14 @@ settings.configure()
 # -- Project information -----------------------------------------------------
 
 # General information about the project.
-project = 'django-modern-rpc'
-copyright = '2021, Antoine Lorence'
-author = 'Antoine Lorence'
+project = "django-modern-rpc"
+copyright = "2021, Antoine Lorence"
+author = "Antoine Lorence"
 
 # The full version, including alpha/beta/rc tags
 release = modernrpc.__version__
 # The short X.Y version.
-version = release.rsplit('.', 1)[0]
+version = release.rsplit(".", 1)[0]
 
 # -- General configuration ---------------------------------------------------
 
@@ -48,19 +50,19 @@ version = release.rsplit('.', 1)[0]
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.viewcode',
-    'sphinx.ext.autodoc',
-    'sphinx.ext.autosectionlabel',
+    "sphinx.ext.viewcode",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autosectionlabel",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = [
-    'drafts/*',
+    "drafts/*",
 ]
 
 # -- Options for HTML output -------------------------------------------------
@@ -68,9 +70,9 @@ exclude_patterns = [
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = sphinx_theme or 'alabaster'
+html_theme = sphinx_theme or "alabaster"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]

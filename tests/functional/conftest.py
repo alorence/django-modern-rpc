@@ -5,6 +5,7 @@ import json.decoder
 import pyexpat
 import xmlrpc.client
 from abc import ABC, abstractmethod
+from typing import Optional, Type
 
 import jsonrpcclient.clients.http_client
 import pytest
@@ -23,9 +24,10 @@ class JsonrpcErrorResponse(Exception):
 
 class AbstractRpcTestClient(ABC):
     """Base class RPC clients used to run tests"""
-    error_response_exception = None
-    invalid_response_exception = None
-    auth_error_exception = None
+
+    error_response_exception = None  # type: Optional[Type[Exception]]
+    invalid_response_exception = None  # type: Optional[Type[Exception]]
+    auth_error_exception = None  # type: Optional[Type[Exception]]
 
     def __init__(self, url, **kwargs):
         self._url = url
@@ -39,7 +41,9 @@ class AbstractRpcTestClient(ABC):
         :param exception: The exception instance
         :param error_code: Error code, as int
         """
-        exc_code = getattr(exception, "code", None) or getattr(exception, "faultCode", None)
+        exc_code = getattr(exception, "code", None) or getattr(
+            exception, "faultCode", None
+        )
         assert exc_code == error_code
 
     def _get_headers(self):
@@ -54,9 +58,7 @@ class AbstractRpcTestClient(ABC):
             _, username, password = self._auth
             credz = "{}:{}".format(username, password)
             b64_credz = base64.standard_b64encode(credz.encode("utf-8")).decode("utf-8")
-            return {
-                "Authorization": "Basic {}".format(b64_credz)
-            }
+            return {"Authorization": "Basic {}".format(b64_credz)}
         raise ValueError("Unknown Authentication kind: {}".format(kind))
 
     @abstractmethod
@@ -98,7 +100,9 @@ class JsonrpcclientlibClient(AbstractJsonRpcTestClient):
     def __init__(self, url, **kwargs):
         super().__init__(url, **kwargs)
         self._id_generator = itertools.count(0)
-        self._client = jsonrpcclient.clients.http_client.HTTPClient(self._url, id_generator=self._id_generator)
+        self._client = jsonrpcclient.clients.http_client.HTTPClient(
+            self._url, id_generator=self._id_generator
+        )
         # self._client = jsonrpcclient.clients.http_client.HTTPClient(self._url)
 
     def call(self, method, *args, **kwargs):
@@ -110,7 +114,9 @@ class JsonrpcclientlibClient(AbstractJsonRpcTestClient):
         try:
             response = self._client.send(req, headers=self._get_headers())
         except ReceivedErrorResponseError as exc:
-            raise JsonrpcErrorResponse(exc.response.code, exc.response.message, exc.response.data)
+            raise JsonrpcErrorResponse(
+                exc.response.code, exc.response.message, exc.response.data
+            )
         return response.data.result
 
     def batch_request(self, calls_data):
@@ -124,7 +130,9 @@ class JsonrpcclientlibClient(AbstractJsonRpcTestClient):
             if "notify_only" in extra_params:
                 batch.append(Notification(method, *args, **kwargs))
             else:
-                batch.append(Request(method, *args, **kwargs, id_generator=self._id_generator))
+                batch.append(
+                    Request(method, *args, **kwargs, id_generator=self._id_generator)
+                )
 
         response = self._client.send(batch, headers=self._get_headers())
         return None if not response.raw.content else response.raw.json()
@@ -141,23 +149,30 @@ class PythonXmlRpcClient(AbstractXmlRpcTestClient):
         super().__init__(url, **kwargs or {})
         self._use_builtin_types = kwargs.get("use_builtin_types", False)
 
-        self._transport = xmlrpc.client.Transport(use_builtin_types=self._use_builtin_types)
+        self._transport = xmlrpc.client.Transport(
+            use_builtin_types=self._use_builtin_types
+        )
         # Monkey-patch Transport.get_host_info() to ensure customized headers can be injected into XML-RPC requests
-        self._transport.get_host_info = lambda host: (host, self._get_headers_list(), {})
+        self._transport.get_host_info = lambda host: (
+            host,
+            self._get_headers_list(),
+            {},
+        )
         self._client = xmlrpc.client.ServerProxy(self._url, transport=self._transport)
 
     def _get_headers_list(self):
         """Copy current headers dict to a List[Tuple[str, str]] instance"""
-        return [
-            (key, value) for key, value in self._get_headers().items()
-        ]
+        return [(key, value) for key, value in self._get_headers().items()]
 
     def call(self, method, *args):
         return getattr(self._client, method)(*args)
 
     def multicall(self, calls_data):
         multicall = xmlrpc.client.MultiCall(self._client)
-        for method, args, in calls_data:
+        for (
+            method,
+            args,
+        ) in calls_data:
             getattr(multicall, method)(*args)
         result = multicall()
         return result
@@ -172,7 +187,7 @@ def endpoint_path():
 @pytest.fixture(scope="session")
 def all_rpc_docs_path():
     """Path to documentation specific endpoint"""
-    return '/all-rpc-doc/'
+    return "/all-rpc-doc/"
 
 
 @pytest.fixture(scope="session")
@@ -181,7 +196,10 @@ def client_auth():
     return None
 
 
-@pytest.fixture(scope="session", params=["application/json", "application/json-rpc", "application/jsonrequest"])
+@pytest.fixture(
+    scope="session",
+    params=["application/json", "application/json-rpc", "application/jsonrequest"],
+)
 def jsonrpc_content_type(request):
     """
     A Content-Type value supported by JSON-RPC handler.
@@ -202,18 +220,32 @@ def xmlrpc_client(live_server, endpoint_path, client_auth, request):
 def xmlrpc_client_with_builtin_types(live_server, endpoint_path, client_auth, request):
     """A xml-rpc only client with builtin types enabled"""
     klass = request.param
-    return klass(live_server.url + endpoint_path, auth=client_auth, use_builtin_types=True)
+    return klass(
+        live_server.url + endpoint_path, auth=client_auth, use_builtin_types=True
+    )
 
 
 @pytest.fixture(scope="function", params=[JsonrpcclientlibClient])
-def jsonrpc_client(live_server, endpoint_path, client_auth, jsonrpc_content_type, request):
+def jsonrpc_client(
+    live_server, endpoint_path, client_auth, jsonrpc_content_type, request
+):
     """A json-rpc only client"""
     klass = request.param
-    return klass(live_server.url + endpoint_path, auth=client_auth, jsonrpc_content_type=jsonrpc_content_type)
+    return klass(
+        live_server.url + endpoint_path,
+        auth=client_auth,
+        jsonrpc_content_type=jsonrpc_content_type,
+    )
 
 
 @pytest.fixture(scope="function", params=[JsonrpcclientlibClient, PythonXmlRpcClient])
-def any_rpc_client(live_server, endpoint_path, client_auth, jsonrpc_content_type, request):
+def any_rpc_client(
+    live_server, endpoint_path, client_auth, jsonrpc_content_type, request
+):
     """A RPC client (xml-rpc or json-rpc)"""
     klass = request.param
-    return klass(live_server.url + endpoint_path, auth=client_auth, jsonrpc_content_type=jsonrpc_content_type)
+    return klass(
+        live_server.url + endpoint_path,
+        auth=client_auth,
+        jsonrpc_content_type=jsonrpc_content_type,
+    )

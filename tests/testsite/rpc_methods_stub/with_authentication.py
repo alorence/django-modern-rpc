@@ -1,7 +1,12 @@
 from modernrpc.auth import set_authentication_predicate, user_is_authenticated
-from modernrpc.auth.basic import http_basic_auth_login_required, http_basic_auth_superuser_required,\
-    http_basic_auth_permissions_required, http_basic_auth_group_member_required, \
-    http_basic_auth_any_of_permissions_required, http_basic_auth_all_groups_member_required
+from modernrpc.auth.basic import (
+    http_basic_auth_login_required,
+    http_basic_auth_superuser_required,
+    http_basic_auth_permissions_required,
+    http_basic_auth_group_member_required,
+    http_basic_auth_any_of_permissions_required,
+    http_basic_auth_all_groups_member_required,
+)
 from modernrpc.core import rpc_method, REQUEST_KEY
 
 
@@ -31,44 +36,48 @@ def logged_superuser_required_alt(x):
     return x
 
 
-@http_basic_auth_permissions_required(permissions='auth.delete_user')
+@http_basic_auth_permissions_required(permissions="auth.delete_user")
 @rpc_method
 def delete_user_perm_required(x):
     return x
 
 
-@http_basic_auth_any_of_permissions_required(permissions=['auth.delete_user', 'auth.add_user', 'auth.change_user'])
+@http_basic_auth_any_of_permissions_required(
+    permissions=["auth.delete_user", "auth.add_user", "auth.change_user"]
+)
 @rpc_method
 def any_permission_required(x):
     return x
 
 
-@http_basic_auth_permissions_required(permissions=['auth.delete_user', 'auth.add_user', 'auth.change_user'])
+@http_basic_auth_permissions_required(
+    permissions=["auth.delete_user", "auth.add_user", "auth.change_user"]
+)
 @rpc_method
 def all_permissions_required(x):
     return x
 
 
-@http_basic_auth_group_member_required(groups='A')
+@http_basic_auth_group_member_required(groups="A")
 @rpc_method
 def in_group_a_required(x):
     return x
 
 
-@http_basic_auth_group_member_required(groups=['A'])
-@http_basic_auth_group_member_required(groups='B')
+@http_basic_auth_group_member_required(groups=["A"])
+@http_basic_auth_group_member_required(groups="B")
 @rpc_method
 def in_group_a_and_b_required(x):
     return x
 
 
-@http_basic_auth_all_groups_member_required(groups=['A', 'B'])
+@http_basic_auth_all_groups_member_required(groups=["A", "B"])
 @rpc_method
 def in_group_a_and_b_required_alt(x):
     return x
 
 
-@http_basic_auth_group_member_required(groups=['A', 'B'])
+@http_basic_auth_group_member_required(groups=["A", "B"])
 @rpc_method
 def in_group_a_or_b_required(x):
     return x
@@ -78,22 +87,24 @@ def in_group_a_or_b_required(x):
 @rpc_method
 def display_authenticated_user(**kwargs):
     u = kwargs[REQUEST_KEY].user
-    return 'username: {}'.format(u.username if user_is_authenticated(u) else 'Anonymous')
+    return "username: {}".format(
+        u.username if user_is_authenticated(u) else "Anonymous"
+    )
 
 
 def allow_python_callers(request):
-    return 'python' in request.META.get('HTTP_USER_AGENT').lower()
+    return "python" in request.META.get("HTTP_USER_AGENT").lower()
 
 
 def reject_python_callers(request):
-    return 'python' not in request.META.get('HTTP_USER_AGENT').lower()
+    return "python" not in request.META.get("HTTP_USER_AGENT").lower()
 
 
 @rpc_method()
 @set_authentication_predicate(allow_python_callers)
 def get_user_agent(**kwargs):
     request = kwargs.get(REQUEST_KEY)
-    return request.META.get('HTTP_USER_AGENT')
+    return request.META.get("HTTP_USER_AGENT")
 
 
 @rpc_method

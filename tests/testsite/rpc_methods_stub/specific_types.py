@@ -63,11 +63,7 @@ def get_list():
 
 @rpc_method()
 def get_struct():
-    return {
-        'x': 1,
-        'y': 2,
-        'z': 3
-    }
+    return {"x": 1, "y": 2, "z": 3}
 
 
 @rpc_method

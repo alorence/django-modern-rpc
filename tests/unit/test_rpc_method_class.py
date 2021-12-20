@@ -12,40 +12,44 @@ class TestRpcMethodEntryPointProtocol:
     """Check whether entry_points and protocol specifications works as expected when registering method"""
 
     def test_method_always_available(self):
-        rpc_method(dummy_empty, 'dummy_name')
+        rpc_method(dummy_empty, "dummy_name")
         m = RPCMethod(dummy_empty)
 
-        assert m.available_for_entry_point(modernrpc_settings.MODERNRPC_DEFAULT_ENTRYPOINT_NAME)
-        assert m.available_for_entry_point('random_entry_point')
+        assert m.available_for_entry_point(
+            modernrpc_settings.MODERNRPC_DEFAULT_ENTRYPOINT_NAME
+        )
+        assert m.available_for_entry_point("random_entry_point")
 
         assert m.is_available_in_xml_rpc()
         assert m.is_available_in_json_rpc()
 
     def test_method_xmlrpc_only(self):
-        rpc_method(dummy_empty, 'dummy_name', protocol=Protocol.XML_RPC)
+        rpc_method(dummy_empty, "dummy_name", protocol=Protocol.XML_RPC)
         m = RPCMethod(dummy_empty)
 
         assert m.is_available_in_xml_rpc()
         assert not m.is_available_in_json_rpc()
 
     def test_method_jsonrpc_only(self):
-        rpc_method(dummy_empty, 'dummy_name', protocol=Protocol.JSON_RPC)
+        rpc_method(dummy_empty, "dummy_name", protocol=Protocol.JSON_RPC)
         m = RPCMethod(dummy_empty)
 
         assert not m.is_available_in_xml_rpc()
         assert m.is_available_in_json_rpc()
 
     def test_method_repr(self):
-        rpc_method(dummy_empty, 'dummy_name', protocol=Protocol.JSON_RPC)
+        rpc_method(dummy_empty, "dummy_name", protocol=Protocol.JSON_RPC)
         m = RPCMethod(dummy_empty)
-        assert 'dummy_name' in repr(m)
+        assert "dummy_name" in repr(m)
 
     def test_method_available_for_entry_point(self):
-        rpc_method(dummy_empty, 'dummy_name', entry_point='my_entry_point')
+        rpc_method(dummy_empty, "dummy_name", entry_point="my_entry_point")
         m = RPCMethod(dummy_empty)
 
-        assert not m.available_for_entry_point(modernrpc_settings.MODERNRPC_DEFAULT_ENTRYPOINT_NAME)
-        assert m.available_for_entry_point('my_entry_point')
+        assert not m.available_for_entry_point(
+            modernrpc_settings.MODERNRPC_DEFAULT_ENTRYPOINT_NAME
+        )
+        assert m.available_for_entry_point("my_entry_point")
 
 
 @rpc_method
@@ -80,9 +84,9 @@ class TestNoDocWithArgs:
         m = RPCMethod(dummy_no_doc_with_args)
         assert m.args == ["a", "b", "c"]
         assert m.args_doc == {
-            'a': {'type': '', 'text': ''},
-            'b': {'type': '', 'text': ''},
-            'c': {'type': '', 'text': ''}
+            "a": {"type": "", "text": ""},
+            "b": {"type": "", "text": ""},
+            "c": {"type": "", "text": ""},
         }
         assert m.return_doc == {"type": "", "text": ""}
 
@@ -104,9 +108,9 @@ class TestArgsTypeHint:
         m = RPCMethod(dummy_args_with_typehints)
         assert m.args == ["a", "b", "c"]
         assert m.args_doc == {
-            'a': {'type': 'int', 'text': ''},
-            'b': {'type': 'str', 'text': ''},
-            'c': {'type': 'list', 'text': ''}
+            "a": {"type": "int", "text": ""},
+            "b": {"type": "str", "text": ""},
+            "c": {"type": "list", "text": ""},
         }
         assert m.return_doc == {"type": "dict", "text": ""}
 
@@ -135,9 +139,9 @@ class TestWithTypeHintAndDocstring:
 
         assert m.args == ["a", "b", "c"]
         assert m.args_doc == {
-            'a': {'type': 'str', 'text': 'param A'},
-            'b': {'type': 'dict', 'text': 'param B'},
-            'c': {'type': 'float', 'text': 'param C'}
+            "a": {"type": "str", "text": "param A"},
+            "b": {"type": "dict", "text": "param B"},
+            "c": {"type": "float", "text": "param C"},
         }
         assert m.return_doc == {"type": "float", "text": "A decimal value"}
 
@@ -170,8 +174,8 @@ class TestWithTypeHintAndDocstringTypes:
 
         assert m.args == ["x", "y"]
         assert m.args_doc == {
-            'x': {'type': 'float', 'text': 'abcd'},
-            'y': {'type': 'int', 'text': 'xyz'},
+            "x": {"type": "float", "text": "abcd"},
+            "y": {"type": "int", "text": "xyz"},
         }
         assert m.return_doc == {"type": "str", "text": "efgh"}
 
@@ -198,7 +202,7 @@ def dummy_rst_docstring(name, birthdate, sex):
     :type sex: str
     :return: A string representation of given arguments
     """
-    return '{} ({}) born on {}'.format(name, str(sex), str(birthdate))
+    return "{} ({}) born on {}".format(name, str(sex), str(birthdate))
 
 
 class TestWithDoctstringOnlyFunction:
@@ -207,13 +211,16 @@ class TestWithDoctstringOnlyFunction:
     def test_args_and_return(self):
         m = RPCMethod(dummy_rst_docstring)
 
-        assert m.args == ['name', 'birthdate', 'sex']
+        assert m.args == ["name", "birthdate", "sex"]
         assert dict(m.args_doc) == {
-            'name': {'type': 'str', 'text': 'A name'},
-            'birthdate': {'type': 'datetime.datetime', 'text': 'A birthdate'},
-            'sex': {'type': 'str', 'text': 'Male or Female'}
+            "name": {"type": "str", "text": "A name"},
+            "birthdate": {"type": "datetime.datetime", "text": "A birthdate"},
+            "sex": {"type": "str", "text": "Male or Female"},
         }
-        assert m.return_doc == {"type": "", "text": "A string representation of given arguments"}
+        assert m.return_doc == {
+            "type": "",
+            "text": "A string representation of given arguments",
+        }
 
     def test_doc(self):
         m = RPCMethod(dummy_rst_docstring)
@@ -236,16 +243,22 @@ class TestSingleLineDoc:
 
     def test_raw_doc(self):
         method = self.method()
-        assert '*italic*, **strong**, normal text' == method.raw_docstring
-        assert '<p>*italic*, **strong**, normal text</p>' == method.html_doc
+        assert "*italic*, **strong**, normal text" == method.raw_docstring
+        assert "<p>*italic*, **strong**, normal text</p>" == method.html_doc
 
     def test_markdown_to_html(self, settings):
-        settings.MODERNRPC_DOC_FORMAT = 'md'
-        assert '<p><em>italic</em>, <strong>strong</strong>, normal text</p>' == self.method().html_doc
+        settings.MODERNRPC_DOC_FORMAT = "md"
+        assert (
+            "<p><em>italic</em>, <strong>strong</strong>, normal text</p>"
+            == self.method().html_doc
+        )
 
     def test_rst_to_html(self, settings):
-        settings.MODERNRPC_DOC_FORMAT = 'rst'
-        assert '<p><em>italic</em>, <strong>strong</strong>, normal text</p>\n' == self.method().html_doc
+        settings.MODERNRPC_DOC_FORMAT = "rst"
+        assert (
+            "<p><em>italic</em>, <strong>strong</strong>, normal text</p>\n"
+            == self.method().html_doc
+        )
 
 
 @rpc_method
@@ -274,25 +287,25 @@ class TestMultiLinesDocSimple:
             "The indentation should not interfere with semantic interpretation of the docstring."
         )
         assert self.method().html_doc == (
-            '<p>This method has multi-lines documentation.</p>'
-            '<p>The content is indented when raw ``__doc__`` attribute function is read. '
-            'The indentation should not interfere with semantic interpretation of the docstring.</p>'
+            "<p>This method has multi-lines documentation.</p>"
+            "<p>The content is indented when raw ``__doc__`` attribute function is read. "
+            "The indentation should not interfere with semantic interpretation of the docstring.</p>"
         )
 
     def test_markdown_to_html(self, settings):
-        settings.MODERNRPC_DOC_FORMAT = 'md'
+        settings.MODERNRPC_DOC_FORMAT = "md"
         assert self.method().html_doc == (
-            '<p>This method has multi-lines documentation.</p>\n'
-            '<p>The content is indented when raw <code>__doc__</code> attribute function is read.\n'
-            'The indentation should not interfere with semantic interpretation of the docstring.</p>'
+            "<p>This method has multi-lines documentation.</p>\n"
+            "<p>The content is indented when raw <code>__doc__</code> attribute function is read.\n"
+            "The indentation should not interfere with semantic interpretation of the docstring.</p>"
         )
 
     def test_rst_to_html(self, settings):
-        settings.MODERNRPC_DOC_FORMAT = 'rst'
+        settings.MODERNRPC_DOC_FORMAT = "rst"
         assert self.method().html_doc == (
-            '<p>This method has multi-lines documentation.</p>\n'
+            "<p>This method has multi-lines documentation.</p>\n"
             '<p>The content is indented when raw <tt class="docutils literal">__doc__</tt> attribute function is '
-            'read.\nThe indentation should not interfere with semantic interpretation of the docstring.</p>\n'
+            "read.\nThe indentation should not interfere with semantic interpretation of the docstring.</p>\n"
         )
 
 
@@ -328,7 +341,7 @@ class TestMultiLinesWithBlock:
         )
 
     def test_markdown_to_html(self, settings):
-        settings.MODERNRPC_DOC_FORMAT = 'md'
+        settings.MODERNRPC_DOC_FORMAT = "md"
         assert self.method().html_doc == (
             "<p>This method has <em>multi-lines</em> <strong>documentation</strong>.</p>\n"
             "<p>Here is a quote block:</p>\n"
@@ -336,9 +349,9 @@ class TestMultiLinesWithBlock:
         )
 
     def test_rst_to_html(self, settings):
-        settings.MODERNRPC_DOC_FORMAT = 'rst'
+        settings.MODERNRPC_DOC_FORMAT = "rst"
         assert self.method().html_doc == (
-            '<p>This method has <em>multi-lines</em> <strong>documentation</strong>.</p>\n'
-            '<p>Here is a quote block:</p>\n'
-            '<blockquote>\nabcdef 123456</blockquote>\n'
+            "<p>This method has <em>multi-lines</em> <strong>documentation</strong>.</p>\n"
+            "<p>Here is a quote block:</p>\n"
+            "<blockquote>\nabcdef 123456</blockquote>\n"
         )
