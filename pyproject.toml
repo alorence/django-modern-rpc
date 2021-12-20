@@ -67,6 +67,11 @@ requests = "*"
 docutils = "*"
 markdown = "*"
 pylint = { version = "~2.7", python = ">=3.7" }
+mypy = { version = "^0.920", python = ">=3.6" }
+django-stubs = { version = "^1.9.0", python = ">=3.6" }
+types-docutils = { version = "^0.17.1", python = ">=3.6" }
+types-Markdown = { version = "^3.3.9", python = ">=3.6" }
+types-requests = { version = "^2.26.2", python = ">=3.6" }
 # Force zipp version as long as python 3.5 is supported
 zipp = "^1.2"
 
@@ -75,7 +80,7 @@ zipp = "^1.2"
 # To update, run `pylint --generate-rcfile` for default reference or check the docs:
 #  - http://pylint.pycqa.org/en/latest/technical_reference/features.html
 [tool.pylint.format]
-max-line-length=120
+max-line-length = 120
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -86,3 +91,6 @@ python_paths = "tests"
 # pytest-django settings
 DJANGO_SETTINGS_MODULE = "testsite.settings"
 FAIL_INVALID_TEMPLATE_VARS = true
+
+[tool.mypy]
+exclude = "module_with_syntax_errors.py"
