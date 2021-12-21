@@ -12,8 +12,8 @@ on:
 
 env:
   INSTALL_POETRY_VERSION: 1.*
-  POETRY_INSTALLER_PARALLEL: false
-  POETRY_VIRTUALENVS_CREATE: false
+  POETRY_INSTALLER_PARALLEL: true
+  POETRY_VIRTUALENVS_CREATE: true
 
 jobs:
   tests:
@@ -70,6 +70,20 @@ jobs:
           CODACY_PROJECT_TOKEN : ${{ secrets.CODACY_PROJECT_TOKEN }}
           COVERALLS_REPO_TOKEN : ${{ secrets.COVERALLS_REPO_TOKEN }}
 
+  black:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
+      - name: Install dependencies
+        run: |
+          poetry install --no-interaction
+      - name: Black
+        run: poetry run black --check .
+
   flake8:
     runs-on: ubuntu-latest
     steps:
@@ -97,3 +111,17 @@ jobs:
           poetry install --no-interaction
       - name: Pylint
         run: poetry run pylint modernrpc --exit-zero
+
+  mypy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
+      - name: Install dependencies
+        run: |
+          poetry install --no-interaction
+      - name: Pylint
+        run: poetry run mypy -p modernrpc

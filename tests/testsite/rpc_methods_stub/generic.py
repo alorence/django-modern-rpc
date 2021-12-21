@@ -42,7 +42,7 @@ def divide(numerator, denominator, x="xx", y=b"zz", z=None, a=3.14, b=5, c=10):
     return numerator / denominator
 
 
-@rpc_method(name='customized_name')
+@rpc_method(name="customized_name")
 def another_name():
     """This one will help to test method registration
     when name has been customized"""
@@ -50,9 +50,8 @@ def another_name():
 
 
 class MyCustomException(RPCException):
-
     def __init__(self):
-        super().__init__(RPC_CUSTOM_ERROR_BASE + 5, 'This is a test error')
+        super().__init__(RPC_CUSTOM_ERROR_BASE + 5, "This is a test error")
 
 
 @rpc_method
@@ -61,15 +60,15 @@ def raise_custom_exception():
 
 
 class MyCustomExceptionWithData(RPCException):
-
     def __init__(self, data):
-        super()\
-            .__init__(RPC_CUSTOM_ERROR_BASE + 5, 'This exception has additional data', data)
+        super().__init__(
+            RPC_CUSTOM_ERROR_BASE + 5, "This exception has additional data", data
+        )
 
 
 @rpc_method
 def raise_custom_exception_with_data():
-    raise MyCustomExceptionWithData(['a', 'b', 'c'])
+    raise MyCustomExceptionWithData(["a", "b", "c"])
 
 
 @rpc_method()
@@ -87,7 +86,8 @@ def existing_but_not_decorated():
 def get_invalid_result():
     """Return an object instance that cannot be serialized in json or xml"""
     from django.http.response import HttpResponse
-    return HttpResponse(content='dummy')
+
+    return HttpResponse(content="dummy")
 
 
 @rpc_method()

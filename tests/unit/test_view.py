@@ -9,6 +9,6 @@ def test_invalid_entry_point_no_handler(settings, rf):
     settings.MODERNRPC_HANDLERS = []
     entry_point = RPCEntryPoint.as_view()
 
-    exc_match = r'At least 1 handler must be instantiated'
+    exc_match = r"At least 1 handler must be instantiated"
     with pytest.raises(ImproperlyConfigured, match=exc_match):
-        entry_point(rf.post('xxx'))
+        entry_point(rf.post("xxx"))

@@ -2,9 +2,14 @@
 import datetime
 
 import xmlrpc.client as xmlrpc_client
+from typing import Union, Optional, Any, Sequence
 
 
-def get_builtin_date(date, date_format="%Y-%m-%dT%H:%M:%S", raise_exception=False):
+def get_builtin_date(
+    date: Union[str, datetime.datetime, xmlrpc_client.DateTime],
+    date_format: str = "%Y-%m-%dT%H:%M:%S",
+    raise_exception: bool = False,
+) -> Optional[datetime.datetime]:
     """
     Try to convert a date to a builtin instance of ``datetime.datetime``.
     The input date can be a ``str``, a ``datetime.datetime``, a ``xmlrpc.client.Datetime`` or a ``xmlrpclib.Datetime``
@@ -33,6 +38,6 @@ def get_builtin_date(date, date_format="%Y-%m-%dT%H:%M:%S", raise_exception=Fals
         return None
 
 
-def ensure_sequence(element):
+def ensure_sequence(element: Any) -> Sequence:
     """Ensure the given argument is a sequence object (tuple, list). If not, return a list containing its value."""
     return element if isinstance(element, (tuple, list)) else [element]
