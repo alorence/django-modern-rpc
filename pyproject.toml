@@ -25,6 +25,7 @@ classifiers = [
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
     "Framework :: Django",
     "Framework :: Django :: 2.1",
     "Framework :: Django :: 2.2",
@@ -63,7 +64,15 @@ docutils = "*"
 markdown = "*"
 
 tox = "^3.24.5"
-pytest = "*"
+# pytest 6.1 doesn't run with python 3.10. But pytest 6.2 requires at least python 3.6
+# Using poetry "multiple constraints dependencies" syntax doesn't help, since exported requirements.txt becomes
+# invalid when tests are run with tox.
+# As fallback, we simply remove dependency to pytest for python 3.5. It will be installed as indirect dependency
+# whith pytest-django, pytest-pythonpath, etc.
+pytest = [
+    { version = "^6.1", python = "<3.6" },
+    { version = "^6.2", python = ">=3.6" }
+]
 pytest-django = "*"
 pytest-pythonpath = "*"
 pytest-sugar = "^0.9"
