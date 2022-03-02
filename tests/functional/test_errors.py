@@ -136,7 +136,8 @@ class TestJsonRpcSpecificBehaviors:
             live_server.url + endpoint_path, payload, headers=headers
         )
 
-        assert "jsonrpc version must be set to 2.0" in response["error"]["message"]
+        expected_error = 'Invalid request: Parameter "jsonrpc" has an unsupported value "1.0". It must be set to "2.0"'
+        assert expected_error == response["error"]["message"]
         assert RPC_INVALID_REQUEST == response["error"]["code"]
 
     def test_invalid_payload(self, live_server, endpoint_path, jsonrpc_content_type):
@@ -215,6 +216,21 @@ class TestJsonRpcSpecificBehaviors:
             "jsonrpc": "2.0",
             "id": None,
         }
+
+        response = self.low_level_jsonrpc_call(
+            live_server.url + endpoint_path, payload, headers=headers
+        )
+        assert "error" in response
+        assert "result" not in response
+        assert response["id"] is None
+
+        expected_error = (
+            'Invalid request: Parameter "id" has an unsupported "null" value. It must be set to a positive '
+            'integer value, or must be completely removed from request payload for special "notification" requests'
+        )
+        assert response["error"]["code"] == RPC_INVALID_REQUEST
+        assert response["error"]["message"] == expected_error
+
 
 class TestXmlRpcSpecificBehaviors:
     @staticmethod

@@ -91,7 +91,7 @@ class JSONRPCHandler(RPCHandler):
         if result.is_notification:
             return ""
 
-        # First, define the
+        # First, define the ...
         result_base = {
             "id": result.request_id,
             "jsonrpc": result.version,
@@ -143,8 +143,17 @@ class JSONRPCHandler(RPCHandler):
                 raise RPCInvalidRequest('Missing parameter "jsonrpc"')
 
             if jsonrpc_version != "2.0":
-                raise RPCInvalidRequest("jsonrpc version must be set to 2.0")
+                raise RPCInvalidRequest(
+                    'Parameter "jsonrpc" has an unsupported value "{}". It must be set to "2.0"'.format(
+                        jsonrpc_version
+                    )
+                )
 
+            if not is_notification and request_id is None:
+                raise RPCInvalidRequest(
+                    'Parameter "id" has an unsupported "null" value. It must be set to a positive integer value, '
+                    'or must be completely removed from request payload for special "notification" requests'
+                )
             _method = self._get_called_method(method_name)
 
             result_data = _method.execute(context, args, kwargs)
