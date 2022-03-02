@@ -10,8 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import TemplateView, View
 
 from modernrpc.conf import settings
-from modernrpc.core import registry, ALL, RpcRequest, RpcResult
-from modernrpc.exceptions import RPCParseError, RPC_PARSE_ERROR, RPCInvalidRequest
+from modernrpc.core import registry, ALL, RPCRequestContext
 from modernrpc.helpers import ensure_sequence
 
 logger = logging.getLogger(__name__)
@@ -31,6 +30,8 @@ class RPCEntryPoint(TemplateView):
     enable_doc = False
     enable_rpc = True
 
+    default_encoding = "utf-8"
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -48,9 +49,6 @@ class RPCEntryPoint(TemplateView):
         # ... and also forbid access to POST when this EntryPoint must not support RPC request (docs only view)
         if not self.enable_rpc:
             self.http_method_names.remove("post")
-
-        self.default_encoding = "utf-8"
-
         logger.debug('RPC entry point "%s" initialized', self.entry_point)
 
     @cached_property
@@ -104,33 +102,12 @@ class RPCEntryPoint(TemplateView):
                 "the right entry point. If not, this could be a server error."
             )
 
+        context = RPCRequestContext(
+            request, handler, handler.protocol, handler.entry_point
+        )
         request_body = request.body.decode(request.encoding or self.default_encoding)
 
-        try:
-            rpc_request = handler.parse_request(request_body)
-
-        except (RPCParseError, RPCInvalidRequest) as err:
-            result = RpcResult()
-            result.set_error(err.code, err.message)
-
-        except Exception:
-            result = RpcResult()
-            result.set_error(RPC_PARSE_ERROR, "Unable to parse incoming request")
-
-        else:
-            if isinstance(rpc_request, list):
-                result = []
-                for single_request in rpc_request:
-                    result.append(handler.process_request(request, single_request))
-
-            elif isinstance(rpc_request, RpcRequest):
-                result = handler.process_request(request, rpc_request)
-
-            else:
-                # TODO: return an error here
-                pass
-
-        result_data = handler.build_response_data(result)
+        result_data = handler.process_request(request_body, context)
         return HttpResponse(result_data)
 
     def get_context_data(self, **kwargs):

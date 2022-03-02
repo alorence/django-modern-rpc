@@ -1,7 +1,11 @@
 # coding: utf-8
 import pytest
 
-from modernrpc.exceptions import RPC_METHOD_NOT_FOUND, RPC_INVALID_PARAMS
+from modernrpc.exceptions import (
+    RPC_METHOD_NOT_FOUND,
+    RPC_INVALID_PARAMS,
+    RPC_CUSTOM_ERROR_BASE,
+)
 
 
 def test_available_methods(jsonrpc_client, xmlrpc_client):
@@ -36,6 +40,15 @@ def test_specific_methods_not_found(jsonrpc_client, xmlrpc_client):
 
 
 class TestJsonRpcSpecificFeatures:
+    def test_exception_with_data(self, jsonrpc_client):
+        exc_match = r"This exception has additional data"
+        with pytest.raises(
+            jsonrpc_client.error_response_exception, match=exc_match
+        ) as exc_info:
+            jsonrpc_client.call("raise_custom_exception_with_data")
+        jsonrpc_client.assert_exception_code(exc_info.value, RPC_CUSTOM_ERROR_BASE + 5)
+        assert exc_info.value.data == ["a", "b", "c"]
+
     def test_named_args(self, jsonrpc_client):
         assert jsonrpc_client.call("divide", numerator=50, denominator=8, z=25) == 6.25
 

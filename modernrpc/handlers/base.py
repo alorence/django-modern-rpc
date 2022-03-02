@@ -1,28 +1,39 @@
 # coding: utf-8
 import logging
 from abc import ABC, abstractmethod
-from typing import List
+from typing import Any, List
 
 from django.http import HttpRequest
 
 from modernrpc.core import (
     registry,
     Protocol,
-    RpcRequest,
-    RpcResult,
-    REQUEST_KEY,
-    ENTRY_POINT_KEY,
-    PROTOCOL_KEY,
-    HANDLER_KEY,
+    RPCRequestContext,
 )
 from modernrpc.exceptions import (
-    RPCException,
-    RPC_METHOD_NOT_FOUND,
-    RPC_INTERNAL_ERROR,
-    RPC_INVALID_PARAMS,
+    RPCUnknownMethod,
+    RPCInvalidRequest,
 )
 
 logger = logging.getLogger(__name__)
+
+
+class BaseResult(ABC):
+    @abstractmethod
+    def format(self):
+        """Dumps response content into the right format. Protocol specific implementations of this method must be
+        written."""
+
+
+class SuccessResult(BaseResult, ABC):
+    def __init__(self, data: Any):
+        self.data = data
+
+
+class ErrorResult(BaseResult, ABC):
+    def __init__(self, code: int, message: str):
+        self.code = code
+        self.message = message
 
 
 class RPCHandler(ABC):
@@ -37,91 +48,45 @@ class RPCHandler(ABC):
         """Return the list of content-types supported by the concrete handler"""
 
     def can_handle(self, request: HttpRequest):
+        """
+        Return True if this instance can handle the given request.
+
+        Default implementation will check Content-Type for supported value
+        """
         return (
             getattr(request, "content_type", "").lower() in self.valid_content_types()
         )
 
-    @abstractmethod
-    def parse_request(self, request_body: str) -> RpcRequest:
-        """Parse given request body and build a RPC request wrapper"""
+    def _get_called_method(self, name):
+        if not name:
+            raise RPCInvalidRequest(
+                "Missing methodName. Please provide the name of the procedure you want to call"
+            )
 
-    @abstractmethod
-    def validate_request(self, rpc_request: RpcRequest):
-        """Check current request to ensure it is valid regarding protocol specifications
-
-        Default implementation does nothing
-        :rpc_request: The request to validate
-        """
-
-    def process_request(
-        self, request: HttpRequest, rpc_request: RpcRequest
-    ) -> RpcResult:
-        """
-        :param request:
-        :param rpc_request:
-        :return:
-        """
-        rpc_result = RpcResult(rpc_request.request_id)
-        try:
-            self.validate_request(rpc_request)
-        except RPCException as exc:
-            rpc_result.set_error(exc.code, exc.message)
-            return rpc_result
-
-        _method = registry.get_method(
-            rpc_request.method_name, self.entry_point, self.protocol
-        )
+        _method = registry.get_method(name, self.entry_point, self.protocol)
         if not _method:
-            rpc_result.set_error(
-                RPC_METHOD_NOT_FOUND,
-                'Method not found: "{}"'.format(rpc_request.method_name),
-            )
-            return rpc_result
+            raise RPCUnknownMethod(name)
 
-        if not _method.check_permissions(request):
-            rpc_result.set_error(
-                RPC_INTERNAL_ERROR,
-                'Authentication failed when calling "{}"'.format(
-                    rpc_request.method_name
-                ),
-            )
-            return rpc_result
+        return _method
 
-        args, kwargs = rpc_request.args, rpc_request.kwargs
-        # If the RPC method needs to access some configuration, update kwargs dict
-        if _method.accept_kwargs:
-            kwargs.update(
-                {
-                    REQUEST_KEY: request,
-                    ENTRY_POINT_KEY: self.entry_point,
-                    PROTOCOL_KEY: self.protocol,
-                    HANDLER_KEY: self,
-                }
-            )
+    def process_request(self, request_body: str, context: RPCRequestContext) -> str:
+        """
+        Process a single request. Return the str content redy to be sent as HttpResponse
 
-        logger.debug("Params: args = %s - kwargs = %s", args, kwargs)
-
-        try:
-            # Call the rpc method, as standard python function
-            rpc_result.set_success(_method.function(*args, **kwargs))
-
-        except TypeError as exc:
-            # If given params cannot be transmitted properly to python function
-            rpc_result.set_error(
-                RPC_INVALID_PARAMS, "Invalid parameters: {}".format(exc)
-            )
-
-        except RPCException as exc:
-            rpc_result.set_error(exc.code, exc.message, data=exc.data)
-
-        except Exception as exc:
-            rpc_result.set_error(RPC_INTERNAL_ERROR, "Internal error: {}".format(exc))
-
-        return rpc_result
+        Implementations of this method must ensure no exception is raised from here. All code must be securized
+        to return a proper RPC error response on any exception.
+        """
 
     @abstractmethod
-    def build_response_data(self, result: RpcResult) -> str:
-        """
-        :param result:
-        :return:
-        """
+    def parse_request(self, request_body: str) -> Any:
+        ...
+
+    @abstractmethod
+    def process_single_request(
+        self, request_data: Any, context: RPCRequestContext
+    ) -> BaseResult:
+        ...
+
+    @abstractmethod
+    def dumps_result(self, result: BaseResult) -> str:
+        ...

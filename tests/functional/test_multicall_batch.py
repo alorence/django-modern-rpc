@@ -191,7 +191,7 @@ def test_jsonrpc_batch_invalid_request(live_server, endpoint_path):
     assert isinstance(result, list)
     assert len(result) == 3
 
-    expected_error_message = 'Invalid request: Missing parameter "method"'
+    expected_error_message = 'Invalid JSON-RPC payload, expected "object", found "int"'
     assert result == [
         {
             "id": None,

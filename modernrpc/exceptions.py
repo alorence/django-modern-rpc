@@ -122,8 +122,11 @@ class RPCInternalError(RPCException):
         super().__init__(RPC_INTERNAL_ERROR, err_msg, data)
 
 
-class AuthenticationFailed(RPCInternalError):
+class AuthenticationFailed(RPCException):
     """Raised when authentication system forbade execution of a RPC Method"""
 
     def __init__(self, method_name: str):
-        super().__init__('Authentication failed when calling "{}"'.format(method_name))
+        super().__init__(
+            RPC_INTERNAL_ERROR,
+            'Authentication failed when calling "{}"'.format(method_name),
+        )

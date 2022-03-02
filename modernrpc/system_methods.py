@@ -1,7 +1,4 @@
 # coding: utf-8
-from typing import Any, Union, List, Dict
-
-from django.http import HttpRequest
 
 from modernrpc.core import (
     ENTRY_POINT_KEY,
@@ -10,11 +7,11 @@ from modernrpc.core import (
     rpc_method,
     HANDLER_KEY,
     REQUEST_KEY,
-    RpcRequest,
     Protocol,
+    RPCRequestContext,
 )
 from modernrpc.exceptions import RPCInvalidParams
-from modernrpc.handlers.base import RPCHandler
+from modernrpc.handlers import XMLRPCHandler
 
 
 @rpc_method(name="system.listMethods")
@@ -91,30 +88,24 @@ def __system_multi_call(calls, **kwargs):
     if not isinstance(calls, list):
         raise RPCInvalidParams(
             "system.multicall first argument should be a list, {} given.".format(
-                type(calls)
+                type(calls).__name__
             )
         )
 
-    handler = kwargs[HANDLER_KEY]  # type: RPCHandler
-    request = kwargs[REQUEST_KEY]  # type: HttpRequest
-    results = []  # type: List[Union[Dict[str, Any], List[Any]]]
+    context = RPCRequestContext(
+        request=kwargs[REQUEST_KEY],
+        handler=kwargs[HANDLER_KEY],
+        protocol=kwargs[PROTOCOL_KEY],
+        entry_point=kwargs[ENTRY_POINT_KEY],
+    )
+    handler = context.handler  # type: XMLRPCHandler
 
+    results = []
     for call in calls:
+        method_name = call.get("methodName")
+        params = call.get("params")
 
-        rpc_request = RpcRequest(call["methodName"], call.get("params"))
-        rpc_result = handler.process_request(request, rpc_request)
-
-        if rpc_result.is_error():
-            results.append(
-                {
-                    "faultCode": rpc_result.error_code,
-                    "faultString": rpc_result.error_message,
-                }
-            )
-        else:
-            # From https://mirrors.talideon.com/articles/multicall.html:
-            # "Notice that regular return values are always nested inside a one-element array. This allows you to
-            # return structs from functions without confusing them with faults."
-            results.append([rpc_result.success_data])
+        result = handler.process_single_request((method_name, params), context)
+        results.append(result.format())
 
     return results

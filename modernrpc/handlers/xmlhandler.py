@@ -2,11 +2,28 @@
 import xmlrpc.client as xmlrpc_client
 from pyexpat import ExpatError
 from textwrap import dedent
+from typing import Any, Optional, Tuple
 
 from modernrpc.conf import settings
-from modernrpc.core import Protocol, RpcRequest, RpcResult
-from modernrpc.exceptions import RPCParseError, RPCInvalidRequest, RPC_INTERNAL_ERROR
-from modernrpc.handlers.base import RPCHandler
+from modernrpc.core import Protocol, RPCRequestContext
+from modernrpc.exceptions import (
+    RPCParseError,
+    RPCInvalidRequest,
+    RPC_INTERNAL_ERROR,
+    RPCException,
+)
+from modernrpc.handlers.base import RPCHandler, BaseResult, SuccessResult, ErrorResult
+
+
+class XmlSuccessResult(SuccessResult):
+    def format(self):
+        # blahblah pourquoi liste toussa
+        return [self.data]
+
+
+class XmlErrorResult(ErrorResult):
+    def format(self):
+        return xmlrpc_client.Fault(self.code, self.message)
 
 
 class XMLRPCHandler(RPCHandler):
@@ -28,11 +45,12 @@ class XMLRPCHandler(RPCHandler):
             "text/xml",
         ]
 
-    def parse_request(self, request_body):
+    def parse_request(self, request_body: str) -> Tuple[Any, Optional[str]]:
         try:
-            params, method_name = xmlrpc_client.loads(
+            params, method = xmlrpc_client.loads(
                 request_body, use_builtin_types=self.use_builtin_types
             )
+            return params, method
 
         except ExpatError as exc:
             raise RPCParseError("Error while parsing XML-RPC request: {}".format(exc))
@@ -40,39 +58,52 @@ class XMLRPCHandler(RPCHandler):
         except Exception:
             raise RPCInvalidRequest("The request appear to be invalid.")
 
-        # Build an RPCRequest instance with parsed request data
-        return RpcRequest(method_name, params)
+    def dumps_result(self, result: BaseResult) -> str:  # type: ignore[override]
 
-    def validate_request(self, rpc_request: RpcRequest) -> None:
-        if not rpc_request.method_name:
-            raise RPCInvalidRequest("Missing methodName")
-
-    def build_response_data(self, result: RpcResult) -> str:
-        """
-        :param result:
-        :return:
-        """
-        if result.is_error():
-            response_content = self.marshaller.dumps(
-                xmlrpc_client.Fault(result.error_code, result.error_message)
+        # First, format result instance into something compatible with XML-RPC Marshaller
+        try:
+            dumped_result = self.marshaller.dumps(result.format())
+        except Exception as exc:
+            # Error on result serialization: serialize an error instead
+            error_result = XmlErrorResult(
+                RPC_INTERNAL_ERROR, "Unable to serialize result: {}".format(exc)
             )
-        else:
-            try:
-                response_content = self.marshaller.dumps([result.success_data])
-            except Exception as exc:
-                fault = xmlrpc_client.Fault(
-                    RPC_INTERNAL_ERROR, "Unable to serialize result: {}".format(exc)
-                )
-                response_content = self.marshaller.dumps(fault)
+            dumped_result = self.marshaller.dumps(error_result.format())
 
-        return dedent(
-            (
+        # Finally, dumps the result into full response content
+        final_content = (
+            """
+                    <?xml version="1.0"?>
+                    <methodResponse>
+                        %s
+                    </methodResponse>
                 """
-            <?xml version="1.0"?>
-            <methodResponse>
-                %s
-            </methodResponse>
-        """
-                % response_content
-            ).strip()
+            % dumped_result
         )
+        return dedent(final_content).strip()
+
+    def process_single_request(
+        self, request_data: Tuple[Optional[str], Any], context
+    ) -> BaseResult:
+        method_name, params = request_data
+        try:
+            _method = self._get_called_method(method_name)
+            result_data = _method.execute(context, params)
+            return XmlSuccessResult(result_data)
+
+        except RPCException as exc:
+            return XmlErrorResult(exc.code, exc.message)
+
+        except Exception as exc:
+            return XmlErrorResult(RPC_INTERNAL_ERROR, str(exc))
+
+    def process_request(self, request_body: str, context: RPCRequestContext) -> str:
+
+        try:
+            params, method_name = self.parse_request(request_body)
+        except RPCException as exc:
+            result = XmlErrorResult(exc.code, exc.message)  # type: BaseResult
+        else:
+            result = self.process_single_request((method_name, params), context)
+
+        return self.dumps_result(result)
