@@ -1,6 +1,7 @@
 # coding: utf-8
 import json
 import random
+import re
 import xml.etree.cElementTree as ET
 from json import JSONDecodeError
 
@@ -67,12 +68,16 @@ class TestCommonErrors:
             ),
         ],
     )
-    def test_generic_errors(self, any_rpc_client, method, params, exc_match, exc_code):
+    def test_generic_errors(
+        self, any_rpc_client, caplog, method, params, exc_match, exc_code
+    ):
         with pytest.raises(
             any_rpc_client.error_response_exception, match=exc_match
         ) as exc_info:
             any_rpc_client.call(method, *params)
         any_rpc_client.assert_exception_code(exc_info.value, exc_code)
+
+        assert re.search(exc_match, caplog.records[-1].message)
 
 
 class TestJsonRpcSpecificBehaviors:

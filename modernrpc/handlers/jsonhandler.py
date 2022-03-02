@@ -101,9 +101,10 @@ class JSONRPCHandler(RPCHandler):
             return json.dumps({**result_base, **result.format()}, cls=self.encoder)
 
         except Exception as exc:
-            error_result = JsonErrorResult(
-                RPC_INTERNAL_ERROR, "Unable to serialize result: {}".format(exc)
-            )
+            # Error on result serialization: serialize an error instead
+            error_msg = "Unable to serialize result: {}".format(exc)
+            logger.error(error_msg, exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
+            error_result = JsonErrorResult(RPC_INTERNAL_ERROR, error_msg)
             return json.dumps(
                 {**result_base, **error_result.format()}, cls=self.encoder
             )
@@ -150,9 +151,11 @@ class JSONRPCHandler(RPCHandler):
             result = JsonSuccessResult(result_data)  # type: JsonResult
 
         except RPCException as exc:
+            logger.warning(exc, exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
             result = JsonErrorResult(exc.code, exc.message, exc.data)
 
         except Exception as exc:
+            logger.error(exc, exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
             result = JsonErrorResult(RPC_INTERNAL_ERROR, str(exc))
 
         result.set_jsonrpc_data(
@@ -167,6 +170,7 @@ class JSONRPCHandler(RPCHandler):
         try:
             parsed_request = self.parse_request(request_body)
         except RPCException as exc:
+            logger.error(exc, exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
             return self.dumps_result(JsonErrorResult(exc.code, exc.message))
 
         else:

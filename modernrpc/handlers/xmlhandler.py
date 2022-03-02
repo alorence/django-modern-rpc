@@ -1,4 +1,5 @@
 # coding: utf-8
+import logging
 import xmlrpc.client as xmlrpc_client
 from pyexpat import ExpatError
 from textwrap import dedent
@@ -13,6 +14,8 @@ from modernrpc.exceptions import (
     RPCException,
 )
 from modernrpc.handlers.base import RPCHandler, BaseResult, SuccessResult, ErrorResult
+
+logger = logging.getLogger(__name__)
 
 
 class XmlSuccessResult(SuccessResult):
@@ -65,9 +68,9 @@ class XMLRPCHandler(RPCHandler):
             dumped_result = self.marshaller.dumps(result.format())
         except Exception as exc:
             # Error on result serialization: serialize an error instead
-            error_result = XmlErrorResult(
-                RPC_INTERNAL_ERROR, "Unable to serialize result: {}".format(exc)
-            )
+            error_msg = "Unable to serialize result: {}".format(exc)
+            logger.error(error_msg, exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
+            error_result = XmlErrorResult(RPC_INTERNAL_ERROR, error_msg)
             dumped_result = self.marshaller.dumps(error_result.format())
 
         # Finally, dumps the result into full response content
@@ -92,9 +95,11 @@ class XMLRPCHandler(RPCHandler):
             return XmlSuccessResult(result_data)
 
         except RPCException as exc:
+            logger.warning(exc, exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
             return XmlErrorResult(exc.code, exc.message)
 
         except Exception as exc:
+            logger.error(exc, exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
             return XmlErrorResult(RPC_INTERNAL_ERROR, str(exc))
 
     def process_request(self, request_body: str, context: RPCRequestContext) -> str:
@@ -102,6 +107,7 @@ class XMLRPCHandler(RPCHandler):
         try:
             params, method_name = self.parse_request(request_body)
         except RPCException as exc:
+            logger.error(exc, exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
             result = XmlErrorResult(exc.code, exc.message)  # type: BaseResult
         else:
             result = self.process_single_request((method_name, params), context)
