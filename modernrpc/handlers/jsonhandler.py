@@ -82,7 +82,9 @@ class JSONRPCHandler(RPCHandler):
         try:
             payload = json.loads(request_body, cls=self.decoder)
         except (JSONDecodeError, Exception) as exc:
-            raise RPCParseError("Error while parsing JSON-RPC request: {}".format(exc))
+            raise RPCParseError(
+                "Error while parsing JSON-RPC request: {}".format(exc)
+            ) from exc
 
         return payload
 

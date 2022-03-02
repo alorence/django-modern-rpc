@@ -56,10 +56,12 @@ class XMLRPCHandler(RPCHandler):
             return params, method
 
         except ExpatError as exc:
-            raise RPCParseError("Error while parsing XML-RPC request: {}".format(exc))
+            raise RPCParseError(
+                "Error while parsing XML-RPC request: {}".format(exc)
+            ) from exc
 
-        except Exception:
-            raise RPCInvalidRequest("The request appear to be invalid.")
+        except Exception as exc:
+            raise RPCInvalidRequest("The request appear to be invalid.") from exc
 
     def dumps_result(self, result: BaseResult) -> str:  # type: ignore[override]
 
