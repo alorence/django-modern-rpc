@@ -33,25 +33,33 @@ class TestSystemMethods:
         signature = any_rpc_client.call("system.methodSignature", "add")
         # This one doesn't have any docstring defined
         assert type(signature) == list
-        assert signature == []
+        assert signature == [
+            [
+                "undef",
+                "undef",
+                "undef",
+            ]
+        ]
 
     def test_get_signature(self, any_rpc_client):
         signature = any_rpc_client.call("system.methodSignature", "divide")
         # divide() rpc method has 2 parameters used to perform the division. It also have 6 unused parameters (to
         # test arguments ordering in another test). Return type + 8 parameters = 9 elements in the signature
         assert signature == [
-            # Return type
-            "int or double",
-            # numerator & denominator
-            "int or double",
-            "int or double",
-            # Additional arguments (unused in method): x, y, z, a, b, c
-            "str",
-            "bytes",
-            "list",
-            "float",
-            "int",
-            "int",
+            [
+                # Return type
+                "int or double",
+                # numerator & denominator
+                "int or double",
+                "int or double",
+                # Additional arguments (unused in method): x, y, z, a, b, c
+                "str",
+                "bytes",
+                "list",
+                "float",
+                "int",
+                "int",
+            ]
         ]
 
     def test_get_signature_3(self, any_rpc_client):

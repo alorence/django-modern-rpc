@@ -200,7 +200,8 @@ class RPCMethod:
 
     @cached_property
     def args_doc(self) -> OrderedDict:
-        """"""
+        """Build an OrderedDict mapping each method argument with its
+        corresponding type (from typehint or doctype) and documentation."""
         result = OrderedDict()
         for arg in self.introspector.args:
             result[arg] = {
@@ -212,6 +213,7 @@ class RPCMethod:
 
     @cached_property
     def return_doc(self) -> Dict[str, str]:
+        """Build a dict for method's return type and documentation"""
         return {
             "type": self.doc_parser.return_type or self.introspector.return_type,
             "text": self.doc_parser.return_doc,

@@ -33,7 +33,7 @@ def __system_method_signature(method_name, **kwargs):
      - Types of method arguments from element 1 to N
     :param method_name: Name of a method available for current entry point (and protocol)
     :param kwargs:
-    :return: An array describing types of return values and method arguments
+    :return: An array of arrays describing types of return values and method arguments
     """
     entry_point = kwargs.get(ENTRY_POINT_KEY)
     protocol = kwargs.get(PROTOCOL_KEY)
@@ -44,14 +44,14 @@ def __system_method_signature(method_name, **kwargs):
             "Unknown method {}. Unable to retrieve signature.".format(method_name)
         )
 
-    signature = [method.return_doc.get("type")] + [
-        arg_doc.get("type") for arg_doc in method.args_doc.values()
-    ]
-    # FIXME: multiple issue in this implementation !
-    #  - getSignature must return an array of possible signature, each possibility as an array
-    #  - Undefined signature must return the string "undef"
     # See http://xmlrpc-c.sourceforge.net/introspection.html
-    return [t for t in signature if t]
+    undefined = "undef"
+    return_type = method.return_doc.get("type") or undefined
+    args_types = [
+        arg_doc.get("type") or undefined for arg_doc in method.args_doc.values()
+    ]
+
+    return [[return_type, *args_types]]
 
 
 @rpc_method(name="system.methodHelp")
