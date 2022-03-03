@@ -1,7 +1,7 @@
 # django-modern-rpc
 
 [![Downloads](https://pepy.tech/badge/django-modern-rpc)](https://pepy.tech/project/django-modern-rpc)
-[![Tests](https://github.com/alorence/django-modern-rpc/actions/workflows/default.yml/badge.svg)](https://github.com/alorence/django-modern-rpc/actions/workflows/unit-tests.yml)
+[![Tests](https://github.com/alorence/django-modern-rpc/actions/workflows/default.yml/badge.svg)](https://github.com/alorence/django-modern-rpc/actions/workflows/default.yml)
 [![Documentation Status](https://readthedocs.org/projects/django-modern-rpc/badge/?version=main)](https://django-modern-rpc.readthedocs.io/en/latest/?badge=main)
 [![Link to demo](https://img.shields.io/badge/demo-online-blue.svg)](http://modernrpc.herokuapp.com/)
 
