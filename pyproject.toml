@@ -65,10 +65,8 @@ markdown = "*"
 
 tox = "^3.24.5"
 # pytest 6.1 doesn't run with python 3.10. But pytest 6.2 requires at least python 3.6
-# Using poetry "multiple constraints dependencies" syntax doesn't help, since exported requirements.txt becomes
-# invalid when tests are run with tox.
-# As fallback, we simply remove dependency to pytest for python 3.5. It will be installed as indirect dependency
-# whith pytest-django, pytest-pythonpath, etc.
+# Use poetry "multiple constraints dependencies" syntax to fix it until python 3.5 support is dropped
+# This will bread requirements fil export (used in tox config) but a specific fix is used (see tox.ini)
 pytest = [
     { version = "^6.1", python = "<3.6" },
     { version = "^6.2", python = ">=3.6" }

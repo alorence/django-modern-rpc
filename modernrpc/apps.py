@@ -15,7 +15,10 @@ logger = logging.getLogger(__name__)
 
 @checks.register()
 def check_settings(app_configs, **kwargs):
-    result = []
+    """Perform common checks on lib configuration, to notify for warning and errors. Uses
+    Django "System check framework": see https://docs.djangoproject.com/en/3.2/topics/checks/"""
+    messages = []
+
     if not settings.MODERNRPC_METHODS_MODULES:
         msg = "settings.MODERNRPC_METHODS_MODULES is not set, django-modern-rpc cannot locate your RPC methods."
         # TODO: put link to correct docs target page here
@@ -23,7 +26,9 @@ def check_settings(app_configs, **kwargs):
             "Please define MODERNRPC_METHODS_MODULES in your settings.py to indicate modules containing your "
             "methods. See documentation for more info"
         )
-        result.append(checks.Warning(msg, hint=hint, obj=settings, id="modernrpc.W001"))
+        messages.append(
+            checks.Warning(msg, hint=hint, obj=settings, id="modernrpc.W001")
+        )
 
     else:
         for module_name in settings.MODERNRPC_METHODS_MODULES:
@@ -35,7 +40,7 @@ def check_settings(app_configs, **kwargs):
                     module_name
                 )
                 hint = str(err)
-                result.append(
+                messages.append(
                     checks.Error(msg, hint=hint, obj=settings, id="modernrpc.E001")
                 )
             except Exception as exc:
@@ -43,11 +48,11 @@ def check_settings(app_configs, **kwargs):
                     exc.__class__.__name__, module_name
                 )
                 hint = "See exception info: {}".format(exc)
-                result.append(
+                messages.append(
                     checks.Error(msg, hint=hint, obj=settings, id="modernrpc.E002")
                 )
 
-    return result
+    return messages
 
 
 class ModernRpcConfig(AppConfig):
@@ -58,15 +63,13 @@ class ModernRpcConfig(AppConfig):
         self.rpc_methods_registration()
 
     def rpc_methods_registration(self) -> None:
-        """Loop over each module listed in settings.MODERNRPC_METHODS_MODULES, import each one and register
-        functions annotated with @rpc_method in the internal registry"""
-
+        """Store all decorated RPC methods as well as builtin system methods into internal registry"""
         # For security (and unit tests), make sure the registry is empty before registering rpc methods
         registry.reset()
 
         if not settings.MODERNRPC_METHODS_MODULES:
             # settings.MODERNRPC_METHODS_MODULES is undefined or empty, but we already notified user
-            # with a Django system-check. See http://docs.djangoproject.com/en/1.11/topics/checks/
+            # with a Django system-check. See http://docs.djangoproject.com/en/3.2/topics/checks/
             return
 
         self.import_modules(settings.MODERNRPC_METHODS_MODULES)
@@ -79,6 +82,8 @@ class ModernRpcConfig(AppConfig):
 
     @staticmethod
     def import_modules(modules_list: List[str]):
+        """Loop on given modules_list, import each module and register
+        functions annotated with @rpc_method in the internal registry"""
         for module_name in modules_list:
             # Import the module in current scope
             rpc_module = import_module(module_name)

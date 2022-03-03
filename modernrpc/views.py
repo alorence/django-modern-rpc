@@ -16,7 +16,7 @@ from modernrpc.helpers import ensure_sequence
 logger = logging.getLogger(__name__)
 
 
-# This disables CSRF validation for POST requests
+# Disables CSRF validation for POST requests
 @method_decorator(csrf_exempt, name="dispatch")
 class RPCEntryPoint(TemplateView):
     """
@@ -74,19 +74,22 @@ class RPCEntryPoint(TemplateView):
 
     def post(self, request, *args, **kwargs):
         """
-        Handle a XML-RPC or JSON-RPC request.
+        Handle an XML-RPC or JSON-RPC request.
 
         :param request: Incoming request
-        :param args: Additional arguments
-        :param kwargs: Additional named arguments
-        :return: A HttpResponse containing XML-RPC or JSON-RPC response, depending on the incoming request
+        :param args: Unused
+        :param kwargs: Unused
+        :return: A HttpResponse containing XML-RPC or JSON-RPC response with the result of procedure call
         """
-        logger.debug("RPC request received...")
+        logger.debug(
+            "RPC request received... Content-Type=%s",
+            request.content_type or "<unspecified>",
+        )
 
         if not request.content_type:
             return HttpResponse(
                 "Unable to handle your request, the Content-Type header is mandatory to allow server "
-                "to determine the right handler to interpret your request.."
+                "to determine which handler can interpret your request.."
             )
 
         # Retrieve the first RPC handler able to parse our request

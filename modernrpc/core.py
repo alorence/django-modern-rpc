@@ -4,7 +4,7 @@ import logging
 from collections import OrderedDict
 from enum import Enum
 from types import FunctionType
-from typing import List, Dict, Optional, Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional, List, Dict, Iterable
 
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpRequest
@@ -36,12 +36,17 @@ logger = logging.getLogger(__name__)
 
 
 class Protocol(str, Enum):
+    """Define a custom type to use everywhere a protocol (JSON-RPC or XML-RPC) is expected"""
+
     ALL = GENERIC_ALL
     JSON_RPC = "__json_rpc"
     XML_RPC = "__xml_rpc"
 
 
 class RPCRequestContext:
+    """Wraps all information needed to call a procedure. Instances of this class are created before call,
+    and may be used to populate kwargs dict in rpc method."""
+
     def __init__(
         self,
         request: HttpRequest,
@@ -58,6 +63,10 @@ class RPCRequestContext:
 
 
 class RPCMethod:
+    """
+    Wraps a python global function to be used to extract information and call the concrete procedure.
+    """
+
     def __init__(self, func: FunctionType):
         # Store the reference to the registered function
         self.function = func
@@ -70,7 +79,7 @@ class RPCMethod:
         self.predicates = getattr(func, "modernrpc_auth_predicates", None)
         self.predicates_params = getattr(func, "modernrpc_auth_predicates_params", ())
 
-        # Introspection
+        # Introspection:
         self.introspector = Introspector(self.function)
         self.doc_parser = DocstringParser(self.function)
 
@@ -108,7 +117,10 @@ class RPCMethod:
         )
 
     def execute(
-        self, context: RPCRequestContext, args: list, kwargs: Optional[dict] = None
+        self,
+        context: RPCRequestContext,
+        args: Iterable[Any],
+        kwargs: Optional[dict] = None,
     ) -> Any:
 
         kwargs = kwargs or {}
