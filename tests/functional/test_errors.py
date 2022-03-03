@@ -1,6 +1,7 @@
 # coding: utf-8
 import json
 import random
+import re
 import xml.etree.cElementTree as ET
 from json import JSONDecodeError
 
@@ -37,7 +38,7 @@ class TestCommonErrors:
             (
                 "add",
                 [5, 9, 6],
-                r".+add\(\) takes 2 positional arguments but 3 were given",
+                r"Invalid parameters: add\(\) takes 2 positional arguments but 3 were given",
                 RPC_INVALID_PARAMS,
             ),
             (
@@ -67,30 +68,27 @@ class TestCommonErrors:
             ),
         ],
     )
-    def test_generic_errors(self, any_rpc_client, method, params, exc_match, exc_code):
+    def test_generic_errors(
+        self, any_rpc_client, caplog, method, params, exc_match, exc_code
+    ):
         with pytest.raises(
             any_rpc_client.error_response_exception, match=exc_match
         ) as exc_info:
             any_rpc_client.call(method, *params)
         any_rpc_client.assert_exception_code(exc_info.value, exc_code)
 
+        assert re.search(exc_match, caplog.records[-1].message)
+
 
 class TestJsonRpcSpecificBehaviors:
-    def test_exception_with_data(self, jsonrpc_client):
-        exc_match = r"This exception has additional data"
-        with pytest.raises(
-            jsonrpc_client.error_response_exception, match=exc_match
-        ) as exc_info:
-            jsonrpc_client.call("raise_custom_exception_with_data")
-        jsonrpc_client.assert_exception_code(exc_info.value, RPC_CUSTOM_ERROR_BASE + 5)
-        assert exc_info.value.data == ["a", "b", "c"]
-
     @staticmethod
     def low_level_jsonrpc_call(url, payload, headers, raw_payload=None):
         data = raw_payload or json.dumps(payload, cls=DjangoJSONEncoder)
         return requests.post(url, data=data, headers=headers).json()
 
-    def test_method_name(self, live_server, endpoint_path, jsonrpc_content_type):
+    def test_missing_method_name(
+        self, live_server, endpoint_path, jsonrpc_content_type
+    ):
         # Missing 'method' in payload
 
         headers = {"content-type": jsonrpc_content_type}
@@ -138,12 +136,11 @@ class TestJsonRpcSpecificBehaviors:
             live_server.url + endpoint_path, payload, headers=headers
         )
 
-        assert "jsonrpc version must be set to 2.0" in response["error"]["message"]
+        expected_error = 'Invalid request: Parameter "jsonrpc" has an unsupported value "1.0". It must be set to "2.0"'
+        assert expected_error == response["error"]["message"]
         assert RPC_INVALID_REQUEST == response["error"]["code"]
 
-    def test_jsonrpc_json_payload_invalid(
-        self, live_server, endpoint_path, jsonrpc_content_type
-    ):
+    def test_invalid_payload(self, live_server, endpoint_path, jsonrpc_content_type):
         # Closing '}' is missing from this payload => invalid json data
         headers = {"content-type": jsonrpc_content_type}
         invalid_json_payload = """
@@ -171,7 +168,7 @@ class TestJsonRpcSpecificBehaviors:
         assert "unable to read the request" in error["message"]
         assert error["code"] == RPC_PARSE_ERROR
 
-    def test_jsonrpc_invalid_payload_type(
+    def test_invalid_payload_type(
         self, live_server, endpoint_path, jsonrpc_content_type
     ):
         # Json payload is not a struct or a list
@@ -188,7 +185,7 @@ class TestJsonRpcSpecificBehaviors:
         assert "Invalid JSON-RPC payload" in error["message"]
         assert error["code"] == RPC_INVALID_REQUEST
 
-    def test_jsonrpc_no_content_type(self, live_server, endpoint_path):
+    def test_no_content_type(self, live_server, endpoint_path):
         payload = {
             "method": "add",
             "params": [5, 6],
@@ -211,6 +208,29 @@ class TestJsonRpcSpecificBehaviors:
             in response_str
         )
 
+    def test_empty_id(self, live_server, endpoint_path, jsonrpc_content_type):
+        headers = {"content-type": jsonrpc_content_type}
+        payload = {
+            "method": "add",
+            "params": [5, 6],
+            "jsonrpc": "2.0",
+            "id": None,
+        }
+
+        response = self.low_level_jsonrpc_call(
+            live_server.url + endpoint_path, payload, headers=headers
+        )
+        assert "error" in response
+        assert "result" not in response
+        assert response["id"] is None
+
+        expected_error = (
+            'Invalid request: Parameter "id" has an unsupported "null" value. It must be set to a positive '
+            'integer value, or must be completely removed from request payload for special "notification" requests'
+        )
+        assert response["error"]["code"] == RPC_INVALID_REQUEST
+        assert response["error"]["message"] == expected_error
+
 
 class TestXmlRpcSpecificBehaviors:
     @staticmethod
@@ -230,7 +250,7 @@ class TestXmlRpcSpecificBehaviors:
 
         return code, message
 
-    def test_request_missing_method_name(self, live_server, endpoint_path):
+    def test_missing_method_name(self, live_server, endpoint_path):
         invalid_payload = """<?xml version="1.0"?>
     <methodCall>
       <params>
@@ -243,7 +263,10 @@ class TestXmlRpcSpecificBehaviors:
             live_server.url + endpoint_path, payload=invalid_payload
         )
 
-        assert "Invalid request: Missing methodName" == message
+        assert (
+            "Invalid request: Missing methodName. Please provide "
+            "the name of the procedure you want to call" == message
+        )
         assert code == RPC_INVALID_REQUEST
 
     def test_incomplete_payload(self, live_server, endpoint_path):
@@ -257,7 +280,7 @@ class TestXmlRpcSpecificBehaviors:
         assert "Invalid request: The request appear to be invalid." == message
         assert code == RPC_INVALID_REQUEST
 
-    def test_invalid_xml_payload(self, live_server, endpoint_path):
+    def test_invalid_payload(self, live_server, endpoint_path):
         # "</methodName" misses the closing '>'
         invalid_payload = """<?xml version="1.0"?>
     <methodCall>
@@ -275,7 +298,7 @@ class TestXmlRpcSpecificBehaviors:
         assert "not well-formed" in message
         assert code == RPC_PARSE_ERROR
 
-    def test_json_payload_invalid(self, live_server, endpoint_path):
+    def test_invalid_json_payload(self, live_server, endpoint_path):
         invalid_payload = json.dumps(
             {
                 "method": "add",
@@ -291,7 +314,7 @@ class TestXmlRpcSpecificBehaviors:
         assert "not well-formed" in message
         assert code == RPC_PARSE_ERROR
 
-    def test_xmlrpc_invalid_request_bad_type_value(self, live_server, endpoint_path):
+    def test_bad_type_value(self, live_server, endpoint_path):
         invalid_payload = """<?xml version="1.0"?>
 <methodCall>
   <methodName>examples.getStateName</methodName

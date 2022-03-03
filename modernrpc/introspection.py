@@ -18,7 +18,7 @@ RETURN_TYPE_REXP = re.compile(r"^[:@]rtype:\s?(.*)$", flags=re.MULTILINE)
 
 
 class Introspector:
-    """Helper to extract doc, signature and type hint for given function"""
+    """Helper to extract signature and type hint for given function"""
 
     def __init__(self, function: Callable):
         self.func = function
@@ -69,8 +69,8 @@ class Introspector:
 
 
 class DocstringParser:
-    """Extract documentation and parse it to extract params docs & types and return doc & type. It also converts
-    long docstring part to an HTML representation using parser from settings"""
+    """Parse docstring to extract params docs & types and return doc & type. It also converts
+    long docstring part to an HTML representation using parser from settings (markdown/rst)"""
 
     def __init__(self, function: Callable):
         self.func = function

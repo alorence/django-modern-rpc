@@ -15,6 +15,14 @@ Default: ``[]`` (Empty list)
 Define the list of python modules containing RPC methods. You must set this list with at least one module.
 At startup, the list is looked up to register all python functions decorated with `@rpc_method`.
 
+``MODERNRPC_LOG_EXCEPTIONS``
+-----------------------------
+
+Default: ``True``
+
+Set to False if you want to disable logging on exception catching
+
+
 JSON Serialization and deserialization
 ======================================
 You can configure how JSON-RPC handler will serialize and unserialize data:
@@ -76,22 +84,6 @@ Default: ``True``
 
 Deprecated. Define ``MODERNRPC_XMLRPC_USE_BUILTIN_TYPES`` instead.
 
-Python 2 String standardization
-===============================
-
-``MODERNRPC_PY2_STR_TYPE``
---------------------------
-
-Default: ``None``
-
-Define target type for :ref:`GlobalStringStandardization`.
-
-``MODERNRPC_PY2_STR_ENCODING``
-------------------------------
-
-Default: ``UTF-8``
-
-Define global encoding used in :ref:`GlobalStringStandardization`.
 
 RPC entry points configuration
 ==============================

@@ -98,7 +98,7 @@ class RPCInvalidRequest(RPCException):
         super().__init__(RPC_INVALID_REQUEST, err_msg, data)
 
 
-class RPCUnknownMethod(RPCException):
+class RPCMethodNotFound(RPCException):
     """Raised by handlers the RPC method called is not defined for the current entry point and protocol."""
 
     def __init__(self, name: str, data: Any = None):
@@ -122,8 +122,16 @@ class RPCInternalError(RPCException):
         super().__init__(RPC_INTERNAL_ERROR, err_msg, data)
 
 
-class AuthenticationFailed(RPCInternalError):
+class AuthenticationFailed(RPCException):
     """Raised when authentication system forbade execution of a RPC Method"""
 
     def __init__(self, method_name: str):
-        super().__init__('Authentication failed when calling "{}"'.format(method_name))
+        super().__init__(
+            RPC_INTERNAL_ERROR,
+            'Authentication failed when calling "{}"'.format(method_name),
+        )
+
+
+# In 1.0, RPCUnknownMethod was renamed to RPCMethodNotFound
+# Set as alias for backward compatibility
+RPCUnknownMethod = RPCMethodNotFound

@@ -4,15 +4,24 @@ import logging
 from collections import OrderedDict
 from enum import Enum
 from types import FunctionType
-from typing import List, Dict, Optional, Any
+from typing import TYPE_CHECKING, Any, Optional, List, Dict, Iterable
 
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpRequest
 from django.utils.functional import cached_property
 
 from modernrpc.conf import settings
+from modernrpc.exceptions import (
+    AuthenticationFailed,
+    RPCInvalidParams,
+    RPCInternalError,
+    RPCException,
+)
 from modernrpc.helpers import ensure_sequence
 from modernrpc.introspection import Introspector, DocstringParser
+
+if TYPE_CHECKING:
+    from modernrpc.handlers.base import RPCHandler
 
 # Special constant meaning "all protocols" or "all entry points"
 GENERIC_ALL = ALL = "__all__"
@@ -27,12 +36,37 @@ logger = logging.getLogger(__name__)
 
 
 class Protocol(str, Enum):
+    """Define a custom type to use everywhere a protocol (JSON-RPC or XML-RPC) is expected"""
+
     ALL = GENERIC_ALL
     JSON_RPC = "__json_rpc"
     XML_RPC = "__xml_rpc"
 
 
+class RPCRequestContext:
+    """Wraps all information needed to call a procedure. Instances of this class are created before call,
+    and may be used to populate kwargs dict in rpc method."""
+
+    def __init__(
+        self,
+        request: HttpRequest,
+        # Double quotes will prevent circular import, as this
+        # is the only place RPCHandler is used in core module
+        handler: "RPCHandler",
+        protocol: Protocol,
+        entry_point: str,
+    ):
+        self.request = request
+        self.handler = handler
+        self.protocol = protocol
+        self.entry_point = entry_point
+
+
 class RPCMethod:
+    """
+    Wraps a python global function to be used to extract information and call the concrete procedure.
+    """
+
     def __init__(self, func: FunctionType):
         # Store the reference to the registered function
         self.function = func
@@ -45,7 +79,7 @@ class RPCMethod:
         self.predicates = getattr(func, "modernrpc_auth_predicates", None)
         self.predicates_params = getattr(func, "modernrpc_auth_predicates_params", ())
 
-        # Introspection
+        # Introspection:
         self.introspector = Introspector(self.function)
         self.doc_parser = DocstringParser(self.function)
 
@@ -81,6 +115,43 @@ class RPCMethod:
             predicate(request, *self.predicates_params[i])
             for i, predicate in enumerate(self.predicates)
         )
+
+    def execute(
+        self,
+        context: RPCRequestContext,
+        args: Iterable[Any],
+        kwargs: Optional[dict] = None,
+    ) -> Any:
+
+        kwargs = kwargs or {}
+
+        if not self.check_permissions(context.request):
+            raise AuthenticationFailed(self.name)
+
+        # If the RPC method needs to access some configuration, update kwargs dict
+        if self.accept_kwargs:
+            kwargs.update(
+                {
+                    REQUEST_KEY: context.request,
+                    ENTRY_POINT_KEY: context.entry_point,
+                    PROTOCOL_KEY: context.protocol,
+                    HANDLER_KEY: context.handler,
+                }
+            )
+
+        logger.debug("Params: args = %s - kwargs = %s", args, kwargs)
+
+        # Call the procedure, or raise an exception
+        try:
+            return self.function(*args, **kwargs)
+        except TypeError as exc:
+            # If given params cannot be transmitted properly to python function
+            raise RPCInvalidParams(str(exc))
+        except RPCException:
+            raise
+        except Exception as exc:
+            # Any exception raised from the remote procedure
+            raise RPCInternalError(str(exc))
 
     def available_for_protocol(self, protocol: Protocol) -> bool:
         """Check if the current function can be executed from a request through the given protocol"""
@@ -257,65 +328,6 @@ class _RPCRegistry:
 registry = _RPCRegistry()
 
 
-class RpcRequest:
-    """Wrapper for JSON-RPC or XML-RPC request data."""
-
-    def __init__(self, method_name: str, params=None, **kwargs: Dict[str, Any]):
-        self.request_id = None
-        self.method_name = method_name
-
-        self.args = []  # type: List
-        self.kwargs = {}  # type: Dict
-        if params is not None:
-            if isinstance(params, dict):
-                self.kwargs = params
-            elif isinstance(params, (list, set, tuple)):
-                self.args = list(params)
-            else:
-                raise ValueError(
-                    "RPCRequest initial params has an unsupported type: {}".format(
-                        type(params)
-                    )
-                )
-
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-
-
-class RpcResult:
-    def __init__(self, request_id: str = None):
-        self.request_id = request_id
-        self._response_is_error = False
-        self._data = None
-
-    def is_error(self) -> bool:
-        return self._response_is_error
-
-    def set_success(self, data: Any) -> None:
-        self._response_is_error = False
-        self._data = data
-
-    def set_error(self, code, message, data=None):
-        self._response_is_error = True
-        self._data = (code, message, data)
-
-    @property
-    def success_data(self):
-        return self._data
-
-    @property
-    def error_code(self):
-        return self._data[0]
-
-    @property
-    def error_message(self):
-        return self._data[1]
-
-    @property
-    def error_data(self):
-        return self._data[2]
-
-
 def rpc_method(
     func=None,
     name: str = None,
@@ -357,14 +369,14 @@ def register_rpc_method(func):
     return registry.register_method(func)
 
 
-def get_all_method_names(entry_point=ALL, protocol=ALL, sort_methods=False):
+def get_all_method_names(entry_point=ALL, protocol=Protocol.ALL, sort_methods=False):
     """For backward compatibility. Use registry.get_all_method_names() instead (with same arguments)"""
     return registry.get_all_method_names(
         entry_point=entry_point, protocol=protocol, sort_methods=sort_methods
     )
 
 
-def get_all_methods(entry_point=ALL, protocol=ALL, sort_methods=False):
+def get_all_methods(entry_point=ALL, protocol=Protocol.ALL, sort_methods=False):
     """For backward compatibility. Use registry.get_all_methods() instead (with same arguments)"""
     return registry.get_all_methods(
         entry_point=entry_point, protocol=protocol, sort_methods=sort_methods
