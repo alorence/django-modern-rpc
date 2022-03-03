@@ -10,7 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import TemplateView, View
 
 from modernrpc.conf import settings
-from modernrpc.core import registry, ALL, RPCRequestContext
+from modernrpc.core import registry, RPCRequestContext, Protocol
 from modernrpc.helpers import ensure_sequence
 
 logger = logging.getLogger(__name__)
@@ -26,7 +26,7 @@ class RPCEntryPoint(TemplateView):
     template_name = "modernrpc/default/index.html"
 
     entry_point = settings.MODERNRPC_DEFAULT_ENTRYPOINT_NAME
-    protocol = ALL
+    protocol = Protocol.ALL
     enable_doc = False
     enable_rpc = True
 
@@ -58,7 +58,7 @@ class RPCEntryPoint(TemplateView):
             import_string(handler_cls) for handler_cls in settings.MODERNRPC_HANDLERS
         ]
 
-        if self.protocol == ALL:
+        if self.protocol == Protocol.ALL:
             return handler_classes
 
         return [
@@ -93,7 +93,7 @@ class RPCEntryPoint(TemplateView):
             )
 
         # Retrieve the first RPC handler able to parse our request
-        # This weird next(filter(iterable, predicate), default) structure is basically the more_itertools.first_true()
+        # This weird next(filter(predicate, iterable), default) structure is basically the more_itertools.first_true()
         # utility. This is written here to avoid dependency to more-itertools package
         handler = next(
             filter(lambda candidate: candidate.can_handle(request), self.handlers), None
@@ -116,11 +116,7 @@ class RPCEntryPoint(TemplateView):
     def get_context_data(self, **kwargs):
         """Update context data with list of RPC methods of the current entry point.
         Will be used to display methods documentation page"""
-        kwargs.update(
-            {
-                "methods": registry.get_all_methods(
-                    self.entry_point, sort_methods=True
-                ),
-            }
+        kwargs.setdefault(
+            "methods", registry.get_all_methods(self.entry_point, sort_methods=True)
         )
         return super().get_context_data(**kwargs)

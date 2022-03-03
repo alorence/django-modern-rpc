@@ -81,7 +81,7 @@ class ModernRpcConfig(AppConfig):
         )
 
     @staticmethod
-    def import_modules(modules_list: List[str]):
+    def import_modules(modules_list: List[str]) -> None:
         """Loop on given modules_list, import each module and register
         functions annotated with @rpc_method in the internal registry"""
         for module_name in modules_list:

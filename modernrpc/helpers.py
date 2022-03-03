@@ -2,7 +2,7 @@
 import datetime
 
 import xmlrpc.client as xmlrpc_client
-from typing import Union, Optional, Any, Sequence
+from typing import Union, Optional, Any, Iterable
 
 
 def get_builtin_date(
@@ -38,6 +38,6 @@ def get_builtin_date(
         return None
 
 
-def ensure_sequence(element: Any) -> Sequence:
+def ensure_sequence(element: Any) -> Iterable:
     """Ensure the given argument is a sequence object (tuple, list). If not, return a list containing its value."""
-    return element if isinstance(element, (tuple, list)) else [element]
+    return element if isinstance(element, (list, tuple)) else [element]

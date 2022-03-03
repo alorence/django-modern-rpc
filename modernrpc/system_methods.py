@@ -1,5 +1,4 @@
 # coding: utf-8
-
 from modernrpc.core import (
     ENTRY_POINT_KEY,
     PROTOCOL_KEY,
@@ -17,8 +16,8 @@ from modernrpc.handlers import XMLRPCHandler
 @rpc_method(name="system.listMethods")
 def __system_list_methods(**kwargs):
     """Returns a list of all methods available in the current entry point"""
-    entry_point = kwargs.get(ENTRY_POINT_KEY)
-    protocol = kwargs.get(PROTOCOL_KEY)
+    entry_point = kwargs.get(ENTRY_POINT_KEY)  # type: str
+    protocol = kwargs.get(PROTOCOL_KEY)  # type: Protocol
 
     return registry.get_all_method_names(entry_point, protocol, sort_methods=True)
 
@@ -35,8 +34,8 @@ def __system_method_signature(method_name, **kwargs):
     :param kwargs:
     :return: An array of arrays describing types of return values and method arguments
     """
-    entry_point = kwargs.get(ENTRY_POINT_KEY)
-    protocol = kwargs.get(PROTOCOL_KEY)
+    entry_point = kwargs.get(ENTRY_POINT_KEY)  # type: str
+    protocol = kwargs.get(PROTOCOL_KEY)  # type: Protocol
 
     method = registry.get_method(method_name, entry_point, protocol)
     if method is None:
@@ -63,8 +62,8 @@ def __system_method_help(method_name, **kwargs):
     :param kwargs:
     :return: Documentation text for the RPC method
     """
-    entry_point = kwargs.get(ENTRY_POINT_KEY)
-    protocol = kwargs.get(PROTOCOL_KEY)
+    entry_point = kwargs.get(ENTRY_POINT_KEY)  # type: str
+    protocol = kwargs.get(PROTOCOL_KEY)  # type: Protocol
 
     method = registry.get_method(method_name, entry_point, protocol)
     if method is None:

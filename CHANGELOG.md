@@ -3,18 +3,44 @@ Changelog
 
 ## Soon: version 1.0.0
 
+After months of work, the 1.0 release is a major refactoring of the library. Many parts of the project have been
+modernized to improve readability and robustness, and a few issues were fixed.
+
+### Improvements
+  - Type hints is now supported in RPC methods. Auto-generated documentation will use it when it is defined.
+  Old-style "doctypes" are still supported.
+  - Dependency to `six` have been removed
+
 ### Fixes
+  - Initialization process updated: exceptions are now raised on startup for invalid RPC modules. In addition, Django
+  check system is used to notify common errors. This was requested multiple times (#2, #13, #34).
+  - JSON-RPC notification behavior has been fixed to respect standard. Requests without `id` are handled as
+  notifications but requests with null `id` are considered invalid and will return an error
+  - Batch request behavior has been fixed when one or more results failed to be serialized
+  - Builtin `system.methodSignature` behavior have been updated to respect standard. It now returns a list of list and
+  unknown types are returned as "undef" (see http://xmlrpc-c.sourceforge.net/introspection.html)
 
 ### Misc
-
   - Dropped support for Django < 2.1 and Python < 3.5
   - Added support for Django 3.2 and 4.0, Python 3.9 and 3.10
   - Documentation tree was completely reworked for clarity and simplicity. See <https://django-modern-rpc.rtfd.io>
-  - Poetry is now used to configure project dependencies and build distributions. A `pyproject.toml` file was added to
-  replace `setup.py`, `setup.cfg`, `MANIFEST.in` and `requirements.txt` and to centralize all external tools settings
-  (pytest, flake8, etc.)
-  - Initialization process updated: exceptions are now raised on startup for invalid RPC modules. This was asked multiple
-  times (#34, #13, #2).
+  - Poetry is now used to configure project dependencies and build distributions. The new `pyproject.toml` file
+  completely replaces `setup.py`, `setup.cfg`, `MANIFEST.in` and `requirements.txt` to centralize all dependencies,
+  external tools settings (pytest, flake8, etc.) and packaging configuration
+  - Black is now used to automatically format code
+  - Mypy is now used to verify type hints consistency
+  - Tox configuration now includes flake8, mypy, pylint and black environments
+  - All tests have been rewritten to have a strong separation between unit and functional tests. Test classes where
+  created to group tests by similarities. Many fixtures have been added, with more parameterization, resulting in
+  almost 700 tests executed to cover as most situations as possible
+
+### API Changes
+  - A new `modernrpc.core.Protocol` enum has been introduced to enforce correct protocol value when needed. (#29, #30)
+  - When an authentication error is raised, the returned status code is now 200 instead of 403 for consistency with
+  batch and system.multicall requests (#35)
+  - `RPCUnknownMethod` exception has been renamed to `RPCMethodNotFound`. An alias has been created to ensure backward
+  compatibility
+
 
 ## 2020-06-11: version 0.12.1
 
@@ -24,7 +50,7 @@ Changelog
 
 ## 2019-12-05: version 0.12.0
 
-## Misc
+### Misc
 
   - Django 2.1, 2.2 and 3.0 are now officially supported. Thanks to @atodorov for 3.0 compatibility
   - Added Python 3.7 and 3.8 support
@@ -62,6 +88,7 @@ report accuracy.
   - Method's documentation is generated only if needed and uses Django's @cached\_property decorator
   - HTML documentation default template has been updated: Bootstrap 4.1.0 stable is now used, and the rendering has
   been improved.
+  - Many units tests have been improved. Some tests with many calls to LiveServer have been split into shorter ones.
 
 ### API Changes
 
@@ -71,7 +98,7 @@ report accuracy.
   - HTML documentation content is not marked as "safe" anymore, using `django.utils.safestring.mark_safe()`. You have to
   use Django decorator `safe` in your template if you display this value.
 
-#### Settings
+### Settings
 
   - The `kwargs` dict passed to RPC methods can have customized keys (#18). Set the following values:
     - `settings.MODERNRPC_KWARGS_REQUEST_KEY`
@@ -81,9 +108,6 @@ report accuracy.
 
 to override dict keys and prevent conflicts with your own methods arguments.
 
-#### Settings
-
-  - Many units tests have been improved. Some tests with many calls to LiveServer have been split into shorter ones.
 
 ## 2017-12-06: version 0.10.0
 
