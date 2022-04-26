@@ -5,58 +5,35 @@
 # list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-# -- Path setup --------------------------------------------------------------
+import pkg_resources  # type: ignore
 
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-#
-import sys
-import warnings
-from os.path import abspath, join, dirname
-
-try:
-    # Use "shinx_rtd_theme" if it has been installed. Fallback to default otherwise
-    import sphinx_rtd_theme
-
-    sphinx_theme = "sphinx_rtd_theme"
-except ImportError:
-    warnings.warn(
-        "Please install 'sphinx_rtd_theme' in order to build this documentation"
-    )
-    sphinx_theme = ""
-
-sys.path.insert(0, abspath(join(dirname(__file__), "../..")))
-import modernrpc  # noqa: F402
 from django.conf import settings
 
 settings.configure()
 
-# -- Project information -----------------------------------------------------
+# -- Project information ------------------------------------------------------
 
 # General information about the project.
 project = "django-modern-rpc"
-copyright = "2021, Antoine Lorence"
+copyright = "2022"
 author = "Antoine Lorence"
 
 # The full version, including alpha/beta/rc tags
-release = modernrpc.__version__
+release = pkg_resources.get_distribution("django-modern-rpc").version
 # The short X.Y version.
 version = release.rsplit(".", 1)[0]
 
-# -- General configuration ---------------------------------------------------
+# -- General configuration ----------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosectionlabel",
 ]
-
-# Add any paths that contain templates here, relative to this directory.
-templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -65,14 +42,31 @@ exclude_patterns = [
     "drafts/*",
 ]
 
-# -- Options for HTML output -------------------------------------------------
+html_baseurl = "https://django-modern-rpc.readthedocs.io/"
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
+# -- Options for HTML output --------------------------------------------------
+
+# The theme to use for HTML and HTML Help pages. See the documentation for
 # a list of builtin themes.
-#
-html_theme = sphinx_theme or "alabaster"
+html_theme = "sphinx_book_theme"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
+
+# -- Theme options ------------------------------------------------------------
+html_title = "django-modern-rpc"
+html_css_files = ["custom.css"]
+html_permalinks_icon = (
+    f'<img src="/_static/link-icon.png" style="padding-bottom: 0.2rem" />'
+)
+html_theme_options = {
+    "home_page_in_toc": True,
+    "show_toc_level": 1,
+    "toc_title": "Navigation",
+    "use_download_button": False,
+    "use_repository_button": True,
+    "repository_url": "https://github.com/alorence/django-modern-rpc",
+    "extra_navbar": '<a href="https://fr.liberapay.com/alorence/" target="_blank">Donate</a>',
+}
