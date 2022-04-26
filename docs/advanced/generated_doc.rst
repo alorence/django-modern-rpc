@@ -1,5 +1,6 @@
-HTML Docs generation
-====================
+Procedures documentation
+========================
+
 Django-modern-rpc can optionally process the docstring attached to your RPC methods and display it in a web page.
 This article will explain how generated documentation can bu used and customized.
 

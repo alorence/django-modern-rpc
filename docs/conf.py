@@ -59,7 +59,7 @@ html_static_path = ["_static"]
 html_title = "django-modern-rpc"
 html_css_files = ["custom.css"]
 html_permalinks_icon = (
-    f'<img src="/_static/link-icon.png" style="padding-bottom: 0.2rem" />'
+    '<img src="/_static/permalink.svg" style="height: 0.75em; margin-bottom: 0.15em"/>'
 )
 html_theme_options = {
     "home_page_in_toc": True,
