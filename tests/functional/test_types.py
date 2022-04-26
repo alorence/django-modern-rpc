@@ -6,6 +6,8 @@ import pytest
 
 from modernrpc.exceptions import RPC_INTERNAL_ERROR
 
+# TODO: add more tests for corner case and unsupported types: base64, bytes, nil with ALLOW_NONe = True, etc.
+
 
 class TestBase:
     @pytest.mark.parametrize(
