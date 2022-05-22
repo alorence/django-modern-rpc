@@ -1,6 +1,6 @@
 # coding: utf-8
 # JSON-RPC error codes
-# From http://www.jsonrpc.org/specification#error_object
+# From https://www.jsonrpc.org/specification#error_object
 #
 # -32700              Parse error 	    Invalid JSON was received by the server.
 #                                         An error occurred on the server while parsing the JSON text.
@@ -35,7 +35,7 @@ and the response format is described, so errors can be handled correctly on the 
 In django-modern-rpc, all errors are reported using a set of pre-defined exceptions. Thus, in JSON and XML-RPC handlers,
 when an exception is caught, the correct error response is returned to the view and transmitted to the client.
 
-This simplify error management, and allow developers to simply return errors to clients from inside a RPC Method.
+This simplifies error management, and allow developers to simply return errors to clients from inside a RPC Method.
 The error codes values are defined in:
 
 - http://www.jsonrpc.org/specification#error_object for JSON-RPC

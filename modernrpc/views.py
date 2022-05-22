@@ -42,7 +42,7 @@ class RPCEntryPoint(TemplateView):
         self.http_method_names = list(View.http_method_names)
 
         # Customize allowed HTTP methods name to forbid access to GET when this EntryPoint
-        # must not display docs...
+        # must not display documentation...
         if not self.enable_doc:
             self.http_method_names.remove("get")
 

@@ -1,0 +1,9 @@
+.content-container h1 {
+    color: #1c1c1c !important;
+}
+
+#settings h3 {
+    color: #434343 !important;
+    font-weight: bold;
+    font-size: 1.15em;
+}
