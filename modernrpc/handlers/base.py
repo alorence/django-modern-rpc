@@ -78,6 +78,11 @@ class RPCHandler(ABC):
     def valid_content_types() -> List[str]:
         """Return the list of content-types supported by the concrete handler"""
 
+    @staticmethod
+    @abstractmethod
+    def response_content_types() -> str:
+        """Return the Content-Type value to set in responses"""
+
     def can_handle(self, request: HttpRequest) -> bool:
         """
         Return True if this instance can handle the given request.

@@ -89,6 +89,10 @@ class JSONRPCHandler(RPCHandler):
             "application/jsonrequest",
         ]
 
+    @staticmethod
+    def response_content_types() -> str:
+        return "application/json"
+
     def process_request(self, request_body: str, context: RPCRequestContext) -> str:
         """
         Parse request and process it, according to its kind. Standard request as well as batch request is supported.

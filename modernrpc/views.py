@@ -111,7 +111,7 @@ class RPCEntryPoint(TemplateView):
         request_body = request.body.decode(request.encoding or self.default_encoding)
 
         result_data = handler.process_request(request_body, context)
-        return HttpResponse(result_data)
+        return HttpResponse(result_data, content_type=handler.response_content_types())
 
     def get_context_data(self, **kwargs):
         """Update context data with list of RPC methods of the current entry point.

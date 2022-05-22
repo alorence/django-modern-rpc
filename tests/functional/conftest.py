@@ -36,7 +36,7 @@ class AbstractRpcTestClient(ABC):
     @staticmethod
     def assert_exception_code(exception, error_code):
         """
-        Check error reponse exception code to verify it the expected one
+        Check error response exception code to verify it the expected one
 
         :param exception: The exception instance
         :param error_code: Error code, as int
@@ -64,7 +64,10 @@ class AbstractRpcTestClient(ABC):
     @abstractmethod
     def call(self, method, args=None):
         """Perform a standard RPC call"""
-        pass
+
+    @abstractmethod
+    def check_response_headers(self, headers):
+        """Raise exception when invalid headers are detected in response"""
 
 
 class AbstractJsonRpcTestClient(AbstractRpcTestClient):
@@ -82,12 +85,36 @@ class AbstractJsonRpcTestClient(AbstractRpcTestClient):
         """Perform a JSON-RPC batch request"""
         pass
 
+    def check_response_headers(self, headers):
+        """Raise exception when invalid headers are detected in response"""
+        response_ct = headers["Content-Type"]
+        expected_ct = "application/json"
+        if not response_ct.startswith(expected_ct):
+            error_msg = (
+                'Invalid Content-Type returned by server: "{}". Expected: "{}"'.format(
+                    response_ct, expected_ct
+                )
+            )
+            raise ValueError(error_msg)
+
 
 class AbstractXmlRpcTestClient(AbstractRpcTestClient):
     @abstractmethod
     def multicall(self, calls_data):
         """Perform an XML-RPC multicall"""
         pass
+
+    def check_response_headers(self, headers):
+        """Raise exception when invalid headers are detected in response"""
+        response_ct = headers["Content-Type"]
+        expected_ct = "text/xml"
+        if not response_ct.startswith(expected_ct):
+            error_msg = (
+                'Invalid Content-Type returned by server: "{}". Expected: "{}"'.format(
+                    response_ct, expected_ct
+                )
+            )
+            raise ValueError(error_msg)
 
 
 class JsonrpcclientlibClient(AbstractJsonRpcTestClient):
@@ -117,6 +144,9 @@ class JsonrpcclientlibClient(AbstractJsonRpcTestClient):
             raise JsonrpcErrorResponse(
                 exc.response.code, exc.response.message, exc.response.data
             )
+
+        self.check_response_headers(response.raw.headers)
+
         return response.data.result
 
     def batch_request(self, calls_data):
@@ -135,6 +165,9 @@ class JsonrpcclientlibClient(AbstractJsonRpcTestClient):
                 )
 
         response = self._client.send(batch, headers=self._get_headers())
+
+        self.check_response_headers(response.raw.headers)
+
         return None if not response.raw.content else response.raw.json()
 
 
@@ -161,11 +194,12 @@ class PythonXmlRpcClient(AbstractXmlRpcTestClient):
         self._client = xmlrpc.client.ServerProxy(self._url, transport=self._transport)
 
     def _get_headers_list(self):
-        """Copy current headers dict to a List[Tuple[str, str]] instance"""
+        """Copy current headers' dict to a List[Tuple[str, str]] instance"""
         return [(key, value) for key, value in self._get_headers().items()]
 
     def call(self, method, *args):
-        return getattr(self._client, method)(*args)
+        _rpc_method = getattr(self._client, method)
+        return _rpc_method(*args)
 
     def multicall(self, calls_data):
         multicall = xmlrpc.client.MultiCall(self._client)

@@ -64,6 +64,10 @@ class XMLRPCHandler(RPCHandler):
             "text/xml",
         ]
 
+    @staticmethod
+    def response_content_types() -> str:
+        return "application/json"
+
     def process_request(self, request_body: str, context: RPCRequestContext) -> str:
         """
         Parse request and delegates to process_single_request(), catching exceptions to handle errors.
