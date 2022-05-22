@@ -62,6 +62,7 @@ class XMLRPCHandler(RPCHandler):
     def valid_content_types():
         return [
             "text/xml",
+            "application/xml",
         ]
 
     @staticmethod
