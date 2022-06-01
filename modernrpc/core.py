@@ -393,3 +393,8 @@ def get_method(name, entry_point, protocol):
 def reset_registry():
     """For backward compatibility. Use registry.reset() instead"""
     return registry.reset()
+
+
+# In 1.0.0, following constants were replaced by Protocol enum class
+# Redefine them for backward compatibility
+JSONRPC_PROTOCOL, XMLRPC_PROTOCOL = Protocol.JSON_RPC, Protocol.XML_RPC
