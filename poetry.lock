@@ -953,7 +953,7 @@ python-versions = "*"
 
 [[package]]
 name = "types-markdown"
-version = "3.3.21"
+version = "3.3.27"
 description = "Typing stubs for Markdown"
 category = "dev"
 optional = false
@@ -977,7 +977,7 @@ python-versions = "*"
 
 [[package]]
 name = "types-requests"
-version = "2.27.27"
+version = "2.27.29"
 description = "Typing stubs for requests"
 category = "dev"
 optional = false
@@ -988,7 +988,7 @@ types-urllib3 = "<1.27"
 
 [[package]]
 name = "types-urllib3"
-version = "1.26.14"
+version = "1.26.15"
 description = "Typing stubs for urllib3"
 category = "dev"
 optional = false
@@ -1642,8 +1642,8 @@ types-docutils = [
     {file = "types_docutils-0.17.7-py3-none-any.whl", hash = "sha256:d35acc7e3308b464b82b54a2e641b9f132dfe0b14f199f220c58a696ce585428"},
 ]
 types-markdown = [
-    {file = "types-Markdown-3.3.21.tar.gz", hash = "sha256:6187ae73db1d914806558e69d190ee657103bf715d21222d6bf4235a2baa967e"},
-    {file = "types_Markdown-3.3.21-py3-none-any.whl", hash = "sha256:bcf3154678e53540b0aefcbf4c9e16e9f8e1b8cd8190b1f9ceb6bfb98dda1f3a"},
+    {file = "types-Markdown-3.3.27.tar.gz", hash = "sha256:3fabd2f344b584483b952e24aeb52f8cb5bad4101ca003d6c5f79a4f8b02e6ee"},
+    {file = "types_Markdown-3.3.27-py3-none-any.whl", hash = "sha256:8c9e233b8f960093bc3be92e3dca874e0a7174e6a28dde142305f3206d0b56bc"},
 ]
 types-pytz = [
     {file = "types-pytz-2021.3.8.tar.gz", hash = "sha256:41253a3a2bf028b6a3f17b58749a692d955af0f74e975de94f6f4d2d3cd01dbd"},
@@ -1654,12 +1654,12 @@ types-pyyaml = [
     {file = "types_PyYAML-6.0.7-py3-none-any.whl", hash = "sha256:7b273a34f32af9910cf9405728c9d2ad3afc4be63e4048091a1a73d76681fe67"},
 ]
 types-requests = [
-    {file = "types-requests-2.27.27.tar.gz", hash = "sha256:d618d9809fa32f514cf17cea8460814da671c56366fb1c908accca8bf183112b"},
-    {file = "types_requests-2.27.27-py3-none-any.whl", hash = "sha256:6d8463ffe1f6edcf2e5361740a6140e7a16d427c267d83c7c1d3d1298f4e67c5"},
+    {file = "types-requests-2.27.29.tar.gz", hash = "sha256:fb453b3a76a48eca66381cea8004feaaea12835e838196f5c7ac87c75c5c19ef"},
+    {file = "types_requests-2.27.29-py3-none-any.whl", hash = "sha256:014f4f82db7b96c41feea9adaea30e68cd64c230eeab34b70c29bebb26ec74ac"},
 ]
 types-urllib3 = [
-    {file = "types-urllib3-1.26.14.tar.gz", hash = "sha256:2a2578e4b36341ccd240b00fccda9826988ff0589a44ba4a664bbd69ef348d27"},
-    {file = "types_urllib3-1.26.14-py3-none-any.whl", hash = "sha256:5d2388aa76395b1e3999ff789ea5b3283677dad8e9bcf3d9117ba19271fd35d9"},
+    {file = "types-urllib3-1.26.15.tar.gz", hash = "sha256:c89283541ef92e344b7f59f83ea9b5a295b16366ceee3f25ecfc5593c79f794e"},
+    {file = "types_urllib3-1.26.15-py3-none-any.whl", hash = "sha256:6011befa13f901fc934f59bb1fd6973be6f3acf4ebfce427593a27e7f492918f"},
 ]
 typing-extensions = [
     {file = "typing_extensions-3.10.0.2-py2-none-any.whl", hash = "sha256:d8226d10bc02a29bcc81df19a26e56a9647f8b0a6d4a83924139f4a8b01f17b7"},
