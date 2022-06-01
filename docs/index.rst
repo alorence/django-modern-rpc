@@ -1,4 +1,3 @@
-====
 Home
 ====
 
@@ -18,17 +17,20 @@ Useful links
 Changelog
 ---------
 
-The full changelog can be found on Github_
+.. include:: ../CHANGELOG.md
+   :parser: myst_parser.sphinx_
+   :start-line: 1
 
-.. _Github: https://github.com/alorence/django-modern-rpc/blob/master/CHANGELOG.md
 
 .. toctree::
+   :hidden:
 
    basics/quickstart.rst
 
 .. toctree::
    :caption: Basics
    :name: basics
+   :hidden:
 
    basics/register_procedure.rst
    basics/entrypoints.rst
@@ -38,6 +40,7 @@ The full changelog can be found on Github_
 .. toctree::
    :caption: Advanced
    :name: advanced
+   :hidden:
 
    advanced/implementation_details.rst
    advanced/authentication.rst
@@ -46,6 +49,7 @@ The full changelog can be found on Github_
 .. toctree::
    :caption: How to contribute
    :name: contribute
+   :hidden:
 
    contribute/contribute.rst
    contribute/setup_environment.rst

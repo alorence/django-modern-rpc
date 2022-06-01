@@ -33,6 +33,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosectionlabel",
+    "myst_parser",
 ]
 
 # List of patterns, relative to source directory, that match files and

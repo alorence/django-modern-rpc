@@ -1,5 +1,4 @@
-Changelog
-=========
+# Changelog
 
 ## Soon: version 1.0.0
 

@@ -66,6 +66,7 @@ markdown = "*"
 sphinx = { version = "^4", python = ">=3.6" }
 sphinx-autobuild = { version = "^2021", python = ">=3.6" }
 sphinx-book-theme = {version = "^0.3", python = ">=3.7"}
+myst-parser = {version = "^0.17.2", python = ">=3.7"}
 
 tox = "^3.24.5"
 # pytest 6.1 doesn't run with python 3.10. But pytest 6.2 requires at least python 3.6
