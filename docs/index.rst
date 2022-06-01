@@ -1,10 +1,22 @@
 Home
 ====
 
-Welcome to the django-modern-rpc documentation. You will find here everything you need
-to quickly :doc:`basics/quickstart` and config... the library for your own project.
+RPC (Remote Procedure Call) is a pretty old network protocol used to call functions on another system or web server
+through HTTP POST requests. It has been created decades ago and is one of the predecessor of modern Web API protocols
+(REST, GraphQL, etc.).
 
-In addition, you will find detailed documentation including the ways you can hack the default behaviors.
+While it is a bit outdated now, there is still use-cases were XML-RPC or JSON-RPC server must be implemented. This
+library will help you setup such a server as part of your Django project.
+
+Getting started
+---------------
+
+.. important:: This library requires python 3.5 and Django 2.1. If you need to install it on older Python/Django
+   versions, you may need to install an older release.
+
+Installing the library and configuring a Django project can be done in a few minutes. Follow :doc:`basics/quickstart`
+for very basic setup process. Later, when you will need to configure more precisely your project, follow other topics
+in the menu.
 
 Useful links
 ------------

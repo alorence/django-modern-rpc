@@ -5,14 +5,14 @@
 [![Documentation Status](https://readthedocs.org/projects/django-modern-rpc/badge/?version=main)](https://django-modern-rpc.readthedocs.io/en/latest/?badge=main)
 [![Link to demo](https://img.shields.io/badge/demo-online-blue.svg)](http://modernrpc.herokuapp.com/)
 
-Build an XML-RPC and/or JSON-RPC server as part of your Django project. Major Django and Python versions are supported
+Expose global python functions through XML-RPC and/or JSON-RPC server using Django toolbox.
 
 ## Main features
 
 - XML-RPC and JSON-RPC 2.0 support (JSON-RPC 1.0 is NOT supported)
 - HTTP Basic Auth & custom authentication methods
-- Multiple entry-points: group your RPC methods under different paths to apply specific rules, authentication,
-protocol support, etc.
+- Multiple entry-points: group your RPC methods under different paths to apply
+specific rules, authentication, protocol support, etc.
 - API docs generation (based on docstring)
 
 ## Requirements

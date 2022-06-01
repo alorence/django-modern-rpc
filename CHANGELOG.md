@@ -1,14 +1,14 @@
 # Changelog
 
-## Soon: version 1.0.0
+## Next release: 1.0.0
 
-After months of work, the 1.0 release is a major refactoring of the library. Many parts of the project have been
+After months of work, the 1.0 milestone is a major refactoring of the library. Many parts of the project have been
 modernized to improve readability and robustness, and a few issues were fixed.
 
 ### Improvements
   - Type hints is now supported in RPC methods. Auto-generated documentation will use it when it is defined.
   Old-style "doctypes" are still supported.
-  - Dependency to `six` have been removed
+  - Dependency to `six` have been completely removed
 
 ### Fixes
   - Initialization process updated: exceptions are now raised on startup for invalid RPC modules. In addition, Django
@@ -16,13 +16,15 @@ modernized to improve readability and robustness, and a few issues were fixed.
   - JSON-RPC notification behavior has been fixed to respect standard. Requests without `id` are handled as
   notifications but requests with null `id` are considered invalid and will return an error
   - Batch request behavior has been fixed when one or more results failed to be serialized
-  - Builtin `system.methodSignature` behavior have been updated to respect standard. It now returns a list of list and
-  unknown types are returned as "undef" (see http://xmlrpc-c.sourceforge.net/introspection.html)
+  - Builtin `system.methodSignature` behavior have been updated to respect standard. It now returns a list of
+  list and unknown types are returned as "undef" (see http://xmlrpc-c.sourceforge.net/introspection.html)
 
 ### Misc
   - Dropped support for Django < 2.1 and Python < 3.5
-  - Added support for Django 3.2 and 4.0, Python 3.9 and 3.10
-  - Documentation tree was completely reworked for clarity and simplicity. See <https://django-modern-rpc.rtfd.io>
+  - Added support for Python 3.9 and 3.10
+  - Added support for Django 3.2 and 4.0
+  - Documentation tree was completely reworked for clarity and simplicity. A new theme (Book) is now used to improve
+  readability. See <https://django-modern-rpc.rtfd.io>.
   - Poetry is now used to configure project dependencies and build distributions. The new `pyproject.toml` file
   completely replaces `setup.py`, `setup.cfg`, `MANIFEST.in` and `requirements.txt` to centralize all dependencies,
   external tools settings (pytest, flake8, etc.) and packaging configuration
@@ -34,11 +36,13 @@ modernized to improve readability and robustness, and a few issues were fixed.
   almost 700 tests executed to cover as most situations as possible
 
 ### API Changes
-  - A new `modernrpc.core.Protocol` enum has been introduced to enforce correct protocol value when needed. (#29, #30)
+  - A new `modernrpc.core.Protocol` enum has been introduced to enforce correct protocol value when needed. (#29, #30).
+  This new class replaces `modernrpc.core.JSONRPC_PROTOCOL` and `modernrpc.core.XMLRPC_PROTOCOL` but aliases were
+  created for backward compatibility.
   - When an authentication error is raised, the returned status code is now 200 instead of 403 for consistency with
   batch and system.multicall requests (#35)
-  - `RPCUnknownMethod` exception has been renamed to `RPCMethodNotFound`. An alias has been created to ensure backward
-  compatibility
+  - `RPCUnknownMethod` exception has been renamed to `RPCMethodNotFound`. An alias has been created
+  for backward compatibility
 
 
 ## 2020-06-11: version 0.12.1
