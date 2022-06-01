@@ -1131,7 +1131,7 @@ markdown = ["markdown"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.5"
-content-hash = "14afa75ba46684b886de1cf32d00eb341e3379e3c8402af36a11bb57ed28ca60"
+content-hash = "6f217c7cdbcf1111094241482e9f154e3e92f2fe49c2cd2b77e92497d13ca858"
 
 [metadata.files]
 alabaster = [

@@ -63,8 +63,8 @@ requests = "*"
 docutils = "*"
 markdown = "*"
 
-sphinx = { version = "^4", python = ">=3.6" }
-sphinx-autobuild = { version = "^2021", python = ">=3.6" }
+sphinx = { version = "^4", python = ">=3.7" }
+sphinx-autobuild = { version = "^2021", python = ">=3.7" }
 sphinx-book-theme = {version = "^0.3", python = ">=3.7"}
 myst-parser = {version = "^0.17.2", python = ">=3.7"}
 
