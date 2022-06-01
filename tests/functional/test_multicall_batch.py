@@ -1,5 +1,6 @@
 # coding: utf-8
 import pytest
+import requests
 
 from modernrpc.exceptions import (
     RPC_INTERNAL_ERROR,
@@ -164,8 +165,8 @@ def test_jsonrpc_batch_with_notify(jsonrpc_client):
     assert isinstance(result, jsonrpc_client.batch_result_klass)
     assert len(result) == 2
     assert result == [
-        {"jsonrpc": "2.0", "id": 0, "result": 15},
-        {"jsonrpc": "2.0", "id": 1, "result": 6},
+        {"id": 0, "jsonrpc": "2.0", "result": 15},
+        {"id": 1, "jsonrpc": "2.0", "result": 6},
     ]
 
 
@@ -180,13 +181,9 @@ def test_jsonrpc_batch_with_only_notify(jsonrpc_client):
     assert result is None
 
 
-def test_jsonrpc_batch_invalid_request(live_server, endpoint_path):
-    import requests
-
-    headers = {"content-type": "application/json"}
-    result = requests.post(
-        live_server.url + endpoint_path, data="[1, 2, 3]", headers=headers
-    ).json()
+def test_jsonrpc_batch_invalid_payload_1(live_server, endpoint_path):
+    invalid_payload = [1, 2, 3]
+    result = requests.post(live_server.url + endpoint_path, json=invalid_payload).json()
 
     assert isinstance(result, list)
     assert len(result) == 3
@@ -207,5 +204,33 @@ def test_jsonrpc_batch_invalid_request(live_server, endpoint_path):
             "id": None,
             "jsonrpc": "2.0",
             "error": {"code": RPC_INVALID_REQUEST, "message": expected_error_message},
+        },
+    ]
+
+
+def test_jsonrpc_batch_invalid_payload_2(live_server, endpoint_path):
+    invalid_payload = [
+        {"id": 1, "jsonrpc": "2.0", "method": "add", "params": [6, 32]},
+        {"id": None, "jsonrpc": "2.0", "method": "divide", "params": [9, 3]},
+    ]
+    result = requests.post(live_server.url + endpoint_path, json=invalid_payload).json()
+
+    assert isinstance(result, list)
+    assert len(result) == 2
+
+    expected_error_message = (
+        'Invalid request: Parameter "id" has an unsupported "null" value. It must '
+        "be set to a positive integer value, or must be completely removed from "
+        'request payload for special "notification" requests'
+    )
+    assert result == [
+        {"id": 1, "jsonrpc": "2.0", "result": 38},
+        {
+            "id": None,
+            "jsonrpc": "2.0",
+            "error": {
+                "code": RPC_INVALID_REQUEST,
+                "message": expected_error_message,
+            },
         },
     ]
