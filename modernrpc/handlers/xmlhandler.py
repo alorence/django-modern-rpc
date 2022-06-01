@@ -27,7 +27,7 @@ class XmlSuccessResult(SuccessResult):
         # xmlrpc_client.Marshaller expects a list of objects to dump.
         # It will output a '<params></params>' block and loops onto given objects to inject, for each one,
         # a '<param><value><type>X</type></value></param>' block.
-        # This is not the return defined in XML-RPC standard, see http://xmlrpc.scripting.com/spec.html:
+        # This is not the return defined in XML-RPC standard, see http://xmlrpc.com/spec.md:
         # "The body of the response is a single XML structure, a <methodResponse>, which can contain
         # a single <params> which contains a single <param> which contains a single <value>."
         #

@@ -21,10 +21,9 @@ def check_settings(app_configs, **kwargs):
 
     if not settings.MODERNRPC_METHODS_MODULES:
         msg = "settings.MODERNRPC_METHODS_MODULES is not set, django-modern-rpc cannot locate your RPC methods."
-        # TODO: put link to correct docs target page here
         hint = (
-            "Please define MODERNRPC_METHODS_MODULES in your settings.py to indicate modules containing your "
-            "methods. See documentation for more info"
+            "Please define settings.MODERNRPC_METHODS_MODULES to indicate which module(s) define your RPC methods. "
+            "See https://django-modern-rpc.rtfd.io/en/latest/basics/settings.html#modernrpc-methods-modules"
         )
         messages.append(
             checks.Warning(msg, hint=hint, obj=settings, id="modernrpc.W001")

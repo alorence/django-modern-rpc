@@ -4,6 +4,7 @@ import random
 import re
 import xml.etree.cElementTree as ET
 from json import JSONDecodeError
+from textwrap import dedent
 
 import pytest
 import requests
@@ -251,16 +252,18 @@ class TestXmlRpcSpecificBehaviors:
         return code, message
 
     def test_missing_method_name(self, live_server, endpoint_path):
-        invalid_payload = """<?xml version="1.0"?>
-    <methodCall>
-      <params>
-         <param>
-            <value><double>2.41</double></value>
-         </param>
-      </params>
-    </methodCall>"""
+        invalid_payload = """
+        <?xml version="1.0"?>
+        <methodCall>
+          <params>
+             <param>
+                <value><double>2.41</double></value>
+             </param>
+          </params>
+        </methodCall>
+        """
         code, message = self.low_level_xmlrpc_call(
-            live_server.url + endpoint_path, payload=invalid_payload
+            live_server.url + endpoint_path, payload=dedent(invalid_payload.strip())
         )
 
         assert (
@@ -270,11 +273,13 @@ class TestXmlRpcSpecificBehaviors:
         assert code == RPC_INVALID_REQUEST
 
     def test_incomplete_payload(self, live_server, endpoint_path):
-        invalid_payload = """<?xml version="1.0"?>
-<methodCall>
-</methodCall>"""
+        invalid_payload = """
+        <?xml version="1.0"?>
+        <methodCall>
+        </methodCall>
+        """
         code, message = self.low_level_xmlrpc_call(
-            live_server.url + endpoint_path, payload=invalid_payload
+            live_server.url + endpoint_path, payload=dedent(invalid_payload.strip())
         )
 
         assert "Invalid request: The request appear to be invalid." == message
@@ -282,17 +287,19 @@ class TestXmlRpcSpecificBehaviors:
 
     def test_invalid_payload(self, live_server, endpoint_path):
         # "</methodName" misses the closing '>'
-        invalid_payload = """<?xml version="1.0"?>
-    <methodCall>
-      <methodName>examples.getStateName</methodName
-      <params>
-         <param>
-            <value><double>2.41</double></value>
-         </param>
-      </params>
-    </methodCall>"""
+        invalid_payload = """
+        <?xml version="1.0"?>
+        <methodCall>
+          <methodName>examples.getStateName</methodName
+          <params>
+             <param>
+                <value><double>2.41</double></value>
+             </param>
+          </params>
+        </methodCall>
+        """
         code, message = self.low_level_xmlrpc_call(
-            live_server.url + endpoint_path, payload=invalid_payload
+            live_server.url + endpoint_path, payload=dedent(invalid_payload.strip())
         )
 
         assert "not well-formed" in message
@@ -315,17 +322,18 @@ class TestXmlRpcSpecificBehaviors:
         assert code == RPC_PARSE_ERROR
 
     def test_bad_type_value(self, live_server, endpoint_path):
-        invalid_payload = """<?xml version="1.0"?>
-<methodCall>
-  <methodName>examples.getStateName</methodName
-  <params>
-     <param>
-        <value><double>2.41</double></value>
-     </param>
-  </params>
-</methodCall>"""
+        invalid_payload = """
+        <?xml version="1.0"?>
+        <methodCall>
+          <methodName>examples.getStateName</methodName
+          <params>
+             <param>
+                <value><double>2.41</double></value>
+             </param>
+          </params>
+        </methodCall>"""
         code, message = self.low_level_xmlrpc_call(
-            live_server.url + endpoint_path, payload=invalid_payload
+            live_server.url + endpoint_path, payload=dedent(invalid_payload.strip())
         )
 
         assert "not well-formed" in message
