@@ -1038,27 +1038,8 @@ python-versions = "*"
 
 [[package]]
 name = "types-pyyaml"
-version = "6.0.7"
+version = "6.0.8"
 description = "Typing stubs for PyYAML"
-category = "dev"
-optional = false
-python-versions = "*"
-
-[[package]]
-name = "types-requests"
-version = "2.27.29"
-description = "Typing stubs for requests"
-category = "dev"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-types-urllib3 = "<1.27"
-
-[[package]]
-name = "types-urllib3"
-version = "1.26.15"
-description = "Typing stubs for urllib3"
 category = "dev"
 optional = false
 python-versions = "*"
@@ -1131,7 +1112,7 @@ markdown = ["markdown"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.5"
-content-hash = "6f217c7cdbcf1111094241482e9f154e3e92f2fe49c2cd2b77e92497d13ca858"
+content-hash = "0361baa99cd0de8c21bc38ba8b09223cdab7edf7067c4db0ee37cae2dc52b4d7"
 
 [metadata.files]
 alabaster = [
@@ -1706,16 +1687,8 @@ types-pytz = [
     {file = "types_pytz-2021.3.8-py3-none-any.whl", hash = "sha256:aef4a917ab28c585d3f474bfce4f4b44b91e95d9d47d4de29dd845e0db8e3910"},
 ]
 types-pyyaml = [
-    {file = "types-PyYAML-6.0.7.tar.gz", hash = "sha256:59480cf44595d836aaae050f35e3c39f197f3a833679ef3978d97aa9f2fb7def"},
-    {file = "types_PyYAML-6.0.7-py3-none-any.whl", hash = "sha256:7b273a34f32af9910cf9405728c9d2ad3afc4be63e4048091a1a73d76681fe67"},
-]
-types-requests = [
-    {file = "types-requests-2.27.29.tar.gz", hash = "sha256:fb453b3a76a48eca66381cea8004feaaea12835e838196f5c7ac87c75c5c19ef"},
-    {file = "types_requests-2.27.29-py3-none-any.whl", hash = "sha256:014f4f82db7b96c41feea9adaea30e68cd64c230eeab34b70c29bebb26ec74ac"},
-]
-types-urllib3 = [
-    {file = "types-urllib3-1.26.15.tar.gz", hash = "sha256:c89283541ef92e344b7f59f83ea9b5a295b16366ceee3f25ecfc5593c79f794e"},
-    {file = "types_urllib3-1.26.15-py3-none-any.whl", hash = "sha256:6011befa13f901fc934f59bb1fd6973be6f3acf4ebfce427593a27e7f492918f"},
+    {file = "types-PyYAML-6.0.8.tar.gz", hash = "sha256:d9495d377bb4f9c5387ac278776403eb3b4bb376851025d913eea4c22b4c6438"},
+    {file = "types_PyYAML-6.0.8-py3-none-any.whl", hash = "sha256:56a7b0e8109602785f942a11ebfbd16e97d5d0e79f5fbb077ec4e6a0004837ff"},
 ]
 typing-extensions = [
     {file = "typing_extensions-3.10.0.2-py2-none-any.whl", hash = "sha256:d8226d10bc02a29bcc81df19a26e56a9647f8b0a6d4a83924139f4a8b01f17b7"},
