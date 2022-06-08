@@ -1,5 +1,6 @@
 # coding: utf-8
 import logging
+from typing import Sequence, Generator, Type
 
 from django.core.exceptions import ImproperlyConfigured
 from django.http.response import HttpResponse
@@ -11,6 +12,7 @@ from django.views.generic.base import TemplateView, View
 
 from modernrpc.conf import settings
 from modernrpc.core import registry, RPCRequestContext, Protocol
+from modernrpc.handlers.base import RPCHandler
 from modernrpc.helpers import ensure_sequence
 
 logger = logging.getLogger(__name__)
@@ -52,7 +54,7 @@ class RPCEntryPoint(TemplateView):
         logger.debug('RPC entry point "%s" initialized', self.entry_point)
 
     @cached_property
-    def handler_classes(self):
+    def handler_classes(self) -> Sequence[Type[RPCHandler]]:
         """Return the list of handlers to use when receiving RPC requests."""
         handler_classes = [
             import_string(handler_cls) for handler_cls in settings.MODERNRPC_HANDLERS
@@ -68,7 +70,7 @@ class RPCEntryPoint(TemplateView):
         ]
 
     @cached_property
-    def handlers(self):
+    def handlers(self) -> Generator[RPCHandler, None, None]:
         for cls in self.handler_classes:
             yield cls(self.protocol)
 
