@@ -1022,7 +1022,7 @@ python-versions = "*"
 
 [[package]]
 name = "types-markdown"
-version = "3.3.27"
+version = "3.3.28"
 description = "Typing stubs for Markdown"
 category = "dev"
 optional = false
@@ -1679,8 +1679,8 @@ types-docutils = [
     {file = "types_docutils-0.17.7-py3-none-any.whl", hash = "sha256:d35acc7e3308b464b82b54a2e641b9f132dfe0b14f199f220c58a696ce585428"},
 ]
 types-markdown = [
-    {file = "types-Markdown-3.3.27.tar.gz", hash = "sha256:3fabd2f344b584483b952e24aeb52f8cb5bad4101ca003d6c5f79a4f8b02e6ee"},
-    {file = "types_Markdown-3.3.27-py3-none-any.whl", hash = "sha256:8c9e233b8f960093bc3be92e3dca874e0a7174e6a28dde142305f3206d0b56bc"},
+    {file = "types-Markdown-3.3.28.tar.gz", hash = "sha256:733ba19dad58d5dca1206390f55fa285573535b7c369b94dd367bbc34bf7e4de"},
+    {file = "types_Markdown-3.3.28-py3-none-any.whl", hash = "sha256:7868cfa3f8a2304d9ecea2ca9b02c14fcb2e34bd26fdbaf01d8c4d362a85d345"},
 ]
 types-pytz = [
     {file = "types-pytz-2021.3.8.tar.gz", hash = "sha256:41253a3a2bf028b6a3f17b58749a692d955af0f74e975de94f6f4d2d3cd01dbd"},
