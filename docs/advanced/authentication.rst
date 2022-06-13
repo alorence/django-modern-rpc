@@ -1,9 +1,14 @@
 Authentication
 ==============
 
-.. versionadded:: 0.5
+django-modern-rpc provides a mechanism to check authentication before executing a given RPC method. It implemented at
+request level and is always checked before executing procedure.
 
-django-modern-rpc provides a mechanism to check authentication before executing a given RPC method.
+.. versionchanged:: 1.0.0
+   In previous releases, authentication failures caused the view to return a 403 status code on response to standard
+   (single) request, while batch requests / multicall always returned a 200 status with an error message. For
+   consistency with XML-RPC specs, an authentication failure now returns a 200 response with a proper
+   error (```error: -32603, message: Authentication failed when calling "<method_name>"```).
 
 HTTP Basic Auth
 ---------------

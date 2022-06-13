@@ -21,7 +21,8 @@ in the menu.
 Useful links
 ------------
 
-:Code:      https://github.com/alorence/django-modern-rpc
+
+:Sources:   https://github.com/alorence/django-modern-rpc
 :Issues:    https://github.com/alorence/django-modern-rpc/issues
 :Package:   https://pypi.org/project/django-modern-rpc/
 :License:   MIT

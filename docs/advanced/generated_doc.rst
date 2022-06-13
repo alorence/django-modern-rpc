@@ -14,7 +14,7 @@ To enable the feature, simply set ``enable_doc = True`` in your view instance
     urlpatterns = [
 
         # Configure the RPCEntryPoint directly by passing some arguments to as_view() method
-        url(r'^rpc/', RPCEntryPoint.as_view(enable_doc=True)),
+        path('rpc/', RPCEntryPoint.as_view(enable_doc=True)),
     ]
 
 If you prefer provide documentation on a different URL than the one used to handle RPC requests, you just need to
@@ -25,19 +25,14 @@ specify two different URLConf.
     urlpatterns = [
 
         # By default, RPCEntryPoint does NOT provide documentation but handle RPC requests
-        url(r'^rpc/', RPCEntryPoint.as_view()),
+        path('rpc/', RPCEntryPoint.as_view()),
 
         # And you can configure it to display doc without handling RPC requests.
-        url(r'^rpc-doc/', RPCEntryPoint.as_view(enable_doc=True, enable_rpc=False)),
+        path('rpc-doc/', RPCEntryPoint.as_view(enable_doc=True, enable_rpc=False)),
     ]
 
 Customize rendering
 -------------------
-By default, documentation will be rendered using a Bootstrap 4 based template with collapse_ component, to display
-doc in a list of accordion_ widgets.
-
-.. _collapse: https://getbootstrap.com/docs/4.0/components/collapse/
-.. _accordion: https://getbootstrap.com/docs/4.0/components/collapse/#accordion-example
 
 You can customize the documentation page by setting your own template. ``RPCEntryPoint`` inherits
 ``django.views.generic.base.TemplateView``, so you have to set view's ``template_name`` attribute:
@@ -45,19 +40,29 @@ You can customize the documentation page by setting your own template. ``RPCEntr
 .. code-block:: python
 
     urlpatterns = [
-        # Configure the RPCEntryPoint directly by passing some arguments to as_view() method
-        url(r'^rpc/', RPCEntryPoint.as_view(
-                          enable_doc=True,
-                          template_name='my_app/my_custom_doc_template.html'
-                      )
+        # RPCEntryPoint can be configured with arguments passed to as_view()
+        path(
+          'rpc/',
+          RPCEntryPoint.as_view(
+            enable_doc=True,
+            template_name='my_app/my_custom_doc_template.html'
+          )
         ),
     ]
 
 In the template, you will get a list of ``modernrpc.core.RPCMethod`` instance (one per registered RPC method). Each
 instance of this class has some methods and properties to retrieve documentation.
 
+By default, documentation will be rendered using HTML5 vanilla tags with default classes and ids.
+
+.. versionchanged:: 1.0.0
+   In previous releases, the default template was based on Bootstrap 4 with collapse components and accordion widgets.
+   To use this BS4 template, simply set  ```template_name='modernrpc/bootstrap4/doc_index.html'``` when instantiating
+   the view.
+
 Write documentation
 -------------------
+
 The documentation is generated directly from RPC methods docstring
 
 .. code-block:: python
@@ -65,8 +70,8 @@ The documentation is generated directly from RPC methods docstring
     @rpc_method(name="util.printContentType")
     def content_type_printer(**kwargs):
         """
-        Inspect request to extract the Content-Type heaser if present.
-        This method demonstrate how a RPC method can access the request object.
+        Inspect request to extract the Content-Type header if present.
+        This method demonstrates how a RPC method can access the request object.
         :param kwargs: Dict with current request, protocol and entry_point information.
         :return: The Content-Type string for incoming request
         """
@@ -105,3 +110,8 @@ or
 
     # In settings.py
     MODERNRPC_DOC_FORMAT = 'rst'
+
+
+.. versionadded:: 1.0.0
+
+   Typehints are now supported to generate arguments and return type in documentation
