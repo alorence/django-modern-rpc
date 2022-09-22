@@ -45,7 +45,7 @@ exclude = ["tests"]
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/alorence/django-modern-rpc/issues"
-"Demo" = "https://modernrpc.herokuapp.com/"
+"Demo" = "https://modernrpc.onrender.com"
 
 [tool.poetry.dependencies]
 python = "^3.5"
