@@ -19,7 +19,7 @@ specific rules, authentication, protocol support, etc.
 
 The following Django / Python version are supported, according to Django requirements (see
 [here](https://docs.djangoproject.com/fr/2.2/faq/install/#faq-python-version-support) and
-[here](https://docs.djangoproject.com/fr/3.2/faq/install/#faq-python-version-support))
+[here](https://docs.djangoproject.com/fr/4.1/faq/install/#faq-python-version-support))
 
 | 🠗 Django \ Python 🠖 | 3.5 | 3.6 | 3.7 | 3.8 | 3.9 | 3.10 |
 |-----------------------|:---:|:---:|:---:|:---:|:---:|:----:|
@@ -28,6 +28,7 @@ The following Django / Python version are supported, according to Django require
 | 3.0                   | 🟥  | 🟩  | 🟩  | 🟩  | 🟩  |  🟥  |
 | 3.1                   | 🟥  | 🟩  | 🟩  | 🟩  | 🟩  |  🟥  |
 | 3.2                   | 🟥  | 🟩  | 🟩  | 🟩  | 🟩  |  🟩  |
+| 4.0                   | 🟥  | 🟥  | 🟥  | 🟩  | 🟩  |  🟩  |
 | 4.0                   | 🟥  | 🟥  | 🟥  | 🟩  | 🟩  |  🟩  |
 
 ## Setup
