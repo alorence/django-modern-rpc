@@ -24,9 +24,11 @@ on:
         - test.pypi.org
 
 env:
-  INSTALL_POETRY_VERSION: 1.*
+  # Note: Poetry 1.2.* requires Python >= 3.7
+  INSTALL_POETRY_VERSION: 1.1.*
   POETRY_INSTALLER_PARALLEL: true
   POETRY_VIRTUALENVS_CREATE: true
+  PIP_DISABLE_PIP_VERSION_CHECK: 1
 
 jobs:
   tests:
@@ -68,7 +70,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install Poetry
-        uses: abatilo/actions-poetry@v2.0.0
+        uses: abatilo/actions-poetry@v2.1.6
         with:
           poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
       - name: Install dependencies
@@ -100,7 +102,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Install Poetry
-        uses: abatilo/actions-poetry@v2.0.0
+        uses: abatilo/actions-poetry@v2.1.6
         with:
           poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
       - name: Install dependencies
@@ -114,7 +116,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Install Poetry
-        uses: abatilo/actions-poetry@v2.0.0
+        uses: abatilo/actions-poetry@v2.1.6
         with:
           poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
       - name: Install dependencies
@@ -128,7 +130,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Install Poetry
-        uses: abatilo/actions-poetry@v2.0.0
+        uses: abatilo/actions-poetry@v2.1.6
         with:
           poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
       - name: Install dependencies
@@ -141,8 +143,10 @@ jobs:
     needs: tests
     steps:
       - uses: actions/checkout@v3
-      - name: Install poetry
-        run: pipx install 'poetry==${{ env.INSTALL_POETRY_VERSION }}'
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2.1.6
+        with:
+          poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
       - name: Install dependencies
         run: poetry install --no-interaction
       - name: Mypy
@@ -170,7 +174,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Install Poetry
-        uses: abatilo/actions-poetry@v2.0.0
+        uses: abatilo/actions-poetry@v2.1.6
         with:
           poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
 
