@@ -21,8 +21,8 @@ modernized to improve readability and robustness, and a few issues were fixed.
 
 ### Misc
   - Dropped support for Django < 2.1 and Python < 3.5
-  - Added support for Python 3.9 and 3.10
-  - Added support for Django 3.2 and 4.0
+  - Added support for Python 3.9, 3.10 and 3.11
+  - Added support for Django 3.2, 4.0 and 4.1
   - Documentation tree was completely reworked for clarity and simplicity. A new theme (Book) is now used to improve
   readability. See <https://django-modern-rpc.rtfd.io>.
   - Poetry is now used to configure project dependencies and build distributions. The new `pyproject.toml` file
