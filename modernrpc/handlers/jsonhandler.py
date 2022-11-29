@@ -90,7 +90,7 @@ class JSONRPCHandler(RPCHandler):
         ]
 
     @staticmethod
-    def response_content_types() -> str:
+    def response_content_type() -> str:
         return "application/json"
 
     def process_request(self, request_body: str, context: RPCRequestContext) -> str:

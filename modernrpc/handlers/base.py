@@ -80,7 +80,7 @@ class RPCHandler(ABC):
 
     @staticmethod
     @abstractmethod
-    def response_content_types() -> str:
+    def response_content_type() -> str:
         """Return the Content-Type value to set in responses"""
 
     def can_handle(self, request: HttpRequest) -> bool:

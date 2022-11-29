@@ -66,7 +66,7 @@ class XMLRPCHandler(RPCHandler):
         ]
 
     @staticmethod
-    def response_content_types() -> str:
+    def response_content_type() -> str:
         return "application/xml"
 
     def process_request(self, request_body: str, context: RPCRequestContext) -> str:
