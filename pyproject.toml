@@ -112,9 +112,17 @@ DJANGO_SETTINGS_MODULE = "testsite.settings"
 FAIL_INVALID_TEMPLATE_VARS = true
 
 [tool.mypy]
-exclude = "module_with_syntax_errors.py"
+exclude = [
+    '^tests/.+$',
+    '^docs/.+$',
+]
+
 
 [tool.black]
 extend-exclude = '''
-module_with_syntax_errors.py
-'''
+# A regex preceded with ^/ will apply only to files and directories
+# in the root of the project.
+(
+  ^/docs
+  | .*module_with_syntax_errors\.py
+)'''
