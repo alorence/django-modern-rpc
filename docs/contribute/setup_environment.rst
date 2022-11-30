@@ -108,7 +108,7 @@ options used).
 
 .. code-block:: bash
 
-   poetry run tox -e black,pylint,mypy,flake8
+   poetry run tox -e black,pylint,mypy,pylama
 
 .. important::
 

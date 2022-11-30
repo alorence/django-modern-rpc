@@ -57,21 +57,18 @@ markdown = { version = "*", optional = true }
 docutils = ["docutils"]
 markdown = ["markdown"]
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 jsonrpcclient = "^3.3"
 requests = "*"
 docutils = "*"
 markdown = "*"
 
-sphinx = { version = "^4", python = ">=3.7" }
-sphinx-autobuild = { version = "^2021", python = ">=3.7" }
-sphinx-book-theme = {version = "^0.3", python = ">=3.7"}
-myst-parser = {version = "^0.17.2", python = ">=3.7"}
-
-tox = "^3.24.5"
+[tool.poetry.group.tests]
+optional = false
+[tool.poetry.group.tests.dependencies]
 # pytest 6.1 doesn't run with python 3.10. But pytest 6.2 requires at least python 3.6
 # Use poetry "multiple constraints dependencies" syntax to fix it until python 3.5 support is dropped
-# This will bread requirements fil export (used in tox config) but a specific fix is used (see tox.ini)
+# This will bread requirements file export (used in tox config) but a specific fix is used (see tox.ini)
 pytest = [
     { version = "^6.1", python = "<3.6" },
     { version = "^6.2", python = ">=3.6" }
@@ -81,18 +78,51 @@ pytest-pythonpath = "*"
 pytest-sugar = "^0.9"
 pytest-cov = "*"
 
-flake8 = "*"
-black = { version = "^21.12b0", python = ">=3.6.2" }
-pylint = { version = "~2.7", python = ">=3.7" }
+[tool.poetry.group.tox]
+optional = true
+[tool.poetry.group.tox.dependencies]
+tox = "^3.24.5"
 
+[tool.poetry.group.docs]
+optional = true
+[tool.poetry.group.docs.dependencies]
+sphinx = { version = "^4", python = ">=3.7" }
+sphinx-autobuild = { version = "^2021", python = ">=3.7" }
+sphinx-book-theme = {version = "^0.3", python = ">=3.7"}
+myst-parser = {version = "^0.17.2", python = ">=3.7"}
+
+[tool.poetry.group.flake8]
+optional = true
+[tool.poetry.group.flake8.dependencies]
+flake8 = "*"
+
+[tool.poetry.group.pylama]
+optional = true
+[tool.poetry.group.pylama.dependencies]
+pylama = { version = "^8.4.1", python = ">=3.7" }
+
+[tool.poetry.group.black]
+optional = true
+[tool.poetry.group.black.dependencies]
+black = { version = "^21.12b0", python = ">=3.7" }
+
+[tool.poetry.group.pylint]
+optional = true
+[tool.poetry.group.pylint.dependencies]
+pylint = { version = "^2.15", python = ">=3.7.2" }
+## This ensure platformdirs won't be installed on python 3.5 & 3.6 env, which is impossible due to dependency graph
+platformdirs = { version = "^2.2", python = ">=3.7" }
+
+[tool.poetry.group.mypy]
+optional = true
+[tool.poetry.group.mypy.dependencies]
 mypy = { version = "^0.931", python = ">=3.6" }
 django-stubs = { version = "^1.9.0", python = ">=3.6" }
 types-docutils = { version = "^0.17.1", python = ">=3.6" }
 types-Markdown = { version = "^3.3.9", python = ">=3.6" }
-
 # Version constraints to ensure python 3.5 compatibility
 typing-extensions = "^3.10.0.2"
-zipp = "^1.2"
+
 
 [tool.pylint]
 # Override default pylint configurations
@@ -112,9 +142,17 @@ DJANGO_SETTINGS_MODULE = "testsite.settings"
 FAIL_INVALID_TEMPLATE_VARS = true
 
 [tool.mypy]
-exclude = "module_with_syntax_errors.py"
+exclude = [
+    '^tests/.+$',
+    '^docs/.+$',
+]
+
 
 [tool.black]
 extend-exclude = '''
-module_with_syntax_errors.py
-'''
+# A regex preceded with ^/ will apply only to files and directories
+# in the root of the project.
+(
+  ^/docs
+  | .*module_with_syntax_errors\.py
+)'''
