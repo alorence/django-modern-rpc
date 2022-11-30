@@ -332,7 +332,7 @@ registry = _RPCRegistry()
 
 def rpc_method(
     func=None,
-    name: str = None,
+    name: Optional[str] = None,
     entry_point: str = ALL,
     protocol: Protocol = Protocol.ALL,
 ):
