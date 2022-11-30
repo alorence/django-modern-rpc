@@ -30,7 +30,7 @@ modernized to improve readability and robustness, and a few issues were fixed.
   external tools settings (pytest, flake8, etc.) and packaging configuration
   - Black is now used to automatically format code
   - Mypy is now used to verify type hints consistency
-  - Tox configuration now includes flake8, mypy, pylint and black environments
+  - Tox configuration now includes pylama, mypy, pylint and black environments
   - All tests have been rewritten to have a strong separation between unit and functional tests. Test classes where
   created to group tests by similarities. Many fixtures have been added, with more parameterization, resulting in
   almost 700 tests executed to cover as most situations as possible
