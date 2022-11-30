@@ -142,8 +142,8 @@ jobs:
           poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
       - name: Install dependencies
         run: poetry install --no-interaction --with pylama
-      - name: Flake8
-        run: poetry run pylama .
+      - name: PyLama
+        run: poetry run pylama -o tox.ini .
 
   pylint:
     runs-on: ubuntu-latest
@@ -155,7 +155,7 @@ jobs:
         with:
           poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
       - name: Install dependencies
-        run: poetry install --no-interaction
+        run: poetry install --no-interaction --with pylint
       - name: Pylint
         run: poetry run pylint modernrpc --exit-zero
 

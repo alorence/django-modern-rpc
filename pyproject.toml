@@ -106,9 +106,12 @@ optional = true
 [tool.poetry.group.black.dependencies]
 black = { version = "^21.12b0", python = ">=3.7" }
 
-#pylint = { version = "^2.15", python = ">=3.7.2" }
-## This ensure platformdirs won't be installed on python3.5 env, which is impossible due to dependency graph
-#platformdirs = { version = "^2.0", python = ">=3.7" }
+[tool.poetry.group.pylint]
+optional = true
+[tool.poetry.group.pylint.dependencies]
+pylint = { version = "^2.15", python = ">=3.7.2" }
+## This ensure platformdirs won't be installed on python 3.5 & 3.6 env, which is impossible due to dependency graph
+platformdirs = { version = "^2.2", python = ">=3.7" }
 
 [tool.poetry.group.mypy]
 optional = true
@@ -119,7 +122,6 @@ types-docutils = { version = "^0.17.1", python = ">=3.6" }
 types-Markdown = { version = "^3.3.9", python = ">=3.6" }
 # Version constraints to ensure python 3.5 compatibility
 typing-extensions = "^3.10.0.2"
-#zipp = "^1.2"
 
 
 [tool.pylint]
