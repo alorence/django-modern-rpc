@@ -117,20 +117,6 @@ jobs:
       - name: Black
         run: poetry run black --check .
 
-  flake8:
-    runs-on: ubuntu-latest
-    needs: tests
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install Poetry
-        uses: abatilo/actions-poetry@v2.1.6
-        with:
-          poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
-      - name: Install dependencies
-        run: poetry install --no-interaction --with flake8
-      - name: Flake8
-        run: poetry run flake8
-
   pylama:
     runs-on: ubuntu-latest
     needs: tests
@@ -185,7 +171,7 @@ jobs:
 
   publish:
     runs-on: ubuntu-latest
-    needs: [tests, flake8, mypy, black, pylint]
+    needs: [tests, black, pylama, pylint, mypy]
     # Only ran on tag push and manual trigger
     if: (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) || github.event.inputs.target_repo != ''
     env:
