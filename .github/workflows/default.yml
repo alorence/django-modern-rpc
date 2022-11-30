@@ -26,6 +26,7 @@ on:
 env:
   # Note: Poetry 1.2.* requires Python >= 3.7
   INSTALL_POETRY_VERSION: 1.2.*
+  DEFAULT_PYTHON_VERSION: "3.10"
   POETRY_INSTALLER_PARALLEL: true
   POETRY_VIRTUALENVS_CREATE: true
   PIP_DISABLE_PIP_VERSION_CHECK: 1
@@ -71,37 +72,52 @@ jobs:
           - { python-version: "3.5", django-version: "3.0" }
 
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v3
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install Poetry
-        uses: abatilo/actions-poetry@v2.1.6
-        with:
-          poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
-      - name: Install dependencies
-        run: |
-          poetry install --no-interaction
-          poetry run pip install -U "django==${{ matrix.django-version }}.*"
+    - uses: actions/checkout@v3
 
-      - name: Pytest
-        run: |
-          echo "Django version: $(poetry run django-admin --version)"
-          poetry run pytest --cov=modernrpc --cov-report=term --cov-report=xml:coverage.xml .
+    - name: Setup Python ${{ env.DEFAULT_PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
 
-      - name: Upload coverage results
-        run: |
-          pip install codacy-coverage coveralls
+    - name: Install Poetry
+      uses: abatilo/actions-poetry@v2
+      with:
+        poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
 
-          # Submit coverage results to codacy.com
-          python-codacy-coverage -r coverage.xml
+    - name: Install PyEnv
+      run: |
+        curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
+        # Save created folder in $PATH
+        echo "$HOME/.pyenv/bin" >> ${GITHUB_PATH}
 
-          # Submit coverage results to coveralls
-          coveralls
-        env:
-          CODACY_PROJECT_TOKEN : ${{ secrets.CODACY_PROJECT_TOKEN }}
-          COVERALLS_REPO_TOKEN : ${{ secrets.COVERALLS_REPO_TOKEN }}
+    - name: Install Python ${{ matrix.python-version }} using PyEnv
+      run: pyenv install ${{ matrix.python-version }}:latest
+
+    - name: Install dependencies in a Python ${{ matrix.python-version }} environment
+      run: |
+        eval "$(pyenv init -)"
+        pyenv local system ${{ matrix.python-version }}
+        poetry env use ${{ matrix.python-version }}
+        poetry install --no-interaction
+        poetry run pip install -U "django==${{ matrix.django-version }}.*"
+
+    - name: Pytest
+      run: |
+        echo "Django version: $(poetry run django-admin --version)"
+        poetry run pytest --cov=modernrpc --cov-report=term --cov-report=xml:coverage.xml .
+
+    - name: Upload coverage results
+      run: |
+        pip install codacy-coverage coveralls
+
+        # Submit coverage results to codacy.com
+        python-codacy-coverage -r coverage.xml
+
+        # Submit coverage results to coveralls
+        coveralls
+      env:
+        CODACY_PROJECT_TOKEN : ${{ secrets.CODACY_PROJECT_TOKEN }}
+        COVERALLS_REPO_TOKEN : ${{ secrets.COVERALLS_REPO_TOKEN }}
 
   black:
     runs-on: ubuntu-latest
@@ -109,7 +125,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Install Poetry
-        uses: abatilo/actions-poetry@v2.1.6
+        uses: abatilo/actions-poetry@v2
         with:
           poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
       - name: Install dependencies
@@ -123,7 +139,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Install Poetry
-        uses: abatilo/actions-poetry@v2.1.6
+        uses: abatilo/actions-poetry@v2
         with:
           poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
       - name: Install dependencies
@@ -137,7 +153,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Install Poetry
-        uses: abatilo/actions-poetry@v2.1.6
+        uses: abatilo/actions-poetry@v2
         with:
           poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
       - name: Install dependencies
@@ -151,7 +167,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Install Poetry
-        uses: abatilo/actions-poetry@v2.1.6
+        uses: abatilo/actions-poetry@v2
         with:
           poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
       - name: Install dependencies
@@ -181,7 +197,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Install Poetry
-        uses: abatilo/actions-poetry@v2.1.6
+        uses: abatilo/actions-poetry@v2
         with:
           poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
 
