@@ -34,7 +34,7 @@ The following Django / Python version are supported, according to Django require
 ## Setup
 
 A quick start is available as part of the documentation to help setting up you project:
-https://django-modern-rpc.readthedocs.io/en/latest/quickstart.html
+https://django-modern-rpc.readthedocs.io/en/latest/basics/quickstart.html
 
 ## Code quality
 
@@ -43,4 +43,4 @@ is publicly available on following apps:
 
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/37607e2ecaf549b890fc6defca88c7f8)](https://www.codacy.com/gh/alorence/django-modern-rpc/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=alorence/django-modern-rpc&amp;utm_campaign=Badge_Grade)
 [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/37607e2ecaf549b890fc6defca88c7f8)](https://www.codacy.com/gh/alorence/django-modern-rpc/dashboard?utm_source=github.com&utm_medium=referral&utm_content=alorence/django-modern-rpc&utm_campaign=Badge_Coverage)
-[![Coverage Status](https://coveralls.io/repos/github/alorence/django-modern-rpc/badge.svg)](https://coveralls.io/github/alorence/django-modern-rpc)
+[![Coveralls Status](https://coveralls.io/repos/github/alorence/django-modern-rpc/badge.svg)](https://coveralls.io/github/alorence/django-modern-rpc)

@@ -123,7 +123,6 @@ types-Markdown = { version = "^3.3.9", python = ">=3.6" }
 # Version constraints to ensure python 3.5 compatibility
 typing-extensions = "^3.10.0.2"
 
-
 [tool.pylint]
 # Override default pylint configurations
 # To update, run `pylint --generate-rcfile` for default reference or check the docs:
@@ -146,7 +145,6 @@ exclude = [
     '^tests/.+$',
     '^docs/.+$',
 ]
-
 
 [tool.black]
 extend-exclude = '''
