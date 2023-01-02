@@ -154,3 +154,14 @@ extend-exclude = '''
   ^/docs
   | .*module_with_syntax_errors\.py
 )'''
+
+[tool.pylama]
+max_line_length = 120
+skip = ".git/*,.vscode/*,.idea/*,dist/*,.tox/*,.pytest_cache/*,.mypy_cache/*"
+
+[tool.pylama.linter.pyflakes]
+ignore = "W0611"
+max-complexity = 10
+
+[tool.pylama.linter.mccabe]
+max-complexity = 10
