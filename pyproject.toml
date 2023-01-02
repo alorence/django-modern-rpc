@@ -81,7 +81,7 @@ pytest-cov = "*"
 [tool.poetry.group.tox]
 optional = true
 [tool.poetry.group.tox.dependencies]
-tox = "^3.24.5"
+tox = "^3.25.0"
 
 [tool.poetry.group.docs]
 optional = true
@@ -120,8 +120,6 @@ mypy = { version = "^0.931", python = ">=3.6" }
 django-stubs = { version = "^1.9.0", python = ">=3.6" }
 types-docutils = { version = "^0.17.1", python = ">=3.6" }
 types-Markdown = { version = "^3.3.9", python = ">=3.6" }
-# Version constraints to ensure python 3.5 compatibility
-typing-extensions = "^3.10.0.2"
 
 [tool.pylint]
 # Override default pylint configurations
