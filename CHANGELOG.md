@@ -46,7 +46,7 @@ modernized to improve readability and robustness, and a few issues were fixed.
   - Tox configuration now includes pylama, mypy, pylint and black environments
   - All tests have been rewritten to have a strong separation between unit and functional tests. Test classes where
   created to group tests by similarities. Many fixtures have been added, with more parameterization, resulting in
-  almost 700 tests executed to cover as most situations as possible
+  about 350 tests executed covering more than 95% of the code.
 
 
 ## v0.12.1
