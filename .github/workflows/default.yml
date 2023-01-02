@@ -152,7 +152,7 @@ jobs:
       - name: Install dependencies
         run: poetry install --no-interaction --with pylama
       - name: PyLama
-        run: poetry run pylama -o tox.ini .
+        run: poetry run pylama .
 
   pylint:
     runs-on: ubuntu-latest
@@ -166,7 +166,7 @@ jobs:
       - name: Install dependencies
         run: poetry install --no-interaction --with pylint
       - name: Pylint
-        run: poetry run pylint modernrpc --exit-zero
+        run: poetry run pylint --exit-zero modernrpc
 
   mypy:
     runs-on: ubuntu-latest
