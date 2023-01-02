@@ -33,6 +33,9 @@ env:
   PYTHON_KEYRING_BACKEND: keyring.backends.null.Keyring
   # Hide warning about outdated pip version
   PIP_DISABLE_PIP_VERSION_CHECK: 1
+  # Ensure pyenv distributions will be compiled with clang. Fix segmentation fault in ensurepip for python 3.6
+  # See https://github.com/pyenv/pyenv/issues/2239#issuecomment-1079275184
+  CC: clang
 
 jobs:
   tests:
@@ -195,7 +198,7 @@ jobs:
     # Only ran on tag push and manual trigger
     if: (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) || github.event.inputs.target_repo != ''
     env:
-    # inputs.target_repo is set only when workflow was manually triggered. Default to 'pypi.org' for tags push
+      # inputs.target_repo is set only when workflow was manually triggered. Default to 'pypi.org' for tags push
       pypi_repository: ${{ github.event.inputs.target_repo || 'pypi.org' }}
 
     steps:
