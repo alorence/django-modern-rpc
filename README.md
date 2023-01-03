@@ -1,6 +1,6 @@
 # django-modern-rpc
 
-[![Downloads](https://static.pepy.tech/personalized-badge/django-modern-rpc?period=total&units=international_system&left_color=black&right_color=yellow&left_text=Downloads)](https://pepy.tech/project/django-modern-rpc)
+[![Downloads](https://static.pepy.tech/personalized-badge/django-modern-rpc?period=total&units=international_system&left_color=grey&right_color=orange&left_text=Downloads)](https://pepy.tech/project/django-modern-rpc)
 [![Tests](https://github.com/alorence/django-modern-rpc/actions/workflows/default.yml/badge.svg)](https://github.com/alorence/django-modern-rpc/actions/workflows/default.yml)
 [![Documentation Status](https://readthedocs.org/projects/django-modern-rpc/badge/?version=latest)](https://django-modern-rpc.readthedocs.io/en/latest/?badge=main)
 [![Link to demo](https://img.shields.io/badge/demo-online-informational.svg)](https://modernrpc.onrender.com)
@@ -23,13 +23,13 @@ The following Django / Python version are supported, according to Django require
 
 | 🠗 Django \ Python 🠖 | 3.5 | 3.6 | 3.7 | 3.8 | 3.9 | 3.10 | 3.11 |
 |---------------------|:---:|:---:|:---:|:---:|:---:|:----:|:----:|
-| 2.1                 | ✅️️  | ✅️️  | ✅️️  | 🚫  | 🚫  |  🚫  |  🚫  |
-| 2.2                 | ✅️️  | ✅️️  | ✅️️  | ✅️️  | ✅️️  |  🚫  |  🚫  |
-| 3.0                 | 🚫  | ✅️️  | ✅️️  | ✅️️  | ✅️️  |  🚫  |  🚫  |
-| 3.1                 | 🚫  | ✅️️  | ✅️️  | ✅️️  | ✅️️  |  🚫  |  🚫  |
-| 3.2                 | 🚫  | ✅️️  | ✅️️  | ✅️️  | ✅️️  |  ✅️️  |  🚫  |
-| 4.0                 | 🚫  | 🚫  | 🚫  | ✅️️  | ✅️️  |  ✅️️  |  🚫  |
-| 4.1                 | 🚫  | 🚫  | 🚫  | ✅️️  | ✅️️  |  ✅️️  |  ✅️️  |
+| 2.1                 | ✔️️  | ✔️️  | ✔️️  | ❌  | ❌  |  ❌  |  ❌  |
+| 2.2                 | ✔️️  | ✔️️  | ✔️️  | ✔️️  | ✔️️  |  ❌  |  ❌  |
+| 3.0                 | ❌  | ✔️️  | ✔️️  | ✔️️  | ✔️️  |  ❌  |  ❌  |
+| 3.1                 | ❌  | ✔️️  | ✔️️  | ✔️️  | ✔️️  |  ❌  |  ❌  |
+| 3.2                 | ❌  | ✔️️  | ✔️️  | ✔️️  | ✔️️  |  ✔️️  |  ❌  |
+| 4.0                 | ❌  | ❌  | ❌  | ✔️️  | ✔️️  |  ✔️️  |  ❌  |
+| 4.1                 | ❌  | ❌  | ❌  | ✔️️  | ✔️️  |  ✔️️  |  ✔️️  |
 
 ## Setup
 
