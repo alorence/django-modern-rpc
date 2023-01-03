@@ -2,7 +2,7 @@
 
 ## v1.0.0
 
-**Release date: Q1 2023**
+**Release date: 2023-01-03**
 
 After months of work, the 1.0 milestone is a major refactoring of the library. Many parts of the project have been
 modernized to improve readability and robustness, and a few issues were fixed.
