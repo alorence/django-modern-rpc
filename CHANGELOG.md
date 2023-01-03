@@ -1,14 +1,28 @@
 # Changelog
 
-## Next release: 1.0.0
+## v1.0.0
+
+**Release date: Q1 2023**
 
 After months of work, the 1.0 milestone is a major refactoring of the library. Many parts of the project have been
 modernized to improve readability and robustness, and a few issues were fixed.
 
 ### Improvements
-  - Type hints is now supported in RPC methods. Auto-generated documentation will use it when it is defined.
+  - Type hinting is now supported in RPC methods. Auto-generated documentation will use it when it is defined.
   Old-style "doctypes" are still supported.
   - Dependency to `six` have been completely removed
+
+### Breaking Changes
+  - When an authentication error is raised, the returned status code is now 200 instead of 403 for consistency with
+  batch and system.multicall requests (#35)
+  - Django < 2.1 and Python < 3.5 support have been dropped.
+
+### Other API changes
+  - A new `modernrpc.core.Protocol` enum has been introduced to enforce correct protocol value when needed. (#29, #30).
+  This new class replaces `modernrpc.core.JSONRPC_PROTOCOL` and `modernrpc.core.XMLRPC_PROTOCOL` but aliases were
+  created for backward compatibility.
+  - `RPCUnknownMethod` exception has been renamed to `RPCMethodNotFound`. An alias has been created
+  for backward compatibility
 
 ### Fixes
   - Initialization process updated: exceptions are now raised on startup for invalid RPC modules. In addition, Django
@@ -20,38 +34,32 @@ modernized to improve readability and robustness, and a few issues were fixed.
   list and unknown types are returned as "undef" (see http://xmlrpc-c.sourceforge.net/introspection.html)
 
 ### Misc
-  - Dropped support for Django < 2.1 and Python < 3.5
   - Added support for Python 3.9, 3.10 and 3.11
   - Added support for Django 3.2, 4.0 and 4.1
   - Documentation tree was completely reworked for clarity and simplicity. A new theme (Book) is now used to improve
   readability. See <https://django-modern-rpc.rtfd.io>.
   - Poetry is now used to configure project dependencies and build distributions. The new `pyproject.toml` file
-  completely replaces `setup.py`, `setup.cfg`, `MANIFEST.in` and `requirements.txt` to centralize all dependencies,
+  replaces `setup.py`, `setup.cfg`, `MANIFEST.in` and `requirements.txt` to centralize all dependencies,
   external tools settings (pytest, flake8, etc.) and packaging configuration
   - Black is now used to automatically format code
   - Mypy is now used to verify type hints consistency
   - Tox configuration now includes pylama, mypy, pylint and black environments
   - All tests have been rewritten to have a strong separation between unit and functional tests. Test classes where
   created to group tests by similarities. Many fixtures have been added, with more parameterization, resulting in
-  almost 700 tests executed to cover as most situations as possible
-
-### API Changes
-  - A new `modernrpc.core.Protocol` enum has been introduced to enforce correct protocol value when needed. (#29, #30).
-  This new class replaces `modernrpc.core.JSONRPC_PROTOCOL` and `modernrpc.core.XMLRPC_PROTOCOL` but aliases were
-  created for backward compatibility.
-  - When an authentication error is raised, the returned status code is now 200 instead of 403 for consistency with
-  batch and system.multicall requests (#35)
-  - `RPCUnknownMethod` exception has been renamed to `RPCMethodNotFound`. An alias has been created
-  for backward compatibility
+  about 350 tests executed covering more than 95% of the code.
 
 
-## 2020-06-11: version 0.12.1
+## v0.12.1
+
+**Release date: 2020-06-11**
 
 ### Fixes
 
   - Fix `ImportError` with Django 3.1
 
-## 2019-12-05: version 0.12.0
+## v0.12.0
+
+**Release date: 2019-12-05**
 
 ### Misc
 
@@ -65,7 +73,9 @@ modernized to improve readability and robustness, and a few issues were fixed.
   2 more "Content-Type" values are supported by JSON-RPC Handler: "application/json-rpc" and
   "application/jsonrequest" (#24). Thanks to @dansan
 
-## 2018-05-13: version 0.11.1
+## v0.11.1
+
+**Release date: 2018-05-13**
 
 ### Improvements
 
@@ -82,7 +92,9 @@ In addition, some improvements have been applied to unit tests, to make sure tes
 test function. In addition, some exclusion patterns have been added in .coveragerc file to increase coverage
 report accuracy.
 
-## 2018-04-25: version 0.11.0
+## v0.11.0
+
+**Release date: 2018-04-25**
 
 ### Improvements
 
@@ -112,7 +124,9 @@ report accuracy.
 to override dict keys and prevent conflicts with your own methods arguments.
 
 
-## 2017-12-06: version 0.10.0
+## v0.10.0
+
+**Release date: 2017-12-06**
 
 ### Improvements
 
@@ -130,7 +144,9 @@ to override dict keys and prevent conflicts with your own methods arguments.
     - Added a bibliography page, to list all references used to write the library
   - Default template for generated RPC methods documentation now uses Bootstrap 4.0.0-beta.2 (previously 4.0.0-alpha.5)
 
-## 2017-10-03: version 0.9.0
+## v0.9.0
+
+**Release date: 2017-10-03**
 
 This is a major release with many improvements, protocol support and bug fixes. This version introduces an API break,
 please read carefully.
@@ -158,7 +174,9 @@ please read carefully.
 
   - Code has been improved to prepare future compatibility with Django 2.0
 
-## 2017-10-02: version 0.8.1
+## v0.8.1
+
+**Release date: 2017-10-02**
 
 > **important**
 >
@@ -168,7 +186,9 @@ please read carefully.
 
   - Authentication backend is correctly checked when executing method using `system.multicall()`
 
-## 2017-07-12: version 0.8.0
+## v0.8.0
+
+**Release date: 2017-07-12**
 
 ### Fixes
 
@@ -178,7 +198,9 @@ please read carefully.
   [documentation](https://django-modern-rpc.rtfd.io//en/latest/docs/authentication.html) for details.
   Thanks to @aplicacionamedida
 
-## 2017-06-24: version 0.7.1
+## v0.7.1
+
+**Release date: 2017-06-24**
 
 ### Fixes
 
@@ -186,14 +208,18 @@ please read carefully.
   configuring a logger for `modernrpc.*` modules, using Django variable `LOGGING`. The
   [documentation](https://django-modern-rpc.rtfd.io/en/latest/docs/error_handling.html) has been updated accordingly.
 
-## 2017-06-24: version 0.7.0
+## v0.7.0
+
+**Release date: 2017-06-24**
 
 ### Improvements
 
   - Default logging behavior has changed. The library will not output any log anymore, unless `MODERNRPC_ENABLE_LOGGING`
   is set to True. See [docs](https://django-modern-rpc.rtfd.io/en/latest/docs/error_handling.html) for details
 
-## 2017-05-13: version 0.6.0
+## v0.6.0
+
+**Release date: 2017-05-13**
 
 ### Improvements
 
@@ -201,7 +227,9 @@ please read carefully.
   This was useless, and caused issues with some cache systems (#5). Use of cache system has been removed. The list of
   RPC methods is computed when the application is started and kept in memory until it is stopped.
 
-## 2017-04-18: version 0.5.2
+## v0.5.2
+
+**Release date: 2017-04-18**
 
 ### Improvements
 
@@ -210,7 +238,9 @@ please read carefully.
   - Unit testing with Django 1.11 is now performed against release version (Beta and RC are not tested anymore)
   - Various Documentation improvements
 
-## 2017-03-25: version 0.5.1
+## v0.5.1
+
+**Release date: 2017-03-25**
 
 ### Improvements
 
@@ -224,7 +254,9 @@ please read carefully.
   - Tests are performed against Django 1.11rc1
   - `modernrpc.core.register_method()` function was deprecated since version 0.4.0 and has been removed.
 
-## 2017-02-18: version 0.5.0
+## v0.5.0
+
+**Release date: 2017-02-18**
 
 ### Improvements
 
@@ -237,7 +269,9 @@ please read carefully.
   be done on various user attributes: group, permission, superuser status, etc. Authentication backend can be extended
   to support any method based on incoming request.
 
-## 2016-11-20: version 0.4.2
+## v0.4.2
+
+**Release date: 2016-11-20**
 
 ### Improvements
 
@@ -248,7 +282,9 @@ please read carefully.
   - @rpc_method decorator can be used with or without the parenthesis (and this feature is tested)
   - System methods have been documented
 
-## 2016-11-17: version 0.4.1
+## v0.4.1
+
+**Release date: 2016-11-17**
 
 ### Improvements
 
@@ -258,7 +294,9 @@ please read carefully.
   exception.
   - Some traces have been added to allow debugging in the module easily. It uses the builtin logging framework.
 
-## 2016-11-17: version 0.4.0
+## v0.4.0
+
+**Release date: 2016-11-17**
 
 ### API Changes
 
@@ -271,13 +309,17 @@ please read carefully.
   - When django use a persistent cache (Redis, memcached, etc.), ensure the registry is up-to-date with current sources
   at startup
 
-## 2016-10-26: version 0.3.2
+## v0.3.2
+
+**Release date: 2016-10-26**
 
 ### Fixes
 
   - Include missing templates in pypi distribution packages
 
-## 2016-10-26: version 0.3.1
+## v0.3.1
+
+**Release date: 2016-10-26**
 
 ### Improvements
 
@@ -285,7 +327,9 @@ please read carefully.
   - `system.multicall` is now supported, only in XML-RPC
   - Many tests added
 
-## 2016-10-18: version 0.3.0
+## v0.3.0
+
+**Release date: 2016-10-18**
 
 ### API Changes
 
@@ -307,20 +351,26 @@ please read carefully.
   - Many documentation improvements
   - `system.methodHelp` is now supported
 
-## 2016-10-13: version 0.2.3
+## v0.2.3
+
+**Release date: 2016-10-13**
 
 ### Fixes
 
   - Packages `modernrpc.tests` and `testsite` were excluded from Pypi distribution (both binary and source). This action
   was forgotten in the last release
 
-## 2016-10-13: version 0.2.2
+## v0.2.2
+
+**Release date: 2016-10-13**
 
 ### Fixes
 
   - Packages `modernrpc.tests` and `testsite` were excluded from Pypi distribution (both binary and source)
 
-## 2016-10-12: version 0.2.1
+## v0.2.1
+
+**Release date: 2016-10-12**
 
 ### Improvements
 
@@ -329,7 +379,9 @@ please read carefully.
   - Many unit tests added to increase coverage
   - `RPCEntryPoint` class can now be configured to handle only requests from a specific protocol
 
-## 2016-10-05: version 0.2.0
+## v0.2.0
+
+**Release date: 2016-10-05**
 
 ### Improvements
 
@@ -340,7 +392,9 @@ please read carefully.
   `modernrpc.exceptions` for more information.
   - Many unit tests have been added to increase test coverage of the library
 
-## 2016-10-02: version 0.1.0
+## v0.1.0
+
+**Release date: 2016-10-02**
 
 This is the very first version of the library. Only a subset of planned features were implemented
 

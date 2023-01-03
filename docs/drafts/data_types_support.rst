@@ -99,7 +99,7 @@ To simplify date handling in your RPC methods, django-modern-rpc defines a helpe
 
 Here is an usage example:
 
-.. code:: python
+.. code-block:: python
 
    from modernrpc.helpers import get_builtin_date
 

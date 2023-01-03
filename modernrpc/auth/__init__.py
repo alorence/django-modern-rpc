@@ -10,7 +10,7 @@ def set_authentication_predicate(predicate, params=()):
     This is the most generic decorator used to implement authentication.
     Predicate is a standard function with the following signature:
 
-    .. code:: python
+    .. code-block:: python
 
        def my_predicate(request, *params):
            # Inspect request and extract required information

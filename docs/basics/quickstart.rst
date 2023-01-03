@@ -4,9 +4,9 @@ Quickstart
 Installation
 ------------
 
-Install ``django-modern-rpc`` in your environment, using pip or any equivalent
+Install ``django-modern-rpc`` in your environment, using pip or equivalent tool
 
-.. code-block:: sh
+.. code-block:: bash
 
     pip install django-modern-rpc
 
@@ -34,14 +34,14 @@ Remote procedures are global Python functions decorated with ``@rpc_method``.
     def add(a, b):
         return a + b
 
-``@rpc_method`` behavior can be customized to your needs. Read :doc:`register_procedure`
-for full list of options.
+``@rpc_method`` behavior can be customized to your needs. Read :doc:`register_procedure` for a full list of available
+options.
 
 Locate procedures modules
 -------------------------
 
 Django-modern-rpc will automatically register functions decorated with ``@rpc_method``, but needs a hint to locate them.
-Declare ``settings.MODERNRPC_METHODS_MODULES`` to indicate all python modules where remote procedures are defined.
+Set ``settings.MODERNRPC_METHODS_MODULES`` variable to indicate project's modules where remote procedures are declared.
 
 .. code-block:: python
    :caption: myproject/settings.py
@@ -53,7 +53,7 @@ Declare ``settings.MODERNRPC_METHODS_MODULES`` to indicate all python modules wh
 Create an entry point
 ---------------------
 
-The entrypoint is a special Django view which handle RPC calls. Like any other view, it has to
+The entrypoint is a special Django view handling RPC calls. Like any other view, it must
 be declared in URLConf or any app specific ``urls.py``:
 
 .. code-block:: python
@@ -81,6 +81,7 @@ directly with your favourite HTTP client
 
     ~  $ curl -X POST localhost:8000/rpc -H "Content-Type: application/json" -d '{"id": 1, "method": "system.listMethods", "jsonrpc": "2.0"}'
     {"id": 1, "jsonrpc": "2.0", "result": ["add", "system.listMethods", "system.methodHelp", "system.methodSignature"]}
+
     ~  $ curl -X POST localhost:8000/rpc -H "Content-Type: application/json" -d '{"id": 2, "method": "add", "params": [5, 9], "jsonrpc": "2.0"}'
     {"id": 2, "jsonrpc": "2.0", "result": 14}
 
@@ -88,6 +89,7 @@ directly with your favourite HTTP client
    :caption: XML-RPC example
 
    from xmlrpc.client import ServerProxy
+
    with ServerProxy("http://localhost:8000/rpc") as proxy:
        proxy.system.listMethods()
        proxy.add(5, 9)

@@ -87,13 +87,13 @@ The documentation is generated directly from RPC methods docstring
 If you want to use `Markdown` or `reStructuredText` syntax in your RPC method documentation, you have to install the
 corresponding package in you environment.
 
-.. code:: bash
+.. code-block:: bash
 
     pip install Markdown
 
 or
 
-.. code:: bash
+.. code-block:: bash
 
     pip install docutils
 

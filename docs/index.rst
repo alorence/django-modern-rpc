@@ -5,8 +5,23 @@ RPC (Remote Procedure Call) is a pretty old network protocol used to call functi
 through HTTP POST requests. It has been created decades ago and is one of the predecessor of modern Web API protocols
 (REST, GraphQL, etc.).
 
-While it is a bit outdated now, there is still use-cases were XML-RPC or JSON-RPC server must be implemented. This
-library will help you setup such a server as part of your Django project.
+While it is a bit outdated now, there is still use-cases were XML-RPC or JSON-RPC server must be implemented.
+**Django-modern-rpc** will help you setup such a server as part of your Django project.
+
+.. image:: https://img.shields.io/pypi/l/django-modern-rpc?style=for-the-badge
+   :alt: PyPI - License
+
+.. image:: https://img.shields.io/github/issues-raw/alorence/django-modern-rpc?style=for-the-badge
+   :alt: GitHub issues
+   :target: https://github.com/alorence/django-modern-rpc/issues
+
+.. image:: https://img.shields.io/pypi/v/django-modern-rpc?style=for-the-badge
+   :alt: PyPI
+   :target: https://pypi.org/project/django-modern-rpc/
+
+.. image:: https://img.shields.io/github/release-date/alorence/django-modern-rpc?style=for-the-badge
+   :alt: GitHub Release Date
+   :target: https://github.com/alorence/django-modern-rpc/releases
 
 Getting started
 ---------------
@@ -14,26 +29,9 @@ Getting started
 .. important:: This library requires python 3.5 and Django 2.1. If you need to install it on older Python/Django
    versions, you may need to install an older release.
 
-Installing the library and configuring a Django project can be done in a few minutes. Follow :doc:`basics/quickstart`
-for very basic setup process. Later, when you will need to configure more precisely your project, follow other topics
-in the menu.
-
-Useful links
-------------
-
-
-:Sources:   https://github.com/alorence/django-modern-rpc
-:Issues:    https://github.com/alorence/django-modern-rpc/issues
-:Package:   https://pypi.org/project/django-modern-rpc/
-:License:   MIT
-
-Changelog
----------
-
-.. include:: ../CHANGELOG.md
-   :parser: myst_parser.sphinx_
-   :start-line: 1
-
+Installing the library and configuring a Django project to use it can be achieved in a few minutes. Follow
+:doc:`basics/quickstart` for very basic setup process. Later, when you will need to configure more precisely
+your project, follow other topics in the menu.
 
 .. toctree::
    :hidden:
@@ -60,9 +58,10 @@ Changelog
    advanced/generated_doc.rst
 
 .. toctree::
-   :caption: How to contribute
-   :name: contribute
+   :caption: Miscellaneous
+   :name: misc
    :hidden:
 
+   changelog.rst
    contribute/contribute.rst
    contribute/setup_environment.rst

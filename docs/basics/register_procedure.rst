@@ -109,7 +109,7 @@ function will be executed, a dict will be passed as argument, providing the foll
 
 See the example to see how to access these values:
 
-.. code:: python
+.. code-block:: python
 
     from modernrpc.core import rpc_method, REQUEST_KEY, ENTRY_POINT_KEY, PROTOCOL_KEY, HANDLER_KEY
 
