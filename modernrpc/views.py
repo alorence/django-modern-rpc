@@ -72,7 +72,7 @@ class RPCEntryPoint(TemplateView):
     @cached_property
     def handlers(self) -> Generator[RPCHandler, None, None]:
         for cls in self.handler_classes:
-            yield cls(self.protocol)
+            yield cls(self.entry_point)
 
     def post(self, request, *args, **kwargs):
         """
