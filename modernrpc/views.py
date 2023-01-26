@@ -27,10 +27,10 @@ class RPCEntryPoint(TemplateView):
 
     template_name = "modernrpc/default/index.html"
 
-    entry_point = settings.MODERNRPC_DEFAULT_ENTRYPOINT_NAME
-    protocol = Protocol.ALL
-    enable_doc = False
-    enable_rpc = True
+    entry_point = settings.MODERNRPC_DEFAULT_ENTRYPOINT_NAME  # type: str
+    protocol = Protocol.ALL  # type: Protocol
+    enable_doc = False  # type: bool
+    enable_rpc = True  # type: bool
 
     default_encoding = "utf-8"
 
@@ -72,7 +72,7 @@ class RPCEntryPoint(TemplateView):
     @cached_property
     def handlers(self) -> Generator[RPCHandler, None, None]:
         for cls in self.handler_classes:
-            yield cls(self.entry_point)
+            yield cls(entry_point=self.entry_point)
 
     def post(self, request, *args, **kwargs):
         """
