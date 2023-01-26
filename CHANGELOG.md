@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.1
+
+**Release date: 2023-01-26**
+
+### Fixes
+
+  - Fixed invalid argument used to initialized default handlers instances (#52). Thanks to @washeck
+
 ## v1.0.0
 
 **Release date: 2023-01-03**
