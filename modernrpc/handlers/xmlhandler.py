@@ -48,7 +48,7 @@ class XMLRPCHandler(RPCHandler):
 
     protocol = Protocol.XML_RPC
 
-    def __init__(self, entry_point):
+    def __init__(self, entry_point: str):
         super().__init__(entry_point)
 
         # Marshaller is used to dumps data into valid XML-RPC response. See self.dumps() for more info

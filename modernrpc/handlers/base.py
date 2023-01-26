@@ -56,7 +56,7 @@ class RPCHandler(ABC):
 
     protocol = None  # type: Protocol
 
-    def __init__(self, entry_point):
+    def __init__(self, entry_point: str):
         self.entry_point = entry_point
 
     def get_method_wrapper(self, name: str) -> "RPCMethod":
