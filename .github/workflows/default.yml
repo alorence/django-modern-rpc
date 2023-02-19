@@ -125,6 +125,7 @@ jobs:
 
     - name: Upload coverage results
       if: github.event_name != 'pull_request'
+      continue-on-error: true
       run: |
         pip install codacy-coverage coveralls
 
