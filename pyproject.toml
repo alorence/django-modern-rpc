@@ -113,7 +113,6 @@ django-stubs = { version = "^1.9.0", python = ">=3.6" }
 types-docutils = { version = "^0.17.1", python = ">=3.6" }
 types-Markdown = { version = "^3.3.9", python = ">=3.6" }
 
-
 [tool.poetry.group.linters]
 optional = true
 [tool.poetry.group.linters.dependencies]
@@ -151,13 +150,29 @@ extend-exclude = '''
   | .*module_with_syntax_errors\.py
 )'''
 
-[tool.pylama]
-max_line_length = 120
-skip = ".git/*,.vscode/*,.idea/*,dist/*,.tox/*,.pytest_cache/*,.mypy_cache/*"
+[tool.ruff]
+# E, F: Default linters (same as flake8) - pyflakes + pycodestyle Errors
+# W: pycodestyle warnings
+# C90: mccabe: functions complexity
+select = ["E", "F", "W", "C90"]
 
-[tool.pylama.linter.pyflakes]
-ignore = "W0611"
-max-complexity = 10
+line-length = 120
+target-version = "py37"
+extend-exclude = [
+    "module_with_syntax_errors.py",
+]
 
-[tool.pylama.linter.mccabe]
+[tool.ruff.per-file-ignores]
+# TODO: following files uses python 3.5 specific variable type hints, in comments
+#  Unfortunately, pyflakes triggers an "Unused import" error in such case.
+#  This should be removed when python 3.5 support will be dropped and variables type hints
+#  will be converted to 3.6+ standard (variable: type = value)
+"modernrpc/conf/default_settings.py" = ["F401"]
+"modernrpc/handlers/base.py" = ["F401"]
+"modernrpc/handlers/jsonhandler.py" = ["F401"]
+"modernrpc/system_methods.py" = ["F401"]
+"tests/functional/conftest.py" = ["F401"]
+
+[tool.ruff.mccabe]
+# Unlike Flake8, default to a complexity level of 10.
 max-complexity = 10

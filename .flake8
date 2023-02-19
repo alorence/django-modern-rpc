@@ -1,5 +1,0 @@
-# Deprecated. Prefer pylama as default linter now
-[flake8]
-exclude = .git, __pycache__, build, dist, venv*, .idea, .vscode, .cache, *.egg-info, .pytest_cache, .tox
-max-complexity = 12
-max-line-length = 120
