@@ -164,7 +164,7 @@ jobs:
       - name: Install dependencies
         run: poetry install --no-interaction --with linters
       - name: Ruff
-        run: poetry run ruff .
+        run: poetry run ruff check .
 
   pylint:
     runs-on: ubuntu-latest
