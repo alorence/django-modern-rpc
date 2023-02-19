@@ -93,7 +93,6 @@ class AbstractJsonRpcTestClient(AbstractRpcTestClient):
     @abstractmethod
     def batch_request(self, calls_data):
         """Perform a JSON-RPC batch request"""
-        pass
 
     def check_response_headers(self, headers):
         """Raise exception when invalid headers are detected in response"""
@@ -116,7 +115,6 @@ class AbstractXmlRpcTestClient(AbstractRpcTestClient):
     @abstractmethod
     def multicall(self, calls_data):
         """Perform an XML-RPC multicall"""
-        pass
 
     def check_response_headers(self, headers):
         """Raise exception when invalid headers are detected in response"""

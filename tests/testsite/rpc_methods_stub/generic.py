@@ -46,7 +46,6 @@ def divide(numerator, denominator, x="xx", y=b"zz", z=None, a=3.14, b=5, c=10):
 def another_name():
     """This one will help to test method registration
     when name has been customized"""
-    pass
 
 
 class MyCustomException(RPCException):

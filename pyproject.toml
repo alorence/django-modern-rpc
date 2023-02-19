@@ -93,16 +93,6 @@ sphinx-autobuild = { version = "^2021", python = ">=3.7" }
 sphinx-book-theme = {version = "^0.3", python = ">=3.7"}
 myst-parser = {version = "^0.17.2", python = ">=3.7"}
 
-[tool.poetry.group.flake8]
-optional = true
-[tool.poetry.group.flake8.dependencies]
-flake8 = "*"
-
-[tool.poetry.group.pylama]
-optional = true
-[tool.poetry.group.pylama.dependencies]
-pylama = { version = "^8.4.1", python = ">=3.7" }
-
 [tool.poetry.group.black]
 optional = true
 [tool.poetry.group.black.dependencies]
@@ -122,6 +112,11 @@ mypy = { version = "^0.931", python = ">=3.6" }
 django-stubs = { version = "^1.9.0", python = ">=3.6" }
 types-docutils = { version = "^0.17.1", python = ">=3.6" }
 types-Markdown = { version = "^3.3.9", python = ">=3.6" }
+
+[tool.poetry.group.linters]
+optional = true
+[tool.poetry.group.linters.dependencies]
+ruff = {version = "^0.0.247", python = ">=3.7"}
 
 [tool.pylint]
 # Override default pylint configurations
@@ -155,13 +150,53 @@ extend-exclude = '''
   | .*module_with_syntax_errors\.py
 )'''
 
-[tool.pylama]
-max_line_length = 120
-skip = ".git/*,.vscode/*,.idea/*,dist/*,.tox/*,.pytest_cache/*,.mypy_cache/*"
+[tool.ruff]
+# List of rules currently enabled.
+# Docs: https://beta.ruff.rs/docs/rules/
+select = [
+    "E", "F", # pyflakes + pycodestyle Errors (ruff's default)
+    "W", # pycodestyle warnings
+    "C90", # mccabe: functions complexity
+    # "I", # isort: enabling this one will require more config to avoid conflicts with PyCharm "Organize imports"
+    # "N", # pep8-naming
+    # "UP", # pyupgrade
+    "YTT", # flake8-2020
+    # "BLE", # flake8-blind-except
+    "DJ", # flake8-django
+    "T20", # flake8-print
+    # "DTZ", # flake8-print
+    # "EM", # flake8-errormsg
+    "INP", # flake8-no-pep420
+    "PIE", # flake8-no-pep420
+    # "SIM", # flake8-print
+    "PGH", # pygrep-hooks
+    "PLC", # PyLint (Convention)
+    "PLE", # PyLint (Error)
+    # "PLR", # PyLint (Refactor)
+    "PLW", # PyLint (Warning)
+    "RUF", # Ruff specific rules
+]
 
-[tool.pylama.linter.pyflakes]
-ignore = "W0611"
+line-length = 120
+target-version = "py37"
+extend-exclude = [
+    "module_with_syntax_errors.py",
+]
+
+[tool.ruff.per-file-ignores]
+# TODO: following files uses python 3.5 specific variable type hints, in comments
+#  Unfortunately, pyflakes triggers an "Unused import" error in such case.
+#  This should be removed when python 3.5 support will be dropped and variables type hints
+#  will be converted to 3.6+ standard (variable: type = value)
+"modernrpc/conf/default_settings.py" = ["F401"]
+"modernrpc/handlers/base.py" = ["F401"]
+"modernrpc/handlers/jsonhandler.py" = ["F401"]
+"modernrpc/system_methods.py" = ["F401"]
+"tests/functional/conftest.py" = ["F401"]
+
+[tool.ruff.mccabe]
+# Unlike Flake8, default to a complexity level of 10.
 max-complexity = 10
 
-[tool.pylama.linter.mccabe]
-max-complexity = 10
+[tool.ruff.isort]
+# TBD
