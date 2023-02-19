@@ -8,12 +8,13 @@ from typing import Any, Tuple
 from modernrpc.conf import settings
 from modernrpc.core import Protocol, RPCRequestContext
 from modernrpc.exceptions import (
-    RPCParseError,
-    RPCInvalidRequest,
-    RPC_INTERNAL_ERROR,
     RPCException,
+    RPCInvalidRequest,
+    RPCParseError,
+    RPC_INTERNAL_ERROR,
 )
-from modernrpc.handlers.base import RPCHandler, BaseResult, SuccessResult, ErrorResult
+from modernrpc.handlers.base import BaseResult, ErrorResult, RPCHandler, SuccessResult
+
 
 RequestData = Tuple[Any, str]
 

@@ -162,12 +162,14 @@ select = [
     # "UP", # pyupgrade
     "YTT", # flake8-2020
     # "BLE", # flake8-blind-except
+    # "B", # flake8-bugbear
     "DJ", # flake8-django
     "T20", # flake8-print
     # "DTZ", # flake8-print
     # "EM", # flake8-errormsg
+    "ICN", # flake8-import-conventions
     "INP", # flake8-no-pep420
-    "PIE", # flake8-no-pep420
+    "PIE", # flake8-pie
     # "SIM", # flake8-print
     "PGH", # pygrep-hooks
     "PLC", # PyLint (Convention)
