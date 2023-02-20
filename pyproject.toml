@@ -142,12 +142,13 @@ exclude = [
 ]
 
 [tool.black]
+target-version = ["py35", "py36", "py37", "py38", "py39", "py310"]
 extend-exclude = '''
 # A regex preceded with ^/ will apply only to files and directories
 # in the root of the project.
 (
-  ^/docs
-  | .*module_with_syntax_errors\.py
+  module_with_syntax_errors\.py
+  | xxx_other_rules
 )'''
 
 [tool.ruff]

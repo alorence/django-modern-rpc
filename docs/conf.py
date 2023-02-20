@@ -5,7 +5,7 @@
 # list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-import pkg_resources  # type: ignore
+import pkg_resources
 
 from django.conf import settings
 
