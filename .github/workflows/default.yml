@@ -149,36 +149,8 @@ jobs:
           poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
       - name: Install dependencies
         run: poetry install --no-interaction --with black
-      - name: Black
+      - name: Black (check)
         run: poetry run black --check .
-
-  linters:
-    runs-on: ubuntu-latest
-    needs: debug
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install Poetry
-        uses: abatilo/actions-poetry@v2
-        with:
-          poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
-      - name: Install dependencies
-        run: poetry install --no-interaction --with linters
-      - name: Ruff
-        run: poetry run ruff check .
-
-  pylint:
-    runs-on: ubuntu-latest
-    needs: debug
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install Poetry
-        uses: abatilo/actions-poetry@v2
-        with:
-          poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
-      - name: Install dependencies
-        run: poetry install --no-interaction --with pylint
-      - name: Pylint
-        run: poetry run pylint --exit-zero modernrpc
 
   mypy:
     runs-on: ubuntu-latest
@@ -194,9 +166,25 @@ jobs:
       - name: Mypy
         run: poetry run mypy .
 
+  linters:
+    runs-on: ubuntu-latest
+    needs: debug
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2
+        with:
+          poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
+      - name: Install dependencies
+        run: poetry install --no-interaction --with linters
+      - name: Ruff
+        run: poetry run ruff check .
+      - name: Pylint
+        run: poetry run pylint --exit-zero modernrpc
+
   publish:
     runs-on: ubuntu-latest
-    needs: [tests, black, linters, pylint, mypy]
+    needs: [tests, black, mypy, linters]
     # Only ran on tag push and manual trigger
     if: (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) || github.event.inputs.target_repo != ''
     env:

@@ -98,13 +98,6 @@ optional = true
 [tool.poetry.group.black.dependencies]
 black = { version = "^21.12b0", python = ">=3.7" }
 
-[tool.poetry.group.pylint]
-optional = true
-[tool.poetry.group.pylint.dependencies]
-pylint = { version = "^2.15", python = ">=3.7.2" }
-## This ensure platformdirs won't be installed on python 3.5 & 3.6 env, which is impossible due to dependency graph
-platformdirs = { version = "^2.2", python = ">=3.7" }
-
 [tool.poetry.group.mypy]
 optional = true
 [tool.poetry.group.mypy.dependencies]
@@ -117,6 +110,9 @@ types-Markdown = { version = "^3.3.9", python = ">=3.6" }
 optional = true
 [tool.poetry.group.linters.dependencies]
 ruff = {version = "^0.0.247", python = ">=3.7"}
+pylint = { version = "^2.15", python = ">=3.7.2" }
+## This ensure platformdirs won't be installed on python 3.5 & 3.6 env, which is impossible due to dependency graph
+platformdirs = { version = "^2.2", python = ">=3.7" }
 
 [tool.pylint]
 # Override default pylint configurations
@@ -135,12 +131,6 @@ python_paths = "tests"
 DJANGO_SETTINGS_MODULE = "testsite.settings"
 FAIL_INVALID_TEMPLATE_VARS = true
 
-[tool.mypy]
-exclude = [
-    '^tests/.+$',
-    '^docs/.+$',
-]
-
 [tool.black]
 target-version = ["py35", "py36", "py37", "py38", "py39", "py310"]
 extend-exclude = '''
@@ -150,6 +140,12 @@ extend-exclude = '''
   module_with_syntax_errors\.py
   | xxx_other_rules
 )'''
+
+[tool.mypy]
+exclude = [
+    '^tests/.+$',
+    '^docs/.+$',
+]
 
 [tool.ruff]
 # List of rules currently enabled.
