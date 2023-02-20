@@ -155,7 +155,7 @@ class JsonrpcclientlibClient(AbstractJsonRpcTestClient):
         except ReceivedErrorResponseError as exc:
             raise JsonrpcErrorResponse(
                 exc.response.code, exc.response.message, exc.response.data
-            )
+            ) from exc
 
         self.check_response_headers(response.raw.headers)
 

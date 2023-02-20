@@ -163,7 +163,7 @@ select = [
     # "UP", # pyupgrade
     "YTT", # flake8-2020
     # "BLE", # flake8-blind-except
-    # "B", # flake8-bugbear
+    "B", # flake8-bugbear
     "DJ", # flake8-django
     "T20", # flake8-print
     # "DTZ", # flake8-print

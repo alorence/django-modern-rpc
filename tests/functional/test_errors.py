@@ -201,9 +201,7 @@ class TestJsonRpcSpecificBehaviors:
             )
 
         # requests 2.27 introduced a new JSONDecodeError subclass, moving the response content in a different attr
-        response_str = getattr(exc_info.value, "doc", None) or getattr(
-            exc_info.value, "strerror"
-        )
+        response_str = exc_info.value.doc or exc_info.value.strerror
         assert (
             "Unable to handle your request, the Content-Type header is mandatory"
             in response_str

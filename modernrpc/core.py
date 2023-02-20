@@ -72,8 +72,8 @@ class RPCMethod:
         self.function = func
 
         # @rpc_method decorator parameters
-        self.entry_point = getattr(func, "modernrpc_entry_point")
-        self.protocol = getattr(func, "modernrpc_protocol")
+        self.entry_point = func.modernrpc_entry_point  # type: ignore[attr-defined]
+        self.protocol = func.modernrpc_protocol  # type: ignore[attr-defined]
 
         # Authentication related attributes
         self.predicates = getattr(func, "modernrpc_auth_predicates", None)
@@ -146,12 +146,12 @@ class RPCMethod:
             return self.function(*args, **kwargs)
         except TypeError as exc:
             # If given params cannot be transmitted properly to python function
-            raise RPCInvalidParams(str(exc))
+            raise RPCInvalidParams(str(exc)) from None
         except RPCException:
             raise
         except Exception as exc:
             # Any exception raised from the remote procedure
-            raise RPCInternalError(str(exc))
+            raise RPCInternalError(str(exc)) from exc
 
     def available_for_protocol(self, protocol: Protocol) -> bool:
         """Check if the current function can be executed from a request through the given protocol"""
