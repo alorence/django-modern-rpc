@@ -7,7 +7,6 @@ from modernrpc.conf import default_settings
 
 class ModernRpcSettings:
     def __getattr__(self, item):
-
         try:
             # First, try to retrieve setting from project level settings module
             return getattr(user_settings, item)

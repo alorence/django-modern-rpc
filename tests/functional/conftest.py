@@ -133,7 +133,6 @@ class JsonrpcclientlibClient(AbstractJsonRpcTestClient):
         self.url = url
 
     def call(self, method, *args, **kwargs):
-
         if "notify" in kwargs and kwargs.pop("notify"):
             json_req = jsonrpcclient.notification(method, params=args or kwargs)
         else:
@@ -152,7 +151,6 @@ class JsonrpcclientlibClient(AbstractJsonRpcTestClient):
         raise JsonrpcErrorResponse(result.code, result.message, result.data)
 
     def batch_request(self, calls_data):
-
         batch_id_generator = itertools.count(0)
         raw_request = jsonrpcclient.requests.request_pure
         NOID = jsonrpcclient.sentinels.NOID

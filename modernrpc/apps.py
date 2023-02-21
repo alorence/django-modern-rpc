@@ -16,7 +16,8 @@ logger = logging.getLogger(__name__)
 @checks.register()
 def check_settings(app_configs, **kwargs):
     """Perform common checks on lib configuration, to notify for warning and errors. Uses
-    Django "System check framework": see https://docs.djangoproject.com/en/3.2/topics/checks/"""
+    Django "System check framework": see https://docs.djangoproject.com/en/3.2/topics/checks/
+    """
     messages = []
 
     if not settings.MODERNRPC_METHODS_MODULES:

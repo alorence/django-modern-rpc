@@ -70,7 +70,8 @@ class Introspector:
 
 class DocstringParser:
     """Parse docstring to extract params docs & types and return doc & type. It also converts
-    long docstring part to an HTML representation using parser from settings (markdown/rst)"""
+    long docstring part to an HTML representation using parser from settings (markdown/rst)
+    """
 
     def __init__(self, function: Callable):
         self.func = function

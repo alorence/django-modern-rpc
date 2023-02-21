@@ -63,7 +63,6 @@ class TestXmlOnlyEntryPoint:
         exc_match = r'Invalid Content-Type returned by server: "text/plain". Expected: "application/json"'
         # TODO: find a way to read the error text returned, and check it is the expected one
         with pytest.raises(ValueError, match=exc_match) as exc_info:
-
             # There is no method available via this entry point for JSON-RPC clients.
             # The returned error message cannot be encapsulated in a proper JSON-RPC response (since the entry
             # point is not configured to handle and respond via this protocol). The returned error message is RAW,
