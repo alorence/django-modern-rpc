@@ -11,12 +11,12 @@ import requests
 from django.core.serializers.json import DjangoJSONEncoder
 
 from modernrpc.exceptions import (
-    RPC_METHOD_NOT_FOUND,
-    RPC_INVALID_PARAMS,
-    RPC_INTERNAL_ERROR,
-    RPC_INVALID_REQUEST,
-    RPC_PARSE_ERROR,
     RPC_CUSTOM_ERROR_BASE,
+    RPC_INTERNAL_ERROR,
+    RPC_INVALID_PARAMS,
+    RPC_INVALID_REQUEST,
+    RPC_METHOD_NOT_FOUND,
+    RPC_PARSE_ERROR,
 )
 
 
@@ -104,7 +104,7 @@ class TestJsonRpcSpecificBehaviors:
         )
 
         assert 'Missing parameter "method"' in response["error"]["message"]
-        assert RPC_INVALID_REQUEST == response["error"]["code"]
+        assert response["error"]["code"] == RPC_INVALID_REQUEST
 
     def test_missing_version(self, live_server, endpoint_path, jsonrpc_content_type):
         # Missing 'jsonrpc' in payload
@@ -121,7 +121,7 @@ class TestJsonRpcSpecificBehaviors:
         )
 
         assert 'Missing parameter "jsonrpc"' in response["error"]["message"]
-        assert RPC_INVALID_REQUEST == response["error"]["code"]
+        assert response["error"]["code"] == RPC_INVALID_REQUEST
 
     def test_invalid_version(self, live_server, endpoint_path, jsonrpc_content_type):
         # Bad value for payload member 'jsonrpc'
@@ -139,7 +139,7 @@ class TestJsonRpcSpecificBehaviors:
 
         expected_error = 'Invalid request: Parameter "jsonrpc" has an unsupported value "1.0". It must be set to "2.0"'
         assert expected_error == response["error"]["message"]
-        assert RPC_INVALID_REQUEST == response["error"]["code"]
+        assert response["error"]["code"] == RPC_INVALID_REQUEST
 
     def test_invalid_payload(self, live_server, endpoint_path, jsonrpc_content_type):
         # Closing '}' is missing from this payload => invalid json data
@@ -265,8 +265,8 @@ class TestXmlRpcSpecificBehaviors:
         )
 
         assert (
-            "Invalid request: Missing methodName. Please provide "
-            "the name of the procedure you want to call" == message
+            message == "Invalid request: Missing methodName. Please "
+            "provide the name of the procedure you want to call"
         )
         assert code == RPC_INVALID_REQUEST
 
@@ -280,7 +280,7 @@ class TestXmlRpcSpecificBehaviors:
             live_server.url + endpoint_path, payload=dedent(invalid_payload.strip())
         )
 
-        assert "Invalid request: The request appear to be invalid." == message
+        assert message == "Invalid request: The request appear to be invalid."
         assert code == RPC_INVALID_REQUEST
 
     def test_invalid_payload(self, live_server, endpoint_path):

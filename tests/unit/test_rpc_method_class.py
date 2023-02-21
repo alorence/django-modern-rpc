@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from modernrpc.conf import settings as modernrpc_settings
-from modernrpc.core import RPCMethod, rpc_method, Protocol
+from modernrpc.core import Protocol, RPCMethod, rpc_method
 
 
 def dummy_empty():
@@ -243,21 +243,21 @@ class TestSingleLineDoc:
 
     def test_raw_doc(self):
         method = self.method()
-        assert "*italic*, **strong**, normal text" == method.raw_docstring
-        assert "<p>*italic*, **strong**, normal text</p>" == method.html_doc
+        assert method.raw_docstring == "*italic*, **strong**, normal text"
+        assert method.html_doc == "<p>*italic*, **strong**, normal text</p>"
 
     def test_markdown_to_html(self, settings):
         settings.MODERNRPC_DOC_FORMAT = "md"
         assert (
-            "<p><em>italic</em>, <strong>strong</strong>, normal text</p>"
-            == self.method().html_doc
+            self.method().html_doc
+            == "<p><em>italic</em>, <strong>strong</strong>, normal text</p>"
         )
 
     def test_rst_to_html(self, settings):
         settings.MODERNRPC_DOC_FORMAT = "rst"
         assert (
-            "<p><em>italic</em>, <strong>strong</strong>, normal text</p>\n"
-            == self.method().html_doc
+            self.method().html_doc
+            == "<p><em>italic</em>, <strong>strong</strong>, normal text</p>\n"
         )
 
 

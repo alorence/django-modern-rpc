@@ -167,7 +167,7 @@ select = [
     "ICN", # flake8-import-conventions
     "INP", # flake8-no-pep420
     "PIE", # flake8-pie
-    # "SIM", # flake8-print
+    "SIM", # flake8-print
     "PGH", # pygrep-hooks
     "PLC", # PyLint (Convention)
     "PLE", # PyLint (Error)
