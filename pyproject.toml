@@ -171,7 +171,7 @@ select = [
     "PGH", # pygrep-hooks
     "PLC", # PyLint (Convention)
     "PLE", # PyLint (Error)
-    # "PLR", # PyLint (Refactor)
+    "PLR", # PyLint (Refactor)
     "PLW", # PyLint (Warning)
     "RUF", # Ruff specific rules
 ]
@@ -185,6 +185,8 @@ extend-exclude = [
 [tool.ruff.per-file-ignores]
 # Invalid import is expected in this file, this is part of a test
 "tests/testsite/rpc_methods_stub/module_with_invalid_import.py" = ["F401"]
+# Some issues are irrelevant in tests
+"tests/*" = ["PLR2004", "PLR0913"]
 # TODO: following files uses python 3.5 specific variable type hints, in comments
 #  Unfortunately, pyflakes triggers an "Unused import" error in such case.
 #  This should be removed when python 3.5 support will be dropped and variables type hints

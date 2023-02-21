@@ -31,17 +31,19 @@ def http_basic_auth_get_user(request):
     except AttributeError:
         pass
 
-    # This was grabbed from https://www.djangosnippets.org/snippets/243/
-    # Thanks to http://stackoverflow.com/a/1087736/1887976
-    if "HTTP_AUTHORIZATION" in request.META:
-        auth_data = request.META["HTTP_AUTHORIZATION"].split()
-        if len(auth_data) == 2 and auth_data[0].lower() == "basic":
-            uname, passwd = base64.b64decode(auth_data[1]).decode("utf-8").split(":")
-            django_user = authenticate(username=uname, password=passwd)
-            if django_user is not None:
-                login(request, django_user)
+    try:
+        auth_type, credentials = request.META.get("HTTP_AUTHORIZATION").split()
+    except (AttributeError, ValueError):
+        return AnonymousUser()
 
-    # In all cases, return the current request's user (may be anonymous user if no login succeed)
+    # Handle BasicAuth
+    if auth_type.lower() == "basic":
+        uname, passwd = base64.b64decode(credentials).decode("utf-8").split(":")
+        django_user = authenticate(username=uname, password=passwd)
+        if django_user is not None:
+            login(request, django_user)
+
+    # In all cases, return the current request's user (maybe anonymous user if no login succeed)
     try:
         return request.user
     except AttributeError:
