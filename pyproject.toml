@@ -54,10 +54,18 @@ markdown = ["markdown"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
-django = ">=2.1"
 docutils = { version = "*", optional = true }
 markdown = { version = "*", optional = true }
 
+# Django group, allows tox to install a specific django version using pip
+# i.e. poetry install --without django
+[tool.poetry.group.django]
+optional = false
+[tool.poetry.group.django.dependencies]
+django = ">=2.1"
+
+[tool.poetry.group.dev]
+optional = false
 [tool.poetry.group.dev.dependencies]
 jsonrpcclient = "^4.0.2"
 requests = "*"
@@ -75,7 +83,7 @@ pytest-cov = "*"
 [tool.poetry.group.tox]
 optional = true
 [tool.poetry.group.tox.dependencies]
-tox = "^3"
+tox = "^4"
 
 [tool.poetry.group.docs]
 optional = true
@@ -104,6 +112,7 @@ optional = true
 ruff = "^0.0.247"
 pylint = { version = "^2.16", python = ">=3.7.2" }
 
+# Tools configuration
 [tool.pylint]
 # Override default pylint configurations
 # To update, run `pylint --generate-rcfile` for default reference or check the docs:
