@@ -5,12 +5,11 @@ import json.decoder
 import pyexpat
 import xmlrpc.client
 from abc import ABC, abstractmethod
-from typing import Optional, Type
+from typing import Optional, Union, Type, Any, List, Dict
 
-import jsonrpcclient.clients.http_client
+import jsonrpcclient
 import pytest
-from jsonrpcclient.exceptions import ReceivedErrorResponseError
-from jsonrpcclient.requests import Request, Notification
+import requests
 
 
 class JsonrpcErrorResponse(Exception):
@@ -40,23 +39,16 @@ class AbstractRpcTestClient(ABC):
         ...
 
     @staticmethod
-    def assert_exception_code(exception, error_code):
+    def assert_exception_code(exception: Exception, expected_code: int):
         """
-        Check error response exception code to verify it the expected one
-
-        :param exception: The exception instance
-        :param error_code: Error code, as int
+        Extract 'code' or 'faultCode' from given exception instance, and assert its equality
+        with given 'expected_code'. Intended to be used in a pytest assertion.
         """
-        exc_code = getattr(exception, "code", None) or getattr(
-            exception, "faultCode", None
-        )
-        assert exc_code == error_code
+        exc_code = getattr(exception, "code", getattr(exception, "faultCode", None))
+        assert exc_code == expected_code
 
     def _get_headers(self):
-        """Build headers specific to cliet configuration.
-
-        Base implementation will only set Authorization header"""
-
+        """Build headers specific to client configuration"""
         _headers = {
             "Content-Type": self._content_type,
         }
@@ -77,8 +69,8 @@ class AbstractRpcTestClient(ABC):
         return _headers
 
     @abstractmethod
-    def call(self, method, args=None):
-        """Perform a standard RPC call"""
+    def call(self, method: str, args: Union[List[any], Dict[str, Any]] = None):
+        """Perform a standard RPC call. Return the reote procedure execution result."""
 
     @abstractmethod
     def check_response_headers(self, headers):
@@ -138,49 +130,52 @@ class JsonrpcclientlibClient(AbstractJsonRpcTestClient):
 
     def __init__(self, url, **kwargs):
         super().__init__(url, **kwargs)
-        self._id_generator = itertools.count(0)
-        self._client = jsonrpcclient.clients.http_client.HTTPClient(
-            self._url, id_generator=self._id_generator
-        )
-        # self._client = jsonrpcclient.clients.http_client.HTTPClient(self._url)
+        self.url = url
 
     def call(self, method, *args, **kwargs):
+
         if "notify" in kwargs and kwargs.pop("notify"):
-            req = Notification(method, *args, **kwargs)
+            json_req = jsonrpcclient.notification(method, params=args or kwargs)
         else:
-            req = Request(method, *args, **kwargs)
+            json_req = jsonrpcclient.request(method, params=args or kwargs)
 
-        try:
-            response = self._client.send(req, headers=self._get_headers())
-        except ReceivedErrorResponseError as exc:
-            raise JsonrpcErrorResponse(
-                exc.response.code, exc.response.message, exc.response.data
-            ) from exc
+        response = requests.post(self.url, json=json_req, headers=self._get_headers())
+        self.check_response_headers(response.headers)
 
-        self.check_response_headers(response.raw.headers)
+        if response.content == b"":
+            return None
 
-        return response.data.result
+        result = jsonrpcclient.parse(response.json())
+        if isinstance(result, jsonrpcclient.Ok):
+            return result.result
+
+        raise JsonrpcErrorResponse(result.code, result.message, result.data)
 
     def batch_request(self, calls_data):
+
+        batch_id_generator = itertools.count(0)
+        raw_request = jsonrpcclient.requests.request_pure
+        NOID = jsonrpcclient.sentinels.NOID
+
         batch = []
         for method, params, *extra_params in calls_data:
-            if isinstance(params, list):
-                args, kwargs = params, {}
-            elif isinstance(params, dict):
-                args, kwargs = [], params
-
             if "notify_only" in extra_params:
-                batch.append(Notification(method, *args, **kwargs))
+                batch.append(jsonrpcclient.notification(method, params=params))
             else:
                 batch.append(
-                    Request(method, *args, **kwargs, id_generator=self._id_generator)
+                    raw_request(
+                        method=method,
+                        params=params,
+                        id_generator=batch_id_generator,
+                        id=NOID,
+                    )
                 )
 
-        response = self._client.send(batch, headers=self._get_headers())
+        response = requests.post(self.url, json=batch, headers=self._get_headers())
 
-        self.check_response_headers(response.raw.headers)
+        self.check_response_headers(response.headers)
 
-        return None if not response.raw.content else response.raw.json()
+        return None if not response.content else response.json()
 
 
 class PythonXmlRpcClient(AbstractXmlRpcTestClient):

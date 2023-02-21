@@ -54,7 +54,7 @@ class TestBase:
         assert any_rpc_client.call("get_data_type", arg) == expected_type
 
     @pytest.mark.skip(
-        msg="django-modern-rpc does not support model instances results yet"
+        reason="django-modern-rpc does not support model instances results yet"
     )
     def test_input_arg_types(self, any_rpc_client, john_doe):
         result = any_rpc_client.call("user_instance", john_doe.pk) == "str"
