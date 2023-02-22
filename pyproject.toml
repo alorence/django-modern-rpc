@@ -162,13 +162,16 @@ select = [
     # "FBT", # flake8-boolean-trap
     "B", # flake8-bugbear
     "A", # flake8-builtins
-    "DJ", # flake8-django
-    "T20", # flake8-print
+    "C4", # flake8-comprehensions
     # "DTZ", # flake8-datetimez
+    "T10", # flake8-debugger
+    "DJ", # flake8-django
     # "EM", # flake8-errormsg
     "ICN", # flake8-import-conventions
+    "G", # flake8-logging-format
     "INP", # flake8-no-pep420
     "PIE", # flake8-pie
+    "T20", # flake8-print
     "SIM", # flake8-print
     "PGH", # pygrep-hooks
     "PLC", # PyLint (Convention)

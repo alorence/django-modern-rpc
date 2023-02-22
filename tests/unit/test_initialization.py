@@ -21,7 +21,7 @@ class TestInitChecks:
         result = check_settings(apps.get_app_config("modernrpc"))
         assert not result
 
-    @pytest.mark.parametrize("empty_value", [[], set(), tuple(), None])
+    @pytest.mark.parametrize("empty_value", [[], set(), (), None])
     def test_settings_check_with_empty_modules_list(self, settings, empty_value):
         # With empty or None value, first check must complain
         settings.MODERNRPC_METHODS_MODULES = empty_value
@@ -68,7 +68,7 @@ def rpc_registry():
 class TestAppInit:
     """Test behaviors of AppConfig.ready() method, automatically called by Django at project startup"""
 
-    @pytest.mark.parametrize("empty_value", [[], set(), tuple(), None])
+    @pytest.mark.parametrize("empty_value", [[], set(), (), None])
     def test_registry_empty_if_settings_not_defined(
         self, settings, rpc_registry, empty_value
     ):
