@@ -53,6 +53,9 @@ MIDDLEWARE = (
     "django.contrib.messages.middleware.MessageMiddleware",
 )
 
+# Prevent a warning with recent Django versions
+USE_TZ = False
+
 STATIC_ROOT = ""
 STATIC_URL = "/"
 
