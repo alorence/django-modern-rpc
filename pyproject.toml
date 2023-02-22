@@ -161,6 +161,7 @@ select = [
     # "BLE", # flake8-blind-except
     # "FBT", # flake8-boolean-trap
     "B", # flake8-bugbear
+    "A", # flake8-builtins
     "DJ", # flake8-django
     "T20", # flake8-print
     # "DTZ", # flake8-datetimez

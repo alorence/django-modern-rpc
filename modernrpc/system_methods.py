@@ -104,6 +104,6 @@ def __system_multi_call(calls, **kwargs):
         params = call.get("params")
 
         result = handler.process_single_request((method_name, params), context)
-        results.append(result.format())
+        results.append(result.serializable_data())
 
     return results

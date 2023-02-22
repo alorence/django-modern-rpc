@@ -30,7 +30,7 @@ class BaseResult(ABC):
     """
 
     @abstractmethod
-    def format(self):
+    def serializable_data(self):
         """Dumps response content into the right format. Protocol specific
         implementations of this method must be written."""
 

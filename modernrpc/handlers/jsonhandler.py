@@ -40,7 +40,7 @@ class JsonRpcDataMixin:
 class JsonSuccessResult(JsonRpcDataMixin, SuccessResult):
     """A JSON-RPC success result"""
 
-    def format(self):
+    def serializable_data(self):
         return {
             "result": self.data,
         }
@@ -53,7 +53,7 @@ class JsonErrorResult(JsonRpcDataMixin, ErrorResult):
         super().__init__(code, message)
         self.data = data
 
-    def format(self):
+    def serializable_data(self):
         _part = {
             "error": {
                 "code": self.code,
@@ -225,7 +225,9 @@ class JSONRPCHandler(RPCHandler):
             "jsonrpc": result.version,
         }
         try:
-            return json.dumps({**result_base, **result.format()}, cls=self.encoder)
+            return json.dumps(
+                {**result_base, **result.serializable_data()}, cls=self.encoder
+            )
 
         except Exception as exc:
             # Error on result serialization: serialize an error instead
@@ -233,5 +235,5 @@ class JSONRPCHandler(RPCHandler):
             logger.error(error_msg, exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
             error_result = JsonErrorResult(RPC_INTERNAL_ERROR, error_msg)
             return json.dumps(
-                {**result_base, **error_result.format()}, cls=self.encoder
+                {**result_base, **error_result.serializable_data()}, cls=self.encoder
             )

@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 class XmlSuccessResult(SuccessResult):
     """An XML-RPC success result"""
 
-    def format(self):
+    def serializable_data(self):
         # xmlrpc_client.Marshaller expects a list of objects to dump.
         # It will output a '<params></params>' block and loops onto given objects to inject, for each one,
         # a '<param><value><type>X</type></value></param>' block.
@@ -39,7 +39,7 @@ class XmlSuccessResult(SuccessResult):
 class XmlErrorResult(ErrorResult):
     """An XML-RPC error result"""
 
-    def format(self):
+    def serializable_data(self):
         return xmlrpc_client.Fault(self.code, self.message)
 
 
@@ -129,13 +129,13 @@ class XMLRPCHandler(RPCHandler):
         """Dumps result instance into a proper XML-RPC xml response"""
         try:
             # Dumps result without any check. Catch exception to handle dump errors
-            dumped_result = self.marshaller.dumps(result.format())
+            dumped_result = self.marshaller.dumps(result.serializable_data())
         except Exception as exc:
             # Error on result serialization: result become an error...
             error_msg = f"Unable to serialize result: {exc}"
             logger.error(error_msg, exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
             error_result = XmlErrorResult(RPC_INTERNAL_ERROR, error_msg)
-            dumped_result = self.marshaller.dumps(error_result.format())
+            dumped_result = self.marshaller.dumps(error_result.serializable_data())
 
         # Finally, dumps the result into full response content
         final_content = (
