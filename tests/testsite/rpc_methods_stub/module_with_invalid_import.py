@@ -1,4 +1,3 @@
-# coding: utf-8
 from modernrpc.core import rpc_method
 from invalid_package import unknown_module
 

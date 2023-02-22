@@ -1,4 +1,3 @@
-# coding: utf-8
 import base64
 import itertools
 import json.decoder
@@ -59,13 +58,13 @@ class AbstractRpcTestClient(ABC):
         kind, *_ = self._auth
 
         if kind not in ("basic", "basic_auth"):
-            raise ValueError("Unknown Authentication kind: {}".format(kind))
+            raise ValueError(f"Unknown Authentication kind: {kind}")
 
         _, username, password = self._auth
-        credz = "{}:{}".format(username, password)
+        credz = f"{username}:{password}"
         b64_credz = base64.standard_b64encode(credz.encode("utf-8")).decode("utf-8")
 
-        _headers["Authorization"] = "Basic {}".format(b64_credz)
+        _headers["Authorization"] = f"Basic {b64_credz}"
         return _headers
 
     @abstractmethod

@@ -1,4 +1,3 @@
-# coding: utf-8
 import inspect
 import logging
 from importlib import import_module
@@ -9,6 +8,7 @@ from django.core import checks
 
 from modernrpc.conf import settings
 from modernrpc.core import registry
+
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +47,7 @@ def check_settings(app_configs, **kwargs):
                 msg = '{} exception when importing "{}" module'.format(
                     exc.__class__.__name__, module_name
                 )
-                hint = "See exception info: {}".format(exc)
+                hint = f"See exception info: {exc}"
                 messages.append(
                     checks.Error(msg, hint=hint, obj=settings, id="modernrpc.E002")
                 )

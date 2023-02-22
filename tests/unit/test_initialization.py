@@ -1,4 +1,3 @@
-# coding: utf-8
 """This module will test behavior when library is started"""
 import pytest
 from django.apps.registry import apps

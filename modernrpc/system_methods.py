@@ -1,13 +1,12 @@
-# coding: utf-8
 from modernrpc.core import (
     ENTRY_POINT_KEY,
+    HANDLER_KEY,
     PROTOCOL_KEY,
+    Protocol,
+    REQUEST_KEY,
+    RPCRequestContext,
     registry,
     rpc_method,
-    HANDLER_KEY,
-    REQUEST_KEY,
-    Protocol,
-    RPCRequestContext,
 )
 from modernrpc.exceptions import RPCInvalidParams
 from modernrpc.handlers import XMLRPCHandler
@@ -40,7 +39,7 @@ def __system_method_signature(method_name, **kwargs):
     method = registry.get_method(method_name, entry_point, protocol)
     if method is None:
         raise RPCInvalidParams(
-            "Unknown method {}. Unable to retrieve signature.".format(method_name)
+            f"Unknown method {method_name}. Unable to retrieve signature."
         )
 
     # See http://xmlrpc-c.sourceforge.net/introspection.html

@@ -1,6 +1,5 @@
-# coding: utf-8
 import logging
-from typing import Sequence, Generator, Type
+from typing import Generator, Sequence, Type
 
 from django.core.exceptions import ImproperlyConfigured
 from django.http.response import HttpResponse
@@ -11,9 +10,10 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import TemplateView, View
 
 from modernrpc.conf import settings
-from modernrpc.core import registry, RPCRequestContext, Protocol
+from modernrpc.core import Protocol, RPCRequestContext, registry
 from modernrpc.handlers.base import RPCHandler
 from modernrpc.helpers import ensure_sequence
+
 
 logger = logging.getLogger(__name__)
 

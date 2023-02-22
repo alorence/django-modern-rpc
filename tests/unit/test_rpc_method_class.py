@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from modernrpc.conf import settings as modernrpc_settings
 from modernrpc.core import Protocol, RPCMethod, rpc_method
 
@@ -202,7 +200,7 @@ def dummy_rst_docstring(name, birthdate, sex):
     :type sex: str
     :return: A string representation of given arguments
     """
-    return "{} ({}) born on {}".format(name, str(sex), str(birthdate))
+    return f"{name} ({str(sex)}) born on {str(birthdate)}"
 
 
 class TestWithDoctstringOnlyFunction:

@@ -1,4 +1,3 @@
-# coding: utf-8
 import json
 import logging
 from json.decoder import JSONDecodeError
@@ -142,9 +141,7 @@ class JSONRPCHandler(RPCHandler):
         try:
             payload = json.loads(request_body, cls=self.decoder)
         except (JSONDecodeError, Exception) as exc:
-            raise RPCParseError(
-                "Error while parsing JSON-RPC request: {}".format(exc)
-            ) from exc
+            raise RPCParseError(f"Error while parsing JSON-RPC request: {exc}") from exc
 
         return payload
 
@@ -232,7 +229,7 @@ class JSONRPCHandler(RPCHandler):
 
         except Exception as exc:
             # Error on result serialization: serialize an error instead
-            error_msg = "Unable to serialize result: {}".format(exc)
+            error_msg = f"Unable to serialize result: {exc}"
             logger.error(error_msg, exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
             error_result = JsonErrorResult(RPC_INTERNAL_ERROR, error_msg)
             return json.dumps(

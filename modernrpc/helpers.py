@@ -1,8 +1,6 @@
-# coding: utf-8
 import datetime
-
 import xmlrpc.client as xmlrpc_client
-from typing import Union, Optional, Any, Iterable
+from typing import Any, Iterable, Optional, Union
 
 
 def get_builtin_date(

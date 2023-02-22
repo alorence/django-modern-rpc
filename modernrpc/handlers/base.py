@@ -1,4 +1,3 @@
-# coding: utf-8
 import logging
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, List

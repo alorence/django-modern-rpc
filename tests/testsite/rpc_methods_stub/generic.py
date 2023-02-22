@@ -1,4 +1,3 @@
-# coding: utf-8
 import datetime
 
 from modernrpc.core import rpc_method, PROTOCOL_KEY

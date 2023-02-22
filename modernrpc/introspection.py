@@ -10,6 +10,7 @@ from django.utils.functional import cached_property
 
 from modernrpc.conf import settings
 
+
 # Define regular expressions used to parse docstring
 PARAM_REXP = re.compile(r"^[:@]param (\w+):\s?(.*)$", flags=re.MULTILINE)
 PARAM_TYPE_REXP = re.compile(r"^[:@]type (\w+):\s?(.*)$", flags=re.MULTILINE)
@@ -31,12 +32,8 @@ class Introspector:
     def accept_kwargs(self) -> bool:
         """Determine if function signature contains **kwargs special argument"""
         if self.signature.parameters:
-            # Note: cast to list() is required by python 3.5 only, to allow use of reversed() helper
-            last_param = next(reversed(list(self.signature.parameters)))
-            return (
-                self.signature.parameters[last_param].kind
-                == inspect.Parameter.VAR_KEYWORD
-            )
+            last_param = next(reversed(self.signature.parameters.values()))
+            return last_param.kind == inspect.Parameter.VAR_KEYWORD
         return False
 
     @cached_property

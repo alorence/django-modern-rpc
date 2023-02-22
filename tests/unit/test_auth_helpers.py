@@ -1,4 +1,3 @@
-# coding: utf-8
 import pytest
 from django.http.request import HttpRequest
 
@@ -48,7 +47,7 @@ class TestAuthentication:
 class TestPermissions:
     @staticmethod
     def permission_string(perm):
-        return "{}.{}".format(perm.content_type.app_label, perm.codename)
+        return f"{perm.content_type.app_label}.{perm.codename}"
 
     def test_default_permissions(
         self, superuser, anonymous_user, john_doe, delete_user_perm, add_user_perm

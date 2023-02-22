@@ -1,8 +1,7 @@
-# coding: utf-8
 import json
 import random
 import re
-import xml.etree.cElementTree as ET
+import xml.etree.ElementTree as ET
 from json import JSONDecodeError
 from textwrap import dedent
 

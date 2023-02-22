@@ -1,4 +1,3 @@
-# coding: utf-8
 import django
 from packaging.version import Version
 

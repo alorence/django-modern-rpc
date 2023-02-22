@@ -1,10 +1,9 @@
-# coding: utf-8
 import functools
 import logging
 from collections import OrderedDict
 from enum import Enum
 from types import FunctionType
-from typing import TYPE_CHECKING, Any, Optional, List, Dict, Iterable
+from typing import Any, Dict, Iterable, List, Optional, TYPE_CHECKING
 
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpRequest
@@ -13,12 +12,13 @@ from django.utils.functional import cached_property
 from modernrpc.conf import settings
 from modernrpc.exceptions import (
     AuthenticationFailed,
-    RPCInvalidParams,
-    RPCInternalError,
     RPCException,
+    RPCInternalError,
+    RPCInvalidParams,
 )
 from modernrpc.helpers import ensure_sequence
-from modernrpc.introspection import Introspector, DocstringParser
+from modernrpc.introspection import DocstringParser, Introspector
+
 
 if TYPE_CHECKING:
     from modernrpc.handlers.base import RPCHandler

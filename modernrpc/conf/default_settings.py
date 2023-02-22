@@ -1,4 +1,3 @@
-# coding: utf-8
 from typing import List
 
 # List of python modules containing RPC methods.

@@ -1,4 +1,3 @@
-# coding: utf-8
 import logging
 import xmlrpc.client as xmlrpc_client
 from pyexpat import ExpatError
@@ -96,9 +95,7 @@ class XMLRPCHandler(RPCHandler):
             )
 
         except ExpatError as exc:
-            raise RPCParseError(
-                "Error while parsing XML-RPC request: {}".format(exc)
-            ) from exc
+            raise RPCParseError(f"Error while parsing XML-RPC request: {exc}") from exc
 
         except Exception as exc:
             raise RPCInvalidRequest("The request appear to be invalid.") from exc
@@ -135,7 +132,7 @@ class XMLRPCHandler(RPCHandler):
             dumped_result = self.marshaller.dumps(result.format())
         except Exception as exc:
             # Error on result serialization: result become an error...
-            error_msg = "Unable to serialize result: {}".format(exc)
+            error_msg = f"Unable to serialize result: {exc}"
             logger.error(error_msg, exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
             error_result = XmlErrorResult(RPC_INTERNAL_ERROR, error_msg)
             dumped_result = self.marshaller.dumps(error_result.format())

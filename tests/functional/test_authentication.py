@@ -1,4 +1,3 @@
-# coding: utf-8
 import pytest
 
 from modernrpc.exceptions import RPC_INTERNAL_ERROR
