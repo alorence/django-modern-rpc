@@ -1,5 +1,18 @@
 # Changelog
 
+## Next minor release
+
+**Release date: Unknown**
+
+### Fixes
+
+ - When request is received with an invalid Content-Type (or missing one), the error response is now returned with a
+ "text/plain" Content-Type header.
+
+### Misc
+
+  - Dropped support of python 3.5 and 3.6
+
 ## v1.0.1
 
 **Release date: 2023-01-26**

@@ -106,7 +106,8 @@ class RPCMethod:
     def check_permissions(self, request: HttpRequest) -> bool:
         """Call the predicate(s) associated with the RPC method, to check if the current request
         can actually call the method.
-        Return a boolean indicating if the method should be executed (True) or not (False)"""
+        Return a boolean indicating if the method should be executed (True) or not (False)
+        """
         if not self.predicates:
             return True
 
@@ -122,7 +123,6 @@ class RPCMethod:
         args: Iterable[Any],
         kwargs: Optional[dict] = None,
     ) -> Any:
-
         kwargs = kwargs or {}
 
         if not self.check_permissions(context.request):

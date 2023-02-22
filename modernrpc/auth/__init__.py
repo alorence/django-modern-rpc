@@ -26,7 +26,6 @@ def set_authentication_predicate(predicate, params=()):
     """
 
     def wrapper(rpc_method):
-
         if hasattr(rpc_method, "modernrpc_auth_predicates"):
             rpc_method.modernrpc_auth_predicates.append(predicate)
             rpc_method.modernrpc_auth_predicates_params.append(params)

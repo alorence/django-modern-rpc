@@ -91,7 +91,8 @@ class RPCEntryPoint(TemplateView):
         if not request.content_type:
             return HttpResponse(
                 "Unable to handle your request, the Content-Type header is mandatory to allow server "
-                "to determine which handler can interpret your request.."
+                "to determine which handler can interpret your request..",
+                content_type="text/plain",
             )
 
         # Retrieve the first RPC handler able to parse our request
@@ -104,7 +105,8 @@ class RPCEntryPoint(TemplateView):
         if not handler:
             return HttpResponse(
                 "Unable to handle your request. Please ensure you called "
-                "the right entry point. If not, this could be a server error."
+                "the right entry point. If not, this could be a server error.",
+                content_type="text/plain",
             )
 
         context = RPCRequestContext(

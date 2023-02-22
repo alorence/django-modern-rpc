@@ -60,10 +60,9 @@ class TestXmlOnlyEntryPoint:
         return "/xml-only/"
 
     def test_request_to_unsupported_endpoint(self, jsonrpc_client):
-        exc_match = r"(The response was not valid JSON|Expecting value: line 1 column 1 \(char 0\))"
-        with pytest.raises(
-            jsonrpc_client.invalid_response_exception, match=exc_match
-        ) as exc_info:
+        exc_match = r'Invalid Content-Type returned by server: "text/plain". Expected: "application/json"'
+        # TODO: find a way to read the error text returned, and check it is the expected one
+        with pytest.raises(ValueError, match=exc_match) as exc_info:
             # There is no method available via this entry point for JSON-RPC clients.
             # The returned error message cannot be encapsulated in a proper JSON-RPC response (since the entry
             # point is not configured to handle and respond via this protocol). The returned error message is RAW,
