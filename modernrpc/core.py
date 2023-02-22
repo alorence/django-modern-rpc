@@ -2,11 +2,9 @@ import functools
 import logging
 from collections import OrderedDict
 from enum import Enum
-from types import FunctionType
 from typing import Any, Dict, Iterable, List, Optional, TYPE_CHECKING
 
 from django.core.exceptions import ImproperlyConfigured
-from django.http import HttpRequest
 from django.utils.functional import cached_property
 
 from modernrpc.conf import settings
@@ -21,6 +19,8 @@ from modernrpc.introspection import DocstringParser, Introspector
 
 
 if TYPE_CHECKING:
+    from types import FunctionType
+    from django.http import HttpRequest
     from modernrpc.handlers.base import RPCHandler
 
 # Special constant meaning "all protocols" or "all entry points"
@@ -49,7 +49,7 @@ class RPCRequestContext:
 
     def __init__(
         self,
-        request: HttpRequest,
+        request: "HttpRequest",
         # Double quotes will prevent circular import, as this
         # is the only place RPCHandler is used in core module
         handler: "RPCHandler",
@@ -67,7 +67,7 @@ class RPCMethod:
     Wraps a python global function to be used to extract information and call the concrete procedure.
     """
 
-    def __init__(self, func: FunctionType):
+    def __init__(self, func: "FunctionType"):
         # Store the reference to the registered function
         self.function = func
 
@@ -103,7 +103,7 @@ class RPCMethod:
             and self.predicates_params == other.predicates_params
         )
 
-    def check_permissions(self, request: HttpRequest) -> bool:
+    def check_permissions(self, request: "HttpRequest") -> bool:
         """Call the predicate(s) associated with the RPC method, to check if the current request
         can actually call the method.
         Return a boolean indicating if the method should be executed (True) or not (False)
@@ -227,7 +227,7 @@ class _RPCRegistry:
     def reset(self) -> None:
         self._registry.clear()
 
-    def register_method(self, func: FunctionType) -> str:
+    def register_method(self, func: "FunctionType") -> str:
         """
         Register a function to be available as RPC method.
 
@@ -292,10 +292,7 @@ class _RPCRegistry:
             if method.is_valid_for(entry_point, protocol)
         ]
 
-        if sort_methods:
-            method_names = sorted(method_names)
-
-        return method_names
+        return sorted(method_names) if sort_methods else method_names
 
     def get_all_methods(
         self,

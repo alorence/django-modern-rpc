@@ -54,7 +54,7 @@ class MyCustomException(RPCException):
 
 @rpc_method
 def raise_custom_exception():
-    raise MyCustomException()
+    raise MyCustomException
 
 
 class MyCustomExceptionWithData(RPCException):

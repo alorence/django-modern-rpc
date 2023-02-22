@@ -212,8 +212,7 @@ class PythonXmlRpcClient(AbstractXmlRpcTestClient):
             args,
         ) in calls_data:
             getattr(multicall, method)(*args)
-        result = multicall()
-        return result
+        return multicall()
 
 
 @pytest.fixture(scope="session")
@@ -231,7 +230,6 @@ def all_rpc_docs_path():
 @pytest.fixture(scope="session")
 def client_auth():
     """Authentication data. Default is None, can be overriden at module or class level"""
-    return None
 
 
 @pytest.fixture(

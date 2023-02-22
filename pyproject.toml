@@ -167,12 +167,22 @@ select = [
     "T10", # flake8-debugger
     "DJ", # flake8-django
     # "EM", # flake8-errormsg
+    "EXE", # flake8-executable
+    "ISC", # flake8-implicit-str-concat
     "ICN", # flake8-import-conventions
     "G", # flake8-logging-format
     "INP", # flake8-no-pep420
     "PIE", # flake8-pie
     "T20", # flake8-print
-    "SIM", # flake8-print
+    "PYI", # flake8-pyi
+    # "PT", # flake8-pytest-style
+    "Q", # flake8-quotes
+    "RSE", # flake8-raise
+    "RET", # flake8-return
+    "SLF", # flake8-self
+    "SIM", # flake8-simplify
+    "TID", # flake8-tidy-imports
+    "TCH", # flake8-type-checking
     "PGH", # pygrep-hooks
     "PLC", # PyLint (Convention)
     "PLE", # PyLint (Error)
@@ -192,6 +202,7 @@ extend-exclude = [
 "tests/testsite/rpc_methods_stub/module_with_invalid_import.py" = ["F401"]
 # Some issues are irrelevant in tests
 "tests/*" = ["PLR2004", "PLR0913", "S"]
+"tests/unit/test_initialization.py" = ["SLF001"]
 # TODO: following files uses python 3.5 specific variable type hints, in comments
 #  Unfortunately, pyflakes triggers an "Unused import" error in such case.
 #  This should be removed when python 3.5 support will be dropped and variables type hints
