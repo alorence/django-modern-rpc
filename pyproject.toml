@@ -109,7 +109,7 @@ types-Markdown = "^3.4.2"
 [tool.poetry.group.linters]
 optional = true
 [tool.poetry.group.linters.dependencies]
-ruff = "^0.0.247"
+ruff = "~0.0.250"
 pylint = { version = "^2.16", python = ">=3.7.2" }
 
 # Tools configuration
