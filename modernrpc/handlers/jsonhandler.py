@@ -25,8 +25,8 @@ VERSION = "_jsonrpc_request_version"
 class JsonRpcDataMixin:
     """Wraps JSON-RPC specific information used to handle requests"""
 
-    request_id = None  # type: Optional[int]
-    version = "2.0"  # type: str
+    request_id: Optional[int] = None
+    version: str = "2.0"
     # Note: In some case, it is possible to have a null request_id on standard request (not a notification), when an
     # error appear on request parsing. Thus, the result must be sent with an "id" parameter set to None (null in JSON)
     is_notification = False
@@ -109,17 +109,17 @@ class JSONRPCHandler(RPCHandler):
             # Parsed request is a list, we should handle it as batch request
             if isinstance(parsed_request, list):
                 # Process each request, getting the resulting JsonResult instance (success or error)
-                results = (
+                results: Generator[JsonResult, None, None] = (
                     self.process_single_request(_req, context)
                     for _req in parsed_request
-                )  # type: Generator[JsonResult, None, None]
+                )
 
                 # Transform each result into its str result representation and remove notifications result
-                str_results = (
+                str_results: Generator[str, None, None] = (
                     self.dumps_result(_res)
                     for _res in results
                     if not _res.is_notification
-                )  # type: Generator[str, None, None]
+                )
 
                 # Rebuild final JSON content manually
                 concatenated_results = ", ".join(str_results)
@@ -193,7 +193,7 @@ class JSONRPCHandler(RPCHandler):
             _method = self.get_method_wrapper(method_name)
 
             result_data = _method.execute(context, args, kwargs)
-            result = JsonSuccessResult(result_data)  # type: JsonResult
+            result: JsonResult = JsonSuccessResult(result_data)
 
         except RPCException as exc:
             logger.warning(exc, exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)

@@ -49,7 +49,7 @@ class ErrorResult(BaseResult, ABC):
 class RPCHandler(ABC):
     """Base class for concrete RPC Handlers. Provide an interface as well as some common methods implementations."""
 
-    protocol = None  # type: Protocol
+    protocol: Protocol
 
     def __init__(self, entry_point: str):
         self.entry_point = entry_point

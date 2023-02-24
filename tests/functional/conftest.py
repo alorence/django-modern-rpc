@@ -23,9 +23,9 @@ class JsonrpcErrorResponse(Exception):
 class AbstractRpcTestClient(ABC):
     """Base class RPC clients used to run tests"""
 
-    error_response_exception = None  # type: Optional[Type[Exception]]
-    invalid_response_exception = None  # type: Optional[Type[Exception]]
-    auth_error_exception = None  # type: Optional[Type[Exception]]
+    error_response_exception: Optional[Type[Exception]] = None
+    invalid_response_exception: Optional[Type[Exception]] = None
+    auth_error_exception: Optional[Type[Exception]] = None
 
     def __init__(self, url, **kwargs):
         self._url = url

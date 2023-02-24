@@ -79,7 +79,7 @@ class XMLRPCHandler(RPCHandler):
             params, method_name = self.parse_request(request_body)
         except RPCException as exc:
             logger.error(exc, exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
-            result = XmlErrorResult(exc.code, exc.message)  # type: BaseResult
+            result: BaseResult = XmlErrorResult(exc.code, exc.message)
         else:
             result = self.process_single_request((method_name, params), context)
 

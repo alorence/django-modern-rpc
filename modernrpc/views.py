@@ -29,10 +29,10 @@ class RPCEntryPoint(TemplateView):
 
     template_name = "modernrpc/default/index.html"
 
-    entry_point = settings.MODERNRPC_DEFAULT_ENTRYPOINT_NAME  # type: str
-    protocol = Protocol.ALL  # type: Protocol
-    enable_doc = False  # type: bool
-    enable_rpc = True  # type: bool
+    entry_point: str = settings.MODERNRPC_DEFAULT_ENTRYPOINT_NAME
+    protocol: Protocol = Protocol.ALL
+    enable_doc: bool = False
+    enable_rpc: bool = True
 
     default_encoding = "utf-8"
 
