@@ -223,5 +223,5 @@ class TestRegistry:
         assert methods != sorted_methods
         assert len(methods) == len(sorted_methods)
         # Ensure all methods from on is referenced in other
-        assert all([method in sorted_methods for method in methods])
-        assert all([method in methods for method in sorted_methods])
+        assert all(method in sorted_methods for method in methods)
+        assert all(method in methods for method in sorted_methods)
