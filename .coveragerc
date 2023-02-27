@@ -13,6 +13,8 @@ exclude_lines =
     raise NotImplementedError
     # Manually ignored lines
     pragma: no cover
+    # Such block is used only when mypy is ran
+    if TYPE_CHECKING:
 
 omit =
   tests/testsite/rpc_methods_stub/*
