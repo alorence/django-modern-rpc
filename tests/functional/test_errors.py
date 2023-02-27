@@ -89,8 +89,6 @@ class TestJsonRpcSpecificBehaviors:
     def test_missing_method_name(
         self, live_server, endpoint_path, jsonrpc_content_type
     ):
-        # Missing 'method' in payload
-
         headers = {"content-type": jsonrpc_content_type}
         payload = {
             # "method": 'add',

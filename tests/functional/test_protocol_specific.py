@@ -51,7 +51,7 @@ class TestJsonRpcSpecificFeatures:
     def test_named_args(self, jsonrpc_client):
         assert jsonrpc_client.call("divide", numerator=50, denominator=8, z=25) == 6.25
 
-    def test_named_args_with_arrors(self, jsonrpc_client):
+    def test_named_args_with_errors(self, jsonrpc_client):
         exc_match = (
             r"Invalid parameters: divide\(\) got an unexpected keyword argument.+"
         )

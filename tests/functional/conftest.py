@@ -1,14 +1,14 @@
 import base64
 import itertools
-import json.decoder
 import pyexpat
 import xmlrpc.client
 from abc import ABC, abstractmethod
-from typing import Optional, Union, Type, Any, List, Dict
+from typing import Union, Type, Any, List, Dict
 
 import jsonrpcclient
 import pytest
 import requests
+from jsonrpcclient.sentinels import NOID
 
 
 class JsonrpcErrorResponse(Exception):
@@ -23,9 +23,9 @@ class JsonrpcErrorResponse(Exception):
 class AbstractRpcTestClient(ABC):
     """Base class RPC clients used to run tests"""
 
-    error_response_exception: Optional[Type[Exception]] = None
-    invalid_response_exception: Optional[Type[Exception]] = None
-    auth_error_exception: Optional[Type[Exception]] = None
+    error_response_exception: Type[Exception]
+    invalid_response_exception: Type[Exception]
+    auth_error_exception: Type[Exception]
 
     def __init__(self, url, **kwargs):
         self._url = url
@@ -46,7 +46,7 @@ class AbstractRpcTestClient(ABC):
         exc_code = getattr(exception, "code", getattr(exception, "faultCode", None))
         assert exc_code == expected_code
 
-    def _get_headers(self):
+    def _build_request_headers(self):
         """Build headers specific to client configuration"""
         _headers = {
             "Content-Type": self._content_type,
@@ -68,7 +68,7 @@ class AbstractRpcTestClient(ABC):
         return _headers
 
     @abstractmethod
-    def call(self, method: str, args: Union[List[any], Dict[str, Any]] = None):
+    def call(self, method: str, args: Union[List[Any], Dict[str, Any]] = None):
         """Perform a standard RPC call. Return the reote procedure execution result."""
 
     @abstractmethod
@@ -122,9 +122,7 @@ class AbstractXmlRpcTestClient(AbstractRpcTestClient):
 
 class JsonrpcclientlibClient(AbstractJsonRpcTestClient):
     error_response_exception = JsonrpcErrorResponse
-    invalid_response_exception = json.decoder.JSONDecodeError
     auth_error_exception = JsonrpcErrorResponse
-
     batch_result_klass = list
 
     def __init__(self, url, **kwargs):
@@ -137,7 +135,9 @@ class JsonrpcclientlibClient(AbstractJsonRpcTestClient):
         else:
             json_req = jsonrpcclient.request(method, params=args or kwargs)
 
-        response = requests.post(self.url, json=json_req, headers=self._get_headers())
+        response = requests.post(
+            self.url, json=json_req, headers=self._build_request_headers()
+        )
         self.check_response_headers(response.headers)
 
         if response.content == b"":
@@ -151,8 +151,6 @@ class JsonrpcclientlibClient(AbstractJsonRpcTestClient):
 
     def batch_request(self, calls_data):
         batch_id_generator = itertools.count(0)
-        raw_request = jsonrpcclient.requests.request_pure
-        NOID = jsonrpcclient.sentinels.NOID
 
         batch = []
         for method, params, *extra_params in calls_data:
@@ -160,7 +158,7 @@ class JsonrpcclientlibClient(AbstractJsonRpcTestClient):
                 batch.append(jsonrpcclient.notification(method, params=params))
             else:
                 batch.append(
-                    raw_request(
+                    jsonrpcclient.requests.request_pure(
                         method=method,
                         params=params,
                         id_generator=batch_id_generator,
@@ -168,8 +166,9 @@ class JsonrpcclientlibClient(AbstractJsonRpcTestClient):
                     )
                 )
 
-        response = requests.post(self.url, json=batch, headers=self._get_headers())
-
+        response = requests.post(
+            self.url, json=batch, headers=self._build_request_headers()
+        )
         self.check_response_headers(response.headers)
 
         return None if not response.content else response.json()
@@ -195,11 +194,12 @@ class PythonXmlRpcClient(AbstractXmlRpcTestClient):
             self._get_headers_list(),
             {},
         )
+        # TODO: starting with python 3.8, 'headers' argument can be used to customize headers on ServerProxy
         self._client = xmlrpc.client.ServerProxy(self._url, transport=self._transport)
 
     def _get_headers_list(self):
         """Copy current headers' dict to a List[Tuple[str, str]] instance"""
-        return [(key, value) for key, value in self._get_headers().items()]
+        return [(key, value) for key, value in self._build_request_headers().items()]
 
     def call(self, method, *args):
         _rpc_method = getattr(self._client, method)
