@@ -91,7 +91,7 @@ class RPCMethod:
         return "RPC Method " + self.name
 
     def __str__(self) -> str:
-        return "{}({})".format(self.name, ", ".join(self.introspector.args))
+        return f"{self.name}({', '.join(self.introspector.args)})"
 
     def __eq__(self, other) -> bool:
         return (
@@ -238,9 +238,7 @@ class _RPCRegistry:
         """
         if not getattr(func, "modernrpc_enabled", False):
             raise ImproperlyConfigured(
-                "Error: trying to register {} as RPC method, but it has not been decorated.".format(
-                    func.__name__
-                )
+                f"Error: trying to register {func.__name__} as RPC method, but it has not been decorated."
             )
 
         # Define the external name of the function
@@ -268,9 +266,7 @@ class _RPCRegistry:
             # But if we try to use the same name to register 2 different methods, we
             # must inform the developer there is an error in the code
             raise ImproperlyConfigured(
-                "A RPC method with name {} has already been registered".format(
-                    method.name
-                )
+                f"A RPC method with name {method.name} has already been registered"
             )
 
         # Store the method

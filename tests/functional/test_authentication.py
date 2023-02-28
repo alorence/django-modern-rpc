@@ -72,9 +72,7 @@ class TestAuthAnonymousUser:
     )
     def test_with_anonymous_user(self, any_rpc_client, method_name, args):
         # Exception test match
-        exc_match = r'Authentication failed when calling "{func}"'.format(
-            func=method_name
-        )
+        exc_match = rf'Authentication failed when calling "{method_name}"'
         with pytest.raises(
             any_rpc_client.auth_error_exception, match=exc_match
         ) as exc_info:
@@ -147,9 +145,7 @@ class TestAuthStandardUser:
     ):
         if must_raise:
             # Exception test match
-            exc_match = r'Authentication failed when calling "{func}"'.format(
-                func=method_name
-            )
+            exc_match = rf'Authentication failed when calling "{method_name}"'
             with pytest.raises(
                 any_rpc_client.auth_error_exception, match=exc_match
             ) as exc_info:

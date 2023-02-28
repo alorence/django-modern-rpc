@@ -150,11 +150,7 @@ class JSONRPCHandler(RPCHandler):
     ) -> JsonResult:
         """Check and call the RPC method, based on given request dict."""
         if not isinstance(request_data, dict):
-            error_msg = (
-                'Invalid JSON-RPC payload, expected "object", found "{}"'.format(
-                    type(request_data).__name__
-                )
-            )
+            error_msg = f'Invalid JSON-RPC payload, expected "object", found "{type(request_data).__name__}"'
             return JsonErrorResult(RPC_INVALID_REQUEST, error_msg)
 
         # Retrieve method name, and get corresponding RPCMethod instance.
@@ -180,9 +176,7 @@ class JSONRPCHandler(RPCHandler):
 
             if jsonrpc_version != "2.0":
                 raise RPCInvalidRequest(
-                    'Parameter "jsonrpc" has an unsupported value "{}". It must be set to "2.0"'.format(
-                        jsonrpc_version
-                    )
+                    f'Parameter "jsonrpc" has an unsupported value "{jsonrpc_version}". It must be set to "2.0"'
                 )
 
             if not is_notification and request_id is None:

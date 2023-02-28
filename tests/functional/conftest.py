@@ -90,11 +90,7 @@ class AbstractJsonRpcTestClient(AbstractRpcTestClient):
         response_ct = headers["Content-Type"]
         expected_ct = "application/json"
         if not response_ct.startswith(expected_ct):
-            error_msg = (
-                'Invalid Content-Type returned by server: "{}". Expected: "{}"'.format(
-                    response_ct, expected_ct
-                )
-            )
+            error_msg = f'Invalid Content-Type returned by server: "{response_ct}". Expected: "{expected_ct}"'
             raise ValueError(error_msg)
 
 
@@ -112,11 +108,7 @@ class AbstractXmlRpcTestClient(AbstractRpcTestClient):
         response_ct = headers["Content-Type"]
         expected_ct = "text/xml"
         if not response_ct.startswith(expected_ct):
-            error_msg = (
-                'Invalid Content-Type returned by server: "{}". Expected: "{}"'.format(
-                    response_ct, expected_ct
-                )
-            )
+            error_msg = f'Invalid Content-Type returned by server: "{response_ct}". Expected: "{expected_ct}"'
             raise ValueError(error_msg)
 
 

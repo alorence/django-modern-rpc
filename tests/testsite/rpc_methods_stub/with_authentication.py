@@ -87,9 +87,7 @@ def in_group_a_or_b_required(x):
 @rpc_method
 def display_authenticated_user(**kwargs):
     u = kwargs[REQUEST_KEY].user
-    return "username: {}".format(
-        u.username if user_is_authenticated(u) else "Anonymous"
-    )
+    return f"username: {u.username if user_is_authenticated(u) else 'Anonymous'}"
 
 
 def allow_python_callers(request):

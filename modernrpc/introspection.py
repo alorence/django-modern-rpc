@@ -106,9 +106,8 @@ class DocstringParser:
 
             return markdown.markdown(self.raw_docstring)
 
-        return "<p>{}</p>".format(
-            self.raw_docstring.replace("\n\n", "</p><p>").replace("\n", " ")
-        )
+        html_content = self.raw_docstring.replace("\n\n", "</p><p>").replace("\n", " ")
+        return f"<p>{html_content}</p>"
 
     @cached_property
     def args_doc(self) -> Dict[str, str]:

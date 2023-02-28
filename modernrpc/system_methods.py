@@ -70,9 +70,7 @@ def __system_method_help(method_name, **kwargs):
     method = registry.get_method(method_name, entry_point, protocol)
     if method is None:
         raise RPCInvalidParams(
-            "Unknown method {}. Unable to retrieve its documentation.".format(
-                method_name
-            )
+            f"Unknown method {method_name}. Unable to retrieve its documentation."
         )
     return method.html_doc
 
@@ -88,9 +86,7 @@ def __system_multi_call(calls, **kwargs):
     """
     if not isinstance(calls, list):
         raise RPCInvalidParams(
-            "system.multicall first argument should be a list, {} given.".format(
-                type(calls).__name__
-            )
+            f"system.multicall first argument should be a list, {type(calls).__name__} given."
         )
 
     context = RPCRequestContext(
