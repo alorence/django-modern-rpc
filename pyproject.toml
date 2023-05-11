@@ -201,7 +201,7 @@ extend-exclude = [
 # Invalid import is expected in this file, this is part of a test
 "tests/testsite/rpc_methods_stub/module_with_invalid_import.py" = ["F401"]
 # Some issues are irrelevant in tests
-"tests/*" = ["PLR2004", "PLR0913", "S"]
+"tests/*" = ["PLR2004", "PLR0913", "PLC1901", "S"]
 "tests/unit/test_initialization.py" = ["SLF001"]
 
 [tool.ruff.mccabe]
