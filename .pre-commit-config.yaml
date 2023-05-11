@@ -14,17 +14,17 @@ repos:
       - id: check-yaml
       - id: check-added-large-files
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.0.1
+    rev: v1.3.0
     hooks:
       - id: mypy
         files: ^modernrpc
         additional_dependencies: [django-stubs, types-docutils, types-Markdown, types-requests]
   - repo: https://github.com/psf/black
-    rev: 22.10.0
+    rev: 23.3.0
     hooks:
       - id: black
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     # Ruff version.
-    rev: 'v0.0.247'
+    rev: 'v0.0.265'
     hooks:
       - id: ruff
