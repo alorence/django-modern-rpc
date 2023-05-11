@@ -59,9 +59,13 @@ html_static_path = ["_static"]
 # -- Theme options ------------------------------------------------------------
 html_title = "django-modern-rpc"
 html_css_files = ["custom.css"]
+templates_path = [
+    "_templates",
+]
 html_permalinks_icon = (
     '<img src="/_static/permalink.svg" style="height: 0.75em; margin-bottom: 0.15em"/>'
 )
+html_sidebars = {"**": ["sbt-sidebar-nav.html", "donation.html"]}
 html_theme_options = {
     "home_page_in_toc": True,
     "show_toc_level": 1,
