@@ -59,9 +59,13 @@ html_static_path = ["_static"]
 # -- Theme options ------------------------------------------------------------
 html_title = "django-modern-rpc"
 html_css_files = ["custom.css"]
+templates_path = [
+    "_templates",
+]
 html_permalinks_icon = (
     '<img src="/_static/permalink.svg" style="height: 0.75em; margin-bottom: 0.15em"/>'
 )
+html_sidebars = {"**": ["sbt-sidebar-nav.html", "donation.html"]}
 html_theme_options = {
     "home_page_in_toc": True,
     "show_toc_level": 1,
@@ -69,5 +73,7 @@ html_theme_options = {
     "use_download_button": False,
     "use_repository_button": True,
     "repository_url": "https://github.com/alorence/django-modern-rpc",
-    "extra_navbar": '<a href="https://fr.liberapay.com/alorence/" target="_blank">Donate</a>',
+    "analytics": {
+        "google_analytics_id": "G-7KF8EXTF4W",
+    },
 }

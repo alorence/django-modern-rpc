@@ -88,10 +88,11 @@ tox = "^4"
 [tool.poetry.group.docs]
 optional = true
 [tool.poetry.group.docs.dependencies]
-sphinx = "^4"
+# Sphinx 6.* requires Python >= 3.8
+sphinx = "^5"
 sphinx-autobuild = "^2021.3"
-sphinx-book-theme = "^0.3"
-myst-parser = "^0.18.1"
+sphinx-book-theme = "^1.0"
+myst-parser = "^1.0"
 
 [tool.poetry.group.black]
 optional = true
