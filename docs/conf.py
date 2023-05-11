@@ -69,5 +69,7 @@ html_theme_options = {
     "use_download_button": False,
     "use_repository_button": True,
     "repository_url": "https://github.com/alorence/django-modern-rpc",
-    "extra_navbar": '<a href="https://fr.liberapay.com/alorence/" target="_blank">Donate</a>',
+    "analytics": {
+        "google_analytics_id": "G-7KF8EXTF4W",
+    },
 }
