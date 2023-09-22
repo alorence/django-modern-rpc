@@ -22,7 +22,7 @@ class TestBase:
 class TestSystemMethods:
     def test_list_methods(self, any_rpc_client):
         result = any_rpc_client.call("system.listMethods")
-        assert type(result) == list
+        assert isinstance(result, list)
         assert len(result) > 1
         assert "system.listMethods" in result
         assert "divide" in result
@@ -31,7 +31,7 @@ class TestSystemMethods:
     def test_get_signature_empty(self, any_rpc_client):
         signature = any_rpc_client.call("system.methodSignature", "add")
         # This one doesn't have any docstring defined
-        assert type(signature) == list
+        assert isinstance(signature, list)
         assert signature == [
             [
                 "undef",
@@ -75,7 +75,7 @@ class TestSystemMethods:
 
     def test_method_help_no_doc(self, any_rpc_client):
         help_text = any_rpc_client.call("system.methodHelp", "add")
-        assert type(help_text) == str
+        assert isinstance(help_text, str)
         assert help_text == ""
 
     def test_method_help_invalid_method(self, any_rpc_client):

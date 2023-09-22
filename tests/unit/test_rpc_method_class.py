@@ -200,7 +200,7 @@ def dummy_rst_docstring(name, birthdate, sex):
     :type sex: str
     :return: A string representation of given arguments
     """
-    return f"{name} ({str(sex)}) born on {str(birthdate)}"
+    return f"{name} ({sex!s}) born on {birthdate!s}"
 
 
 class TestWithDoctstringOnlyFunction:

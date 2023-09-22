@@ -1770,4 +1770,4 @@ markdown = ["markdown"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.7"
-content-hash = "56cd25638d8a902d9d08cb9c8eecca1f37b0bb378ee1aec4acf6d280bfc1b523"
+content-hash = "2e3d90d3b97522f9c2c57afef85c51ce2fcd444ed8f6a1b7ec800168e8896537"

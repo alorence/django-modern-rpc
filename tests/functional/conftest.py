@@ -3,7 +3,7 @@ import itertools
 import pyexpat
 import xmlrpc.client
 from abc import ABC, abstractmethod
-from typing import Union, Type, Any, List, Dict
+from typing import Union, Type, Any, List, Dict, Optional
 
 import jsonrpcclient
 import pytest
@@ -68,7 +68,9 @@ class AbstractRpcTestClient(ABC):
         return _headers
 
     @abstractmethod
-    def call(self, method: str, args: Union[List[Any], Dict[str, Any]] = None):
+    def call(
+        self, method: str, args: Optional[Union[List[Any], Dict[str, Any]]] = None
+    ):
         """Perform a standard RPC call. Return the reote procedure execution result."""
 
     @abstractmethod
@@ -191,7 +193,7 @@ class PythonXmlRpcClient(AbstractXmlRpcTestClient):
 
     def _get_headers_list(self):
         """Copy current headers' dict to a List[Tuple[str, str]] instance"""
-        return [(key, value) for key, value in self._build_request_headers().items()]
+        return list(self._build_request_headers().items())
 
     def call(self, method, *args):
         _rpc_method = getattr(self._client, method)

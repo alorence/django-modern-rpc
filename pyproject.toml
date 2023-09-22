@@ -110,7 +110,7 @@ types-Markdown = "^3.4.2"
 [tool.poetry.group.linters]
 optional = true
 [tool.poetry.group.linters.dependencies]
-ruff = "~0.0.250"
+ruff = "~0.0.290"
 pylint = { version = "^2.16", python = ">=3.7.2" }
 
 # Tools configuration
@@ -131,7 +131,7 @@ DJANGO_SETTINGS_MODULE = "testsite.settings"
 FAIL_INVALID_TEMPLATE_VARS = true
 
 [tool.black]
-target-version = ["py35", "py36", "py37", "py38", "py39", "py310"]
+target-version = ["py37", "py38", "py39", "py310"]
 extend-exclude = '''
 # A regex preceded with ^/ will apply only to files and directories
 # in the root of the project.
