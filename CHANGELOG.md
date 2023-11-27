@@ -1,8 +1,8 @@
 # Changelog
 
-## Next minor release
+## v1.0.2
 
-**Release date: Unknown**
+**Release date: 2023-11-27**
 
 ### Fixes
 
@@ -12,6 +12,7 @@
 ### Misc
 
   - Dropped support of python 3.5 and 3.6
+  - Added support for python 3.12 and Django 4.2
 
 ## v1.0.1
 
