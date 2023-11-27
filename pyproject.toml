@@ -99,7 +99,7 @@ myst-parser = "^1.0"
 [tool.poetry.group.black]
 optional = true
 [tool.poetry.group.black.dependencies]
-black = "^23.1.0"
+black = "^23.3.0"
 
 [tool.poetry.group.mypy]
 optional = true
