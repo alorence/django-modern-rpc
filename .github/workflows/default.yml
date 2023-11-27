@@ -25,7 +25,8 @@ on:
 
 env:
   # Note: Poetry 1.2.* requires Python >= 3.7
-  INSTALL_POETRY_VERSION: 1.7.*
+  # Poetry 1.6.* requires Python >= 3.8
+  INSTALL_POETRY_VERSION: 1.5.*
   POETRY_INSTALLER_PARALLEL: true
   POETRY_VIRTUALENVS_CREATE: true
   # Hide warning about outdated pip version
