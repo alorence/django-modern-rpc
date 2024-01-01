@@ -132,7 +132,7 @@ jobs:
         with:
           poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
       - name: Install dependencies
-        run: poetry install --no-interaction --with black
+        run: poetry install --no-interaction --with code-analysis
       - name: Black (check)
         run: poetry run black --check .
 
@@ -146,7 +146,7 @@ jobs:
         with:
           poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
       - name: Install dependencies
-        run: poetry install --no-interaction --with mypy
+        run: poetry install --no-interaction --with code-analysis
       - name: Mypy
         run: poetry run mypy .
 
@@ -160,7 +160,7 @@ jobs:
         with:
           poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
       - name: Install dependencies
-        run: poetry install --no-interaction --with linters
+        run: poetry install --no-interaction --with code-analysis
       - name: Ruff
         run: poetry run ruff check .
       - name: Pylint

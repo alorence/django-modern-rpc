@@ -1,3 +1,6 @@
+# ------------------------------------------------------------------
+# |                        Project config
+# ------------------------------------------------------------------
 [build-system]
 requires = ["poetry_core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
@@ -49,7 +52,9 @@ exclude = ["tests"]
 "Bug Tracker" = "https://github.com/alorence/django-modern-rpc/issues"
 "Demo" = "https://modernrpc.onrender.com"
 
-# Dependencies specifications
+# ------------------------------------------------------------------
+# |                        Dependencies
+# ------------------------------------------------------------------
 [tool.poetry.extras]
 docutils = ["docutils"]
 markdown = ["markdown"]
@@ -81,11 +86,18 @@ pytest = "^7.2"
 pytest-django = "*"
 pytest-sugar = "^0.9"
 pytest-cov = "*"
-
-[tool.poetry.group.tox]
-optional = true
-[tool.poetry.group.tox.dependencies]
 tox = "^4"
+
+[tool.poetry.group.code-analysis]
+optional = true
+[tool.poetry.group.code-analysis.dependencies]
+black = "^23.3.0"
+mypy = "^1.0.1"
+django-stubs = "^1.14.0"
+types-docutils = "^0.19.1"
+types-Markdown = "^3.4.2"
+ruff = "^0.1.6"
+pylint = { version = "^2.16", python = ">=3.7.2" }
 
 [tool.poetry.group.docs]
 optional = true
@@ -96,26 +108,9 @@ sphinx-autobuild = "^2021.3"
 sphinx-book-theme = "^1.0"
 myst-parser = "^1.0"
 
-[tool.poetry.group.black]
-optional = true
-[tool.poetry.group.black.dependencies]
-black = "^23.3.0"
-
-[tool.poetry.group.mypy]
-optional = true
-[tool.poetry.group.mypy.dependencies]
-mypy = "^1.0.1"
-django-stubs = "^1.14.0"
-types-docutils = "^0.19.1"
-types-Markdown = "^3.4.2"
-
-[tool.poetry.group.linters]
-optional = true
-[tool.poetry.group.linters.dependencies]
-ruff = "^0.1.6"
-pylint = { version = "^2.16", python = ">=3.7.2" }
-
-# Tools configuration
+# ------------------------------------------------------------------
+# |                        Tools settings
+# ------------------------------------------------------------------
 [tool.pylint]
 # Override default pylint configurations
 # To update, run `pylint --generate-rcfile` for default reference or check the docs:
