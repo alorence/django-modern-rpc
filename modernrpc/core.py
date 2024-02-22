@@ -271,7 +271,6 @@ class _RPCRegistry:
 
         # Store the method
         self._registry[method.name] = method
-        logger.debug("Method registered. len(registry): %d", len(self._registry))
 
         return method.name
 

@@ -71,7 +71,7 @@ class ModernRpcConfig(AppConfig):
         self.import_modules(settings.MODERNRPC_METHODS_MODULES)
         self.import_modules(["modernrpc.system_methods"])
 
-        logger.info(
+        logger.debug(
             "django-modern-rpc initialized: %d RPC methods registered",
             registry.total_count(),
         )
