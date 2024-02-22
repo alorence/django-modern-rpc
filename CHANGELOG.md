@@ -4,9 +4,14 @@
 
 **Release date: unknown**
 
+### Fixes
+
+  - Fix dependency to `packaging` introduced in previous release.
+
 ### Misc
 
-  -  Added support for Django 5.0
+  - Added support for Django 5.0
+  - Reduced the verbosity of the package. Startup initialization message is now a DEBUG log instead of an INFO one.
 
 ## v1.0.2
 
