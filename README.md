@@ -31,6 +31,7 @@ The following Django / Python version are supported, according to Django require
 | 4.0                 |  ❌ | ❌  | ❌  | ✔️️  | ✔️️  |  ✔️️  |  ❌  |  ❌ |
 | 4.1                 |  ❌ | ❌  | ❌  | ✔️️  | ✔️️  |  ✔️️  |  ✔️️  |  ❌ |
 | 4.2                 |  ❌ | ❌  | ❌  | ✔️️  | ✔️️  |  ✔️️  |  ✔️️  |  ✔️️ |
+| 5.0                 |  ❌ | ❌  | ❌  | ❌ | ❌ |  ✔️️  |  ✔️️  |  ✔️️ |
 
 ## Setup
 

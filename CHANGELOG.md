@@ -1,5 +1,13 @@
 # Changelog
 
+## Next release
+
+**Release date: unknown**
+
+### Misc
+
+  -  Added support for Django 5.0
+
 ## v1.0.2
 
 **Release date: 2023-11-27**
