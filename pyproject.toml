@@ -119,7 +119,15 @@ python_files = ["test_*.py"]
 DJANGO_SETTINGS_MODULE = "testsite.settings"
 FAIL_INVALID_TEMPLATE_VARS = true
 
+
 [tool.ruff]
+line-length = 120
+target-version = "py37"
+extend-exclude = [
+    "module_with_syntax_errors.py",
+]
+
+[tool.ruff.lint]
 # List of rules currently enabled.
 # Docs: https://beta.ruff.rs/docs/rules/
 select = [
@@ -167,24 +175,18 @@ select = [
     "RUF", # Ruff specific rules
 ]
 
-line-length = 120
-target-version = "py37"
-extend-exclude = [
-    "module_with_syntax_errors.py",
-]
-
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 # Invalid import is expected in this file, this is part of a test
 "tests/testsite/rpc_methods_stub/module_with_invalid_import.py" = ["F401"]
 # Some issues are irrelevant in tests
 "tests/*" = ["PLR2004", "PLR0913", "PLC1901", "S"]
 "tests/unit/test_initialization.py" = ["SLF001"]
 
-[tool.ruff.mccabe]
+[tool.ruff.lint.mccabe]
 # Unlike Flake8, default to a complexity level of 10.
 max-complexity = 10
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 # TBD
 
 [tool.mypy]
