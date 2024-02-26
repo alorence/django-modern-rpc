@@ -5,7 +5,7 @@ from modernrpc.exceptions import RPC_INVALID_PARAMS
 
 class TestBase:
     @pytest.mark.parametrize(
-        "term_a, term_b, expected_result",
+        ("term_a", "term_b", "expected_result"),
         [
             (5, 12, 17),
             (0, 8, 8),

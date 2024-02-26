@@ -21,7 +21,7 @@ from modernrpc.exceptions import (
 
 class TestCommonErrors:
     @pytest.mark.parametrize(
-        "method, params, exc_match, exc_code",
+        ("method", "params", "exc_match", "exc_code"),
         [
             (
                 "non_existing_method",

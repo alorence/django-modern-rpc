@@ -13,7 +13,7 @@ def anonymous_user():
     return AnonymousUser()
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture()
 def john_doe(django_user_model, common_pwd):
     """Create and return a standard Django user"""
     return django_user_model.objects.create_user(
@@ -21,7 +21,7 @@ def john_doe(django_user_model, common_pwd):
     )
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture()
 def superuser(django_user_model, common_pwd):
     """Create and return a Django superuser"""
     return django_user_model.objects.create_superuser(
@@ -29,33 +29,33 @@ def superuser(django_user_model, common_pwd):
     )
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture()
 def group_a(db):
     """Return a group named 'A'. Create it if necessary"""
     group, _ = Group.objects.get_or_create(name="A")
     return group
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture()
 def group_b(db):
     """Return a group named 'B'. Create it if necessary"""
     group, _ = Group.objects.get_or_create(name="B")
     return group
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture()
 def add_user_perm(db):
     """Return permission 'auth.add_user'"""
     return Permission.objects.get(codename="add_user")
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture()
 def change_user_perm(db):
     """Return permission 'auth.change_user'"""
     return Permission.objects.get(codename="change_user")
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture()
 def delete_user_perm(db):
     """Return permission 'auth.delete_user'"""
     return Permission.objects.get(codename="delete_user")

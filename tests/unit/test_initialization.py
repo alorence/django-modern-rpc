@@ -54,7 +54,7 @@ class TestInitChecks:
         assert result[0].id == "modernrpc.E002"
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture()
 def rpc_registry():
     """An instance of internal rpc method registry, reset to its initial state after each use"""
     # Performing a shallow copy is ok here, since we will only add or remove methods in the registry inside tests

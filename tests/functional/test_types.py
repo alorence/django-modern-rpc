@@ -10,7 +10,7 @@ from modernrpc.exceptions import RPC_INTERNAL_ERROR
 
 class TestBase:
     @pytest.mark.parametrize(
-        "method_name, return_type, value",
+        ("method_name", "return_type", "value"),
         [
             ("get_null", type(None), None),
             ("get_true", bool, True),
@@ -37,7 +37,7 @@ class TestBase:
         assert result == value
 
     @pytest.mark.parametrize(
-        "arg, expected_type",
+        ("arg", "expected_type"),
         [
             ("abcdef", "str"),
             (100, "int"),

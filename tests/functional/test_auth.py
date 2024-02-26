@@ -4,12 +4,12 @@ from modernrpc.exceptions import RPC_INTERNAL_ERROR
 
 
 class TestAuthSuperuser:
-    @pytest.fixture(scope="function")
+    @pytest.fixture()
     def client_auth(self, superuser, common_pwd):
         return "basic", superuser.username, common_pwd
 
     @pytest.mark.parametrize(
-        "method_name, args, result",
+        ("method_name", "args", "result"),
         [
             ("display_authenticated_user", [], "username: admin"),
             ("logged_user_required", [5], 5),
@@ -54,7 +54,7 @@ class TestAuthSuperuser:
 
 class TestAuthAnonymousUser:
     @pytest.mark.parametrize(
-        "method_name, args",
+        ("method_name", "args"),
         [
             ("display_authenticated_user", []),
             ("logged_user_required", [5]),
@@ -118,12 +118,12 @@ class TestAuthAnonymousUser:
 
 
 class TestAuthStandardUser:
-    @pytest.fixture(scope="function")
+    @pytest.fixture()
     def client_auth(self, john_doe, common_pwd):
         return "basic", john_doe.username, common_pwd
 
     @pytest.mark.parametrize(
-        "method_name, args, must_raise, result",
+        ("method_name", "args", "must_raise", "result"),
         [
             ("display_authenticated_user", [], False, "username: johndoe"),
             ("logged_user_required", [5], False, 5),

@@ -10,6 +10,8 @@ import pytest
 import requests
 from jsonrpcclient.sentinels import NOID
 
+UNDEFINED_AUTH = object()
+
 
 class JsonrpcErrorResponse(Exception):
     """A simple wrapper around Rpc error response"""
@@ -52,7 +54,7 @@ class AbstractRpcTestClient(ABC):
             "Content-Type": self._content_type,
         }
 
-        if not self._auth:
+        if not self._auth or self._auth == UNDEFINED_AUTH:
             return _headers
 
         kind, *_ = self._auth
@@ -223,7 +225,8 @@ def all_rpc_docs_path():
 
 @pytest.fixture(scope="session")
 def client_auth():
-    """Authentication data. Default is None, can be overriden at module or class level"""
+    """Authentication data. Default is None, can be overridden at module or class level"""
+    return UNDEFINED_AUTH
 
 
 @pytest.fixture(
@@ -252,7 +255,7 @@ def xmlrpc_content_type(request):
     return request.param
 
 
-@pytest.fixture(scope="function", params=[PythonXmlRpcClient])
+@pytest.fixture(params=[PythonXmlRpcClient])
 def xmlrpc_client(
     live_server, endpoint_path, client_auth, xmlrpc_content_type, request
 ):
@@ -265,7 +268,7 @@ def xmlrpc_client(
     )
 
 
-@pytest.fixture(scope="function", params=[PythonXmlRpcClient])
+@pytest.fixture(params=[PythonXmlRpcClient])
 def xmlrpc_client_with_builtin_types(
     live_server, endpoint_path, client_auth, xmlrpc_content_type, request
 ):
@@ -279,7 +282,7 @@ def xmlrpc_client_with_builtin_types(
     )
 
 
-@pytest.fixture(scope="function", params=[JsonrpcclientlibClient])
+@pytest.fixture(params=[JsonrpcclientlibClient])
 def jsonrpc_client(
     live_server, endpoint_path, client_auth, jsonrpc_content_type, request
 ):
@@ -292,7 +295,7 @@ def jsonrpc_client(
     )
 
 
-@pytest.fixture(scope="function", params=[JsonrpcclientlibClient, PythonXmlRpcClient])
+@pytest.fixture(params=[JsonrpcclientlibClient, PythonXmlRpcClient])
 def any_rpc_client(live_server, endpoint_path, client_auth, request):
     """A RPC client (xml-rpc or json-rpc)"""
     klass = request.param

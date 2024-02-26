@@ -7,7 +7,7 @@ from modernrpc.helpers import ensure_sequence, get_builtin_date
 
 
 @pytest.mark.parametrize(
-    "arg, expected_result",
+    ("arg", "expected_result"),
     [
         ((1, 2, 3), (1, 2, 3)),
         (("a", "b", "c"), ("a", "b", "c")),
@@ -49,5 +49,5 @@ def test_get_builtin_date_with_format():
 )
 def test_get_builtin_date_invalid(date_str):
     assert get_builtin_date(date_str) is None
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="time data .+ does not match format '%Y-%m-%dT%H:%M:%S'"):
         get_builtin_date(date_str, raise_exception=True)

@@ -149,7 +149,7 @@ select = [
     "PIE", # flake8-pie
     "T20", # flake8-print
     "PYI", # flake8-pyi
-    # "PT", # flake8-pytest-style
+    "PT", # flake8-pytest-style
     "Q", # flake8-quotes
     "RSE", # flake8-raise
     "RET", # flake8-return
