@@ -92,13 +92,12 @@ tox = "^4"
 [tool.poetry.group.code-analysis]
 optional = true
 [tool.poetry.group.code-analysis.dependencies]
+ruff = "^0.2.2"
 black = "^23.3.0"
 mypy = "^1.0.1"
 django-stubs = "^1.14.0"
 types-docutils = "^0.19.1"
 types-Markdown = "^3.4.2"
-ruff = "^0.1.6"
-pylint = { version = "^2.16", python = ">=3.7.2" }
 
 [tool.poetry.group.docs]
 optional = true
@@ -112,13 +111,6 @@ myst-parser = "^1.0"
 # ------------------------------------------------------------------
 # |                        Tools settings
 # ------------------------------------------------------------------
-[tool.pylint]
-# Override default pylint configurations
-# To update, run `pylint --generate-rcfile` for default reference or check the docs:
-#  - http://pylint.pycqa.org/en/latest/technical_reference/features.html
-[tool.pylint.format]
-max-line-length = 120
-
 [tool.pytest.ini_options]
 pythonpath = ["tests"]
 testpaths = ["tests"]
@@ -183,10 +175,7 @@ select = [
     "TID", # flake8-tidy-imports
     "TCH", # flake8-type-checking
     "PGH", # pygrep-hooks
-    "PLC", # PyLint (Convention)
-    "PLE", # PyLint (Error)
-    "PLR", # PyLint (Refactor)
-    "PLW", # PyLint (Warning)
+    "PL", # PyLint
     "RUF", # Ruff specific rules
 ]
 

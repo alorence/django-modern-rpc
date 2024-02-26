@@ -66,7 +66,7 @@ tests against multiple python / django versions
 .. code-block:: shell
 
    $ poetry install --with tox
-   $ pyenv local system 3.8 3.6 3.5
+   $ pyenv local system 3.11 3.10 3.9 3.8
    $ poetry run tox
 
 To speedup tests run, you can use ``-p`` option to parallelize environment specific tests
@@ -116,8 +116,8 @@ options used).
 
 .. code-block:: bash
 
-   poetry install --with black,pylint,mypy,pylama
-   poetry run tox -e black,pylint,mypy,pylama
+   poetry install --with code-analysis
+   poetry run tox -e black,mypy,pylama
 
 .. important::
 

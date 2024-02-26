@@ -166,8 +166,6 @@ jobs:
         run: poetry install --no-interaction --with code-analysis
       - name: Ruff
         run: poetry run ruff check .
-      - name: Pylint
-        run: poetry run pylint --exit-zero modernrpc
 
   publish:
     runs-on: ubuntu-latest

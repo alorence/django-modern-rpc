@@ -26,7 +26,7 @@ While it is a bit outdated now, there is still use-cases were XML-RPC or JSON-RP
 Getting started
 ---------------
 
-.. important:: This library requires python 3.5 and Django 2.1. If you need to install it on older Python/Django
+.. important:: This library requires python 3.7 and Django 2.1. If you need to install it on older Python/Django
    versions, you may need to install an older release.
 
 Installing the library and configuring a Django project to use it can be achieved in a few minutes. Follow
