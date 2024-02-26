@@ -119,12 +119,6 @@ python_files = ["test_*.py"]
 DJANGO_SETTINGS_MODULE = "testsite.settings"
 FAIL_INVALID_TEMPLATE_VARS = true
 
-[tool.mypy]
-exclude = [
-    '^tests/.+$',
-    '^docs/.+$',
-]
-
 [tool.ruff]
 # List of rules currently enabled.
 # Docs: https://beta.ruff.rs/docs/rules/
@@ -187,3 +181,9 @@ max-complexity = 10
 
 [tool.ruff.isort]
 # TBD
+
+[tool.mypy]
+exclude = [
+    '^tests/.+$',
+    '^docs/.+$',
+]

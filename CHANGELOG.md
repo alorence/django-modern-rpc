@@ -12,6 +12,7 @@
 
   - Added support for Django 5.0
   - Reduced the verbosity of the package. Startup initialization message is now a DEBUG log instead of an INFO one.
+  - Dropped use of Black and PyLint. Use Ruff to enforce all linting rules and code formatting
 
 ## v1.0.2
 
