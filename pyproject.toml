@@ -93,7 +93,6 @@ tox = "^4"
 optional = true
 [tool.poetry.group.code-analysis.dependencies]
 ruff = "^0.2.2"
-black = "^23.3.0"
 mypy = "^1.0.1"
 django-stubs = "^1.14.0"
 types-docutils = "^0.19.1"
@@ -119,16 +118,6 @@ python_files = ["test_*.py"]
 # pytest-django settings
 DJANGO_SETTINGS_MODULE = "testsite.settings"
 FAIL_INVALID_TEMPLATE_VARS = true
-
-[tool.black]
-target-version = ["py37", "py38", "py39", "py310", "py311"]
-extend-exclude = '''
-# A regex preceded with ^/ will apply only to files and directories
-# in the root of the project.
-(
-  module_with_syntax_errors\.py
-  | xxx_other_rules
-)'''
 
 [tool.mypy]
 exclude = [

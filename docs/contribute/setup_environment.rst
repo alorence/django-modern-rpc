@@ -117,7 +117,7 @@ options used).
 .. code-block:: bash
 
    poetry install --with code-analysis
-   poetry run tox -e black,mypy,pylama
+   poetry run tox -e mypy,ruff
 
 .. important::
 
