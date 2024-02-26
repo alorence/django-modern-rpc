@@ -58,18 +58,12 @@ class RPCEntryPoint(TemplateView):
     @cached_property
     def handler_classes(self) -> Sequence[Type["RPCHandler"]]:
         """Return the list of handlers to use when receiving RPC requests."""
-        handler_classes = [
-            import_string(handler_cls) for handler_cls in settings.MODERNRPC_HANDLERS
-        ]
+        handler_classes = [import_string(handler_cls) for handler_cls in settings.MODERNRPC_HANDLERS]
 
         if self.protocol == Protocol.ALL:
             return handler_classes
 
-        return [
-            cls
-            for cls in handler_classes
-            if cls.protocol in ensure_sequence(self.protocol)
-        ]
+        return [cls for cls in handler_classes if cls.protocol in ensure_sequence(self.protocol)]
 
     @cached_property
     def handlers(self) -> Generator["RPCHandler", None, None]:
@@ -100,9 +94,7 @@ class RPCEntryPoint(TemplateView):
         # Retrieve the first RPC handler able to parse our request
         # This weird next(filter(predicate, iterable), default) structure is basically the more_itertools.first_true()
         # utility. This is written here to avoid dependency to more-itertools package
-        handler = next(
-            filter(lambda candidate: candidate.can_handle(request), self.handlers), None
-        )
+        handler = next(filter(lambda candidate: candidate.can_handle(request), self.handlers), None)
 
         if not handler:
             return HttpResponse(
@@ -111,9 +103,7 @@ class RPCEntryPoint(TemplateView):
                 content_type="text/plain",
             )
 
-        context = RPCRequestContext(
-            request, handler, handler.protocol, handler.entry_point
-        )
+        context = RPCRequestContext(request, handler, handler.protocol, handler.entry_point)
         request_body = request.body.decode(request.encoding or self.default_encoding)
 
         result_data = handler.process_request(request_body, context)
@@ -122,7 +112,5 @@ class RPCEntryPoint(TemplateView):
     def get_context_data(self, **kwargs):
         """Update context data with list of RPC methods of the current entry point.
         Will be used to display methods documentation page"""
-        kwargs.setdefault(
-            "methods", registry.get_all_methods(self.entry_point, sort_methods=True)
-        )
+        kwargs.setdefault("methods", registry.get_all_methods(self.entry_point, sort_methods=True))
         return super().get_context_data(**kwargs)

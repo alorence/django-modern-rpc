@@ -70,9 +70,7 @@ class AbstractRpcTestClient(ABC):
         return _headers
 
     @abstractmethod
-    def call(
-        self, method: str, args: Optional[Union[List[Any], Dict[str, Any]]] = None
-    ):
+    def call(self, method: str, args: Optional[Union[List[Any], Dict[str, Any]]] = None):
         """Perform a standard RPC call. Return the reote procedure execution result."""
 
     @abstractmethod
@@ -131,9 +129,7 @@ class JsonrpcclientlibClient(AbstractJsonRpcTestClient):
         else:
             json_req = jsonrpcclient.request(method, params=args or kwargs)
 
-        response = requests.post(
-            self.url, json=json_req, headers=self._build_request_headers()
-        )
+        response = requests.post(self.url, json=json_req, headers=self._build_request_headers())
         self.check_response_headers(response.headers)
 
         if response.content == b"":
@@ -162,9 +158,7 @@ class JsonrpcclientlibClient(AbstractJsonRpcTestClient):
                     )
                 )
 
-        response = requests.post(
-            self.url, json=batch, headers=self._build_request_headers()
-        )
+        response = requests.post(self.url, json=batch, headers=self._build_request_headers())
         self.check_response_headers(response.headers)
 
         return None if not response.content else response.json()
@@ -181,9 +175,7 @@ class PythonXmlRpcClient(AbstractXmlRpcTestClient):
         super().__init__(url, **kwargs or {})
         self._use_builtin_types = kwargs.get("use_builtin_types", False)
 
-        self._transport = xmlrpc.client.Transport(
-            use_builtin_types=self._use_builtin_types
-        )
+        self._transport = xmlrpc.client.Transport(use_builtin_types=self._use_builtin_types)
         # Monkey-patch Transport.get_host_info() to ensure customized headers can be injected into XML-RPC requests
         self._transport.get_host_info = lambda host: (
             host,
@@ -256,9 +248,7 @@ def xmlrpc_content_type(request):
 
 
 @pytest.fixture(params=[PythonXmlRpcClient])
-def xmlrpc_client(
-    live_server, endpoint_path, client_auth, xmlrpc_content_type, request
-):
+def xmlrpc_client(live_server, endpoint_path, client_auth, xmlrpc_content_type, request):
     """A xml-rpc only client"""
     klass = request.param
     return klass(
@@ -269,9 +259,7 @@ def xmlrpc_client(
 
 
 @pytest.fixture(params=[PythonXmlRpcClient])
-def xmlrpc_client_with_builtin_types(
-    live_server, endpoint_path, client_auth, xmlrpc_content_type, request
-):
+def xmlrpc_client_with_builtin_types(live_server, endpoint_path, client_auth, xmlrpc_content_type, request):
     """A xml-rpc only client with builtin types enabled"""
     klass = request.param
     return klass(
@@ -283,9 +271,7 @@ def xmlrpc_client_with_builtin_types(
 
 
 @pytest.fixture(params=[JsonrpcclientlibClient])
-def jsonrpc_client(
-    live_server, endpoint_path, client_auth, jsonrpc_content_type, request
-):
+def jsonrpc_client(live_server, endpoint_path, client_auth, jsonrpc_content_type, request):
     """A json-rpc only client"""
     klass = request.param
     return klass(

@@ -26,9 +26,7 @@ def check_settings(app_configs, **kwargs):
             "Please define settings.MODERNRPC_METHODS_MODULES to indicate which module(s) define your RPC methods. "
             "See https://django-modern-rpc.rtfd.io/en/latest/basics/settings.html#modernrpc-methods-modules"
         )
-        messages.append(
-            checks.Warning(msg, hint=hint, obj=settings, id="modernrpc.W001")
-        )
+        messages.append(checks.Warning(msg, hint=hint, obj=settings, id="modernrpc.W001"))
 
     else:
         for module_name in settings.MODERNRPC_METHODS_MODULES:
@@ -38,15 +36,11 @@ def check_settings(app_configs, **kwargs):
                 # ModuleNotFoundError may be caught here, when library will require python 3.6+
                 msg = f'ModuleNotFoundError exception when importing "{module_name}" module'
                 hint = str(err)
-                messages.append(
-                    checks.Error(msg, hint=hint, obj=settings, id="modernrpc.E001")
-                )
+                messages.append(checks.Error(msg, hint=hint, obj=settings, id="modernrpc.E001"))
             except Exception as exc:
                 msg = f'{exc.__class__.__name__} exception when importing "{module_name}" module'
                 hint = f"See exception info: {exc}"
-                messages.append(
-                    checks.Error(msg, hint=hint, obj=settings, id="modernrpc.E002")
-                )
+                messages.append(checks.Error(msg, hint=hint, obj=settings, id="modernrpc.E002"))
 
     return messages
 

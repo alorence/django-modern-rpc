@@ -13,9 +13,7 @@ class TestRpcMethodEntryPointProtocol:
         rpc_method(dummy_empty, "dummy_name")
         m = RPCMethod(dummy_empty)
 
-        assert m.available_for_entry_point(
-            modernrpc_settings.MODERNRPC_DEFAULT_ENTRYPOINT_NAME
-        )
+        assert m.available_for_entry_point(modernrpc_settings.MODERNRPC_DEFAULT_ENTRYPOINT_NAME)
         assert m.available_for_entry_point("random_entry_point")
 
         assert m.is_available_in_xml_rpc()
@@ -44,9 +42,7 @@ class TestRpcMethodEntryPointProtocol:
         rpc_method(dummy_empty, "dummy_name", entry_point="my_entry_point")
         m = RPCMethod(dummy_empty)
 
-        assert not m.available_for_entry_point(
-            modernrpc_settings.MODERNRPC_DEFAULT_ENTRYPOINT_NAME
-        )
+        assert not m.available_for_entry_point(modernrpc_settings.MODERNRPC_DEFAULT_ENTRYPOINT_NAME)
         assert m.available_for_entry_point("my_entry_point")
 
 
@@ -246,17 +242,11 @@ class TestSingleLineDoc:
 
     def test_markdown_to_html(self, settings):
         settings.MODERNRPC_DOC_FORMAT = "md"
-        assert (
-            self.method().html_doc
-            == "<p><em>italic</em>, <strong>strong</strong>, normal text</p>"
-        )
+        assert self.method().html_doc == "<p><em>italic</em>, <strong>strong</strong>, normal text</p>"
 
     def test_rst_to_html(self, settings):
         settings.MODERNRPC_DOC_FORMAT = "rst"
-        assert (
-            self.method().html_doc
-            == "<p><em>italic</em>, <strong>strong</strong>, normal text</p>\n"
-        )
+        assert self.method().html_doc == "<p><em>italic</em>, <strong>strong</strong>, normal text</p>\n"
 
 
 @rpc_method

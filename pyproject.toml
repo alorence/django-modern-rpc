@@ -127,6 +127,11 @@ extend-exclude = [
     "module_with_syntax_errors.py",
 ]
 
+[tool.ruff.format]
+# Use `\n` line endings for all files
+line-ending = "lf"
+quote-style = "double"
+
 [tool.ruff.lint]
 # List of rules currently enabled.
 # Docs: https://beta.ruff.rs/docs/rules/

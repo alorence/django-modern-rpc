@@ -68,12 +68,8 @@ class TestCommonErrors:
             ),
         ],
     )
-    def test_generic_errors(
-        self, any_rpc_client, caplog, method, params, exc_match, exc_code
-    ):
-        with pytest.raises(
-            any_rpc_client.error_response_exception, match=exc_match
-        ) as exc_info:
+    def test_generic_errors(self, any_rpc_client, caplog, method, params, exc_match, exc_code):
+        with pytest.raises(any_rpc_client.error_response_exception, match=exc_match) as exc_info:
             any_rpc_client.call(method, *params)
         any_rpc_client.assert_exception_code(exc_info.value, exc_code)
 
@@ -86,9 +82,7 @@ class TestJsonRpcSpecificBehaviors:
         data = raw_payload or json.dumps(payload, cls=DjangoJSONEncoder)
         return requests.post(url, data=data, headers=headers).json()
 
-    def test_missing_method_name(
-        self, live_server, endpoint_path, jsonrpc_content_type
-    ):
+    def test_missing_method_name(self, live_server, endpoint_path, jsonrpc_content_type):
         headers = {"content-type": jsonrpc_content_type}
         payload = {
             # "method": 'add',
@@ -96,9 +90,7 @@ class TestJsonRpcSpecificBehaviors:
             "jsonrpc": "2.0",
             "id": random.randint(1, 1000),
         }
-        response = self.low_level_jsonrpc_call(
-            live_server.url + endpoint_path, payload, headers=headers
-        )
+        response = self.low_level_jsonrpc_call(live_server.url + endpoint_path, payload, headers=headers)
 
         assert 'Missing parameter "method"' in response["error"]["message"]
         assert response["error"]["code"] == RPC_INVALID_REQUEST
@@ -113,9 +105,7 @@ class TestJsonRpcSpecificBehaviors:
             # "jsonrpc": "2.0",
             "id": random.randint(1, 1000),
         }
-        response = self.low_level_jsonrpc_call(
-            live_server.url + endpoint_path, payload, headers=headers
-        )
+        response = self.low_level_jsonrpc_call(live_server.url + endpoint_path, payload, headers=headers)
 
         assert 'Missing parameter "jsonrpc"' in response["error"]["message"]
         assert response["error"]["code"] == RPC_INVALID_REQUEST
@@ -130,9 +120,7 @@ class TestJsonRpcSpecificBehaviors:
             "jsonrpc": "1.0",
             "id": random.randint(1, 1000),
         }
-        response = self.low_level_jsonrpc_call(
-            live_server.url + endpoint_path, payload, headers=headers
-        )
+        response = self.low_level_jsonrpc_call(live_server.url + endpoint_path, payload, headers=headers)
 
         expected_error = 'Invalid request: Parameter "jsonrpc" has an unsupported value "1.0". It must be set to "2.0"'
         assert expected_error == response["error"]["message"]
@@ -166,14 +154,10 @@ class TestJsonRpcSpecificBehaviors:
         assert "unable to read the request" in error["message"]
         assert error["code"] == RPC_PARSE_ERROR
 
-    def test_invalid_payload_type(
-        self, live_server, endpoint_path, jsonrpc_content_type
-    ):
+    def test_invalid_payload_type(self, live_server, endpoint_path, jsonrpc_content_type):
         # Json payload is not a struct or a list
         headers = {"content-type": jsonrpc_content_type}
-        response = self.low_level_jsonrpc_call(
-            live_server.url + endpoint_path, "10", headers=headers
-        )
+        response = self.low_level_jsonrpc_call(live_server.url + endpoint_path, "10", headers=headers)
 
         assert "error" in response
         assert "result" not in response
@@ -193,16 +177,11 @@ class TestJsonRpcSpecificBehaviors:
         headers = {"content-type": ""}
 
         with pytest.raises(JSONDecodeError) as exc_info:
-            self.low_level_jsonrpc_call(
-                live_server.url + endpoint_path, payload, headers=headers
-            )
+            self.low_level_jsonrpc_call(live_server.url + endpoint_path, payload, headers=headers)
 
         # requests 2.27 introduced a new JSONDecodeError subclass, moving the response content in a different attr
         response_str = exc_info.value.doc or exc_info.value.strerror
-        assert (
-            "Unable to handle your request, the Content-Type header is mandatory"
-            in response_str
-        )
+        assert "Unable to handle your request, the Content-Type header is mandatory" in response_str
 
     def test_empty_id(self, live_server, endpoint_path, jsonrpc_content_type):
         headers = {"content-type": jsonrpc_content_type}
@@ -213,9 +192,7 @@ class TestJsonRpcSpecificBehaviors:
             "id": None,
         }
 
-        response = self.low_level_jsonrpc_call(
-            live_server.url + endpoint_path, payload, headers=headers
-        )
+        response = self.low_level_jsonrpc_call(live_server.url + endpoint_path, payload, headers=headers)
         assert "error" in response
         assert "result" not in response
         assert response["id"] is None
@@ -231,9 +208,7 @@ class TestJsonRpcSpecificBehaviors:
 class TestXmlRpcSpecificBehaviors:
     @staticmethod
     def low_level_xmlrpc_call(url, payload):
-        response = requests.post(
-            url, data=payload, headers={"content-type": "text/xml"}
-        )
+        response = requests.post(url, data=payload, headers={"content-type": "text/xml"})
         tree = ET.fromstring(response.content)
         members = tree.find("fault").find("value").find("struct")
 
@@ -309,9 +284,7 @@ class TestXmlRpcSpecificBehaviors:
                 "id": 42,
             }
         )
-        code, message = self.low_level_xmlrpc_call(
-            live_server.url + endpoint_path, payload=invalid_payload
-        )
+        code, message = self.low_level_xmlrpc_call(live_server.url + endpoint_path, payload=invalid_payload)
 
         assert "not well-formed" in message
         assert code == RPC_PARSE_ERROR

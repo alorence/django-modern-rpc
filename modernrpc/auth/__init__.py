@@ -73,13 +73,9 @@ def user_in_group(user, group):
 
 def user_in_any_group(user, groups):
     """Returns True if the given user is in at least 1 of the given groups"""
-    return user_is_superuser(user) or any(
-        user_in_group(user, group) for group in groups
-    )
+    return user_is_superuser(user) or any(user_in_group(user, group) for group in groups)
 
 
 def user_in_all_groups(user, groups):
     """Returns True if the given user is in all given groups"""
-    return user_is_superuser(user) or all(
-        user_in_group(user, group) for group in groups
-    )
+    return user_is_superuser(user) or all(user_in_group(user, group) for group in groups)

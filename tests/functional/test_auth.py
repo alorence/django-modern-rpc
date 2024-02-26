@@ -73,9 +73,7 @@ class TestAuthAnonymousUser:
     def test_with_anonymous_user(self, any_rpc_client, method_name, args):
         # Exception test match
         exc_match = rf'Authentication failed when calling "{method_name}"'
-        with pytest.raises(
-            any_rpc_client.auth_error_exception, match=exc_match
-        ) as exc_info:
+        with pytest.raises(any_rpc_client.auth_error_exception, match=exc_match) as exc_info:
             any_rpc_client.call(method_name, *args)
         any_rpc_client.assert_exception_code(exc_info.value, RPC_INTERNAL_ERROR)
 
@@ -110,9 +108,7 @@ class TestAuthAnonymousUser:
         assert result[0] == 10
 
         exc_match = r'Authentication failed when calling "logged_superuser_required"'
-        with pytest.raises(
-            xmlrpc_client.error_response_exception, match=exc_match
-        ) as exc_info:
+        with pytest.raises(xmlrpc_client.error_response_exception, match=exc_match) as exc_info:
             assert result[1]
         xmlrpc_client.assert_exception_code(exc_info.value, RPC_INTERNAL_ERROR)
 
@@ -140,15 +136,11 @@ class TestAuthStandardUser:
             ("in_group_a_or_b_required", [5], True, None),
         ],
     )
-    def test_with_standard_user(
-        self, any_rpc_client, method_name, args, must_raise, result
-    ):
+    def test_with_standard_user(self, any_rpc_client, method_name, args, must_raise, result):
         if must_raise:
             # Exception test match
             exc_match = rf'Authentication failed when calling "{method_name}"'
-            with pytest.raises(
-                any_rpc_client.auth_error_exception, match=exc_match
-            ) as exc_info:
+            with pytest.raises(any_rpc_client.auth_error_exception, match=exc_match) as exc_info:
                 any_rpc_client.call(method_name, *args)
             any_rpc_client.assert_exception_code(exc_info.value, RPC_INTERNAL_ERROR)
         else:
@@ -168,36 +160,26 @@ class TestAuthStandardUser:
         assert any_rpc_client.call("any_permission_required", 5) == 5
 
         exc_match = r'Authentication failed when calling "all_permissions_required"'
-        with pytest.raises(
-            any_rpc_client.auth_error_exception, match=exc_match
-        ) as exc_info:
+        with pytest.raises(any_rpc_client.auth_error_exception, match=exc_match) as exc_info:
             assert any_rpc_client.call("all_permissions_required", 5)
         any_rpc_client.assert_exception_code(exc_info.value, RPC_INTERNAL_ERROR)
 
         john_doe.user_permissions.add(add_user_perm, change_user_perm)
         assert any_rpc_client.call("all_permissions_required", 5) == 5
 
-    def test_group_memberships_updates(
-        self, any_rpc_client, john_doe, group_a, group_b
-    ):
+    def test_group_memberships_updates(self, any_rpc_client, john_doe, group_a, group_b):
         john_doe.groups.add(group_a)
 
         assert any_rpc_client.call("in_group_a_required", 5) == 5
         assert any_rpc_client.call("in_group_a_or_b_required", 5) == 5
 
         exc_match = r'Authentication failed when calling "in_group_a_and_b_required"'
-        with pytest.raises(
-            any_rpc_client.auth_error_exception, match=exc_match
-        ) as exc_info:
+        with pytest.raises(any_rpc_client.auth_error_exception, match=exc_match) as exc_info:
             assert any_rpc_client.call("in_group_a_and_b_required", 5)
         any_rpc_client.assert_exception_code(exc_info.value, RPC_INTERNAL_ERROR)
 
-        exc_match = (
-            r'Authentication failed when calling "in_group_a_and_b_required_alt"'
-        )
-        with pytest.raises(
-            any_rpc_client.auth_error_exception, match=exc_match
-        ) as exc_info:
+        exc_match = r'Authentication failed when calling "in_group_a_and_b_required_alt"'
+        with pytest.raises(any_rpc_client.auth_error_exception, match=exc_match) as exc_info:
             assert any_rpc_client.call("in_group_a_and_b_required_alt", 5)
         any_rpc_client.assert_exception_code(exc_info.value, RPC_INTERNAL_ERROR)
 
@@ -210,8 +192,6 @@ class TestAuthStandardUser:
 
     def test_custom_predicate_rejected(self, any_rpc_client):
         exc_match = r'Authentication failed when calling "power_2"'
-        with pytest.raises(
-            any_rpc_client.auth_error_exception, match=exc_match
-        ) as exc_info:
+        with pytest.raises(any_rpc_client.auth_error_exception, match=exc_match) as exc_info:
             assert any_rpc_client.call("power_2", 5)
         any_rpc_client.assert_exception_code(exc_info.value, RPC_INTERNAL_ERROR)

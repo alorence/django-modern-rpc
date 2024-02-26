@@ -90,9 +90,7 @@ class XMLRPCHandler(RPCHandler):
         Parse request body to extract `(params, methodName)` tuple, returned as `RequestData`
         """
         try:
-            params, method = xmlrpc_client.loads(
-                request_body, use_builtin_types=self.use_builtin_types
-            )
+            params, method = xmlrpc_client.loads(request_body, use_builtin_types=self.use_builtin_types)
 
         except ExpatError as exc:
             raise RPCParseError(f"Error while parsing XML-RPC request: {exc}") from exc
@@ -102,14 +100,10 @@ class XMLRPCHandler(RPCHandler):
 
         else:
             if not method:
-                raise RPCInvalidRequest(
-                    "Missing methodName. Please provide the name of the procedure you want to call"
-                )
+                raise RPCInvalidRequest("Missing methodName. Please provide the name of the procedure you want to call")
             return params, method
 
-    def process_single_request(
-        self, request_data: RequestData, context: RPCRequestContext
-    ) -> BaseResult:
+    def process_single_request(self, request_data: RequestData, context: RPCRequestContext) -> BaseResult:
         """Check and call the RPC method, based on given tuple `(params, methodName)`"""
         method_name, params = request_data
         try:

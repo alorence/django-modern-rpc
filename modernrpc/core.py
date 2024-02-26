@@ -112,10 +112,7 @@ class RPCMethod:
             return True
 
         # All registered authentication predicates must return True
-        return all(
-            predicate(request, *self.predicates_params[i])
-            for i, predicate in enumerate(self.predicates)
-        )
+        return all(predicate(request, *self.predicates_params[i]) for i, predicate in enumerate(self.predicates))
 
     def execute(
         self,
@@ -168,16 +165,10 @@ class RPCMethod:
     def is_valid_for(self, entry_point: str, protocol: Protocol) -> bool:
         """Check if the current function can be executed from a request to the given entry point
         and with the given protocol"""
-        return self.available_for_entry_point(
-            entry_point
-        ) and self.available_for_protocol(protocol)
+        return self.available_for_entry_point(entry_point) and self.available_for_protocol(protocol)
 
-    is_available_in_json_rpc = functools.partialmethod(
-        available_for_protocol, Protocol.JSON_RPC
-    )
-    is_available_in_xml_rpc = functools.partialmethod(
-        available_for_protocol, Protocol.XML_RPC
-    )
+    is_available_in_json_rpc = functools.partialmethod(available_for_protocol, Protocol.JSON_RPC)
+    is_available_in_xml_rpc = functools.partialmethod(available_for_protocol, Protocol.XML_RPC)
 
     @cached_property
     def accept_kwargs(self) -> bool:
@@ -205,8 +196,7 @@ class RPCMethod:
         result = OrderedDict()
         for arg in self.introspector.args:
             result[arg] = {
-                "type": self.doc_parser.args_types.get(arg, "")
-                or self.introspector.args_types.get(arg, ""),
+                "type": self.doc_parser.args_types.get(arg, "") or self.introspector.args_types.get(arg, ""),
                 "text": self.doc_parser.args_doc.get(arg, ""),
             }
         return result
@@ -265,9 +255,7 @@ class _RPCRegistry:
 
             # But if we try to use the same name to register 2 different methods, we
             # must inform the developer there is an error in the code
-            raise ImproperlyConfigured(
-                f"A RPC method with name {method.name} has already been registered"
-            )
+            raise ImproperlyConfigured(f"A RPC method with name {method.name} has already been registered")
 
         # Store the method
         self._registry[method.name] = method
@@ -277,15 +265,9 @@ class _RPCRegistry:
     def total_count(self) -> int:
         return len(self._registry)
 
-    def get_all_method_names(
-        self, entry_point=ALL, protocol: Protocol = Protocol.ALL, sort_methods=False
-    ) -> List[str]:
+    def get_all_method_names(self, entry_point=ALL, protocol: Protocol = Protocol.ALL, sort_methods=False) -> List[str]:
         """Return the names of all RPC methods registered supported by the given entry_point / protocol pair"""
-        method_names = [
-            name
-            for name, method in self._registry.items()
-            if method.is_valid_for(entry_point, protocol)
-        ]
+        method_names = [name for name, method in self._registry.items() if method.is_valid_for(entry_point, protocol)]
 
         return sorted(method_names) if sort_methods else method_names
 
@@ -297,23 +279,13 @@ class _RPCRegistry:
     ) -> List[RPCMethod]:
         """Return a list of all methods in the registry supported by the given entry_point / protocol pair"""
 
-        items = (
-            sorted(self._registry.items()) if sort_methods else self._registry.items()
-        )
-        return [
-            method
-            for (_, method) in items
-            if method.is_valid_for(entry_point, protocol)
-        ]
+        items = sorted(self._registry.items()) if sort_methods else self._registry.items()
+        return [method for (_, method) in items if method.is_valid_for(entry_point, protocol)]
 
-    def get_method(
-        self, name: str, entry_point: str, protocol: Protocol
-    ) -> Optional[RPCMethod]:
+    def get_method(self, name: str, entry_point: str, protocol: Protocol) -> Optional[RPCMethod]:
         """Retrieve a method from the given name"""
 
-        if name in self._registry and self._registry[name].is_valid_for(
-            entry_point, protocol
-        ):
+        if name in self._registry and self._registry[name].is_valid_for(entry_point, protocol):
             return self._registry[name]
 
         return None
@@ -365,16 +337,12 @@ def register_rpc_method(func):
 
 def get_all_method_names(entry_point=ALL, protocol=Protocol.ALL, sort_methods=False):
     """For backward compatibility. Use registry.get_all_method_names() instead (with same arguments)"""
-    return registry.get_all_method_names(
-        entry_point=entry_point, protocol=protocol, sort_methods=sort_methods
-    )
+    return registry.get_all_method_names(entry_point=entry_point, protocol=protocol, sort_methods=sort_methods)
 
 
 def get_all_methods(entry_point=ALL, protocol=Protocol.ALL, sort_methods=False):
     """For backward compatibility. Use registry.get_all_methods() instead (with same arguments)"""
-    return registry.get_all_methods(
-        entry_point=entry_point, protocol=protocol, sort_methods=sort_methods
-    )
+    return registry.get_all_methods(entry_point=entry_point, protocol=protocol, sort_methods=sort_methods)
 
 
 def get_method(name, entry_point, protocol):

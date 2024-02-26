@@ -52,9 +52,7 @@ class TestBase:
     def test_input_types(self, any_rpc_client, arg, expected_type):
         assert any_rpc_client.call("get_data_type", arg) == expected_type
 
-    @pytest.mark.skip(
-        reason="django-modern-rpc does not support model instances results yet"
-    )
+    @pytest.mark.skip(reason="django-modern-rpc does not support model instances results yet")
     def test_input_arg_types(self, any_rpc_client, john_doe):
         result = any_rpc_client.call("user_instance", john_doe.pk) == "str"
         assert result["username"] == john_doe.username
@@ -77,20 +75,12 @@ class TestXmlSpecific:
     def test_input_type_date(self, xmlrpc_client):
         dt = datetime.datetime(1990, 1, 1, 0, 0, 0)
         assert xmlrpc_client.call("get_data_type", dt) == "datetime"
-        assert (
-            xmlrpc_client.call("get_data_type", xmlrpc.client.DateTime(dt))
-            == "datetime"
-        )
+        assert xmlrpc_client.call("get_data_type", xmlrpc.client.DateTime(dt)) == "datetime"
 
     def test_input_type_date_builtin(self, xmlrpc_client_with_builtin_types):
         dt = datetime.datetime(1990, 1, 1, 0, 0, 0)
         assert xmlrpc_client_with_builtin_types.call("get_data_type", dt) == "datetime"
-        assert (
-            xmlrpc_client_with_builtin_types.call(
-                "get_data_type", xmlrpc.client.DateTime(dt)
-            )
-            == "datetime"
-        )
+        assert xmlrpc_client_with_builtin_types.call("get_data_type", xmlrpc.client.DateTime(dt)) == "datetime"
 
     def test_input_type_date_add(self, xmlrpc_client):
         base_date = datetime.datetime(2000, 6, 3, 0, 0, 0)
@@ -111,9 +101,7 @@ class TestXmlSpecific:
         assert xmlrpc_client.call("get_data_type", b"abcd") == "bytes"
 
     def test_input_bytes_builtin(self, xmlrpc_client_with_builtin_types):
-        assert (
-            xmlrpc_client_with_builtin_types.call("get_data_type", b"abcd") == "bytes"
-        )
+        assert xmlrpc_client_with_builtin_types.call("get_data_type", b"abcd") == "bytes"
 
 
 class TestJsonSpecific:
@@ -139,8 +127,6 @@ class TestJsonSpecific:
             r"(Object of type '?bytes'? is not JSON serializable"
             r"|b'abcde' is not JSON serializable)"
         )
-        with pytest.raises(
-            jsonrpc_client.error_response_exception, match=exc_match
-        ) as exc_info:
+        with pytest.raises(jsonrpc_client.error_response_exception, match=exc_match) as exc_info:
             jsonrpc_client.call("get_bytes")
         jsonrpc_client.assert_exception_code(exc_info.value, RPC_INTERNAL_ERROR)

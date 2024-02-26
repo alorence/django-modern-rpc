@@ -110,15 +110,12 @@ class JSONRPCHandler(RPCHandler):
             if isinstance(parsed_request, list):
                 # Process each request, getting the resulting JsonResult instance (success or error)
                 results: Generator[JsonResult, None, None] = (
-                    self.process_single_request(_req, context)
-                    for _req in parsed_request
+                    self.process_single_request(_req, context) for _req in parsed_request
                 )
 
                 # Transform each result into its str result representation and remove notifications result
                 str_results: Generator[str, None, None] = (
-                    self.dumps_result(_res)
-                    for _res in results
-                    if not _res.is_notification
+                    self.dumps_result(_res) for _res in results if not _res.is_notification
                 )
 
                 # Rebuild final JSON content manually
@@ -128,9 +125,7 @@ class JSONRPCHandler(RPCHandler):
                 return "[%s]" % concatenated_results if concatenated_results else ""
 
             # By default, handle a standard single request
-            return self.dumps_result(
-                self.process_single_request(parsed_request, context)
-            )
+            return self.dumps_result(self.process_single_request(parsed_request, context))
 
     def parse_request(self, request_body: str) -> Union[dict, List[dict]]:
         """
@@ -145,9 +140,7 @@ class JSONRPCHandler(RPCHandler):
 
         return payload
 
-    def process_single_request(
-        self, request_data: dict, context: RPCRequestContext
-    ) -> JsonResult:
+    def process_single_request(self, request_data: dict, context: RPCRequestContext) -> JsonResult:
         """Check and call the RPC method, based on given request dict."""
         if not isinstance(request_data, dict):
             error_msg = f'Invalid JSON-RPC payload, expected "object", found "{type(request_data).__name__}"'
@@ -219,15 +212,11 @@ class JSONRPCHandler(RPCHandler):
             "jsonrpc": result.version,
         }
         try:
-            return json.dumps(
-                {**result_base, **result.serializable_data()}, cls=self.encoder
-            )
+            return json.dumps({**result_base, **result.serializable_data()}, cls=self.encoder)
 
         except Exception as exc:
             # Error on result serialization: serialize an error instead
             error_msg = f"Unable to serialize result: {exc}"
             logger.error(error_msg, exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
             error_result = JsonErrorResult(RPC_INTERNAL_ERROR, error_msg)
-            return json.dumps(
-                {**result_base, **error_result.serializable_data()}, cls=self.encoder
-            )
+            return json.dumps({**result_base, **error_result.serializable_data()}, cls=self.encoder)

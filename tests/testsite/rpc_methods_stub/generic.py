@@ -59,9 +59,7 @@ def raise_custom_exception():
 
 class MyCustomExceptionWithData(RPCException):
     def __init__(self, data):
-        super().__init__(
-            RPC_CUSTOM_ERROR_BASE + 5, "This exception has additional data", data
-        )
+        super().__init__(RPC_CUSTOM_ERROR_BASE + 5, "This exception has additional data", data)
 
 
 @rpc_method

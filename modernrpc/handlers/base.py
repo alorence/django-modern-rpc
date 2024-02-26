@@ -84,9 +84,7 @@ class RPCHandler(ABC):
 
         Default implementation will check Content-Type for supported value
         """
-        return (
-            getattr(request, "content_type", "").lower() in self.valid_content_types()
-        )
+        return getattr(request, "content_type", "").lower() in self.valid_content_types()
 
     @abstractmethod
     def process_request(self, request_body: str, context: RPCRequestContext) -> str:
@@ -114,9 +112,7 @@ class RPCHandler(ABC):
         """
 
     @abstractmethod
-    def process_single_request(
-        self, request_data: RequestData, context: RPCRequestContext
-    ) -> BaseResult:
+    def process_single_request(self, request_data: RequestData, context: RPCRequestContext) -> BaseResult:
         """
         Perform all mandatory task before executing a single procedure.
 

@@ -41,16 +41,12 @@ def __system_method_signature(method_name, **kwargs):
 
     method = registry.get_method(method_name, entry_point, protocol)
     if method is None:
-        raise RPCInvalidParams(
-            f"Unknown method {method_name}. Unable to retrieve signature."
-        )
+        raise RPCInvalidParams(f"Unknown method {method_name}. Unable to retrieve signature.")
 
     # See http://xmlrpc-c.sourceforge.net/introspection.html
     undefined = "undef"
     return_type = method.return_doc.get("type") or undefined
-    args_types = [
-        arg_doc.get("type") or undefined for arg_doc in method.args_doc.values()
-    ]
+    args_types = [arg_doc.get("type") or undefined for arg_doc in method.args_doc.values()]
 
     return [[return_type, *args_types]]
 
@@ -69,9 +65,7 @@ def __system_method_help(method_name, **kwargs):
 
     method = registry.get_method(method_name, entry_point, protocol)
     if method is None:
-        raise RPCInvalidParams(
-            f"Unknown method {method_name}. Unable to retrieve its documentation."
-        )
+        raise RPCInvalidParams(f"Unknown method {method_name}. Unable to retrieve its documentation.")
     return method.html_doc
 
 
@@ -85,9 +79,7 @@ def __system_multi_call(calls, **kwargs):
     :return:
     """
     if not isinstance(calls, list):
-        raise RPCInvalidParams(
-            f"system.multicall first argument should be a list, {type(calls).__name__} given."
-        )
+        raise RPCInvalidParams(f"system.multicall first argument should be a list, {type(calls).__name__} given.")
 
     context = RPCRequestContext(
         request=kwargs[REQUEST_KEY],

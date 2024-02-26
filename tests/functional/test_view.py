@@ -41,9 +41,7 @@ class TestJsonOnlyEntryPoint:
 
     def test_request_to_unsupported_endpoint(self, xmlrpc_client):
         exc_match = r"syntax error: line 1, column 0"
-        with pytest.raises(
-            xmlrpc_client.invalid_response_exception, match=exc_match
-        ) as exc_info:
+        with pytest.raises(xmlrpc_client.invalid_response_exception, match=exc_match) as exc_info:
             # There is no method available via this entry point for XML-RPC clients.
             # The returned error message cannot be encapsulated in a proper XML-RPC response (since the entry
             # point is not configured to handle and respond via the protocol). The returned error message is RAW,

@@ -45,9 +45,7 @@ class TestInitChecks:
         assert result[0].id == "modernrpc.E001"
 
     def test_settings_check_with_syntax_error_in_module(self, settings):
-        settings.MODERNRPC_METHODS_MODULES = [
-            "testsite.rpc_methods_stub.module_with_syntax_errors"
-        ]
+        settings.MODERNRPC_METHODS_MODULES = ["testsite.rpc_methods_stub.module_with_syntax_errors"]
 
         result = check_settings(apps.get_app_config("modernrpc"))
         assert len(result) == 1
@@ -69,9 +67,7 @@ class TestAppInit:
     """Test behaviors of AppConfig.ready() method, automatically called by Django at project startup"""
 
     @pytest.mark.parametrize("empty_value", [[], set(), (), None])
-    def test_registry_empty_if_settings_not_defined(
-        self, settings, rpc_registry, empty_value
-    ):
+    def test_registry_empty_if_settings_not_defined(self, settings, rpc_registry, empty_value):
         # Update setting value to remove any value
         settings.MODERNRPC_METHODS_MODULES = empty_value
 
@@ -100,9 +96,7 @@ class TestAppInit:
 
     def test_app_init_with_syntax_error_in_module(self, settings, rpc_registry):
         # modernrpc / tests / testsite / rpc_methods_stub / module_with_syntax_errors
-        settings.MODERNRPC_METHODS_MODULES = [
-            "testsite.rpc_methods_stub.module_with_syntax_errors"
-        ]
+        settings.MODERNRPC_METHODS_MODULES = ["testsite.rpc_methods_stub.module_with_syntax_errors"]
 
         app = apps.get_app_config("modernrpc")
         with pytest.raises(SyntaxError):
@@ -130,14 +124,8 @@ class TestRegistry:
 
     def test_double_registration(self, rpc_registry):
         # Registering twice is not a problem
-        assert (
-            rpc_registry.register_method(dummy_remote_procedure_1)
-            == "dummy_remote_procedure_1"
-        )
-        assert (
-            rpc_registry.register_method(dummy_remote_procedure_1)
-            == "dummy_remote_procedure_1"
-        )
+        assert rpc_registry.register_method(dummy_remote_procedure_1) == "dummy_remote_procedure_1"
+        assert rpc_registry.register_method(dummy_remote_procedure_1) == "dummy_remote_procedure_1"
 
     def test_manual_registration_with_different_name(self, rpc_registry):
         assert "another_name" not in rpc_registry.get_all_method_names()
@@ -195,18 +183,12 @@ class TestRegistry:
         assert "dummy_remote_procedure_1" in modernrpc.core.get_all_method_names()
 
     def test_backward_compat_registry(self, rpc_registry):
-        assert rpc_registry.get_method("divide", ALL, ALL) == modernrpc.core.get_method(
-            "divide", ALL, ALL
-        )
-        assert (
-            rpc_registry.get_all_method_names() == modernrpc.core.get_all_method_names()
-        )
+        assert rpc_registry.get_method("divide", ALL, ALL) == modernrpc.core.get_method("divide", ALL, ALL)
+        assert rpc_registry.get_all_method_names() == modernrpc.core.get_all_method_names()
 
         # registry.get_all_methods() return a dict_values instance
         # It needs to be casted to list to allow comparison
-        assert list(rpc_registry.get_all_methods()) == list(
-            modernrpc.core.get_all_methods()
-        )
+        assert list(rpc_registry.get_all_methods()) == list(modernrpc.core.get_all_methods())
 
     def test_backward_compat_registry_reset(self, rpc_registry):
         # Ensure a normal init registered some rpc methods

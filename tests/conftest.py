@@ -16,17 +16,13 @@ def anonymous_user():
 @pytest.fixture()
 def john_doe(django_user_model, common_pwd):
     """Create and return a standard Django user"""
-    return django_user_model.objects.create_user(
-        "johndoe", email="jd@example.com", password=common_pwd
-    )
+    return django_user_model.objects.create_user("johndoe", email="jd@example.com", password=common_pwd)
 
 
 @pytest.fixture()
 def superuser(django_user_model, common_pwd):
     """Create and return a Django superuser"""
-    return django_user_model.objects.create_superuser(
-        "admin", email="admin@example.com", password=common_pwd
-    )
+    return django_user_model.objects.create_superuser("admin", email="admin@example.com", password=common_pwd)
 
 
 @pytest.fixture()

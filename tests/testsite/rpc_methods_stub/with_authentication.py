@@ -42,17 +42,13 @@ def delete_user_perm_required(x):
     return x
 
 
-@http_basic_auth_any_of_permissions_required(
-    permissions=["auth.delete_user", "auth.add_user", "auth.change_user"]
-)
+@http_basic_auth_any_of_permissions_required(permissions=["auth.delete_user", "auth.add_user", "auth.change_user"])
 @rpc_method
 def any_permission_required(x):
     return x
 
 
-@http_basic_auth_permissions_required(
-    permissions=["auth.delete_user", "auth.add_user", "auth.change_user"]
-)
+@http_basic_auth_permissions_required(permissions=["auth.delete_user", "auth.add_user", "auth.change_user"])
 @rpc_method
 def all_permissions_required(x):
     return x

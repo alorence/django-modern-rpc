@@ -63,9 +63,7 @@ class TestSystemMethods:
 
     def test_get_signature_3(self, any_rpc_client):
         exc_match = r"Invalid parameters: Unknown method nonexistent_method. Unable to retrieve signature."
-        with pytest.raises(
-            any_rpc_client.error_response_exception, match=exc_match
-        ) as exc_info:
+        with pytest.raises(any_rpc_client.error_response_exception, match=exc_match) as exc_info:
             any_rpc_client.call("system.methodSignature", "nonexistent_method")
         any_rpc_client.assert_exception_code(exc_info.value, RPC_INVALID_PARAMS)
 
@@ -80,8 +78,6 @@ class TestSystemMethods:
 
     def test_method_help_invalid_method(self, any_rpc_client):
         exc_match = r"Invalid parameters: Unknown method nonexistent_method. Unable to retrieve signature."
-        with pytest.raises(
-            any_rpc_client.error_response_exception, match=exc_match
-        ) as exc_info:
+        with pytest.raises(any_rpc_client.error_response_exception, match=exc_match) as exc_info:
             any_rpc_client.call("system.methodSignature", "nonexistent_method")
         any_rpc_client.assert_exception_code(exc_info.value, RPC_INVALID_PARAMS)

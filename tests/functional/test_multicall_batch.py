@@ -34,9 +34,7 @@ def test_xmlrpc_multicall_with_unknown_method(xmlrpc_client):
     assert result[2] == 16
 
     exc_match = r'Method not found: "unknown_method"'
-    with pytest.raises(
-        xmlrpc_client.error_response_exception, match=exc_match
-    ) as exc_info:
+    with pytest.raises(xmlrpc_client.error_response_exception, match=exc_match) as exc_info:
         assert result[1]
     xmlrpc_client.assert_exception_code(exc_info.value, RPC_METHOD_NOT_FOUND)
 
@@ -54,18 +52,14 @@ def test_xmlrpc_multicall_with_zero_division_error(xmlrpc_client):
     assert result[2] == 16
 
     exc_match = r"division by zero"
-    with pytest.raises(
-        xmlrpc_client.error_response_exception, match=exc_match
-    ) as exc_info:
+    with pytest.raises(xmlrpc_client.error_response_exception, match=exc_match) as exc_info:
         assert result[1]
     xmlrpc_client.assert_exception_code(exc_info.value, RPC_INTERNAL_ERROR)
 
 
 def test_jsonrpc_multicall_error(jsonrpc_client):
     exc_match = r'Method not found: "system.multicall"'
-    with pytest.raises(
-        jsonrpc_client.error_response_exception, match=exc_match
-    ) as exc_info:
+    with pytest.raises(jsonrpc_client.error_response_exception, match=exc_match) as exc_info:
         jsonrpc_client.call("system.multicall")
     jsonrpc_client.assert_exception_code(exc_info.value, RPC_METHOD_NOT_FOUND)
 
