@@ -51,6 +51,7 @@ class ModernRpcConfig(AppConfig):
 
     def ready(self):
         self.rpc_methods_registration()
+        self.secure_xmlrpc_use()
 
     def rpc_methods_registration(self) -> None:
         """Store all decorated RPC methods as well as builtin system methods into internal registry"""
@@ -83,3 +84,13 @@ class ModernRpcConfig(AppConfig):
                 # And register only functions with attribute 'modernrpc_enabled' defined to True
                 if getattr(func, "modernrpc_enabled", False):
                     registry.register_method(func)
+
+    @staticmethod
+    def secure_xmlrpc_use():
+        try:
+            import defusedxml.xmlrpc
+        except ImportError:
+            logger.debug("'defusedxml' package were not found, no protection will be enabled against XML based attacks")
+            return
+        else:
+            defusedxml.xmlrpc.monkey_patch()
