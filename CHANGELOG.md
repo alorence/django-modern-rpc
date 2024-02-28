@@ -4,6 +4,11 @@
 
 **Release date: unknown**
 
+### Improvements
+
+  - When package `defusedxml` is installed in the same environment, builtin xmlrpc.client module is patched to reduce
+  the risk of various XML payload based attacks on the server
+
 ### Fixes
 
   - Fix dependency to `packaging` introduced in previous release.
