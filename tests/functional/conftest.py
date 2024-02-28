@@ -1,14 +1,15 @@
 import base64
-import itertools
-import pyexpat
 import xmlrpc.client
 from abc import ABC, abstractmethod
-from typing import Union, Type, Any, List, Dict, Optional
+from typing import Any, Dict, List, Optional, Type, Union
 
+import itertools
 import jsonrpcclient
+import pyexpat
 import pytest
 import requests
 from jsonrpcclient.sentinels import NOID
+
 
 UNDEFINED_AUTH = object()
 
@@ -71,7 +72,7 @@ class AbstractRpcTestClient(ABC):
 
     @abstractmethod
     def call(self, method: str, args: Optional[Union[List[Any], Dict[str, Any]]] = None):
-        """Perform a standard RPC call. Return the reote procedure execution result."""
+        """Perform a standard RPC call. Return the remote procedure execution result."""
 
     @abstractmethod
     def check_response_headers(self, headers):
@@ -286,3 +287,13 @@ def any_rpc_client(live_server, endpoint_path, client_auth, request):
     """A RPC client (xml-rpc or json-rpc)"""
     klass = request.param
     return klass(live_server.url + endpoint_path, auth=client_auth)
+
+
+@pytest.fixture()
+def _unconfigure_defusedxml():
+    """Ensure that builtin xmlrpc objects patched by defusedxml are unpatched before any tests are run"""
+    import defusedxml.xmlrpc
+
+    defusedxml.xmlrpc.unmonkey_patch()
+    yield
+    defusedxml.xmlrpc.monkey_patch()

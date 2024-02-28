@@ -51,6 +51,7 @@ class ModernRpcConfig(AppConfig):
 
     def ready(self):
         self.rpc_methods_registration()
+        self.defusedxml_monkey_patch()
 
     def rpc_methods_registration(self) -> None:
         """Store all decorated RPC methods as well as builtin system methods into internal registry"""
@@ -83,3 +84,18 @@ class ModernRpcConfig(AppConfig):
                 # And register only functions with attribute 'modernrpc_enabled' defined to True
                 if getattr(func, "modernrpc_enabled", False):
                     registry.register_method(func)
+
+    @staticmethod
+    def defusedxml_monkey_patch():
+        try:
+            import defusedxml.xmlrpc
+        except ImportError:
+            msg = (
+                "'defusedxml' package were not found. Your project may be vulnerable to various XML payloads based "
+                "attacks. To secure the server against such malicious attacks, please install 'defusedxml' or install "
+                "django-modern-rpc with extra 'defusedxml (`pip install django-modern-rpc[defusedxml]`"
+            )
+            logger.debug(msg)
+            return
+
+        defusedxml.xmlrpc.monkey_patch()

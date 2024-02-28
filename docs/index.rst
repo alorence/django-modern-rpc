@@ -26,8 +26,8 @@ While it is a bit outdated now, there is still use-cases were XML-RPC or JSON-RP
 Getting started
 ---------------
 
-.. important:: This library requires python 3.7 and Django 2.1. If you need to install it on older Python/Django
-   versions, you may need to install an older release.
+.. important:: django-modern-rpc requires python 3.7+ and Django 2.1+. If you need to install it in environment with
+   older Python/Django versions, you must install a previous release. See :ref:`Changelog` for more information.
 
 Installing the library and configuring a Django project to use it can be achieved in a few minutes. Follow
 :doc:`basics/quickstart` for very basic setup process. Later, when you will need to configure more precisely
@@ -56,6 +56,7 @@ your project, follow other topics in the menu.
    advanced/implementation_details.rst
    advanced/authentication.rst
    advanced/generated_doc.rst
+   advanced/security.rst
 
 .. toctree::
    :caption: Miscellaneous

@@ -59,11 +59,13 @@ exclude = ["tests"]
 [tool.poetry.extras]
 docutils = ["docutils"]
 markdown = ["markdown"]
+defusedxml = ["defusedxml"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
 docutils = { version = "^0.19.0", optional = true }
 markdown = { version = "^3.4.0", optional = true }
+defusedxml = { version = "^0.7.1", optional = true }
 
 # Django group, allows tox to install a specific django version using pip
 # i.e. poetry install --without django
@@ -79,6 +81,7 @@ jsonrpcclient = "^4.0.2"
 requests = "*"
 docutils = "*"
 markdown = "*"
+defusedxml = "*"
 
 [tool.poetry.group.tests]
 optional = false
@@ -128,6 +131,12 @@ target-version = "py37"
 extend-exclude = [
     "module_with_syntax_errors.py",
 ]
+[[tool.mypy.overrides]]
+module = [
+    "defusedxml",
+    "defusedxml.xmlrpc",
+]
+ignore_missing_imports = true
 
 [tool.ruff.format]
 # Use `\n` line endings for all files

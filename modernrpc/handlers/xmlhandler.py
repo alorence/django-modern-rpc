@@ -32,7 +32,7 @@ class XmlSuccessResult(SuccessResult):
         # a single <params> which contains a single <param> which contains a single <value>."
         #
         # So, to make sure the return value always contain a single '<param><value><type>X</type></value></param>',
-        # we dumps it as an array of a single value
+        # we dump it as an array of a single value
         return [self.data]
 
 
