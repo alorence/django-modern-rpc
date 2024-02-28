@@ -132,13 +132,11 @@ class XMLRPCHandler(RPCHandler):
             dumped_result = self.marshaller.dumps(error_result.serializable_data())
 
         # Finally, dumps the result into full response content
-        final_content = (
-            """
-                <?xml version="1.0"?>
-                <methodResponse>
-                    %s
-                </methodResponse>
-            """
-            % dumped_result
-        )
+        final_content = f"""
+            <?xml version="1.0"?>
+            <methodResponse>
+                {dumped_result}
+            </methodResponse>
+        """
+
         return dedent(final_content).strip()

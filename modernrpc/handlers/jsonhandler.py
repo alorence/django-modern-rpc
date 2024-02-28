@@ -114,15 +114,15 @@ class JSONRPCHandler(RPCHandler):
                 )
 
                 # Transform each result into its str result representation and remove notifications result
-                str_results: Generator[str, None, None] = (
+                dumped_results: Generator[str, None, None] = (
                     self.dumps_result(_res) for _res in results if not _res.is_notification
                 )
 
                 # Rebuild final JSON content manually
-                concatenated_results = ", ".join(str_results)
+                serialized_result = ", ".join(dumped_results)
 
                 # Return JSON-serialized response list, or empty string for notifications-only request
-                return "[%s]" % concatenated_results if concatenated_results else ""
+                return f"[{serialized_result}]" if serialized_result else ""
 
             # By default, handle a standard single request
             return self.dumps_result(self.process_single_request(parsed_request, context))
