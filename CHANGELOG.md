@@ -2,6 +2,12 @@
 
 ## Next release
 
+### Improvements
+
+### Fixes
+
+## v1.0.2
+
 **Release date: 2024-02-29**
 
 ### Improvements
