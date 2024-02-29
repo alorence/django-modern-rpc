@@ -98,9 +98,9 @@ optional = true
 ruff = "^0.2.2"
 # mypy 1.5+ requires Python 3.8+
 mypy = "^1.4.0"
-django-stubs = "^1.14.0"
-types-docutils = "^0.19.1"
-types-Markdown = "^3.4.2"
+django-stubs = "^4.2.0"
+types-docutils = "^0.20.0"
+types-Markdown = "^3.5.0"
 
 [tool.poetry.group.docs]
 optional = true
@@ -124,12 +124,10 @@ python_files = ["test_*.py"]
 DJANGO_SETTINGS_MODULE = "testsite.settings"
 FAIL_INVALID_TEMPLATE_VARS = true
 
-
-[tool.ruff]
-line-length = 120
-target-version = "py37"
-extend-exclude = [
-    "module_with_syntax_errors.py",
+[tool.mypy]
+exclude = [
+    '^tests/.+$',
+    '^docs/.+$',
 ]
 [[tool.mypy.overrides]]
 module = [
@@ -138,11 +136,16 @@ module = [
 ]
 ignore_missing_imports = true
 
+[tool.ruff]
+line-length = 120
+target-version = "py37"
+extend-exclude = [
+    "module_with_syntax_errors.py",
+]
 [tool.ruff.format]
 # Use `\n` line endings for all files
 line-ending = "lf"
 quote-style = "double"
-
 [tool.ruff.lint]
 # List of rules currently enabled.
 # Docs: https://beta.ruff.rs/docs/rules/
@@ -204,9 +207,3 @@ max-complexity = 10
 
 [tool.ruff.lint.isort]
 # TBD
-
-[tool.mypy]
-exclude = [
-    '^tests/.+$',
-    '^docs/.+$',
-]
