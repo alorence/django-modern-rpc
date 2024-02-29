@@ -2,11 +2,11 @@
 
 ## Next release
 
-**Release date: unknown**
+**Release date: 2024-02-29**
 
 ### Improvements
 
-  - When package `defusedxml` is installed in the same environment, builtin xmlrpc.client module is patched to reduce
+  - When package `defusedxml` is installed in the same environment, builtin `xmlrpc.client` module is patched to reduce
   the risk of various XML payload based attacks on the server
 
 ### Fixes
@@ -15,8 +15,9 @@
 
 ### Misc
 
-  - Added support for Django 5.0
-  - Reduced the verbosity of the package. Startup initialization message is now a DEBUG log instead of an INFO one.
+  - Added support for Django 5.0 (Thanks to @washeck)
+  - Reduced the verbosity of the package. Startup initialization message is now a DEBUG log instead of
+    an INFO one (Thanks to @washeck)
   - Dropped use of Black and PyLint. Use Ruff to enforce all linting rules and code formatting
 
 ## v1.0.2
