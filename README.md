@@ -43,6 +43,6 @@ of the documentation to help setting up you project.
 Continuous integration and code analysis is performed automatically to ensure a decent code quality. Project health
 is publicly available on following apps:
 
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/37607e2ecaf549b890fc6defca88c7f8)](https://www.codacy.com/gh/alorence/django-modern-rpc/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=alorence/django-modern-rpc&amp;utm_campaign=Badge_Grade)
-[![Codacy Badge](https://app.codacy.com/project/badge/Coverage/37607e2ecaf549b890fc6defca88c7f8)](https://www.codacy.com/gh/alorence/django-modern-rpc/dashboard?utm_source=github.com&utm_medium=referral&utm_content=alorence/django-modern-rpc&utm_campaign=Badge_Coverage)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/37607e2ecaf549b890fc6defca88c7f8)](https://app.codacy.com/gh/alorence/django-modern-rpc/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Coverage/37607e2ecaf549b890fc6defca88c7f8)](https://app.codacy.com/gh/alorence/django-modern-rpc/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage)
 [![Coveralls Status](https://coveralls.io/repos/github/alorence/django-modern-rpc/badge.svg)](https://coveralls.io/github/alorence/django-modern-rpc)
