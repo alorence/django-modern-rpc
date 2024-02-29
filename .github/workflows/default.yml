@@ -81,21 +81,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-
+    - name: Install poetry
+      run: pipx install 'poetry==${{ env.INSTALL_POETRY_VERSION }}'
     - name: Setup Python ${{ matrix.python }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python }}
-
-    - name: Install Poetry
-      uses: abatilo/actions-poetry@v2
-      with:
-        poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
+        cache: 'poetry'
 
     - name: Install dependencies in Python ${{ matrix.python }} environment
       run: |
-        poetry install --no-interaction
-        poetry run pip install -U "django==${{ matrix.django }}.*"
+        poetry env use ${{ matrix.python }}
+        poetry install --no-interaction --with dev,tests --without django
+        poetry run pip install "django==${{ matrix.django }}.*"
 
     - name: Pytest
       run: |
@@ -105,17 +103,15 @@ jobs:
     - name: Upload coverage results
       if: github.event_name != 'pull_request'
       continue-on-error: true
-      run: |
-        pip install codacy-coverage coveralls
-
-        # Submit coverage results to codacy.com
-        python-codacy-coverage -r coverage.xml
-
-        # Submit coverage results to coveralls
-        coveralls
       env:
         CODACY_PROJECT_TOKEN : ${{ secrets.CODACY_PROJECT_TOKEN }}
         COVERALLS_REPO_TOKEN : ${{ secrets.COVERALLS_REPO_TOKEN }}
+      run: |
+        pip install codacy-coverage coveralls
+        # Submit coverage results to codacy.com
+        python-codacy-coverage -r coverage.xml
+        # Submit coverage results to coveralls
+        coveralls
 
   linter:
     runs-on: ubuntu-latest
