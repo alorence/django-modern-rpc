@@ -24,9 +24,7 @@ on:
         - test.pypi.org
 
 env:
-  # Poetry 1.6.* requires Python >= 3.8
-  INSTALL_POETRY_VERSION: 1.5.*
-  POETRY_INSTALLER_PARALLEL: true
+  INSTALL_POETRY_VERSION: 1.8.*
   POETRY_VIRTUALENVS_CREATE: true
   # Hide warning about outdated pip version
   PIP_DISABLE_PIP_VERSION_CHECK: 1
@@ -91,7 +89,6 @@ jobs:
 
     - name: Install dependencies in Python ${{ matrix.python }} environment
       run: |
-        poetry env use ${{ matrix.python }}
         poetry install --no-interaction --with dev,tests --without django
         poetry run pip install "django==${{ matrix.django }}.*"
 
