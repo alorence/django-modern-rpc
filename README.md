@@ -12,7 +12,7 @@ Expose global python functions through XML-RPC and/or JSON-RPC server using Djan
 - XML-RPC and JSON-RPC 2.0 support (JSON-RPC 1.0 is NOT supported)
 - HTTP Basic Auth & custom authentication methods
 - Multiple entry-points: group your RPC methods under different paths to apply
-specific rules, authentication, protocol support, etc.
+  specific rules, authentication, protocol support, etc.
 - API docs generation (based on docstring)
 
 ## Requirements
