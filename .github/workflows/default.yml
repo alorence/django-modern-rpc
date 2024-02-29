@@ -80,7 +80,7 @@ jobs:
           - { python: "3.7", django: "2.1" }
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Setup Python ${{ matrix.python }}
       uses: actions/setup-python@v4
@@ -121,7 +121,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: debug
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install Poetry
         uses: abatilo/actions-poetry@v2
         with:
@@ -135,7 +135,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: debug
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install Poetry
         uses: abatilo/actions-poetry@v2
         with:
@@ -149,7 +149,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: debug
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install Poetry
         uses: abatilo/actions-poetry@v2
         with:
@@ -169,7 +169,7 @@ jobs:
       pypi_repository: ${{ github.event.inputs.target_repo || 'pypi.org' }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install Poetry
         uses: abatilo/actions-poetry@v2
         with:
