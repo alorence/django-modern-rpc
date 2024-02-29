@@ -24,10 +24,7 @@ on:
         - test.pypi.org
 
 env:
-  # Note: Poetry 1.2.* requires Python >= 3.7
-  # Poetry 1.6.* requires Python >= 3.8
-  INSTALL_POETRY_VERSION: 1.5.*
-  POETRY_INSTALLER_PARALLEL: true
+  INSTALL_POETRY_VERSION: 1.8.*
   POETRY_VIRTUALENVS_CREATE: true
   # Hide warning about outdated pip version
   PIP_DISABLE_PIP_VERSION_CHECK: 1
@@ -49,61 +46,51 @@ jobs:
     needs: debug
     strategy:
       matrix:
-        python: ["3.12", "3.11", "3.10", "3.9", "3.8", "3.7"]
-        django: ["5.0", "4.2", "4.1", "4.0", "3.2", "3.1", "3.0", "2.2", "2.1"]
+        # See https://docs.djangoproject.com/en/4.2/faq/install/#what-python-version-can-i-use-with-django
+        # See https://docs.djangoproject.com/en/3.2/faq/install/#what-python-version-can-i-use-with-django
+        # See https://docs.djangoproject.com/en/2.2/faq/install/#what-python-version-can-i-use-with-django
+        # By default, Matrix includes most common compatible Python / Django versions (reduce the number of exclusions)
+        python: ["3.10", "3.9", "3.8", "3.7"]
+        django: ["5.0", "4.2", "4.1", "4.0", "3.2", "3.1", "3.0", "2.2"]
         exclude:
-          # See https://docs.djangoproject.com/en/4.2/faq/install/#what-python-version-can-i-use-with-django
-          # See https://docs.djangoproject.com/en/3.2/faq/install/#what-python-version-can-i-use-with-django
-          # See https://docs.djangoproject.com/en/2.2/faq/install/#what-python-version-can-i-use-with-django
-          - { python: "3.12", django: "4.1" }
-          - { python: "3.12", django: "4.0" }
-          - { python: "3.12", django: "3.2" }
-          - { python: "3.12", django: "3.1" }
-          - { python: "3.12", django: "3.0" }
-          - { python: "3.12", django: "2.2" }
-          - { python: "3.12", django: "2.1" }
-
-          - { python: "3.11", django: "4.0" }
-          - { python: "3.11", django: "3.2" }
-          - { python: "3.11", django: "3.1" }
-          - { python: "3.11", django: "3.0" }
-          - { python: "3.11", django: "2.2" }
-          - { python: "3.11", django: "2.1" }
-
           - { python: "3.10", django: "3.1" }
           - { python: "3.10", django: "3.0" }
           - { python: "3.10", django: "2.2" }
-          - { python: "3.10", django: "2.1" }
 
           - { python: "3.9", django: "5.0" }
-          - { python: "3.9", django: "2.1" }
 
           - { python: "3.8", django: "5.0" }
-          - { python: "3.8", django: "2.1" }
 
           - { python: "3.7", django: "5.0" }
           - { python: "3.7", django: "4.2" }
           - { python: "3.7", django: "4.1" }
           - { python: "3.7", django: "4.0" }
+         # Now, specifically enable less common Python / Django combinations (Too old or too recent)
+        include:
+          # Very recent python versions
+          - { python: "3.12", django: "5.0" }
+          - { python: "3.12", django: "4.2" }
 
+          - { python: "3.11", django: "5.0" }
+          - { python: "3.11", django: "4.2" }
+          - { python: "3.11", django: "4.1" }
+          # Very old django version
+          - { python: "3.7", django: "2.1" }
 
     steps:
-    - uses: actions/checkout@v3
-
+    - uses: actions/checkout@v4
+    - name: Install poetry
+      run: pipx install 'poetry==${{ env.INSTALL_POETRY_VERSION }}'
     - name: Setup Python ${{ matrix.python }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python }}
-
-    - name: Install Poetry
-      uses: abatilo/actions-poetry@v2
-      with:
-        poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
+        cache: 'poetry'
 
     - name: Install dependencies in Python ${{ matrix.python }} environment
       run: |
-        poetry install --no-interaction
-        poetry run pip install -U "django==${{ matrix.django }}.*"
+        poetry install --no-interaction --with dev,tests --without django
+        poetry run pip install "django==${{ matrix.django }}.*"
 
     - name: Pytest
       run: |
@@ -113,29 +100,25 @@ jobs:
     - name: Upload coverage results
       if: github.event_name != 'pull_request'
       continue-on-error: true
-      run: |
-        pip install codacy-coverage coveralls
-
-        # Submit coverage results to codacy.com
-        python-codacy-coverage -r coverage.xml
-
-        # Submit coverage results to coveralls
-        coveralls
       env:
         CODACY_PROJECT_TOKEN : ${{ secrets.CODACY_PROJECT_TOKEN }}
         COVERALLS_REPO_TOKEN : ${{ secrets.COVERALLS_REPO_TOKEN }}
+      run: |
+        pip install codacy-coverage coveralls
+        # Submit coverage results to codacy.com
+        python-codacy-coverage -r coverage.xml
+        # Submit coverage results to coveralls
+        coveralls
 
   linter:
     runs-on: ubuntu-latest
     needs: debug
     steps:
-      - uses: actions/checkout@v3
-      - name: Install Poetry
-        uses: abatilo/actions-poetry@v2
-        with:
-          poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
-      - name: Install dependencies
-        run: poetry install --no-interaction --with code-analysis
+      - uses: actions/checkout@v4
+      - name: Setup environment
+        run: |
+          pipx install 'poetry==${{ env.INSTALL_POETRY_VERSION }}'
+          poetry install --no-interaction --with code-analysis
       - name: Ruff
         run: poetry run ruff check .
 
@@ -143,13 +126,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: debug
     steps:
-      - uses: actions/checkout@v3
-      - name: Install Poetry
-        uses: abatilo/actions-poetry@v2
-        with:
-          poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
-      - name: Install dependencies
-        run: poetry install --no-interaction --with code-analysis
+      - uses: actions/checkout@v4
+      - name: Setup environment
+        run: |
+          pipx install 'poetry==${{ env.INSTALL_POETRY_VERSION }}'
+          poetry install --no-interaction --with code-analysis
       - name: Ruff Format
         run: poetry run ruff format . --check
 
@@ -157,13 +138,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: debug
     steps:
-      - uses: actions/checkout@v3
-      - name: Install Poetry
-        uses: abatilo/actions-poetry@v2
-        with:
-          poetry-version: ${{ env.INSTALL_POETRY_VERSION }}
-      - name: Install dependencies
-        run: poetry install --no-interaction --with code-analysis
+      - uses: actions/checkout@v4
+      - name: Setup environment
+        run: |
+          pipx install 'poetry==${{ env.INSTALL_POETRY_VERSION }}'
+          poetry install --no-interaction --with code-analysis
       - name: Mypy
         run: poetry run mypy .
 
@@ -177,7 +156,7 @@ jobs:
       pypi_repository: ${{ github.event.inputs.target_repo || 'pypi.org' }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install Poetry
         uses: abatilo/actions-poetry@v2
         with:
