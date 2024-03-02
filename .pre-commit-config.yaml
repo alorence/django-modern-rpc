@@ -27,3 +27,9 @@ repos:
       - id: mypy
         files: ^modernrpc
         additional_dependencies: [django-stubs, types-docutils, types-Markdown, types-requests]
+  - repo: https://github.com/python-poetry/poetry
+    rev: '1.8.1'
+    hooks:
+      - id: poetry-check
+      - id: poetry-lock
+      - id: poetry-install

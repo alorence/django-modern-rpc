@@ -110,6 +110,18 @@ jobs:
         # Submit coverage results to coveralls
         coveralls
 
+  lockfile-check:
+    runs-on: ubuntu-latest
+    needs: debug
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup environment
+        run: |
+          pipx install 'poetry==${{ env.INSTALL_POETRY_VERSION }}'
+          poetry install --no-interaction --with code-analysis
+      - name: Check pyproject.toml and poetry.lock consitency
+        run: poetry check
+
   linter:
     runs-on: ubuntu-latest
     needs: debug
@@ -148,7 +160,7 @@ jobs:
 
   publish:
     runs-on: ubuntu-latest
-    needs: [tests, linter, formatter, mypy]
+    needs: [tests, lockfile-check, linter, formatter, mypy]
     # Only ran on tag push and manual trigger
     if: (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) || github.event.inputs.target_repo != ''
     env:
