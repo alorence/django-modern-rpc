@@ -1,4 +1,4 @@
-django==4.2.*
+django>=4.2,<3.3
 sphinx==5.3.*
 sphinx-book-theme==1.0.*
 myst-parser==1.0.*
