@@ -64,7 +64,7 @@ defusedxml = ["defusedxml"]
 [tool.poetry.dependencies]
 python = "^3.7"
 docutils = { version = "^0.19.0", optional = true }
-markdown = { version = "^3.4.0", optional = true }
+markdown = { version = "^3.4.4", optional = true }
 defusedxml = { version = "^0.7.1", optional = true }
 
 # Django group, allows tox to install a specific django version using pip
@@ -86,21 +86,21 @@ defusedxml = "*"
 [tool.poetry.group.tests]
 optional = false
 [tool.poetry.group.tests.dependencies]
-pytest = "^7.2"
+pytest = "^7.4"
 pytest-django = "*"
-pytest-sugar = "^0.9"
+pytest-sugar = "^1.0"
 pytest-cov = "*"
-tox = "^4"
+tox = "^4.8"
 
 [tool.poetry.group.code-analysis]
 optional = true
 [tool.poetry.group.code-analysis.dependencies]
-ruff = "^0.2.2"
+ruff = "^0.5.1"
 # mypy 1.5+ requires Python 3.8+
 mypy = "^1.4.0"
 django-stubs = "^4.2.0"
 types-docutils = "^0.20.0"
-types-Markdown = "^3.5.0"
+types-Markdown = "^3.5"
 
 [tool.poetry.group.docs]
 optional = true
