@@ -1,4 +1,5 @@
 """This module will test behavior when library is started"""
+
 import pytest
 from django.apps.registry import apps
 from django.core.exceptions import ImproperlyConfigured

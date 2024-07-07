@@ -54,6 +54,7 @@ Pre-defined exceptions uses the following error codes::
     RPC_CUSTOM_ERROR_MAX = -32000
 
 """
+
 from typing import Any
 
 

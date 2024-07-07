@@ -37,8 +37,7 @@ class AbstractRpcTestClient(ABC):
 
     @property
     @abstractmethod
-    def default_content_type(self):
-        ...
+    def default_content_type(self): ...
 
     @staticmethod
     def assert_exception_code(exception: Exception, expected_code: int):
