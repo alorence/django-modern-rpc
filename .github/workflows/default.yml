@@ -79,8 +79,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
     - name: Install poetry
-      run: pipx install 'poetry==${{ env.INSTALL_POETRY_VERSION }}'
+      run: |
+        pipx install 'poetry==${{ env.INSTALL_POETRY_VERSION }}'
+        pipx inject --force poetry 'packaging<=24.0'
+
     - name: Setup Python ${{ matrix.python }}
       uses: actions/setup-python@v5
       with:
