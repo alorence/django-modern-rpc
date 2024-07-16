@@ -33,7 +33,7 @@ class TestBase:
     )
     def test_return_types(self, any_rpc_client, method_name, return_type, value):
         result = any_rpc_client.call(method_name)
-        assert type(result) == return_type
+        assert isinstance(result, return_type)
         assert result == value
 
     @pytest.mark.parametrize(
@@ -62,14 +62,14 @@ class TestBase:
 class TestXmlSpecific:
     def test_return_type_date(self, xmlrpc_client):
         result = xmlrpc_client.call("get_date")
-        assert type(result) == xmlrpc.client.DateTime
-        assert type(result) != datetime.datetime
+        assert isinstance(result, xmlrpc.client.DateTime)
+        assert not isinstance(result, datetime.datetime)
         assert result == datetime.datetime(1987, 6, 2, 8, 45, 0)
 
     def test_return_type_builtin_date(self, xmlrpc_client_with_builtin_types):
         result = xmlrpc_client_with_builtin_types.call("get_date")
-        assert type(result) != xmlrpc.client.DateTime
-        assert type(result) == datetime.datetime
+        assert not isinstance(result, xmlrpc.client.DateTime)
+        assert isinstance(result, datetime.datetime)
         assert result == datetime.datetime(1987, 6, 2, 8, 45, 0)
 
     def test_input_type_date(self, xmlrpc_client):
@@ -85,13 +85,13 @@ class TestXmlSpecific:
     def test_input_type_date_add(self, xmlrpc_client):
         base_date = datetime.datetime(2000, 6, 3, 0, 0, 0)
         result = xmlrpc_client.call("add_one_month", base_date)
-        assert type(result) == xmlrpc.client.DateTime
+        assert isinstance(result, xmlrpc.client.DateTime)
         assert result == datetime.datetime(2000, 7, 3, 0, 0, 0)
 
     def test_input_type_date_add_builtin(self, xmlrpc_client_with_builtin_types):
         base_date = datetime.datetime(2000, 6, 3, 0, 0, 0)
         result = xmlrpc_client_with_builtin_types.call("add_one_month", base_date)
-        assert type(result) == datetime.datetime
+        assert isinstance(result, datetime.datetime)
         assert result == datetime.datetime(2000, 7, 3, 0, 0, 0)
 
     def test_return_type_bytes(self, xmlrpc_client):

@@ -83,6 +83,8 @@ jobs:
     - name: Install poetry
       run: |
         pipx install 'poetry==${{ env.INSTALL_POETRY_VERSION }}'
+        # packaging 24.1 dropped python 3.7 support. Unfortunately, its code is used to install dependencies
+        # into poetry environments. We must force its version as long as Python 3.7 is supported in tests
         pipx inject --force poetry 'packaging<=24.0'
 
     - name: Setup Python ${{ matrix.python }}
