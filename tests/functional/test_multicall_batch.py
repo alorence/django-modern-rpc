@@ -204,7 +204,7 @@ def test_jsonrpc_batch_invalid_payload_1(live_server, endpoint_path):
 def test_jsonrpc_batch_invalid_payload_2(live_server, endpoint_path):
     invalid_payload = [
         {"id": 1, "jsonrpc": "2.0", "method": "add", "params": [6, 32]},
-        {"id": None, "jsonrpc": "2.0", "method": "divide", "params": [9, 3]},
+        {"id": {"foo": "bar"}, "jsonrpc": "2.0", "method": "divide", "params": [9, 3]},
     ]
     result = requests.post(live_server.url + endpoint_path, json=invalid_payload).json()
 
@@ -212,9 +212,9 @@ def test_jsonrpc_batch_invalid_payload_2(live_server, endpoint_path):
     assert len(result) == 2
 
     expected_error_message = (
-        'Invalid request: Parameter "id" has an unsupported "null" value. It must '
-        "be set to a positive integer value, or must be completely removed from "
-        'request payload for special "notification" requests'
+        'Invalid request: Parameter "id" has an unsupported '
+        "value. According to JSON-RPC 2.0 standard, it must be "
+        "a String, a Number or a Null value."
     )
     assert result == [
         {"id": 1, "jsonrpc": "2.0", "result": 38},

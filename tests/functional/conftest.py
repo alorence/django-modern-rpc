@@ -127,7 +127,7 @@ class JsonrpcclientlibClient(AbstractJsonRpcTestClient):
         if "notify" in kwargs and kwargs.pop("notify"):
             json_req = jsonrpcclient.notification(method, params=args or kwargs)
         else:
-            json_req = jsonrpcclient.request(method, params=args or kwargs)
+            json_req = jsonrpcclient.request(method, params=args or kwargs, id=kwargs.pop("_id", NOID))
 
         response = requests.post(self.url, json=json_req, headers=self._build_request_headers())
         self.check_response_headers(response.headers)
