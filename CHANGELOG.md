@@ -6,6 +6,9 @@
 
 ### Fixes
 
+  - JSON-RPC handler now correctly checks type of request "id" field, according to the
+    [specification](https://www.jsonrpc.org/specification#request_object) (#72). Thanks to @moonburnt
+
 ## v1.0.3
 
 **Release date: 2024-02-29**

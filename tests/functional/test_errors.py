@@ -183,27 +183,6 @@ class TestJsonRpcSpecificBehaviors:
         response_str = exc_info.value.doc or exc_info.value.strerror
         assert "Unable to handle your request, the Content-Type header is mandatory" in response_str
 
-    def test_empty_id(self, live_server, endpoint_path, jsonrpc_content_type):
-        headers = {"content-type": jsonrpc_content_type}
-        payload = {
-            "method": "add",
-            "params": [5, 6],
-            "jsonrpc": "2.0",
-            "id": None,
-        }
-
-        response = self.low_level_jsonrpc_call(live_server.url + endpoint_path, payload, headers=headers)
-        assert "error" in response
-        assert "result" not in response
-        assert response["id"] is None
-
-        expected_error = (
-            'Invalid request: Parameter "id" has an unsupported "null" value. It must be set to a positive '
-            'integer value, or must be completely removed from request payload for special "notification" requests'
-        )
-        assert response["error"]["code"] == RPC_INVALID_REQUEST
-        assert response["error"]["message"] == expected_error
-
 
 class TestXmlRpcSpecificBehaviors:
     @staticmethod

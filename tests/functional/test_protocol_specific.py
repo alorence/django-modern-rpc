@@ -53,3 +53,17 @@ class TestJsonRpcSpecificFeatures:
 
     def test_notify(self, jsonrpc_client):
         assert jsonrpc_client.call("add", 5, 12, notify=True) is None
+
+    @pytest.mark.parametrize("request_id", ["abcd", 1234, -999, 19.55, -987.3, None])
+    def test_valid_id(self, jsonrpc_client, request_id):
+        assert jsonrpc_client.call("add", 98, 2, _id=request_id) == 100
+
+    @pytest.mark.parametrize("request_id", [{}, {"foo": "bar"}, {"foo": 155}, [], ["a", "b"]])
+    def test_invalid_id(self, jsonrpc_client, request_id):
+        exc_match = (
+            r'Parameter "id" has an unsupported value\. According to JSON-RPC 2\.0 '
+            r"standard, it must be a String, a Number or a Null value\."
+        )
+        with pytest.raises(jsonrpc_client.error_response_exception, match=exc_match) as exc_info:
+            jsonrpc_client.call("add", 5, 12, _id=request_id)
+        assert exc_info.value.code == -32600

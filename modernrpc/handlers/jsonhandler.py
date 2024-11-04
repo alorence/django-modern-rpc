@@ -1,7 +1,7 @@
 import json
 import logging
 from json.decoder import JSONDecodeError
-from typing import Optional, Generator, List, Union, Any
+from typing import Generator, List, Union, Any
 
 from django.utils.module_loading import import_string
 
@@ -21,14 +21,16 @@ logger = logging.getLogger(__name__)
 REQUEST_ID = "_jsonrpc_request_id"
 VERSION = "_jsonrpc_request_version"
 
+RequestIdType = Union[str, int, float, None]
+
 
 class JsonRpcDataMixin:
     """Wraps JSON-RPC specific information used to handle requests"""
 
-    request_id: Optional[int] = None
+    request_id: RequestIdType = None
     version: str = "2.0"
     # Note: In some case, it is possible to have a null request_id on standard request (not a notification), when an
-    # error appear on request parsing. Thus, the result must be sent with an "id" parameter set to None (null in JSON)
+    #  error appear on request parsing. Thus, the result must be sent with an "id" parameter set to None (null in JSON)
     is_notification = False
 
     def set_jsonrpc_data(self, request_id, version, is_notification=False):
@@ -172,11 +174,13 @@ class JSONRPCHandler(RPCHandler):
                     f'Parameter "jsonrpc" has an unsupported value "{jsonrpc_version}". It must be set to "2.0"'
                 )
 
-            if not is_notification and request_id is None:
+            if not is_notification and type(request_id) not in (type(None), int, float, str):
+                request_id = None
                 raise RPCInvalidRequest(
-                    'Parameter "id" has an unsupported "null" value. It must be set to a positive integer value, '
-                    'or must be completely removed from request payload for special "notification" requests'
+                    'Parameter "id" has an unsupported value. According to JSON-RPC 2.0 standard, it must '
+                    "be a String, a Number or a Null value."
                 )
+
             _method = self.get_method_wrapper(method_name)
 
             result_data = _method.execute(context, args, kwargs)
