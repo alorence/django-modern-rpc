@@ -9,6 +9,12 @@
   - JSON-RPC handler now correctly checks type of request "id" field, according to the
     [specification](https://www.jsonrpc.org/specification#request_object) (#72). Thanks to @moonburnt
 
+### Misc
+
+  - Added support for Django 5.1
+  - Added support for Python 3.13
+  - Dropped support of Django 2.1
+
 ## v1.0.3
 
 **Release date: 2024-02-29**
