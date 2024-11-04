@@ -288,7 +288,7 @@ def any_rpc_client(live_server, endpoint_path, client_auth, request):
     return klass(live_server.url + endpoint_path, auth=client_auth)
 
 
-@pytest.fixture()
+@pytest.fixture
 def _unconfigure_defusedxml():
     """Ensure that builtin xmlrpc objects patched by defusedxml are unpatched before any tests are run"""
     import defusedxml.xmlrpc

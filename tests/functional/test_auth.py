@@ -4,7 +4,7 @@ from modernrpc.exceptions import RPC_INTERNAL_ERROR
 
 
 class TestAuthSuperuser:
-    @pytest.fixture()
+    @pytest.fixture
     def client_auth(self, superuser, common_pwd):
         return "basic", superuser.username, common_pwd
 
@@ -114,7 +114,7 @@ class TestAuthAnonymousUser:
 
 
 class TestAuthStandardUser:
-    @pytest.fixture()
+    @pytest.fixture
     def client_auth(self, john_doe, common_pwd):
         return "basic", john_doe.username, common_pwd
 
