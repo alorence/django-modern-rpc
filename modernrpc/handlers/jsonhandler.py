@@ -1,20 +1,16 @@
+from __future__ import annotations
+
 import json
 import logging
 from json.decoder import JSONDecodeError
-from typing import Generator, List, Union, Any
+from typing import Any, Generator, Union
 
 from django.utils.module_loading import import_string
 
 from modernrpc.conf import settings
 from modernrpc.core import Protocol, RPCRequestContext
-from modernrpc.exceptions import (
-    RPCParseError,
-    RPC_INTERNAL_ERROR,
-    RPCException,
-    RPCInvalidRequest,
-    RPC_INVALID_REQUEST,
-)
-from modernrpc.handlers.base import RPCHandler, SuccessResult, ErrorResult
+from modernrpc.exceptions import RPC_INTERNAL_ERROR, RPC_INVALID_REQUEST, RPCException, RPCInvalidRequest, RPCParseError
+from modernrpc.handlers.base import ErrorResult, RPCHandler, SuccessResult
 
 logger = logging.getLogger(__name__)
 
@@ -83,7 +79,7 @@ class JSONRPCHandler(RPCHandler):
         self.encoder = import_string(settings.MODERNRPC_JSON_ENCODER)
 
     @staticmethod
-    def valid_content_types() -> List[str]:
+    def valid_content_types() -> list[str]:
         return [
             "application/json",
             "application/json-rpc",
@@ -129,7 +125,7 @@ class JSONRPCHandler(RPCHandler):
             # By default, handle a standard single request
             return self.dumps_result(self.process_single_request(parsed_request, context))
 
-    def parse_request(self, request_body: str) -> Union[dict, List[dict]]:
+    def parse_request(self, request_body: str) -> dict | list[dict]:
         """
         Parse request body and return deserialized payload, or raise an RPCParseError
 

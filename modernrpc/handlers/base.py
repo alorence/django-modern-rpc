@@ -1,15 +1,17 @@
+from __future__ import annotations
+
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, List, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from modernrpc.core import Protocol, RPCRequestContext, registry
 from modernrpc.exceptions import (
     RPCMethodNotFound,
 )
 
-
 if TYPE_CHECKING:
     from django.http import HttpRequest
+
     from modernrpc.core import RPCMethod
 
 RequestData = Any
@@ -54,7 +56,7 @@ class RPCHandler(ABC):
     def __init__(self, entry_point: str):
         self.entry_point = entry_point
 
-    def get_method_wrapper(self, name: str) -> "RPCMethod":
+    def get_method_wrapper(self, name: str) -> RPCMethod:
         """
         Return RPCMethod instance corresponding to given name, from the registry
 
@@ -70,7 +72,7 @@ class RPCHandler(ABC):
 
     @staticmethod
     @abstractmethod
-    def valid_content_types() -> List[str]:
+    def valid_content_types() -> list[str]:
         """Return the list of content-types supported by the concrete handler"""
 
     @staticmethod
@@ -78,7 +80,7 @@ class RPCHandler(ABC):
     def response_content_type() -> str:
         """Return the Content-Type value to set in responses"""
 
-    def can_handle(self, request: "HttpRequest") -> bool:
+    def can_handle(self, request: HttpRequest) -> bool:
         """
         Return True if this instance can handle the given request.
 

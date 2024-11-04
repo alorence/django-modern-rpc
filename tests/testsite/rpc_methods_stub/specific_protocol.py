@@ -1,4 +1,4 @@
-from modernrpc.core import rpc_method, Protocol
+from modernrpc.core import Protocol, rpc_method
 
 
 @rpc_method(protocol=Protocol.JSON_RPC)

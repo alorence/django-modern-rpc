@@ -1,15 +1,16 @@
+from __future__ import annotations
+
 import base64
+import itertools
+import pyexpat
 import xmlrpc.client
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any
 
-import itertools
 import jsonrpcclient
-import pyexpat
 import pytest
 import requests
 from jsonrpcclient.sentinels import NOID
-
 
 UNDEFINED_AUTH = object()
 
@@ -26,9 +27,9 @@ class JsonrpcErrorResponse(Exception):
 class AbstractRpcTestClient(ABC):
     """Base class RPC clients used to run tests"""
 
-    error_response_exception: Type[Exception]
-    invalid_response_exception: Type[Exception]
-    auth_error_exception: Type[Exception]
+    error_response_exception: type[Exception]
+    invalid_response_exception: type[Exception]
+    auth_error_exception: type[Exception]
 
     def __init__(self, url, **kwargs):
         self._url = url
@@ -70,7 +71,7 @@ class AbstractRpcTestClient(ABC):
         return _headers
 
     @abstractmethod
-    def call(self, method: str, args: Optional[Union[List[Any], Dict[str, Any]]] = None):
+    def call(self, method: str, args: list[Any] | dict[str, Any] | None = None):
         """Perform a standard RPC call. Return the remote procedure execution result."""
 
     @abstractmethod

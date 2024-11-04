@@ -1,13 +1,15 @@
+from __future__ import annotations
+
 import datetime
 import xmlrpc.client as xmlrpc_client
-from typing import Any, Iterable, Optional, Union
+from typing import Any, Iterable
 
 
 def get_builtin_date(
-    date: Union[str, datetime.datetime, xmlrpc_client.DateTime],
+    date: str | datetime.datetime | xmlrpc_client.DateTime,
     date_format: str = "%Y-%m-%dT%H:%M:%S",
     raise_exception: bool = False,
-) -> Optional[datetime.datetime]:
+) -> datetime.datetime | None:
     """
     Try to convert a date to a builtin instance of ``datetime.datetime``.
     The input date can be a ``str``, a ``datetime.datetime``, a ``xmlrpc.client.Datetime`` or a ``xmlrpclib.Datetime``

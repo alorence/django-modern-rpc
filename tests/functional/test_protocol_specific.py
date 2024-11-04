@@ -1,9 +1,9 @@
 import pytest
 
 from modernrpc.exceptions import (
-    RPC_METHOD_NOT_FOUND,
-    RPC_INVALID_PARAMS,
     RPC_CUSTOM_ERROR_BASE,
+    RPC_INVALID_PARAMS,
+    RPC_METHOD_NOT_FOUND,
 )
 
 

@@ -1,11 +1,11 @@
-from os.path import dirname, realpath
+from pathlib import Path
 
 DEBUG = True
 ALLOWED_HOSTS = ["*"]
 SECRET_KEY = "dummy"
 ROOT_URLCONF = "testsite.urls"
 
-SITE_ROOT = dirname(realpath(__file__))
+SITE_ROOT = Path(__file__).parent
 
 DATABASES = {
     "default": {

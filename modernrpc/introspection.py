@@ -3,14 +3,15 @@
 - Signature
 """
 
+from __future__ import annotations
+
 import inspect
 import re
-from typing import Callable, Dict, List
+from typing import Callable
 
 from django.utils.functional import cached_property
 
 from modernrpc.conf import settings
-
 
 # Define regular expressions used to parse docstring
 PARAM_REXP = re.compile(r"^[:@]param (\w+):\s?(.*)$", flags=re.MULTILINE)
@@ -38,7 +39,7 @@ class Introspector:
         return False
 
     @cached_property
-    def args(self) -> List[str]:
+    def args(self) -> list[str]:
         """List all function arguments"""
         return list(self.signature.parameters.keys())
 
@@ -56,7 +57,7 @@ class Introspector:
         )
 
     @cached_property
-    def args_types(self) -> Dict[str, str]:
+    def args_types(self) -> dict[str, str]:
         if not self.signature.parameters:
             return {}
         return {
@@ -111,7 +112,7 @@ class DocstringParser:
         return f"<p>{html_content}</p>"
 
     @cached_property
-    def args_doc(self) -> Dict[str, str]:
+    def args_doc(self) -> dict[str, str]:
         """Return a dict with argument name as key and documentation as value. The dict will contain only
         documented arguments.
         Basically this method parse and extract reST documented arguments:
@@ -125,7 +126,7 @@ class DocstringParser:
         return dict(PARAM_REXP.findall(self.full_docstring))
 
     @cached_property
-    def args_types(self) -> Dict[str, str]:
+    def args_types(self) -> dict[str, str]:
         """Return a dict with argument name as key and documented type as value. The dict will contain only
         documented arguments.
         Basically this method parse and extract reST doctype documentation:

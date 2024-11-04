@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import functools
 import logging
 from collections import OrderedDict
 from enum import Enum
-from typing import Any, Dict, Iterable, List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Iterable
 
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import cached_property
@@ -17,10 +19,11 @@ from modernrpc.exceptions import (
 from modernrpc.helpers import ensure_sequence
 from modernrpc.introspection import DocstringParser, Introspector
 
-
 if TYPE_CHECKING:
     from types import FunctionType
+
     from django.http import HttpRequest
+
     from modernrpc.handlers.base import RPCHandler
 
 # Special constant meaning "all protocols" or "all entry points"
@@ -49,10 +52,10 @@ class RPCRequestContext:
 
     def __init__(
         self,
-        request: "HttpRequest",
+        request: HttpRequest,
         # Double quotes will prevent circular import, as this
         # is the only place RPCHandler is used in core module
-        handler: "RPCHandler",
+        handler: RPCHandler,
         protocol: Protocol,
         entry_point: str,
     ):
@@ -67,7 +70,7 @@ class RPCMethod:
     Wraps a python global function to be used to extract information and call the concrete procedure.
     """
 
-    def __init__(self, func: "FunctionType"):
+    def __init__(self, func: FunctionType):
         # Store the reference to the registered function
         self.function = func
 
@@ -103,7 +106,7 @@ class RPCMethod:
             and self.predicates_params == other.predicates_params
         )
 
-    def check_permissions(self, request: "HttpRequest") -> bool:
+    def check_permissions(self, request: HttpRequest) -> bool:
         """Call the predicate(s) associated with the RPC method, to check if the current request
         can actually call the method.
         Return a boolean indicating if the method should be executed (True) or not (False)
@@ -118,7 +121,7 @@ class RPCMethod:
         self,
         context: RPCRequestContext,
         args: Iterable[Any],
-        kwargs: Optional[dict] = None,
+        kwargs: dict | None = None,
     ) -> Any:
         kwargs = kwargs or {}
 
@@ -175,7 +178,7 @@ class RPCMethod:
         return self.introspector.accept_kwargs
 
     @cached_property
-    def args(self) -> List[str]:
+    def args(self) -> list[str]:
         """Method arguments"""
         return self.introspector.args
 
@@ -202,7 +205,7 @@ class RPCMethod:
         return result
 
     @cached_property
-    def return_doc(self) -> Dict[str, str]:
+    def return_doc(self) -> dict[str, str]:
         """Build a dict for method's return type and documentation"""
         return {
             "type": self.doc_parser.return_type or self.introspector.return_type,
@@ -217,7 +220,7 @@ class _RPCRegistry:
     def reset(self) -> None:
         self._registry.clear()
 
-    def register_method(self, func: "FunctionType") -> str:
+    def register_method(self, func: FunctionType) -> str:
         """
         Register a function to be available as RPC method.
 
@@ -265,7 +268,7 @@ class _RPCRegistry:
     def total_count(self) -> int:
         return len(self._registry)
 
-    def get_all_method_names(self, entry_point=ALL, protocol: Protocol = Protocol.ALL, sort_methods=False) -> List[str]:
+    def get_all_method_names(self, entry_point=ALL, protocol: Protocol = Protocol.ALL, sort_methods=False) -> list[str]:
         """Return the names of all RPC methods registered supported by the given entry_point / protocol pair"""
         method_names = [name for name, method in self._registry.items() if method.is_valid_for(entry_point, protocol)]
 
@@ -276,13 +279,13 @@ class _RPCRegistry:
         entry_point: str = ALL,
         protocol: Protocol = Protocol.ALL,
         sort_methods=False,
-    ) -> List[RPCMethod]:
+    ) -> list[RPCMethod]:
         """Return a list of all methods in the registry supported by the given entry_point / protocol pair"""
 
         items = sorted(self._registry.items()) if sort_methods else self._registry.items()
         return [method for (_, method) in items if method.is_valid_for(entry_point, protocol)]
 
-    def get_method(self, name: str, entry_point: str, protocol: Protocol) -> Optional[RPCMethod]:
+    def get_method(self, name: str, entry_point: str, protocol: Protocol) -> RPCMethod | None:
         """Retrieve a method from the given name"""
 
         if name in self._registry and self._registry[name].is_valid_for(entry_point, protocol):
@@ -296,7 +299,7 @@ registry = _RPCRegistry()
 
 def rpc_method(
     func=None,
-    name: Optional[str] = None,
+    name: str | None = None,
     entry_point: str = ALL,
     protocol: Protocol = Protocol.ALL,
 ):

@@ -1,13 +1,13 @@
 from modernrpc.auth import set_authentication_predicate, user_is_authenticated
 from modernrpc.auth.basic import (
-    http_basic_auth_login_required,
-    http_basic_auth_superuser_required,
-    http_basic_auth_permissions_required,
-    http_basic_auth_group_member_required,
-    http_basic_auth_any_of_permissions_required,
     http_basic_auth_all_groups_member_required,
+    http_basic_auth_any_of_permissions_required,
+    http_basic_auth_group_member_required,
+    http_basic_auth_login_required,
+    http_basic_auth_permissions_required,
+    http_basic_auth_superuser_required,
 )
-from modernrpc.core import rpc_method, REQUEST_KEY
+from modernrpc.core import REQUEST_KEY, rpc_method
 
 
 @http_basic_auth_login_required

@@ -3,8 +3,8 @@ import requests
 
 from modernrpc.exceptions import (
     RPC_INTERNAL_ERROR,
-    RPC_METHOD_NOT_FOUND,
     RPC_INVALID_REQUEST,
+    RPC_METHOD_NOT_FOUND,
 )
 
 

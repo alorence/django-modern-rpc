@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 import xmlrpc.client as xmlrpc_client
 from pyexpat import ExpatError
@@ -6,14 +8,8 @@ from typing import Any, Tuple
 
 from modernrpc.conf import settings
 from modernrpc.core import Protocol, RPCRequestContext
-from modernrpc.exceptions import (
-    RPCException,
-    RPCInvalidRequest,
-    RPCParseError,
-    RPC_INTERNAL_ERROR,
-)
+from modernrpc.exceptions import RPC_INTERNAL_ERROR, RPCException, RPCInvalidRequest, RPCParseError
 from modernrpc.handlers.base import BaseResult, ErrorResult, RPCHandler, SuccessResult
-
 
 RequestData = Tuple[Any, str]
 

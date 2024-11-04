@@ -1,14 +1,14 @@
+from __future__ import annotations
+
 import inspect
 import logging
 from importlib import import_module
-from typing import List
 
 from django.apps import AppConfig
 from django.core import checks
 
 from modernrpc.conf import settings
 from modernrpc.core import registry
-
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ def check_settings(app_configs, **kwargs):
         for module_name in settings.MODERNRPC_METHODS_MODULES:
             try:
                 import_module(module_name)
-            except ImportError as err:
+            except ImportError as err:  # noqa: PERF203 try / except inside a loop is acceptable in such case
                 # ModuleNotFoundError may be caught here, when library will require python 3.6+
                 msg = f'ModuleNotFoundError exception when importing "{module_name}" module'
                 hint = str(err)
@@ -72,7 +72,7 @@ class ModernRpcConfig(AppConfig):
         )
 
     @staticmethod
-    def import_modules(modules_list: List[str]) -> None:
+    def import_modules(modules_list: list[str]) -> None:
         """Loop on given modules_list, import each module and register
         functions annotated with @rpc_method in the internal registry"""
         for module_name in modules_list:

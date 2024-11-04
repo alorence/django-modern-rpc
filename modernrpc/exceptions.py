@@ -57,7 +57,6 @@ Pre-defined exceptions uses the following error codes::
 
 from typing import Any
 
-
 RPC_PARSE_ERROR = -32700
 RPC_INVALID_REQUEST = -32600
 RPC_METHOD_NOT_FOUND = -32601

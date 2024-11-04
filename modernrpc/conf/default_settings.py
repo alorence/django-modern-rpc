@@ -1,7 +1,7 @@
-from typing import List
+from __future__ import annotations
 
 # List of python modules containing RPC methods.
-MODERNRPC_METHODS_MODULES: List[str] = []
+MODERNRPC_METHODS_MODULES: list[str] = []
 
 # Decoder class used to convert python data to JSON
 MODERNRPC_JSON_DECODER = "json.decoder.JSONDecoder"
