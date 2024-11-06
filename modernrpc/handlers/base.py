@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 from modernrpc.core import Protocol, RPCRequestContext, registry
@@ -19,7 +20,6 @@ RequestData = Any
 logger = logging.getLogger(__name__)
 
 
-# Note: dataclasses may be used here as soon as Python 3.5 support will be dropped
 class BaseResult(ABC):
     """
     Base class for results returned from procedure execution
@@ -33,19 +33,19 @@ class BaseResult(ABC):
         implementations of this method must be written."""
 
 
-class SuccessResult(BaseResult, ABC):
-    """Base success result wrapper"""
+@dataclass
+class DataMixin:
+    """"""
 
-    def __init__(self, data: Any):
-        self.data = data
+    data: Any = None
 
 
-class ErrorResult(BaseResult, ABC):
-    """Base error result wrapper"""
+@dataclass
+class ErrorMixin:
+    """"""
 
-    def __init__(self, code: int, message: str):
-        self.code = code
-        self.message = message
+    code: int
+    message: str
 
 
 class RPCHandler(ABC):

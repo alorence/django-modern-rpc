@@ -9,14 +9,14 @@ from typing import Any, Tuple
 from modernrpc.conf import settings
 from modernrpc.core import Protocol, RPCRequestContext
 from modernrpc.exceptions import RPC_INTERNAL_ERROR, RPCException, RPCInvalidRequest, RPCParseError
-from modernrpc.handlers.base import BaseResult, ErrorResult, RPCHandler, SuccessResult
+from modernrpc.handlers.base import BaseResult, DataMixin, ErrorMixin, RPCHandler
 
 RequestData = Tuple[Any, str]
 
 logger = logging.getLogger(__name__)
 
 
-class XmlSuccessResult(SuccessResult):
+class XmlSuccessResult(BaseResult, DataMixin):
     """An XML-RPC success result"""
 
     def serializable_data(self):
@@ -32,7 +32,7 @@ class XmlSuccessResult(SuccessResult):
         return [self.data]
 
 
-class XmlErrorResult(ErrorResult):
+class XmlErrorResult(BaseResult, ErrorMixin):
     """An XML-RPC error result"""
 
     def serializable_data(self):

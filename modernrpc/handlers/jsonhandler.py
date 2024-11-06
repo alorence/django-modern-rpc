@@ -2,15 +2,17 @@ from __future__ import annotations
 
 import json
 import logging
+from abc import ABC
+from dataclasses import dataclass
 from json.decoder import JSONDecodeError
-from typing import Any, Generator, Union
+from typing import Generator, Union
 
 from django.utils.module_loading import import_string
 
 from modernrpc.conf import settings
 from modernrpc.core import Protocol, RPCRequestContext
 from modernrpc.exceptions import RPC_INTERNAL_ERROR, RPC_INVALID_REQUEST, RPCException, RPCInvalidRequest, RPCParseError
-from modernrpc.handlers.base import ErrorResult, RPCHandler, SuccessResult
+from modernrpc.handlers.base import BaseResult, DataMixin, ErrorMixin, RPCHandler
 
 logger = logging.getLogger(__name__)
 
@@ -20,13 +22,13 @@ VERSION = "_jsonrpc_request_version"
 RequestIdType = Union[str, int, float, None]
 
 
-class JsonRpcDataMixin:
+@dataclass
+class JsonRpcDataMixin(BaseResult, ABC):
     """Wraps JSON-RPC specific information used to handle requests"""
 
     request_id: RequestIdType = None
     version: str = "2.0"
-    # Note: In some case, it is possible to have a null request_id on standard request (not a notification), when an
-    #  error appear on request parsing. Thus, the result must be sent with an "id" parameter set to None (null in JSON)
+    # Note: Since null request_id is allowed by specs, we must have a separate boolean field for notifications
     is_notification = False
 
     def set_jsonrpc_data(self, request_id, version, is_notification=False):
@@ -35,7 +37,8 @@ class JsonRpcDataMixin:
         self.is_notification = is_notification
 
 
-class JsonSuccessResult(JsonRpcDataMixin, SuccessResult):
+@dataclass
+class JsonSuccessResult(JsonRpcDataMixin, DataMixin):
     """A JSON-RPC success result"""
 
     def serializable_data(self):
@@ -44,12 +47,9 @@ class JsonSuccessResult(JsonRpcDataMixin, SuccessResult):
         }
 
 
-class JsonErrorResult(JsonRpcDataMixin, ErrorResult):
+@dataclass
+class JsonErrorResult(JsonRpcDataMixin, DataMixin, ErrorMixin):
     """A JSON-RPC error result. Allows setting additional data, as specified in standard"""
-
-    def __init__(self, code: int, message: str, data: Any = None):
-        super().__init__(code, message)
-        self.data = data
 
     def serializable_data(self):
         _part = {

@@ -3,6 +3,7 @@ from __future__ import annotations
 import functools
 import logging
 from collections import OrderedDict
+from dataclasses import dataclass
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Iterable
 
@@ -46,23 +47,15 @@ class Protocol(str, Enum):
     XML_RPC = "__xml_rpc"
 
 
+@dataclass
 class RPCRequestContext:
     """Wraps all information needed to call a procedure. Instances of this class are created before call,
     and may be used to populate kwargs dict in rpc method."""
 
-    def __init__(
-        self,
-        request: HttpRequest,
-        # Double quotes will prevent circular import, as this
-        # is the only place RPCHandler is used in core module
-        handler: RPCHandler,
-        protocol: Protocol,
-        entry_point: str,
-    ):
-        self.request = request
-        self.handler = handler
-        self.protocol = protocol
-        self.entry_point = entry_point
+    request: HttpRequest
+    handler: RPCHandler
+    protocol: Protocol
+    entry_point: str
 
 
 class RPCMethod:
