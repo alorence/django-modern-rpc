@@ -14,6 +14,8 @@ MODERNRPC_XMLRPC_USE_BUILTIN_TYPES = True
 MODERNRPC_XMLRPC_ALLOW_NONE = True
 # Configure the default encoding used by XML encoder
 MODERNRPC_XMLRPC_DEFAULT_ENCODING = None
+# Configure if the jsonrpc is required by the client to specify (we only support "2.0" anyway)
+MODERNRPC_JSONRPC_VERSION_REQUIRED = True
 
 # List of handler classes used by default in any ``RPCEntryPoint`` instance
 MODERNRPC_HANDLERS = [

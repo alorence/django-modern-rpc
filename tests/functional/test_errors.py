@@ -110,6 +110,20 @@ class TestJsonRpcSpecificBehaviors:
         assert 'Missing parameter "jsonrpc"' in response["error"]["message"]
         assert response["error"]["code"] == RPC_INVALID_REQUEST
 
+    def test_version_not_required(self, live_server, endpoint_path, jsonrpc_content_type, settings):
+        # Missing 'jsonrpc' in payload but check disabled
+        settings.MODERNRPC_JSONRPC_VERSION_REQUIRED = False
+        headers = {"content-type": jsonrpc_content_type}
+        payload = {
+            "method": "add",
+            "params": [5, 6],
+            # "jsonrpc": "2.0",
+            "id": random.randint(1, 1000),
+        }
+        response = self.low_level_jsonrpc_call(live_server.url + endpoint_path, payload, headers=headers)
+
+        assert "error" not in response
+
     def test_invalid_version(self, live_server, endpoint_path, jsonrpc_content_type):
         # Bad value for payload member 'jsonrpc'
 

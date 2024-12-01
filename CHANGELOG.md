@@ -4,6 +4,9 @@
 
 ### Improvements
 
+  - Setting `MODERNRPC_JSONRPC_VERSION_REQUIRED` to `False` disables the check
+  that `jsonrpc` is required to be supplied and set to `2.0` (#73). Thanks to @hwalinga
+
 ### Fixes
 
   - JSON-RPC handler now correctly checks type of request "id" field, according to the

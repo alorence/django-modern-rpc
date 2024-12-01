@@ -78,6 +78,14 @@ which improves the builtin python encoder by adding support for additional types
 
 .. _Django JSON encoder: https://docs.djangoproject.com/en/dev/topics/serialization/#djangojsonencoder
 
+MODERNRPC_JSONRPC_VERSION_REQUIRED
+----------------------------------
+
+:Required:  No
+:Default:   ``True``
+
+Set to ``False`` to disable check that jsonrpc attribute is supplied and set to `2.0`.
+
 MODERNRPC_XMLRPC_USE_BUILTIN_TYPES
 ----------------------------------
 

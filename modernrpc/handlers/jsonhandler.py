@@ -9,7 +9,9 @@ from django.utils.module_loading import import_string
 
 from modernrpc.conf import settings
 from modernrpc.core import Protocol, RPCRequestContext
-from modernrpc.exceptions import RPC_INTERNAL_ERROR, RPC_INVALID_REQUEST, RPCException, RPCInvalidRequest, RPCParseError
+from modernrpc.exceptions import (RPC_INTERNAL_ERROR, RPC_INVALID_REQUEST,
+                                  RPCException, RPCInvalidRequest,
+                                  RPCParseError)
 from modernrpc.handlers.base import ErrorResult, RPCHandler, SuccessResult
 
 logger = logging.getLogger(__name__)
@@ -162,13 +164,14 @@ class JSONRPCHandler(RPCHandler):
             if not method_name:
                 raise RPCInvalidRequest('Missing parameter "method"')
 
-            if not jsonrpc_version:
-                raise RPCInvalidRequest('Missing parameter "jsonrpc"')
+            if settings.MODERNRPC_JSONRPC_VERSION_REQUIRED:
+                if not jsonrpc_version:
+                    raise RPCInvalidRequest('Missing parameter "jsonrpc"')
 
-            if jsonrpc_version != "2.0":
-                raise RPCInvalidRequest(
-                    f'Parameter "jsonrpc" has an unsupported value "{jsonrpc_version}". It must be set to "2.0"'
-                )
+                if jsonrpc_version != "2.0":
+                    raise RPCInvalidRequest(
+                        f'Parameter "jsonrpc" has an unsupported value "{jsonrpc_version}". It must be set to "2.0"'
+                    )
 
             if not is_notification and type(request_id) not in (type(None), int, float, str):
                 request_id = None
@@ -192,7 +195,7 @@ class JSONRPCHandler(RPCHandler):
 
         result.set_jsonrpc_data(
             request_id=request_id,
-            version=jsonrpc_version,
+            version="2.0",
             is_notification=is_notification,
         )
         return result
