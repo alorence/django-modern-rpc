@@ -9,9 +9,7 @@ from django.utils.module_loading import import_string
 
 from modernrpc.conf import settings
 from modernrpc.core import Protocol, RPCRequestContext
-from modernrpc.exceptions import (RPC_INTERNAL_ERROR, RPC_INVALID_REQUEST,
-                                  RPCException, RPCInvalidRequest,
-                                  RPCParseError)
+from modernrpc.exceptions import RPC_INTERNAL_ERROR, RPC_INVALID_REQUEST, RPCException, RPCInvalidRequest, RPCParseError
 from modernrpc.handlers.base import ErrorResult, RPCHandler, SuccessResult
 
 logger = logging.getLogger(__name__)
