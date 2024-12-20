@@ -90,8 +90,9 @@ jobs:
       run: |
         pipx install 'poetry==${{ env.INSTALL_POETRY_VERSION }}'
 
-    - name: Install dependencies in Python ${{ matrix.python }} environment
+    - name: Install dependencies
       run: |
+        poetry env use -vv ${{ matrix.python }}
         poetry install --no-interaction --with dev,tests --without django
         poetry run pip install "django==${{ matrix.django }}.*"
 
