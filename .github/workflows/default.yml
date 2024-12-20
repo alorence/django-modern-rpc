@@ -31,7 +31,7 @@ env:
 
 jobs:
   debug:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Print env information
         run: |
@@ -42,7 +42,7 @@ jobs:
 
   tests:
     name: Python ${{ matrix.python }} × Django ${{ matrix.django }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: debug
     strategy:
       matrix:
@@ -120,7 +120,7 @@ jobs:
         coveralls
 
   lockfile-check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: debug
     steps:
       - uses: actions/checkout@v4
@@ -132,7 +132,7 @@ jobs:
         run: poetry check
 
   linter:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: debug
     steps:
       - uses: actions/checkout@v4
@@ -144,7 +144,7 @@ jobs:
         run: poetry run ruff check .
 
   formatter:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: debug
     steps:
       - uses: actions/checkout@v4
@@ -156,7 +156,7 @@ jobs:
         run: poetry run ruff format . --check
 
   mypy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: debug
     steps:
       - uses: actions/checkout@v4
@@ -168,7 +168,7 @@ jobs:
         run: poetry run mypy .
 
   publish:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [tests, lockfile-check, linter, formatter, mypy]
     # Only ran on tag push and manual trigger
     if: (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) || github.event.inputs.target_repo != ''
