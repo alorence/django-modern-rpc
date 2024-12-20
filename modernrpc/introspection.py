@@ -36,10 +36,10 @@ class Introspector:
     @cached_property
     def accept_kwargs(self) -> bool:
         """Determine if function signature contains **kwargs special argument"""
-        if self.signature.parameters:
-            last_param = next(reversed(self.signature.parameters.values()))
-            return last_param.kind == inspect.Parameter.VAR_KEYWORD
-        return False
+        try:
+            return self.signature.parameters["kwargs"].kind == inspect.Parameter.VAR_KEYWORD
+        except (TypeError, KeyError):
+            return False
 
     @cached_property
     def args(self) -> list[str]:
