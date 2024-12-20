@@ -1,4 +1,3 @@
-from modernrpc.conf import settings as modernrpc_settings
 from modernrpc.core import Protocol, RPCMethod, rpc_method
 
 
@@ -12,9 +11,6 @@ class TestRpcMethodEntryPointProtocol:
     def test_method_always_available(self):
         rpc_method(dummy_empty, "dummy_name")
         m = RPCMethod(dummy_empty)
-
-        assert m.available_for_entry_point(modernrpc_settings.MODERNRPC_DEFAULT_ENTRYPOINT_NAME)
-        assert m.available_for_entry_point("random_entry_point")
 
         assert m.is_available_in_xml_rpc()
         assert m.is_available_in_json_rpc()
@@ -37,13 +33,6 @@ class TestRpcMethodEntryPointProtocol:
         rpc_method(dummy_empty, "dummy_name", protocol=Protocol.JSON_RPC)
         m = RPCMethod(dummy_empty)
         assert "dummy_name" in repr(m)
-
-    def test_method_available_for_entry_point(self):
-        rpc_method(dummy_empty, "dummy_name", entry_point="my_entry_point")
-        m = RPCMethod(dummy_empty)
-
-        assert not m.available_for_entry_point(modernrpc_settings.MODERNRPC_DEFAULT_ENTRYPOINT_NAME)
-        assert m.available_for_entry_point("my_entry_point")
 
 
 @rpc_method

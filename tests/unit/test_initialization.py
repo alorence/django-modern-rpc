@@ -1,12 +1,15 @@
 """This module will test behavior when library is started"""
 
+import copy
+
 import pytest
 from django.apps.registry import apps
 from django.core.exceptions import ImproperlyConfigured
+from unit.stubs import func_v1, func_v2
 
 import modernrpc
 from modernrpc.apps import check_settings
-from modernrpc.core import ALL
+from modernrpc.core import ALL, Protocol
 from tests.unit.stubs import (
     dummy_remote_procedure_1,
     dummy_remote_procedure_2,
@@ -56,10 +59,8 @@ class TestInitChecks:
 @pytest.fixture
 def rpc_registry():
     """An instance of internal rpc method registry, reset to its initial state after each use"""
-    # Performing a shallow copy is ok here, since we will only add or remove methods in the registry inside tests
-    # If for any reason, an existing method have to be modified inside a test, a deep copy must be preferred here to
-    # ensure strict isolation between tests
-    _registry_dump = {**modernrpc.core.registry._registry}
+    # A deepcopy is mandatory here, because internal registry has multiple levels.
+    _registry_dump = copy.deepcopy(modernrpc.core.registry._registry)
     yield modernrpc.core.registry
     modernrpc.core.registry._registry = _registry_dump
 
@@ -125,6 +126,7 @@ class TestRegistry:
 
     def test_double_registration(self, rpc_registry):
         # Registering twice is not a problem
+        assert "dummy_remote_procedure_1" not in rpc_registry.get_all_method_names()
         assert rpc_registry.register_method(dummy_remote_procedure_1) == "dummy_remote_procedure_1"
         assert rpc_registry.register_method(dummy_remote_procedure_1) == "dummy_remote_procedure_1"
 
@@ -146,6 +148,20 @@ class TestRegistry:
         exc_match = r"has already been registered"
         with pytest.raises(ImproperlyConfigured, match=exc_match):
             rpc_registry.register_method(dummy_remote_procedure_4)
+
+    def test_duplicated_name_different_entry_points(self, rpc_registry):
+        rpc_registry.register_method(func_v1)
+        rpc_registry.register_method(func_v2)
+
+        v1_wrapper = rpc_registry.get_method("foo", "v1", Protocol.ALL)
+        assert v1_wrapper.function == func_v1
+        assert v1_wrapper.name == "foo"
+        assert v1_wrapper.entry_point == "v1"
+
+        v2_wrapper = rpc_registry.get_method("foo", "v2", Protocol.ALL)
+        assert v2_wrapper.function == func_v2
+        assert v2_wrapper.name == "foo"
+        assert v2_wrapper.entry_point == "v2"
 
     def test_wrong_manual_registration(self, rpc_registry):
         # Trying to register a method not decorated now raises an ImproperlyConfigured exception

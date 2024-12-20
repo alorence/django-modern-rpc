@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import functools
 import logging
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from dataclasses import dataclass
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Callable, Iterable
@@ -150,17 +150,6 @@ class RPCMethod:
             return True
         return protocol in ensure_sequence(self.protocol)
 
-    def available_for_entry_point(self, entry_point: str) -> bool:
-        """Check if the current function can be executed from a request to the given entry point"""
-        if ALL in (self.entry_point, entry_point):
-            return True
-        return entry_point in ensure_sequence(self.entry_point)
-
-    def is_valid_for(self, entry_point: str, protocol: Protocol) -> bool:
-        """Check if the current function can be executed from a request to the given entry point
-        and with the given protocol"""
-        return self.available_for_entry_point(entry_point) and self.available_for_protocol(protocol)
-
     is_available_in_json_rpc = functools.partialmethod(available_for_protocol, Protocol.JSON_RPC)
     is_available_in_xml_rpc = functools.partialmethod(available_for_protocol, Protocol.XML_RPC)
 
@@ -206,7 +195,8 @@ class RPCMethod:
 
 class _RPCRegistry:
     def __init__(self):
-        self._registry = {}
+        self._registry: defaultdict[str, dict[str, RPCMethod]] = defaultdict(dict)
+        self.reset()
 
     def reset(self) -> None:
         self._registry.clear()
@@ -237,31 +227,45 @@ class _RPCRegistry:
             )
 
         # Encapsulate the function in a RPCMethod object
-        method = RPCMethod(func)
+        wrapper = RPCMethod(func)
+        entry_point = wrapper.entry_point
 
         # Ensure method names are unique in the registry
-        existing_method = self.get_method(method.name, ALL, Protocol.ALL)
+        existing_method = self.get_method(wrapper.name, entry_point, Protocol.ALL)
         if existing_method is not None:
             # Trying to register many times the same function is OK, because if a method is decorated
             # with @rpc_method(), it could be imported in different places of the code
-            if method == existing_method:
-                return method.name
+            if wrapper == existing_method:
+                return wrapper.name
 
             # But if we try to use the same name to register 2 different methods, we
             # must inform the developer there is an error in the code
-            raise ImproperlyConfigured(f"A RPC method with name {method.name} has already been registered")
+            raise ImproperlyConfigured(f"A RPC method with name {wrapper.name} has already been registered")
 
         # Store the method
-        self._registry[method.name] = method
+        self._registry[entry_point][wrapper.name] = wrapper
 
-        return method.name
+        return wrapper.name
+
+    def get_methods_for_entry_point(self, entry_point=ALL) -> dict[str, RPCMethod]:
+        entry_points = self._registry.keys() if entry_point == ALL else [ALL, entry_point]
+
+        return {
+            name: wrapper
+            for entry_point in entry_points
+            for name, wrapper in self._registry.get(entry_point, {}).items()
+        }
 
     def total_count(self) -> int:
-        return len(self._registry)
+        return len(self.get_methods_for_entry_point(entry_point=ALL))
 
     def get_all_method_names(self, entry_point=ALL, protocol: Protocol = Protocol.ALL, sort_methods=False) -> list[str]:
         """Return the names of all RPC methods registered supported by the given entry_point / protocol pair"""
-        method_names = [name for name, method in self._registry.items() if method.is_valid_for(entry_point, protocol)]
+        method_names = [
+            name
+            for name, wrapper in self.get_methods_for_entry_point(entry_point).items()
+            if wrapper.available_for_protocol(protocol)
+        ]
 
         return sorted(method_names) if sort_methods else method_names
 
@@ -272,15 +276,22 @@ class _RPCRegistry:
         sort_methods=False,
     ) -> list[RPCMethod]:
         """Return a list of all methods in the registry supported by the given entry_point / protocol pair"""
-
-        items = sorted(self._registry.items()) if sort_methods else self._registry.items()
-        return [method for (_, method) in items if method.is_valid_for(entry_point, protocol)]
+        methods = self.get_methods_for_entry_point(entry_point)
+        if sort_methods:
+            methods = dict(sorted(methods.items()))
+        return [wrapper for (_, wrapper) in methods.items() if wrapper.available_for_protocol(protocol)]
 
     def get_method(self, name: str, entry_point: str, protocol: Protocol) -> RPCMethod | None:
         """Retrieve a method from the given name"""
+        _registry = self.get_methods_for_entry_point(entry_point)
 
-        if name in self._registry and self._registry[name].is_valid_for(entry_point, protocol):
-            return self._registry[name]
+        try:
+            candidate = _registry[name]
+            if candidate.available_for_protocol(protocol):
+                return candidate
+        except KeyError:
+            logger.debug(f'Unable to retrieve RPCMethod with name "{name}" in entry_point "{entry_point}"')
+            return None
 
         return None
 
