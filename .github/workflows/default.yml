@@ -42,7 +42,8 @@ jobs:
 
   tests:
     name: Python ${{ matrix.python }} × Django ${{ matrix.django }}
-    runs-on: ubuntu-24.04
+    # We still needs to run on ubuntu-22 since python 3.7 x64 is not available on ubuntu-24
+    runs-on: ubuntu-22.04
     needs: debug
     strategy:
       matrix:
