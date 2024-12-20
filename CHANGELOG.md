@@ -8,6 +8,7 @@
 
   - JSON-RPC handler now correctly checks type of request "id" field, according to the
     [specification](https://www.jsonrpc.org/specification#request_object) (#72). Thanks to @moonburnt
+  - Fixed docstring parser to allow empty or multi-line arg description
 
 ### Misc
 

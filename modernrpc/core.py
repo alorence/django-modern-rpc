@@ -5,7 +5,7 @@ import logging
 from collections import OrderedDict
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Iterable
+from typing import TYPE_CHECKING, Any, Callable, Iterable
 
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import cached_property
@@ -21,8 +21,6 @@ from modernrpc.helpers import ensure_sequence
 from modernrpc.introspection import DocstringParser, Introspector
 
 if TYPE_CHECKING:
-    from types import FunctionType
-
     from django.http import HttpRequest
 
     from modernrpc.handlers.base import RPCHandler
@@ -63,7 +61,7 @@ class RPCMethod:
     Wraps a python global function to be used to extract information and call the concrete procedure.
     """
 
-    def __init__(self, func: FunctionType):
+    def __init__(self, func: Callable):
         # Store the reference to the registered function
         self.function = func
 
@@ -178,12 +176,12 @@ class RPCMethod:
     @cached_property
     def raw_docstring(self) -> str:
         """Method docstring, as raw text"""
-        return self.doc_parser.raw_docstring
+        return self.doc_parser.text_documentation
 
     @cached_property
     def html_doc(self) -> str:
         """Methods docstring, as HTML"""
-        return self.doc_parser.html_doc
+        return self.doc_parser.html_documentation
 
     @cached_property
     def args_doc(self) -> OrderedDict:
@@ -213,7 +211,7 @@ class _RPCRegistry:
     def reset(self) -> None:
         self._registry.clear()
 
-    def register_method(self, func: FunctionType) -> str:
+    def register_method(self, func: Callable) -> str:
         """
         Register a function to be available as RPC method.
 
