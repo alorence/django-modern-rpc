@@ -4,6 +4,9 @@
 
 ### Improvements
 
+  - JSON-RPC handler now performs request validation in a dedicated method, allowing better customization of that part.
+    Inspired by #73, thanks to @hwalinga
+
 ### Fixes
 
   - JSON-RPC handler now correctly checks type of request "id" field, according to the
