@@ -81,14 +81,15 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Install poetry
+      run: |
+        pipx install 'poetry==${{ env.INSTALL_POETRY_VERSION }}'
+
     - name: Setup Python ${{ matrix.python }}
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python }}
-
-    - name: Install poetry
-      run: |
-        pipx install 'poetry==${{ env.INSTALL_POETRY_VERSION }}'
+        cache: 'poetry'
 
     - name: Install dependencies
       run: |
