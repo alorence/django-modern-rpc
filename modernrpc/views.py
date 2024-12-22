@@ -13,10 +13,11 @@ from django.views.generic.base import TemplateView, View
 
 from modernrpc.conf import settings
 from modernrpc.core import Protocol, RPCRequestContext, registry
-from modernrpc.helpers import ensure_sequence
+from modernrpc.helpers import ensure_sequence, first_true
 
 if TYPE_CHECKING:
     from modernrpc.handlers.base import RPCHandler
+
 
 logger = logging.getLogger(__name__)
 
@@ -93,9 +94,7 @@ class RPCEntryPoint(TemplateView):
             )
 
         # Retrieve the first RPC handler able to parse our request
-        # This weird next(filter(predicate, iterable), default) structure is basically the more_itertools.first_true()
-        # utility. This is written here to avoid dependency to more-itertools package
-        handler = next(filter(lambda candidate: candidate.can_handle(request), self.handlers), None)
+        handler = first_true(self.handlers, pred=lambda candidate: candidate.can_handle(request))
 
         if not handler:
             return HttpResponse(

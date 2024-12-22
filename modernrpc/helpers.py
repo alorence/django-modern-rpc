@@ -2,7 +2,11 @@ from __future__ import annotations
 
 import datetime
 import xmlrpc.client as xmlrpc_client
-from typing import Any, Iterable
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, Iterable
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 def get_builtin_date(
@@ -41,3 +45,11 @@ def get_builtin_date(
 def ensure_sequence(element: Any) -> Iterable:
     """Ensure the given argument is a sequence object (tuple, list). If not, return a list containing its value."""
     return element if isinstance(element, (list, tuple)) else [element]
+
+
+def first_true(iterable: Iterable[Any], default: Any = None, pred: Callable[[Any], bool] | None = None) -> Any:
+    """
+    Same as more_itertools.first_true(), but avoid dependency to a new lib
+    Doc: https://more-itertools.readthedocs.io/en/stable/api.html#more_itertools.first_true
+    """
+    return next(filter(pred, iterable), default)
