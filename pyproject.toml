@@ -93,6 +93,7 @@ pytest = "^7.4"
 pytest-django = "*"
 pytest-sugar = "^1.0"
 pytest-cov = "*"
+pytest-benchmark = "^4.0.0"
 tox = "^4.8"
 
 [tool.poetry.group.code-analysis]
