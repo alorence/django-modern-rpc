@@ -78,13 +78,6 @@ jobs:
           - { python: "3.11", django: "4.2" }
           - { python: "3.11", django: "4.1" }
 
-          # Very old python versions
-          - { python: "3.7", django: "3.2" }
-          - { python: "3.7", django: "3.1" }
-          - { python: "3.7", django: "3.0" }
-          - { python: "3.7", django: "2.2" }
-
-
     steps:
     - uses: actions/checkout@v4
 
@@ -99,6 +92,7 @@ jobs:
 
     - name: Install dependencies in Python ${{ matrix.python }} environment
       run: |
+        poetry env use ${{ matrix.python }}
         poetry install --no-interaction --with dev,tests --without django
         poetry run pip install "django==${{ matrix.django }}.*"
 
