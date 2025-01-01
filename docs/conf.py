@@ -15,7 +15,7 @@ settings.configure()
 
 # General information about the project.
 project = "django-modern-rpc"
-copyright = "2022"
+copyright = "2025"
 author = "Antoine Lorence"
 
 # The full version, including alpha/beta/rc tags
