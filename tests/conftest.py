@@ -26,32 +26,32 @@ def superuser(django_user_model, common_pwd):
 
 
 @pytest.fixture
-def group_a(db):
+def group_a(transactional_db):
     """Return a group named 'A'. Create it if necessary"""
     group, _ = Group.objects.get_or_create(name="A")
     return group
 
 
 @pytest.fixture
-def group_b(db):
+def group_b(transactional_db):
     """Return a group named 'B'. Create it if necessary"""
     group, _ = Group.objects.get_or_create(name="B")
     return group
 
 
 @pytest.fixture
-def add_user_perm(db):
+def add_user_perm(transactional_db):
     """Return permission 'auth.add_user'"""
     return Permission.objects.get(codename="add_user")
 
 
 @pytest.fixture
-def change_user_perm(db):
+def change_user_perm(transactional_db):
     """Return permission 'auth.change_user'"""
     return Permission.objects.get(codename="change_user")
 
 
 @pytest.fixture
-def delete_user_perm(db):
+def delete_user_perm(transactional_db):
     """Return permission 'auth.delete_user'"""
     return Permission.objects.get(codename="delete_user")
