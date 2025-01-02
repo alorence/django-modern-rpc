@@ -37,7 +37,7 @@ class Introspector:
     def accept_kwargs(self) -> bool:
         """Determine if function signature contains **kwargs special argument"""
         if self.signature.parameters:
-            last_param = next(reversed(self.signature.parameters.values()))
+            last_param = next(reversed(list(self.signature.parameters.values())))
             return last_param.kind == inspect.Parameter.VAR_KEYWORD
         return False
 
