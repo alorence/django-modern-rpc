@@ -87,9 +87,9 @@ def get_invalid_result():
 
 @rpc_method()
 def method_with_kwargs(**kwargs):
-    return kwargs.get(PROTOCOL_KEY)
+    return str(kwargs.get(PROTOCOL_KEY))
 
 
 @rpc_method()
 def method_with_kwargs_2(x, **kwargs):
-    return x, kwargs.get(PROTOCOL_KEY)
+    return x, str(kwargs.get(PROTOCOL_KEY))

@@ -4,7 +4,7 @@ import functools
 import logging
 from collections import OrderedDict, defaultdict
 from dataclasses import dataclass
-from enum import Enum
+from enum import Flag, auto
 from typing import TYPE_CHECKING, Any, Callable, Iterable
 
 from django.core.exceptions import ImproperlyConfigured
@@ -37,12 +37,13 @@ HANDLER_KEY = settings.MODERNRPC_KWARGS_HANDLER_KEY
 logger = logging.getLogger(__name__)
 
 
-class Protocol(str, Enum):
+class Protocol(Flag):
     """Define a custom type to use everywhere a protocol (JSON-RPC or XML-RPC) is expected"""
 
-    ALL = GENERIC_ALL
-    JSON_RPC = "__json_rpc"
-    XML_RPC = "__xml_rpc"
+    JSON_RPC = auto()
+    XML_RPC = auto()
+
+    ALL = JSON_RPC | XML_RPC
 
 
 @dataclass
