@@ -140,9 +140,9 @@ def test_jsonrpc_batch_with_named_params(jsonrpc_client):
     assert result == [
         {"id": 0, "jsonrpc": "2.0", "result": 15},
         {"id": 1, "jsonrpc": "2.0", "result": 6},
-        {"id": 2, "jsonrpc": "2.0", "result": "__json_rpc"},
-        {"id": 3, "jsonrpc": "2.0", "result": [6, "__json_rpc"]},
-        {"id": 4, "jsonrpc": "2.0", "result": [25, "__json_rpc"]},
+        {"id": 2, "jsonrpc": "2.0", "result": "Protocol.JSON_RPC"},
+        {"id": 3, "jsonrpc": "2.0", "result": [6, "Protocol.JSON_RPC"]},
+        {"id": 4, "jsonrpc": "2.0", "result": [25, "Protocol.JSON_RPC"]},
     ]
 
 
