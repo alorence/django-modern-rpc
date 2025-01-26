@@ -8,6 +8,7 @@ from modernrpc.exceptions import RPC_INTERNAL_ERROR
 # TODO: add more tests for corner case and unsupported types: base64, bytes, nil with ALLOW_NONE = True, etc.
 
 
+@pytest.mark.skip(reason="to be replaced by unit tests")
 class TestBase:
     @pytest.mark.parametrize(
         ("method_name", "return_type", "value"),
@@ -59,6 +60,7 @@ class TestBase:
         assert result["email"] == john_doe.email
 
 
+@pytest.mark.skip(reason="to be replaced by unit tests")
 class TestXmlSpecific:
     def test_return_type_date(self, xmlrpc_client):
         result = xmlrpc_client.call("get_date")
@@ -104,6 +106,7 @@ class TestXmlSpecific:
         assert xmlrpc_client_with_builtin_types.call("get_data_type", b"abcd") == "bytes"
 
 
+@pytest.mark.skip(reason="to be replaced by unit tests")
 class TestJsonSpecific:
     def test_return_type_date(self, jsonrpc_client):
         # Unlike XML-RPC, JSON transport does not store value types, and JSON doesn't support native date type

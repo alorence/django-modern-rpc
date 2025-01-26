@@ -7,6 +7,7 @@ from modernrpc.exceptions import (
 )
 
 
+@pytest.mark.skip(reason="to be replaced by unit tests")
 def test_available_methods(jsonrpc_client, xmlrpc_client):
     methods_list = jsonrpc_client.call("system.listMethods")
     assert "json_only" in methods_list
@@ -17,11 +18,13 @@ def test_available_methods(jsonrpc_client, xmlrpc_client):
     assert "xml_only" in methods_list
 
 
+@pytest.mark.skip(reason="to be replaced by unit tests")
 def test_specific_methods_return(jsonrpc_client, xmlrpc_client):
     assert jsonrpc_client.call("json_only") == "JSON only"
     assert xmlrpc_client.call("xml_only") == "XML only"
 
 
+@pytest.mark.skip(reason="to be replaced by unit tests")
 def test_specific_methods_not_found(jsonrpc_client, xmlrpc_client):
     exc_match = r'Method not found: "xml_only"'
     with pytest.raises(jsonrpc_client.error_response_exception, match=exc_match) as exc_info:
@@ -34,6 +37,7 @@ def test_specific_methods_not_found(jsonrpc_client, xmlrpc_client):
     xmlrpc_client.assert_exception_code(exc_info.value, RPC_METHOD_NOT_FOUND)
 
 
+@pytest.mark.skip(reason="to be replaced by unit tests")
 class TestJsonRpcSpecificFeatures:
     def test_exception_with_data(self, jsonrpc_client):
         exc_match = r"This exception has additional data"

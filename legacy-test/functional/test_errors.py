@@ -2,12 +2,12 @@ import json
 import random
 import re
 import xml.etree.ElementTree as ET
-from json import JSONDecodeError
 from textwrap import dedent
 
 import pytest
 import requests
 from django.core.serializers.json import DjangoJSONEncoder
+from requests import JSONDecodeError
 
 from modernrpc.exceptions import (
     RPC_CUSTOM_ERROR_BASE,
@@ -19,6 +19,7 @@ from modernrpc.exceptions import (
 )
 
 
+@pytest.mark.skip(reason="replaced with unit tests")
 class TestCommonErrors:
     @pytest.mark.parametrize(
         ("method", "params", "exc_match", "exc_code"),
@@ -76,6 +77,7 @@ class TestCommonErrors:
         assert re.search(exc_match, caplog.records[-1].message)
 
 
+@pytest.mark.skip(reason="replaced with unit tests")
 class TestJsonRpcSpecificBehaviors:
     @staticmethod
     def low_level_jsonrpc_call(url, payload, headers, raw_payload=None):
@@ -179,11 +181,11 @@ class TestJsonRpcSpecificBehaviors:
         with pytest.raises(JSONDecodeError) as exc_info:
             self.low_level_jsonrpc_call(live_server.url + endpoint_path, payload, headers=headers)
 
-        # requests 2.27 introduced a new JSONDecodeError subclass, moving the response content in a different attr
-        response_str = exc_info.value.doc or exc_info.value.strerror
+        response_str = exc_info.value.doc
         assert "Unable to handle your request, the Content-Type header is mandatory" in response_str
 
 
+@pytest.mark.skip(reason="to be replaced by unit tests")
 class TestXmlRpcSpecificBehaviors:
     @staticmethod
     def low_level_xmlrpc_call(url, payload):

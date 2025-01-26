@@ -3,6 +3,7 @@ import pytest
 from modernrpc.exceptions import RPC_INVALID_PARAMS
 
 
+@pytest.mark.skip(reason="replaced with unit tests")
 class TestBase:
     @pytest.mark.parametrize(
         ("term_a", "term_b", "expected_result"),
@@ -19,6 +20,7 @@ class TestBase:
         assert any_rpc_client.call("add", term_a, term_b) == expected_result
 
 
+@pytest.mark.skip(reason="replaced with unit tests")
 class TestSystemMethods:
     def test_list_methods(self, any_rpc_client):
         result = any_rpc_client.call("system.listMethods")

@@ -21,7 +21,6 @@ INSTALLED_APPS = (
     "django.contrib.sessions",
     "django.contrib.contenttypes",
     "modernrpc",
-    "testsite.rpc_methods_stub",
 )
 
 TEMPLATES = [
@@ -57,12 +56,5 @@ USE_TZ = False
 
 STATIC_ROOT = ""
 STATIC_URL = "/"
-
-MODERNRPC_METHODS_MODULES = [
-    "testsite.rpc_methods_stub.generic",
-    "testsite.rpc_methods_stub.specific_types",
-    "testsite.rpc_methods_stub.specific_protocol",
-    "testsite.rpc_methods_stub.with_authentication",
-]
 
 MODERNRPC_LOG_EXCEPTIONS = False

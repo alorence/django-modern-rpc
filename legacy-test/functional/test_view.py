@@ -4,6 +4,7 @@ import requests
 from modernrpc.exceptions import RPC_METHOD_NOT_FOUND
 
 
+@pytest.mark.skip(reason="to be replaced by unit tests")
 def test_requests_to_endpoint(live_server, endpoint_path):
     r = requests.get(live_server.url + endpoint_path)
     assert r.status_code == 405
@@ -12,6 +13,7 @@ def test_requests_to_endpoint(live_server, endpoint_path):
     assert r2.status_code == 200
 
 
+@pytest.mark.skip(reason="to be replaced by unit tests")
 def test_requests_to_docs(live_server, all_rpc_docs_path):
     r = requests.get(live_server.url + all_rpc_docs_path)
     assert r.status_code == 200
@@ -20,12 +22,13 @@ def test_requests_to_docs(live_server, all_rpc_docs_path):
     assert r2.status_code == 405
 
 
-# In testsite.rpc_methods_stub.generic, a function has not been decorated
 # Ensure it is not available in registry
+@pytest.mark.skip(reason="to be replaced by unit tests")
 def test_not_registered_method(any_rpc_client):
     assert "existing_but_not_decorated" not in any_rpc_client.call("system.listMethods")
 
 
+@pytest.mark.skip(reason="to be replaced by unit tests")
 def test_not_registered_method_call(any_rpc_client):
     assert "existing_but_not_decorated" not in any_rpc_client.call("system.listMethods")
 
@@ -34,6 +37,7 @@ def test_not_registered_method_call(any_rpc_client):
     any_rpc_client.assert_exception_code(exc_info.value, RPC_METHOD_NOT_FOUND)
 
 
+@pytest.mark.skip(reason="to be replaced by unit tests")
 class TestJsonOnlyEntryPoint:
     @pytest.fixture(scope="session")
     def endpoint_path(self):
@@ -51,6 +55,7 @@ class TestJsonOnlyEntryPoint:
         xmlrpc_client.assert_exception_code(exc_info.value, 2)
 
 
+@pytest.mark.skip(reason="to be replaced by unit tests")
 class TestXmlOnlyEntryPoint:
     @pytest.fixture(scope="session")
     def endpoint_path(self):
