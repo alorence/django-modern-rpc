@@ -3,7 +3,7 @@ from __future__ import annotations
 import datetime
 import xmlrpc.client as xmlrpc_client
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any, Iterable
+from typing import TYPE_CHECKING, Any, Iterable, Sequence
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -42,9 +42,13 @@ def get_builtin_date(
         return None
 
 
-def ensure_sequence(element: Any) -> Iterable:
+def ensure_sequence(element: Any) -> Sequence:
     """Ensure the given argument is a sequence object (tuple, list). If not, return a list containing its value."""
     return element if isinstance(element, (list, tuple)) else [element]
+
+
+def first(seq: Iterable) -> Any:
+    return next(iter(seq))
 
 
 def first_true(iterable: Iterable[Any], default: Any = None, pred: Callable[[Any], bool] | None = None) -> Any:

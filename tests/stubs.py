@@ -3,28 +3,32 @@ Note: this module is NOT listed in any settings.MODERNRPC_METHODS_MODULES
 All methods declared here must be manually registered to be available to remote call
 """
 
-from modernrpc.core import rpc_method
+from modernrpc.server import RPCServer
+
+main_server = RPCServer()
+server_v1 = RPCServer()
+server_v2 = RPCServer()
 
 
-@rpc_method
+@main_server.register_procedure
 def dummy_remote_procedure_1():
     # Manually registered remote procedure.
     return 33
 
 
-@rpc_method(name="another_name")
+@main_server.register_procedure(name="another_name")
 def dummy_remote_procedure_2():
     # Manually registered remote procedure, with custom name.
     return 33
 
 
-@rpc_method(name="rpc.invalid.name")
+@main_server.register_procedure(name="rpc.invalid.name")
 def dummy_remote_procedure_3():
     # Manually registered remote procedure, with invalid custom name.
     return 42
 
 
-@rpc_method(name="divide")
+@main_server.register_procedure(name="divide")
 def dummy_remote_procedure_4():
     # Manually registered remote procedure, with invalid custom name (name already registered).
     return 42
@@ -34,13 +38,13 @@ def not_decorated_procedure():
     pass
 
 
-@rpc_method(name="foo", entry_point="v1")
+@server_v1.register_procedure(name="foo")
 def func_v1():
     # Function to register with the name "foo" under "v1" entry_point
     return "V1"
 
 
-@rpc_method(name="foo", entry_point="v2")
+@server_v2.register_procedure(name="foo")
 def func_v2():
     # Function to register with the name "foo" under "v2" entry_point
     return "V2"

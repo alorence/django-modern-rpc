@@ -72,7 +72,7 @@ RPC_CUSTOM_ERROR_MAX = -32000
 class RPCException(Exception):
     """
     This is the base class of all RPC exception. Custom exceptions raised by your RPC methods
-    should inherits from RPCException.
+    should inherit from RPCException.
     """
 
     def __init__(self, code: int, message: str, data: Any = None):
@@ -99,7 +99,7 @@ class RPCInvalidRequest(RPCException):
 
 
 class RPCMethodNotFound(RPCException):
-    """Raised by handlers the RPC method called is not defined for the current entry point and protocol."""
+    """Raised by handlers when no procedure were found with the given name in the server (for the current protocol)"""
 
     def __init__(self, name: str, data: Any = None):
         err_msg = f'Method not found: "{name}"'
@@ -107,7 +107,7 @@ class RPCMethodNotFound(RPCException):
 
 
 class RPCInvalidParams(RPCException):
-    """Raised by handlers if the RPC method's params does not match the parameters in RPC request"""
+    """Raised by handlers if the request params does not match the procedure's expected ones"""
 
     def __init__(self, message: str, data: Any = None):
         err_msg = f"Invalid parameters: {message}"
@@ -115,7 +115,7 @@ class RPCInvalidParams(RPCException):
 
 
 class RPCInternalError(RPCException):
-    """Raised by handlers if any standard exception is raised during the execution of the RPC method."""
+    """Raised by handlers if any standard exception is raised during the execution of the procedure."""
 
     def __init__(self, message: str, data: Any = None):
         err_msg = f"Internal error: {message}"
@@ -132,6 +132,6 @@ class AuthenticationFailed(RPCException):
         )
 
 
-# In 1.0, RPCUnknownMethod was renamed to RPCMethodNotFound
-# Set as alias for backward compatibility
+# In 1.0, RPCUnknownMethod were renamed to RPCMethodNotFound
+# Set an alias for backward compatibility
 RPCUnknownMethod = RPCMethodNotFound

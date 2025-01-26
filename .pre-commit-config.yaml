@@ -31,4 +31,10 @@ repos:
     hooks:
       - id: mypy
         files: ^modernrpc
-        additional_dependencies: [django-stubs, types-docutils, types-Markdown, types-requests]
+        additional_dependencies:
+          - django-stubs
+          - types-docutils
+          - types-Markdown
+          - types-requests
+          - types-simplejson
+          - types-xmltodict

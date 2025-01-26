@@ -93,12 +93,14 @@ dev = [
     "defusedxml",
     "simplejson>=3.19",
     "xmltodict>=0.14.0",
+    "lxml>=5.3.0",
 ]
 tests = [
     "pytest",
     "pytest-django",
     "pytest-sugar",
     "pytest-cov",
+    "pytest-xdist",
 ]
 code-analysis = [
     "ruff ~= 0.8",
@@ -106,6 +108,8 @@ code-analysis = [
     "django-stubs",
     "types-docutils",
     "types-markdown",
+    "types-simplejson",
+    "types-xmltodict",
 ]
 docs = [
     "sphinx >= 6.2",
@@ -118,12 +122,11 @@ docs = [
 # |                        Pyetst settings
 # ------------------------------------------------------------------
 [tool.pytest.ini_options]
-pythonpath = ["tests"]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 
 # pytest-django settings
-DJANGO_SETTINGS_MODULE = "testsite.settings"
+DJANGO_SETTINGS_MODULE = "tests.project.settings"
 FAIL_INVALID_TEMPLATE_VARS = true
 
 # ------------------------------------------------------------------
@@ -147,9 +150,7 @@ ignore_missing_imports = true
 # ------------------------------------------------------------------
 [tool.ruff]
 line-length = 120
-extend-exclude = [
-    "module_with_syntax_errors.py",
-]
+extend-exclude = ["legacy-test"]
 
 [tool.ruff.format]
 # Use `\n` line endings for all files
@@ -223,11 +224,8 @@ select = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-# Invalid import is expected in this file, this is part of a test
-"tests/testsite/rpc_methods_stub/module_with_invalid_import.py" = ["F401"]
 # Some issues are irrelevant in tests
 "tests/*" = ["PLR2004", "PLR0913", "PLC1901", "S"]
-"tests/unit/test_initialization.py" = ["SLF001"]
 
 [tool.ruff.lint.mccabe]
 # Unlike Flake8, default to a complexity level of 10.

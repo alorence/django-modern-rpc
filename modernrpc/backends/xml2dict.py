@@ -18,7 +18,6 @@ if TYPE_CHECKING:
     from modernrpc.handlers.base import XmlRpcResult
 
 NIL = object()
-# FIXME: add checks + tests with big and low ints (out of supported ranges)
 MAXINT = 2**31 - 1
 MININT = -(2**31)
 
@@ -182,7 +181,7 @@ class Marshaller:
     @staticmethod
     def dump_int(value: int) -> dict[str, int]:
         if value > MAXINT or value < MININT:
-            raise OverflowError("int exceeds XML-RPC limits")
+            raise OverflowError("int value exceeds XML-RPC limits")
         return {"int": value}
 
     @staticmethod
@@ -243,15 +242,10 @@ class XML2Dict:
         except xml.parsers.expat.ExpatError as e:
             raise RPCParseError(str(e)) from e
 
-        return self.unmarshaller.dict_to_request(data)
-
-    def result_to_serializable_data(self, result: XmlRpcResult):
-        if isinstance(result, XmlRpcErrorResult):
-            return {
-                "faultCode": result.code,
-                "faultString": result.message,
-            }
-        return (result.data,)
+        try:
+            return self.unmarshaller.dict_to_request(data)
+        except TypeError as e:
+            raise RPCInvalidRequest(str(e)) from e
 
     def dumps(self, result: XmlRpcResult) -> str:
         try:
