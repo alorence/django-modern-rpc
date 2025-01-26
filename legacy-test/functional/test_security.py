@@ -6,6 +6,7 @@ import requests
 from modernrpc.exceptions import RPC_INVALID_REQUEST
 
 
+@pytest.mark.skip(reason="to be replaced by unit tests")
 class TestXmlBomb:
     """Perform tests to ensure defusedxml is correctly used to parse incoming XML-RPC requests"""
 
