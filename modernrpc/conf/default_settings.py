@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+MODERNRPC_DEFAULT_ENCODING = "utf-8"
+
 # List of python modules containing RPC methods.
 MODERNRPC_METHODS_MODULES: list[str] = []
 
@@ -36,3 +38,8 @@ MODERNRPC_KWARGS_REQUEST_KEY = "request"
 MODERNRPC_KWARGS_ENTRY_POINT_KEY = "entry_point"
 MODERNRPC_KWARGS_PROTOCOL_KEY = "protocol"
 MODERNRPC_KWARGS_HANDLER_KEY = "handler"
+
+MODERNRPC_JSON_DESERIALIZER = {"class": "modernrpc.backends.builtin_json.BuiltinJSON", "kwargs": {}}
+MODERNRPC_JSON_SERIALIZER = {"class": "modernrpc.backends.builtin_json.BuiltinJSON", "kwargs": {}}
+MODERNRPC_XML_DESERIALIZER = {"class": "modernrpc.backends.builtin_xmlrpc.BuiltinXmlRpc", "kwargs": {}}
+MODERNRPC_XML_SERIALIZER = {"class": "modernrpc.backends.builtin_xmlrpc.BuiltinXmlRpc", "kwargs": {}}

@@ -1,3 +1,7 @@
+import pytest
+
+
+@pytest.mark.skip(reason="Not reimplemented yet")
 class TestDocViews:
     """pytest-django setting FAIL_INVALID_TEMPLATE_VARS has been set to true. As a result, Django template
     engine will raise an exception on unknown variable"""

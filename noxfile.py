@@ -23,7 +23,7 @@ class Django(StrEnum):
 
 
 def is_combination_supported(py: str, dj: str) -> bool:
-    """Determines if the given Python / Django versions combinations is supported.
+    """Determines if the given Python / Django versions combination is supported.
 
     This is a direct implementation of the table provided in Django FAQ:
      - https://docs.djangoproject.com/en/5.1/faq/install/#what-python-version-can-i-use-with-django
@@ -64,7 +64,7 @@ def tests(session, python, django):
 
     session.run("django-admin", "--version")
     post_args = session.posargs or []
-    session.run("pytest", ".", *post_args)
+    session.run("pytest", "-n", "auto", *post_args)
 
 
 @nox.session(name="ruff-lint", venv_backend=None)
@@ -80,3 +80,8 @@ def ruff_format(session):
 @nox.session(venv_backend=None)
 def mypy(session):
     session.run("uv", "run", "mypy", ".")
+
+
+@nox.session(venv_backend=None, default=False)
+def coverage(session):
+    session.run("uv", "run", "pytest", "--cov=modernrpc", "--cov-report=html")

@@ -1,138 +1,77 @@
 from __future__ import annotations
 
 import logging
-import xmlrpc.client as xmlrpc_client
-from pyexpat import ExpatError
-from textwrap import dedent
-from typing import Any, Tuple
+from typing import TYPE_CHECKING
+
+from django.utils.module_loading import import_string
 
 from modernrpc.conf import settings
-from modernrpc.core import Protocol, RPCRequestContext
-from modernrpc.exceptions import RPC_INTERNAL_ERROR, RPCException, RPCInvalidRequest, RPCParseError
-from modernrpc.handlers.base import BaseResult, DataMixin, ErrorMixin, RPCHandler
+from modernrpc.core import ProcedureWrapper, Protocol, RpcRequestContext
+from modernrpc.exceptions import RPC_INTERNAL_ERROR, RPCException
+from modernrpc.handlers.base import RpcHandler, XmlRpcErrorResult, XmlRpcRequest, XmlRpcResult, XmlRpcSuccessResult
 
-RequestData = Tuple[Any, str]
+if TYPE_CHECKING:
+    from modernrpc.backends.base import XmlRpcDeserializer, XmlRpcSerializer
+
 
 logger = logging.getLogger(__name__)
 
 
-class XmlSuccessResult(BaseResult, DataMixin):
-    """An XML-RPC success result"""
-
-    def serializable_data(self):
-        # xmlrpc_client.Marshaller expects a list of objects to dump.
-        # It will output a '<params></params>' block and loops onto given objects to inject, for each one,
-        # a '<param><value><type>X</type></value></param>' block.
-        # This is not the return defined in XML-RPC standard, see http://xmlrpc.com/spec.md:
-        # "The body of the response is a single XML structure, a <methodResponse>, which can contain
-        # a single <params> which contains a single <param> which contains a single <value>."
-        #
-        # So, to make sure the return value always contain a single '<param><value><type>X</type></value></param>',
-        # we dump it as an array of a single value
-        return [self.data]
-
-
-class XmlErrorResult(BaseResult, ErrorMixin):
-    """An XML-RPC error result"""
-
-    def serializable_data(self):
-        return xmlrpc_client.Fault(self.code, self.message)
-
-
-class XMLRPCHandler(RPCHandler):
+class XMLRPCHandler(RpcHandler):
     """Default XML-RPC handler implementation"""
 
     protocol = Protocol.XML_RPC
 
-    def __init__(self, entry_point: str):
-        super().__init__(entry_point)
+    def __init__(self):
+        deserializer_klass = import_string(settings.MODERNRPC_XML_DESERIALIZER["class"])
+        deserializer_kwargs = settings.MODERNRPC_XML_DESERIALIZER.get("kwargs", {})
+        self.deserializer: XmlRpcDeserializer = deserializer_klass(**deserializer_kwargs)
 
-        # Marshaller is used to dumps data into valid XML-RPC response. See self.dumps() for more info
-        self.marshaller = xmlrpc_client.Marshaller(
-            encoding=settings.MODERNRPC_XMLRPC_DEFAULT_ENCODING,
-            allow_none=settings.MODERNRPC_XMLRPC_ALLOW_NONE,
-        )
-        self.use_builtin_types = settings.MODERNRPC_XMLRPC_USE_BUILTIN_TYPES
+        serializer_klass = import_string(settings.MODERNRPC_XML_SERIALIZER["class"])
+        serializer_kwargs = settings.MODERNRPC_XML_SERIALIZER.get("kwargs", {})
+        self.serializer: XmlRpcSerializer = serializer_klass(**serializer_kwargs)
 
-    @staticmethod
-    def valid_content_types():
+    @classmethod
+    def valid_content_types(cls):
         return [
             "text/xml",
             "application/xml",
         ]
 
-    @staticmethod
-    def response_content_type() -> str:
+    @classmethod
+    def response_content_type(cls) -> str:
         return "application/xml"
 
-    def process_request(self, request_body: str, context: RPCRequestContext) -> str:
+    def process_request(self, request_body: str, context: RpcRequestContext) -> str:
         """
         Parse request and delegates to process_single_request(), catching exceptions to handle errors.
 
         `system.multicall()` is implemented in `modernrpc.system_methods` module.
         """
         try:
-            params, method_name = self.parse_request(request_body)
-        except RPCException as exc:
-            logger.error(exc, exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
-            result: BaseResult = XmlErrorResult(exc.code, exc.message)
-        else:
-            result = self.process_single_request((method_name, params), context)
-
-        return self.dumps_result(result)
-
-    def parse_request(self, request_body: str) -> RequestData:
-        """
-        Parse request body to extract `(params, methodName)` tuple, returned as `RequestData`
-        """
-        try:
-            params, method = xmlrpc_client.loads(request_body, use_builtin_types=self.use_builtin_types)
-
-        except ExpatError as exc:
-            raise RPCParseError(f"Error while parsing XML-RPC request: {exc}") from exc
-
-        except Exception as exc:
-            raise RPCInvalidRequest("The request appear to be invalid.") from exc
-
-        else:
-            if not method:
-                raise RPCInvalidRequest("Missing methodName. Please provide the name of the procedure you want to call")
-            return params, method
-
-    def process_single_request(self, request_data: RequestData, context: RPCRequestContext) -> BaseResult:
-        """Check and call the RPC method, based on given tuple `(params, methodName)`"""
-        method_name, params = request_data
-        try:
-            _method = self.get_method_wrapper(method_name)
-            result_data = _method.execute(context, params)
-            return XmlSuccessResult(result_data)
+            request = self.deserializer.loads(request_body)
 
         except RPCException as exc:
-            logger.warning(exc, exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
-            return XmlErrorResult(exc.code, exc.message)
+            logger.exception(exc)
+            result = XmlRpcErrorResult(context.request, exc.code, exc.message)
 
-        except Exception as exc:
-            logger.error(exc, exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
-            return XmlErrorResult(RPC_INTERNAL_ERROR, str(exc))
+        else:
+            result = self.process_single_request(request, context)
 
-    def dumps_result(self, result: BaseResult) -> str:
-        """Dumps result instance into a proper XML-RPC xml response"""
+        return self.serializer.dumps(result)
+
+    def process_single_request(self, rpc_request: XmlRpcRequest, context: RpcRequestContext) -> XmlRpcResult:
         try:
-            # Dumps result without any check. Catch exception to handle dump errors
-            dumped_result = self.marshaller.dumps(result.serializable_data())
+            wrapper: ProcedureWrapper = context.server.get_procedure(rpc_request.method_name)
+            result_data = wrapper.execute(context, rpc_request.args)
+            result = XmlRpcSuccessResult(request=rpc_request, data=result_data)
+
+        except RPCException as exc:
+            logger.exception(exc)
+            result = XmlRpcErrorResult(request=rpc_request, code=exc.code, message=exc.message, data=exc.data)
+
         except Exception as exc:
-            # Error on result serialization: result become an error...
-            error_msg = f"Unable to serialize result: {exc}"
-            logger.error(error_msg, exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
-            error_result = XmlErrorResult(RPC_INTERNAL_ERROR, error_msg)
-            dumped_result = self.marshaller.dumps(error_result.serializable_data())
+            logger.exception(exc)
+            result = XmlRpcErrorResult(request=rpc_request, code=RPC_INTERNAL_ERROR, message=str(exc))
 
-        # Finally, dumps the result into full response content
-        final_content = f"""
-            <?xml version="1.0"?>
-            <methodResponse>
-                {dumped_result}
-            </methodResponse>
-        """
-
-        return dedent(final_content).strip()
+        return result

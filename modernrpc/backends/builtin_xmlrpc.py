@@ -5,9 +5,9 @@ from __future__ import annotations
 import xml.parsers.expat
 import xmlrpc.client
 from typing import TYPE_CHECKING, Any
-from xmlrpc.client import ResponseError
+from xmlrpc.client import Fault, ResponseError
 
-from modernrpc.exceptions import RPCInvalidRequest, RPCParseError
+from modernrpc.exceptions import RPCInternalError, RPCInvalidRequest, RPCParseError
 from modernrpc.handlers.base import XmlRpcErrorResult, XmlRpcRequest
 
 if TYPE_CHECKING:
@@ -28,7 +28,7 @@ class BuiltinXmlRpc:
             params, method_name = xmlrpc.client.loads(data, **self.load_kwargs)
         except xml.parsers.expat.ExpatError as e:
             raise RPCParseError(str(e)) from e
-        except ResponseError as e:
+        except (ResponseError, TypeError) as e:
             raise RPCInvalidRequest(str(e)) from e
 
         if not method_name:
@@ -36,12 +36,9 @@ class BuiltinXmlRpc:
 
         return XmlRpcRequest(method_name.strip(), list(params))
 
-    def result_to_serializable_data(self, result: XmlRpcResult):
-        if isinstance(result, XmlRpcErrorResult):
-            return xmlrpc.client.Fault(result.code, result.message)
-
-        return (result.data,)
-
     def dumps(self, result: XmlRpcResult) -> str:
-        structured_result = self.result_to_serializable_data(result)
-        return xmlrpc.client.dumps(structured_result, methodresponse=True, **self.dump_kwargs)
+        result_data = Fault(result.code, result.message) if isinstance(result, XmlRpcErrorResult) else (result.data,)
+        try:
+            return xmlrpc.client.dumps(result_data, methodresponse=True, **self.dump_kwargs)
+        except Exception as e:
+            raise RPCInternalError(str(e)) from e

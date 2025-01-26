@@ -15,7 +15,7 @@ from modernrpc.helpers import ensure_sequence, get_builtin_date
         ({"x": 42}, [{"x": 42}]),
     ],
 )
-def test_ensure_sequence_1(arg, expected_result):
+def test_ensure_sequence(arg, expected_result):
     assert ensure_sequence(arg) == expected_result
 
 
@@ -23,8 +23,8 @@ def test_ensure_sequence_1(arg, expected_result):
     "date",
     [
         "2016-10-20T21:54:00",
-        datetime.datetime(2016, 10, 20, 21, 54, 00),
-        xmlrpc.client.DateTime(datetime.datetime(2016, 10, 20, 21, 54, 00)),
+        datetime.datetime(2016, 10, 20, 21, 54, 0),
+        xmlrpc.client.DateTime(datetime.datetime(2016, 10, 20, 21, 54, 0)),
     ],
 )
 def test_get_builtin_date(date):
