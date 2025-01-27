@@ -287,15 +287,6 @@ markdown = [
 ]
 
 [package.dev-dependencies]
-code-analysis = [
-    { name = "django-stubs" },
-    { name = "mypy" },
-    { name = "ruff" },
-    { name = "types-docutils" },
-    { name = "types-markdown" },
-    { name = "types-simplejson" },
-    { name = "types-xmltodict" },
-]
 dev = [
     { name = "defusedxml" },
     { name = "docutils" },
@@ -303,6 +294,7 @@ dev = [
     { name = "lxml" },
     { name = "markdown" },
     { name = "requests" },
+    { name = "ruff" },
     { name = "simplejson" },
     { name = "xmltodict" },
 ]
@@ -322,6 +314,14 @@ tests = [
     { name = "pytest-sugar" },
     { name = "pytest-xdist" },
 ]
+type-checking = [
+    { name = "django-stubs" },
+    { name = "mypy" },
+    { name = "types-docutils" },
+    { name = "types-markdown" },
+    { name = "types-simplejson" },
+    { name = "types-xmltodict" },
+]
 
 [package.metadata]
 requires-dist = [
@@ -331,15 +331,6 @@ requires-dist = [
 ]
 
 [package.metadata.requires-dev]
-code-analysis = [
-    { name = "django-stubs" },
-    { name = "mypy" },
-    { name = "ruff", specifier = "~=0.8" },
-    { name = "types-docutils" },
-    { name = "types-markdown" },
-    { name = "types-simplejson" },
-    { name = "types-xmltodict" },
-]
 dev = [
     { name = "defusedxml" },
     { name = "docutils", specifier = ">=0.19" },
@@ -347,10 +338,11 @@ dev = [
     { name = "lxml", specifier = ">=5.3.0" },
     { name = "markdown", specifier = ">=3.4" },
     { name = "requests" },
+    { name = "ruff", specifier = "~=0.8" },
     { name = "simplejson", specifier = ">=3.19" },
     { name = "xmltodict", specifier = ">=0.14.0" },
 ]
-django = [{ name = "django", specifier = "~=3.2" }]
+django = [{ name = "django", specifier = ">=3.2" }]
 docs = [
     { name = "myst-parser" },
     { name = "sphinx", specifier = ">=6.2" },
@@ -363,6 +355,14 @@ tests = [
     { name = "pytest-django" },
     { name = "pytest-sugar" },
     { name = "pytest-xdist" },
+]
+type-checking = [
+    { name = "django-stubs" },
+    { name = "mypy" },
+    { name = "types-docutils" },
+    { name = "types-markdown" },
+    { name = "types-simplejson" },
+    { name = "types-xmltodict" },
 ]
 
 [[package]]
