@@ -6,7 +6,7 @@ import base64
 import xml.parsers.expat
 from datetime import datetime
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Literal, Sequence
+from typing import TYPE_CHECKING, Any, Callable, Literal, OrderedDict, Sequence
 
 import xmltodict
 
@@ -24,11 +24,11 @@ MININT = -(2**31)
 
 class Unmarshaller:
     def __init__(self) -> None:
-        self.__dispatch = {
+        self.__dispatch: dict[str, Callable] = {
             "value": self.load_value,
             "nil": self.load_nil,
-            "int": self.load_int,
             "boolean": self.load_bool,
+            "int": self.load_int,
             "i4": self.load_int,
             "double": self.load_float,
             "string": self.load_str,
@@ -38,7 +38,7 @@ class Unmarshaller:
             "struct": self.load_struct,
         }
 
-    def dict_to_request(self, data: dict) -> XmlRpcRequest:
+    def dict_to_request(self, data: OrderedDict[str, Any]) -> XmlRpcRequest:
         try:
             method_call = data["methodCall"]
         except KeyError as e:
@@ -51,7 +51,7 @@ class Unmarshaller:
 
         param_list: Sequence[dict[str, Any]] = method_call.get("params", {}).get("param", [])
 
-        args = []
+        args: list[Any] = []
         if len(param_list) == 0:
             args = []
         elif len(param_list) == 1:
@@ -66,12 +66,12 @@ class Unmarshaller:
     def dispatch(self, _type: str, value: Any) -> Any:
         try:
             load_func = self.__dispatch[_type]
+            return load_func(value)
+
         except KeyError as e:
             raise RPCInvalidRequest(f"Unsupported type {_type}") from e
 
-        return load_func(value)
-
-    def load_value(self, data: dict) -> None:
+    def load_value(self, data: dict) -> Any:
         _type, v = first(data.items())
         return self.dispatch(_type, v)
 
@@ -238,12 +238,12 @@ class XML2Dict:
 
     def loads(self, data: str) -> XmlRpcRequest:
         try:
-            data = xmltodict.parse(data, **self.load_kwargs)
+            structured_data: OrderedDict[str, Any] = xmltodict.parse(data, **self.load_kwargs)
         except xml.parsers.expat.ExpatError as e:
             raise RPCParseError(str(e)) from e
 
         try:
-            return self.unmarshaller.dict_to_request(data)
+            return self.unmarshaller.dict_to_request(structured_data)
         except TypeError as e:
             raise RPCInvalidRequest(str(e)) from e
 

@@ -18,23 +18,25 @@ from modernrpc.handlers.base import (
 )
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from modernrpc.backends.base import JsonRpcDeserializer, JsonRpcSerializer
 
 logger = logging.getLogger(__name__)
 
 
-class JSONRPCHandler(RpcHandler):
+class JSONRPCHandler(RpcHandler[JsonRpcRequest]):
     """Default JSON-RPC handler implementation"""
 
     protocol = Protocol.JSON_RPC
 
-    def __init__(self):
-        deserializer_klass = import_string(settings.MODERNRPC_JSON_DESERIALIZER["class"])
-        deserializer_kwargs = settings.MODERNRPC_JSON_DESERIALIZER.get("kwargs", {})
+    def __init__(self) -> None:
+        deserializer_klass: type[JsonRpcDeserializer] = import_string(settings.MODERNRPC_JSON_DESERIALIZER["class"])
+        deserializer_kwargs: dict[str, Any] = settings.MODERNRPC_JSON_DESERIALIZER.get("kwargs", {})
         self.deserializer: JsonRpcDeserializer = deserializer_klass(**deserializer_kwargs)
 
-        serializer_klass = import_string(settings.MODERNRPC_JSON_SERIALIZER["class"])
-        serializer_kwargs = settings.MODERNRPC_JSON_SERIALIZER.get("kwargs", {})
+        serializer_klass: type[JsonRpcSerializer] = import_string(settings.MODERNRPC_JSON_SERIALIZER["class"])
+        serializer_kwargs: dict[str, Any] = settings.MODERNRPC_JSON_SERIALIZER.get("kwargs", {})
         self.serializer: JsonRpcSerializer = serializer_klass(**serializer_kwargs)
 
     @classmethod
@@ -49,7 +51,7 @@ class JSONRPCHandler(RpcHandler):
     def response_content_type(cls) -> str:
         return "application/json"
 
-    def process_request(self, request_body: str, context: RpcRequestContext) -> str | tuple[int, str]:
+    def process_request(self, request_body: str, context: RpcRequestContext) -> str | tuple[HTTPStatus, str]:
         """
         Parse request and process it, according to its kind. Standard request as well as batch request is supported.
 
@@ -57,13 +59,16 @@ class JSONRPCHandler(RpcHandler):
         result of `parse_request()`, standard or batch request will be handled here.
         """
         try:
-            structured_req = self.deserializer.loads(request_body)
+            structured_req: JsonRpcRequest | Iterable[JsonRpcRequest] = self.deserializer.loads(request_body)
         except RPCException as exc:
             logger.error(exc, exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
-            return self.serializer.dumps(JsonRpcErrorResult(context.request, exc.code, exc.message))
+            # We can't extract request_id from incoming request. According to the spec, a null 'id' should be used
+            # in response payload
+            fake_request = JsonRpcRequest(request_id=None, method_name="")
+            return self.serializer.dumps(JsonRpcErrorResult(fake_request, exc.code, exc.message))
 
-        # Parsed request is a list, we should handle it as batch request
-        if isinstance(structured_req, list):
+        # Parsed request is an Iterable, we should handle it as batch request
+        if isinstance(structured_req, Iterable):
             # Process each request, getting the resulting JsonResult instance (success or error)
             results: Iterable[JsonRpcResult] = (
                 self.process_single_request(request, context) for request in structured_req
