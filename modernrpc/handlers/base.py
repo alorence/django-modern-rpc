@@ -6,10 +6,11 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Generic, TypeVar, Union
 
 if TYPE_CHECKING:
+    from http import HTTPStatus
+
     from django.http import HttpRequest
 
     from modernrpc.core import Protocol, RpcRequestContext
-
 
 T = TypeVar("T")
 
@@ -22,7 +23,7 @@ class RpcRequest:
     XML-RPC protocol will use this as it"""
 
     method_name: str
-    args: list[Any] = field(default_factory=list)
+    args: list[Any] | tuple[Any] = field(default_factory=list)
 
 
 @dataclass
@@ -88,7 +89,7 @@ class JsonRpcErrorResult(GenericRpcErrorResult[JsonRpcRequest]): ...
 JsonRpcResult = Union[JsonRpcSuccessResult, JsonRpcErrorResult]
 
 
-class RpcHandler(ABC):
+class RpcHandler(ABC, Generic[T]):
     """Base class for concrete RPC Handlers. Provide an interface as well as some common methods implementations."""
 
     protocol: Protocol
@@ -113,7 +114,7 @@ class RpcHandler(ABC):
         return getattr(request, "content_type", "").lower() in cls.valid_content_types()
 
     @abstractmethod
-    def process_request(self, request_body: str, context: RpcRequestContext) -> str | tuple[int, str]:
+    def process_request(self, request_body: str, context: RpcRequestContext) -> str | tuple[HTTPStatus, str]:
         """
         Fully process a request. Return the str content ready to be sent as HttpResponse.
 
@@ -128,7 +129,7 @@ class RpcHandler(ABC):
         """
 
     @abstractmethod
-    def process_single_request(self, rpc_request: RpcRequest, context: RpcRequestContext) -> GenericRpcResult:
+    def process_single_request(self, rpc_request: T, context: RpcRequestContext) -> GenericRpcResult:
         """
         Perform all mandatory task before executing a single procedure.
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from django.utils.module_loading import import_string
 
@@ -17,18 +17,18 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class XMLRPCHandler(RpcHandler):
+class XMLRPCHandler(RpcHandler[XmlRpcRequest]):
     """Default XML-RPC handler implementation"""
 
     protocol = Protocol.XML_RPC
 
-    def __init__(self):
-        deserializer_klass = import_string(settings.MODERNRPC_XML_DESERIALIZER["class"])
-        deserializer_kwargs = settings.MODERNRPC_XML_DESERIALIZER.get("kwargs", {})
+    def __init__(self) -> None:
+        deserializer_klass: type[XmlRpcDeserializer] = import_string(settings.MODERNRPC_XML_DESERIALIZER["class"])
+        deserializer_kwargs: dict[str, Any] = settings.MODERNRPC_XML_DESERIALIZER.get("kwargs", {})
         self.deserializer: XmlRpcDeserializer = deserializer_klass(**deserializer_kwargs)
 
-        serializer_klass = import_string(settings.MODERNRPC_XML_SERIALIZER["class"])
-        serializer_kwargs = settings.MODERNRPC_XML_SERIALIZER.get("kwargs", {})
+        serializer_klass: type[XmlRpcSerializer] = import_string(settings.MODERNRPC_XML_SERIALIZER["class"])
+        serializer_kwargs: dict[str, Any] = settings.MODERNRPC_XML_SERIALIZER.get("kwargs", {})
         self.serializer: XmlRpcSerializer = serializer_klass(**serializer_kwargs)
 
     @classmethod
@@ -53,18 +53,16 @@ class XMLRPCHandler(RpcHandler):
 
         except RPCException as exc:
             logger.exception(exc)
-            result = XmlRpcErrorResult(context.request, exc.code, exc.message)
+            return self.serializer.dumps(XmlRpcErrorResult(XmlRpcRequest(method_name=""), exc.code, exc.message))
 
-        else:
-            result = self.process_single_request(request, context)
-
+        result = self.process_single_request(request, context)
         return self.serializer.dumps(result)
 
     def process_single_request(self, rpc_request: XmlRpcRequest, context: RpcRequestContext) -> XmlRpcResult:
         try:
             wrapper: ProcedureWrapper = context.server.get_procedure(rpc_request.method_name)
             result_data = wrapper.execute(context, rpc_request.args)
-            result = XmlRpcSuccessResult(request=rpc_request, data=result_data)
+            return XmlRpcSuccessResult(request=rpc_request, data=result_data)
 
         except RPCException as exc:
             logger.exception(exc)

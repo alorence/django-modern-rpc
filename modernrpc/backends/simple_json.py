@@ -21,11 +21,11 @@ class SimpleJSON:
 
     def loads(self, data: str) -> JsonRpcRequest | Iterable[JsonRpcRequest]:
         try:
-            data = simplejson.loads(data, **self.load_kwargs)
+            structured_data: list[dict] | dict[str, Any] = simplejson.loads(data, **self.load_kwargs)
         except JSONDecodeError as e:
             raise RPCParseError(e.msg, data=e) from e
 
-        return Unmarshaller().dict_to_request(data)
+        return Unmarshaller().dict_to_request(structured_data)
 
     def dumps(self, result: JsonRpcResult | Iterable[JsonRpcResult]) -> str:
         structured_data = Marshaller().result_to_dict(result)

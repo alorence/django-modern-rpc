@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 
 class RegistryMixin:
-    def __init__(self):
+    def __init__(self) -> None:
         self._registry: dict[str, ProcedureWrapper] = {}
 
     def register_procedure(
@@ -66,7 +66,6 @@ class RPCServer(RegistryMixin):
                 (import_string(klass) for klass in settings.MODERNRPC_HANDLERS),
             )
         )
-        self.namespaces = {}
 
         # TODO: allow to skip this using a specific config
         system = import_string("modernrpc.system_procedures.system")

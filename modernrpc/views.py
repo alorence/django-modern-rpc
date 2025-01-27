@@ -8,6 +8,7 @@ from django.http.response import HttpResponse
 
 from modernrpc.conf import settings
 from modernrpc.core import RpcRequestContext
+from modernrpc.exceptions import RPCInvalidRequest
 
 if TYPE_CHECKING:
     from django.http import HttpRequest
@@ -29,7 +30,8 @@ def run_procedure(
         )
 
     handler = server.get_handler(request)
-    # FIXME: raise proper error if no handler found (invalid Content-Type)
+    if not handler:
+        raise RPCInvalidRequest("Unable to retrieve the correct handler for your request")
 
     context = RpcRequestContext(request, server, handler, handler.protocol)
     request_body = request.body.decode(request.encoding or default_encoding)

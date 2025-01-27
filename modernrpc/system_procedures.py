@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from modernrpc import Protocol, RPCNamespace, RpcRequestContext
 from modernrpc.exceptions import RPCInvalidParams
-from modernrpc.handlers.base import GenericRpcErrorResult, GenericRpcSuccessResult, XmlRpcRequest
+from modernrpc.handlers.base import GenericRpcErrorResult, XmlRpcRequest
 
 system = RPCNamespace()
 
@@ -67,7 +67,7 @@ def __system_multi_call(calls, _ctx: RpcRequestContext):
     if not isinstance(calls, list):
         raise RPCInvalidParams(f"system.multicall first argument should be a list, {type(calls).__name__} given.")
 
-    def result_to_serializable_data(result: GenericRpcErrorResult | GenericRpcSuccessResult):
+    def result_to_serializable_data(result):
         if isinstance(result, GenericRpcErrorResult):
             return {
                 "faultCode": result.code,

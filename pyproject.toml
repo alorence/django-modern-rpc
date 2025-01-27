@@ -108,6 +108,7 @@ type-checking = [
     "django-stubs",
     "types-docutils",
     "types-markdown",
+    "types-requests",
     "types-simplejson",
     "types-xmltodict",
 ]
