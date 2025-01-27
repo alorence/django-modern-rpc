@@ -51,13 +51,20 @@ def is_combination_supported(py: str, dj: str) -> bool:
     return False
 
 
-test_matrix = [(python, django) for python in Python for django in Django if is_combination_supported(python, django)]
-session_ids = [f"py{py.replace('.', '')}-dj{dj.replace('.', '')}" for py, dj in test_matrix]
+def build_test_matrix():
+    for py in Python:
+        for dj in Django:
+            if not is_combination_supported(py, dj):
+                continue
+            tags = [f"py{py.replace('.', '')}", f"dj{dj.replace('.', '')}"]
+            session_id = f"Python {py} × Django {dj}"  # noqa: RUF001, RUF003 (disable warning about ambiguous × char)
+            yield nox.param(py, dj, id=session_id, tags=tags)
 
 
 @nox.session(venv_backend="uv")
-@nox.parametrize(["python", "django"], test_matrix, ids=session_ids)
+@nox.parametrize(["python", "django"], build_test_matrix())
 def tests(session, python, django):
+    """Execute test suite using pytest"""
     env = {"UV_PROJECT_ENVIRONMENT": session.virtualenv.location}
     session.run_install("uv", "sync", "-p", python, "--no-group", "django", env=env)
     session.install(f"django=={django}.*")
@@ -69,19 +76,24 @@ def tests(session, python, django):
 
 @nox.session(name="ruff-lint", venv_backend=None)
 def ruff_lint(session):
+    """Check the project for common issues"""
     session.run("uv", "run", "ruff", "check", ".")
 
 
 @nox.session(name="ruff-format", venv_backend=None)
 def ruff_format(session):
+    """Check that all files are well formated"""
     session.run("uv", "run", "ruff", "format", ".", "--check")
 
 
 @nox.session(venv_backend=None)
 def mypy(session):
+    """Verify type hints"""
+    session.run_install("uv", "sync", "--group", "type-checking")
     session.run("uv", "run", "mypy", ".")
 
 
 @nox.session(venv_backend=None, default=False)
 def coverage(session):
+    """Perform a test and generate coverage report in 'htmlcov' directory"""
     session.run("uv", "run", "pytest", "--cov=modernrpc", "--cov-report=html")

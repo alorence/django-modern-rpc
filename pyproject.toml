@@ -83,9 +83,10 @@ default-groups = ["django", "dev", "tests"]
 
 [dependency-groups]
 django = [
-    "django ~= 3.2",
+    "django >= 3.2",
 ]
 dev = [
+    "ruff ~= 0.8",
     "jsonrpcclient ~= 4.0.3",
     "requests",
     "docutils >= 0.19",
@@ -102,8 +103,7 @@ tests = [
     "pytest-cov",
     "pytest-xdist",
 ]
-code-analysis = [
-    "ruff ~= 0.8",
+type-checking = [
     "mypy",
     "django-stubs",
     "types-docutils",
