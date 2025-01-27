@@ -57,7 +57,7 @@ Default name used for anonymous ``RPCEntryPoint``
 
 Protocol specific
 =================
-You can configure how JSON-RPC handler will serialize and unserialize data:
+You can configure how JSON-RPC handler will serialize and deserialize data:
 
 MODERNRPC_JSON_DECODER
 ----------------------
