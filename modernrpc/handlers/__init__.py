@@ -1,4 +1,4 @@
-from modernrpc.handlers.jsonhandler import JSONRPCHandler
-from modernrpc.handlers.xmlhandler import XMLRPCHandler
+from modernrpc.handlers.jsonhandler import JsonRpcHandler
+from modernrpc.handlers.xmlhandler import XmlRpcHandler
 
-__all__ = ["JSONRPCHandler", "XMLRPCHandler"]
+__all__ = ["JsonRpcHandler", "XmlRpcHandler"]
