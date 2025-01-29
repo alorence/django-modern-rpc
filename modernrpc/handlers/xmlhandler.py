@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class XMLRPCHandler(RpcHandler[XmlRpcRequest]):
+class XmlRpcHandler(RpcHandler[XmlRpcRequest]):
     """Default XML-RPC handler implementation"""
 
     protocol = Protocol.XML_RPC

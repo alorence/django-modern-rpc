@@ -3,7 +3,6 @@ from datetime import datetime
 from textwrap import dedent
 
 import pytest
-from conftest import XML_DESERIALIZERS_CLASSES
 from helpers import assert_xml_data_are_equal
 
 from modernrpc.exceptions import RPCInternalError, RPCInvalidRequest, RPCParseError
@@ -30,178 +29,82 @@ class TestXmlDeserializer:
         assert request.method_name == "foo.bar"
         assert request.args == []
 
-    def test_nil_params(self, xml_deserializer):
-        payload = """
-            <?xml version="1.0"?>
-            <methodCall>
-              <methodName>
-                bar
-              </methodName>
-              <params>
-                <param><value><nil/></value></param>
-                <param><nil/></param>
-              </params>
-            </methodCall>
+    @pytest.mark.parametrize(
+        "inner_template",
+        [
+            "<{type}>{value}</{type}>",
+            "<{type}>\n    {value}\n    </{type}>",
+        ],
+    )
+    @pytest.mark.parametrize(
+        "outer_template",
+        [
+            "{inner}",
+            "<value>{inner}</value>",
+            "\n  {inner}  \n",
+            "<value>\n        {inner}\n        </value>",
+        ],
+    )
+    @pytest.mark.parametrize(
+        ("typ", "value", "expected_value"),
+        [
+            ("nil", "", None),
+            ("boolean", "1", True),
+            ("boolean", "0", False),
+            ("int", "16", 16),
+            ("i4", "16", 16),
+            ("int", "-123", -123),
+            ("i4", "-123", -123),
+            ("double", "20", 20.0),
+            ("double", "3.14159", 3.14159),
+            ("double", "-3.14159", -3.14159),
+            ("string", "xyz", "xyz"),
+            ("string", "lorem\nipsum", "lorem\nipsum"),
+            ("string", "😵‍💫💗", "😵‍💫💗"),
+            ("dateTime.iso8601", "20250101T00:00:00", datetime(2025, 1, 1, 0, 0, 0)),
+        ],
+    )
+    def test_single_param(self, xml_deserializer, inner_template, outer_template, typ, value, expected_value, request):
         """
-        request = xml_deserializer.loads(dedent(payload).strip())
-        assert request.method_name == "bar"
-        assert request.args == [None, None]
+        This is a huge test, configured with multiple possible values.
+        Here is a description of the parametrization applied to it:
 
-    def test_nil_params_with_indentation(self, xml_deserializer):
-        payload = """
-            <?xml version="1.0"?>
-            <methodCall>
-              <methodName>
-                bar
-              </methodName>
-              <params>
-                <param>
-                  <value>
-                    <nil/>
-                  </value>
-                </param>
-                <param>
-                  <nil/>
-                </param>
-              </params>
-            </methodCall>
-        """
-        request = xml_deserializer.loads(dedent(payload).strip())
-        assert request.method_name == "bar"
-        assert request.args == [None, None]
+        inner_template: is used to ensure the request is correctly parsed with or without spaces around real value.
+          Some backends are known to fail in such case. See 'request'
 
-    def test_bool_params(self, xml_deserializer):
-        payload = """
-            <?xml version="1.0"?>
-            <methodCall>
-              <methodName>zzz</methodName>
-              <params>
-                <param>
-                  <value>
-                    <boolean>1</boolean>
-                  </value>
-                </param>
-                <param>
-                  <boolean>0</boolean>
-                </param>
-              </params>
-            </methodCall>
-        """
-        request = xml_deserializer.loads(dedent(payload).strip())
-        assert request.method_name == "zzz"
-        assert request.args == [True, False]
+        outer_template: is used to ensure the request is correctly parsed with or without spaces around <value> and
+          <type> tags, or when no <value> tags are used
 
-    def test_int_params(self, xml_deserializer):
-        payload = """
-            <?xml version="1.0"?>
-            <methodCall>
-              <methodName>foo.baz</methodName>
-              <params>
-                <param><value><int>99</int></value></param>
-                <param><value><i4>11</i4></value></param>
-              </params>
-            </methodCall>
-        """
-        request = xml_deserializer.loads(dedent(payload).strip())
-        assert request.method_name == "foo.baz"
-        assert request.args == [99, 11]
+        typ, value: the strings used to represent a specific value in an XML-RPC request
 
-    def test_int_params_with_indentation(self, xml_deserializer):
-        payload = """
-            <?xml version="1.0"?>
-            <methodCall>
-              <methodName>
-                foo
-              </methodName>
-              <params>
-                <param>
-                  <value>
-                    <int>
-                      57
-                    </int>
-                  </value>
-                </param>
-                <param>
-                  <value>
-                    <i4>
-                      33
-                    </i4>
-                  </value>
-                </param>
-              </params>
-            </methodCall>
-        """
-        request = xml_deserializer.loads(dedent(payload).strip())
-        assert request.method_name == "foo"
-        assert request.args == [57, 33]
+        expected_value: the Python value expected once request have been parsed
 
-    def test_double_params(self, xml_deserializer):
-        payload = """
-            <?xml version="1.0"?>
-            <methodCall>
-              <methodName>xxx</methodName>
-              <params>
-                <param><value><double>127.1</double></value></param>
-                <param><double>123.4</double></param>
-                <param>
-                  <value>
-                    <double>
-                      57
-                    </double>
-                  </value>
-                </param>
-                <param>
-                  <double>
-                    59
-                  </double>
-                </param>
-              </params>
-            </methodCall>
+        request: used to dynamically mark the test as XFail when some conditions are met
         """
-        request = xml_deserializer.loads(dedent(payload).strip())
-        assert request.method_name == "xxx"
-        assert request.args == [127.1, 123.4, 57.0, 59.0]
+        is_builtin_backend = "BuiltinXmlRpc" in xml_deserializer.__class__.__name__
+        have_space_around = "\n" in inner_template or " " in inner_template
+        type_have_parsing_issues = typ in ("boolean", "string", "dateTime.iso8601")
+        if is_builtin_backend and have_space_around and type_have_parsing_issues:
+            # When spaces are parsed around the text value of a node, builtin XmlRpc
+            # backend fail to extract the correct value. Mark this test as XFail in such case
+            marker = pytest.mark.xfail(
+                reason="BuiltinXmlRpc incorrectly parse tags surrounded with spaces", strict=True
+            )
+            request.applymarker(marker)
 
-    def test_str_params(self, xml_deserializer):
-        payload = """
-            <?xml version="1.0"?>
-            <methodCall>
-              <methodName>💗</methodName>
-              <params>
-                <param>
-                  <value>
-                    <string>abcd efg hij $☺</string>
-                  </value>
-                </param>
-                <param>
-                  <string>😵‍💫 pop</string>
-                </param>
-              </params>
-            </methodCall>
+        inner = inner_template.format(type=typ, value=value)
+        outer = outer_template.format(inner=inner)
+        payload = f"""
+          <?xml version="1.0"?>
+          <methodCall>
+            <methodName>foo</methodName>
+            <params>
+              <param>{outer}</param>
+            </params>
+          </methodCall>
         """
         request = xml_deserializer.loads(dedent(payload).strip())
-        assert request.method_name == "💗"
-        assert request.args == ["abcd efg hij $☺", "😵‍💫 pop"]
-
-    def test_datetime_params(self, xml_deserializer):
-        payload = """
-            <?xml version="1.0"?>
-            <methodCall>
-              <methodName>foo.bar.baz</methodName>
-              <params>
-                <param>
-                  <value>
-                    <dateTime.iso8601>20250101T00:00:00</dateTime.iso8601>
-                  </value>
-                </param>
-              </params>
-            </methodCall>
-        """
-        request = xml_deserializer.loads(dedent(payload).strip())
-        assert request.method_name == "foo.bar.baz"
-        assert request.args == [
-            datetime(2025, 1, 1, 0, 0, 0),
-        ]
+        assert request.args == [expected_value]
 
     def test_binary_params(self, xml_deserializer):
         initial_data = b"\x3247\x9684\x41\x77\\x12\x34"
@@ -308,22 +211,13 @@ class TestXmlDeserializerErrors:
         with pytest.raises(RPCParseError):
             xml_deserializer.loads(dedent(payload).strip())
 
-    @pytest.mark.parametrize(
-        "xml_deserializer",
-        [
-            pytest.param(
-                klass,
-                marks=pytest.mark.xfail(
-                    reason="BuiltinXmlRpc is not strict enough, it allows requests without methodCall root tag"
-                ),
+    def test_missing_root_tag(self, request, xml_deserializer):
+        if "BuiltinXmlRpc" in xml_deserializer.__class__.__name__:
+            marker = pytest.mark.xfail(
+                reason='BuiltinXmlRpc allows requests without any "methodCall" root tag', strict=True
             )
-            if "BuiltinXmlRpc" in klass.__name__
-            else klass
-            for klass in XML_DESERIALIZERS_CLASSES
-        ],
-        indirect=True,
-    )
-    def test_missing_root_tag(self, xml_deserializer):
+            request.applymarker(marker)
+
         payload = """
             <?xml version="1.0"?>
             <foo>

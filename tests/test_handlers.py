@@ -1,15 +1,15 @@
-from modernrpc.handlers import JSONRPCHandler, XMLRPCHandler
+from modernrpc.handlers import JsonRpcHandler, XmlRpcHandler
 
 
-class TestJsonHandler:
-    handler = JSONRPCHandler()
+class TestJsonRpcHandler:
+    handler = JsonRpcHandler()
 
     def test_correct_content_type(self):
         assert self.handler.response_content_type() == "application/json"
 
 
-class TestXmlHandler:
-    handler = XMLRPCHandler()
+class TestXmlRpcHandler:
+    handler = XmlRpcHandler()
 
     def test_correct_content_type(self):
         assert self.handler.response_content_type() == "application/xml"

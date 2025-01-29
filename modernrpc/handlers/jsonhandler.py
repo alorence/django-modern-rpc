@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class JSONRPCHandler(RpcHandler[JsonRpcRequest]):
+class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
     """Default JSON-RPC handler implementation"""
 
     protocol = Protocol.JSON_RPC

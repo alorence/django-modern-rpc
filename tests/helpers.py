@@ -4,7 +4,7 @@ import json
 import xmlrpc.client
 from doctest import Example
 from json import JSONDecodeError
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Callable
 from xml.etree import ElementTree as ET
 
 import jsonrpcclient
@@ -21,7 +21,7 @@ def build_xml_rpc_request_data(method="dummy", params=()) -> str:
     return xmlrpc.client.dumps(methodname=method, params=tuple(params))
 
 
-def build_json_rpc_request_data(method="dummy", params=(), is_notification=False) -> str:
+def build_json_rpc_request_data(method="dummy", params=(), is_notification=False) -> dict[str, Any]:
     if params:
         params = ensure_sequence(params)
     if is_notification:
@@ -102,20 +102,28 @@ def extract_jsonrpc_fault_data(response: HttpResponse) -> tuple[int, str]:
         raise
 
     try:
-        code = error_data["code"]
+        err_code = int(error_data["code"])
     except KeyError:
         pytest.fail(f'Unable to extract error code from payload "{response_data}"')
         raise
-
-    try:
-        int_code = int(code)
-    except KeyError:
-        pytest.fail(f'Unable to convert error code "{code}" to int')
+    except ValueError:
+        pytest.fail(f'Unable to convert error code "{error_data["code"]}" to int')
         raise
+
     try:
         message = error_data["message"]
     except KeyError:
         pytest.fail(f'Unable to extract error message from payload "{response_data}"')
         raise
 
-    return int_code, message
+    return err_code, message
+
+
+def params_with_xfail(possible_values: list, condition: Callable, reason: str):
+    """
+    Build a list of replacement value for a fixture containing one or more xfail instances (depending on condition)
+    """
+    return [
+        pytest.param(element, marks=pytest.mark.xfail(reason=reason)) if condition(element) else element
+        for element in possible_values
+    ]

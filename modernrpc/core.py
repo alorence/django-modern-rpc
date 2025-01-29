@@ -24,8 +24,6 @@ if TYPE_CHECKING:
     from modernrpc.handlers.base import RpcHandler
     from modernrpc.server import RPCServer
 
-# Special constant meaning "all protocols" or "all entry points"
-GENERIC_ALL = ALL = "__all__"
 
 # Keys used in kwargs dict given to RPC methods
 REQUEST_KEY = settings.MODERNRPC_KWARGS_REQUEST_KEY
@@ -49,6 +47,7 @@ class Protocol(Flag):
 # In 1.0.0, following constants were replaced by Protocol enum class
 # Redefine them for backward compatibility
 JSONRPC_PROTOCOL, XMLRPC_PROTOCOL = Protocol.JSON_RPC, Protocol.XML_RPC
+GENERIC_ALL = ALL = Protocol.ALL
 
 
 @dataclass
@@ -175,16 +174,18 @@ class ProcedureWrapper:
         return self.doc_parser.html_documentation
 
     @cached_property
-    def args_doc(self) -> OrderedDict:
+    def args_doc(self) -> OrderedDict[str, dict[str, str]]:
         """Build an OrderedDict mapping each method argument with its
         corresponding type (from typehint or doctype) and documentation."""
-        result = OrderedDict()
-        for arg in self.introspector.args:
-            result[arg] = {
-                "type": self.doc_parser.args_types.get(arg, "") or self.introspector.args_types.get(arg, ""),
-                "text": self.doc_parser.args_doc.get(arg, ""),
+        return OrderedDict(
+            {
+                arg: {
+                    "type": self.doc_parser.args_types.get(arg, "") or self.introspector.args_types.get(arg, ""),
+                    "text": self.doc_parser.args_doc.get(arg, ""),
+                }
+                for arg in self.introspector.args
             }
-        return result
+        )
 
     @cached_property
     def return_doc(self) -> dict[str, str]:

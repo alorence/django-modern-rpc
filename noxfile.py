@@ -95,5 +95,11 @@ def mypy(session):
 
 @nox.session(venv_backend=None, default=False)
 def coverage(session):
-    """Perform a test and generate coverage report in 'htmlcov' directory"""
+    """Run tests and generate coverage report in 'htmlcov' directory"""
     session.run("uv", "run", "pytest", "--cov=modernrpc", "--cov-report=html")
+
+
+@nox.session(venv_backend="none", default=False, tags=["tests"])
+def tests_duration(session):
+    """Run tests and report the 20 slowest tests"""
+    session.run("uv", "run", "pytest", "--durations=20")
