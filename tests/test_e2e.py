@@ -1,6 +1,8 @@
 import xmlrpc.client
+from http import HTTPStatus
 
 import pytest
+import requests
 
 
 @pytest.mark.usefixtures("all_xml_deserializers", "all_xml_serializers")
@@ -51,3 +53,20 @@ class TestXmlRpcE2E:
 
 @pytest.mark.usefixtures("all_json_deserializers", "all_json_serializers")
 class TestJsonRpcE2E: ...
+
+
+class TestCommonE2eErrors:
+    def test_no_content_type(self, live_server):
+        res = requests.post(live_server.url + "/rpc", data="Hello World !", headers={"content-type": ""})
+
+        assert res.status_code == HTTPStatus.BAD_REQUEST
+        assert res.text == (
+            "Unable to handle your request, the Content-Type header is mandatory to allow server to "
+            "determine which handler can interpret your request."
+        )
+
+    def test_invalid_content_type(self, live_server):
+        res = requests.post(live_server.url + "/rpc", data="Hello World !", headers={"content-type": "text/html"})
+
+        assert res.status_code == HTTPStatus.BAD_REQUEST
+        assert res.text == "Unable to handle your request, unsupported Content-Type text/html."
