@@ -12,14 +12,14 @@ from modernrpc.core import RpcRequestContext
 if TYPE_CHECKING:
     from django.http import HttpRequest
 
-    from modernrpc.server import RPCServer
+    from modernrpc.server import RpcServer
 
 
 logger = logging.getLogger(__name__)
 
 
 def run_procedure(
-    request: HttpRequest, server: RPCServer, default_encoding: str = settings.MODERNRPC_DEFAULT_ENCODING
+    request: HttpRequest, server: RpcServer, default_encoding: str = settings.MODERNRPC_DEFAULT_ENCODING
 ) -> HttpResponse:
     if not request.content_type:
         return HttpResponse(

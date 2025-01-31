@@ -54,10 +54,10 @@ class RegistryMixin:
         return self._registry
 
 
-class RPCNamespace(RegistryMixin): ...
+class RpcNamespace(RegistryMixin): ...
 
 
-class RPCServer(RegistryMixin):
+class RpcServer(RegistryMixin):
     def __init__(self, supported_protocol: Protocol = Protocol.ALL):
         super().__init__()
         self.supported_handlers = list(
@@ -89,7 +89,7 @@ class RPCServer(RegistryMixin):
         view = functools.partial(run_procedure, server=self)
         return csrf_exempt(require_POST(view))
 
-    def register_namespace(self, namespace: RPCNamespace, name: str | None = None):
+    def register_namespace(self, namespace: RpcNamespace, name: str | None = None):
         prefix = f"{name}." if name else ""
         logger.debug(f"About to register {len(namespace.procedures)} procedures into namespace '{prefix}'")
         for procedure_name, wrapper in namespace.procedures.items():

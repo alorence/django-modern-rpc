@@ -11,9 +11,9 @@ from helpers import (
 )
 
 from modernrpc.exceptions import RPC_INTERNAL_ERROR, RPC_INVALID_PARAMS, RPC_METHOD_NOT_FOUND, RPC_PARSE_ERROR
-from modernrpc.server import RPCServer
+from modernrpc.server import RpcServer
 
-server = RPCServer()
+server = RpcServer()
 
 
 @server.register_procedure
@@ -41,6 +41,25 @@ class TestXmlRpc:
 
         assert code == RPC_INTERNAL_ERROR
         assert message == "Internal error: bar cannot be negative"
+
+    def test_invalid_xml_payload_request(self, xmlrpc_rf):
+        request = xmlrpc_rf(method_name="simple_procedure", params=["bar", 11])
+        request._body = request.body.replace(b"<value>", b"!value>")  # noqa: SLF001
+        response = server.view(request)
+        assert response.status_code == HTTPStatus.OK
+        code, message = extract_xmlrpc_fault_data(response)
+        assert code == RPC_PARSE_ERROR
+        assert "Parse error, unable to read the request: mismatched tag" in message
+
+    def test_invalid_params(self, xmlrpc_rf):
+        request = xmlrpc_rf(method_name="simple_procedure", params=["bar", "baz", -111])
+        response = server.view(request)
+
+        assert response.status_code == HTTPStatus.OK
+        code, message = extract_xmlrpc_fault_data(response)
+
+        assert code == RPC_INVALID_PARAMS
+        assert message == "Invalid parameters: simple_procedure() takes 2 positional arguments but 3 were given"
 
     def test_system_list_methods(self, xmlrpc_rf):
         request = xmlrpc_rf(method_name="system.listMethods")
@@ -81,15 +100,6 @@ class TestXmlRpc:
         code, message = extract_xmlrpc_fault_data(response)
         assert code == RPC_METHOD_NOT_FOUND
         assert message == 'Method not found: "non_existant_method"'
-
-    def test_invalid_xml_payload_request(self, xmlrpc_rf):
-        request = xmlrpc_rf(method_name="simple_procedure", params=["bar", 11])
-        request._body = request.body.replace(b"<value>", b"!value>")
-        response = server.view(request)
-        assert response.status_code == HTTPStatus.OK
-        code, message = extract_xmlrpc_fault_data(response)
-        assert code == RPC_PARSE_ERROR
-        assert "Parse error, unable to read the request: mismatched tag" in message
 
 
 @pytest.mark.usefixtures("all_xml_deserializers", "all_xml_serializers")
@@ -168,6 +178,25 @@ class TestJsonRpc:
         assert response.status_code == HTTPStatus.NO_CONTENT
         assert response.content == b""
 
+    def test_invalid_json_payload_request(self, jsonrpc_rf):
+        request = jsonrpc_rf(method_name="simple_procedure", params=["bar", 11])
+        request._body = request.body.replace(b'"', b"**")  # noqa: SLF001
+        response = server.view(request)
+        assert response.status_code == HTTPStatus.OK
+        code, message = extract_jsonrpc_fault_data(response)
+        assert code == RPC_PARSE_ERROR
+        assert message == "Parse error, unable to read the request: Expecting property name enclosed in double quotes"
+
+    def test_invalid_params(self, jsonrpc_rf):
+        request = jsonrpc_rf(method_name="simple_procedure", params=["bar", "baz", -111])
+        response = server.view(request)
+
+        assert response.status_code == HTTPStatus.OK
+        code, message = extract_jsonrpc_fault_data(response)
+
+        assert code == RPC_INVALID_PARAMS
+        assert message == "Invalid parameters: simple_procedure() takes 2 positional arguments but 3 were given"
+
     def test_system_list_methods(self, jsonrpc_rf):
         request = jsonrpc_rf(method_name="system.listMethods")
         response = server.view(request)
@@ -207,15 +236,6 @@ class TestJsonRpc:
         code, message = extract_jsonrpc_fault_data(response)
         assert code == RPC_METHOD_NOT_FOUND
         assert message == 'Method not found: "non_existant_method"'
-
-    def test_invalid_json_payload_request(self, jsonrpc_rf):
-        request = jsonrpc_rf(method_name="simple_procedure", params=["bar", 11])
-        request._body = request.body.replace(b'"', b"**")
-        response = server.view(request)
-        assert response.status_code == HTTPStatus.OK
-        code, message = extract_jsonrpc_fault_data(response)
-        assert code == RPC_PARSE_ERROR
-        assert message == "Parse error, unable to read the request: Expecting property name enclosed in double quotes"
 
 
 @pytest.mark.usefixtures("all_json_deserializers", "all_json_serializers")

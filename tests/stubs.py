@@ -3,11 +3,11 @@ Note: this module is NOT listed in any settings.MODERNRPC_METHODS_MODULES
 All methods declared here must be manually registered to be available to remote call
 """
 
-from modernrpc.server import RPCServer
+from modernrpc.server import RpcServer
 
-main_server = RPCServer()
-server_v1 = RPCServer()
-server_v2 = RPCServer()
+main_server = RpcServer()
+server_v1 = RpcServer()
+server_v2 = RpcServer()
 
 
 @main_server.register_procedure

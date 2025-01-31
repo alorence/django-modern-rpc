@@ -2,9 +2,9 @@ import datetime
 
 from django.contrib.auth import get_user_model
 
-from modernrpc.server import RPCNamespace
+from modernrpc.server import RpcNamespace
 
-bp = RPCNamespace()
+bp = RpcNamespace()
 
 
 @bp.register_procedure()

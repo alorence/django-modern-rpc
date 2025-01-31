@@ -28,7 +28,7 @@ class TestNoDoc:
         assert intros.args == []
         assert intros.args_types == {}
         assert intros.return_type == ""
-        assert not intros.accept_kwargs
+        assert intros.accept_kwargs is False
 
     def test_wrapper_doc(self):
         wrapper = ProcedureWrapper(no_doc)
@@ -233,7 +233,7 @@ class TestMultilineDocstringWithArgs:
         assert intros.args == []
         assert intros.args_types == {}
         assert intros.return_type == ""
-        assert not intros.accept_kwargs
+        assert intros.accept_kwargs is False
 
     def test_wrapper_doc(self):
         wrapper = ProcedureWrapper(multiline_docstring_with_args_doc)
@@ -313,7 +313,7 @@ class TestArgsTypeHint:
             "c": "list",
         }
         assert intros.return_type == "dict"
-        assert not intros.accept_kwargs
+        assert intros.accept_kwargs is False
 
     def test_wrapper_args_and_return(self):
         wrapper = ProcedureWrapper(typed_args)
@@ -363,7 +363,7 @@ class TestWithTypeHintAndDocstring:
             "b": "str",
             "c": "list",
         }
-        assert not intros.accept_kwargs
+        assert intros.accept_kwargs is False
 
     def test_wrapper_args_and_return(self):
         wrapper = ProcedureWrapper(typehints_and_standard_docstring)
@@ -407,7 +407,7 @@ class TestWithDocstringOnlyFunction:
         assert intros.args == ["name", "birthdate", "sex"]
         assert intros.args_types == {}
         assert intros.return_type == ""
-        assert not intros.accept_kwargs
+        assert intros.accept_kwargs is False
 
     def test_args_and_return(self):
         wrapper = ProcedureWrapper(args_and_types_docstring)
@@ -422,6 +422,7 @@ class TestWithDocstringOnlyFunction:
             "type": "",
             "text": "A string representation of given arguments",
         }
+        assert wrapper.accept_kwargs is False
 
     def test_wrapper_doc(self):
         wrapper = ProcedureWrapper(args_and_types_docstring)
@@ -455,7 +456,7 @@ class TestWithTypeHintAndDocstringTypes:
         assert intros.args == ["x", "y"]
         assert intros.args_types == {"x": "list", "y": "str"}
         assert intros.return_type == "dict"
-        assert not intros.accept_kwargs
+        assert intros.accept_kwargs is False
 
     def test_args_and_return(self):
         wrapper = ProcedureWrapper(typehints_and_types_docstring)
@@ -466,6 +467,7 @@ class TestWithTypeHintAndDocstringTypes:
             "y": {"type": "str", "text": "xyz"},
         }
         assert wrapper.return_doc == {"type": "dict", "text": "efgh"}
+        assert wrapper.accept_kwargs is False
 
     def test_wrapper_doc(self):
         wrapper = ProcedureWrapper(typehints_and_types_docstring)
@@ -476,3 +478,40 @@ class TestWithTypeHintAndDocstringTypes:
         assert wrapper.html_doc == (
             "<p>This is the docstring part of the function</p><p>It also contains a multi-line description</p>"
         )
+
+
+def with_kwargs(x: list, y: str, **kwargs) -> dict:
+    """This is the docstring part of the function"""
+
+
+class TestWithTypeHintAndKwargs:
+    """Legacy standard docstring must override typehint"""
+
+    def test_extracted_args_doc(self):
+        parser = DocstringParser(with_kwargs)
+        assert parser.args_doc == {}
+        assert parser.args_types == {}
+
+    def test_introspector(self):
+        intros = Introspector(with_kwargs)
+        assert intros.args == ["x", "y"]
+        assert intros.args_types == {"x": "list", "y": "str"}
+        assert intros.return_type == "dict"
+        assert intros.accept_kwargs is True
+
+    def test_args_and_return(self):
+        wrapper = ProcedureWrapper(with_kwargs)
+
+        assert wrapper.args == ["x", "y"]
+        assert wrapper.args_doc == {
+            "x": {"type": "list", "text": ""},
+            "y": {"type": "str", "text": ""},
+        }
+        assert wrapper.return_doc == {"type": "dict", "text": ""}
+        assert wrapper.accept_kwargs is True
+
+    def test_wrapper_doc(self):
+        wrapper = ProcedureWrapper(with_kwargs)
+
+        assert wrapper.raw_docstring == ("This is the docstring part of the function")
+        assert wrapper.html_doc == ("<p>This is the docstring part of the function</p>")

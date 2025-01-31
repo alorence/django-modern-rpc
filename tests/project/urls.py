@@ -1,9 +1,9 @@
 from django.urls import path
 from project.rpc import math
 
-from modernrpc import RPCServer
+from modernrpc import RpcServer
 
-server = RPCServer()
+server = RpcServer()
 server.register_namespace(math, "math")
 
 

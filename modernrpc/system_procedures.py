@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from modernrpc import Protocol, RPCNamespace, RpcRequestContext
+from modernrpc import Protocol, RpcNamespace, RpcRequestContext
 from modernrpc.exceptions import RPCInvalidParams
 from modernrpc.handlers.base import GenericRpcErrorResult, XmlRpcRequest
 
-system = RPCNamespace()
+system = RpcNamespace()
 
 
 @system.register_procedure(name="listMethods", context_target="_ctx")

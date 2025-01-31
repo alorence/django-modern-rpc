@@ -3,9 +3,9 @@ import datetime
 from modernrpc.core import PROTOCOL_KEY
 from modernrpc.exceptions import RPC_CUSTOM_ERROR_BASE, RPCException
 from modernrpc.helpers import get_builtin_date
-from modernrpc.server import RPCNamespace
+from modernrpc.server import RpcNamespace
 
-bp = RPCNamespace()
+bp = RpcNamespace()
 
 
 @bp.register_procedure
