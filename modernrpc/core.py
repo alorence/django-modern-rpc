@@ -180,7 +180,7 @@ class ProcedureWrapper:
         return OrderedDict(
             {
                 arg: {
-                    "type": self.doc_parser.args_types.get(arg, "") or self.introspector.args_types.get(arg, ""),
+                    "type": self.introspector.args_types.get(arg, "") or self.doc_parser.args_types.get(arg, ""),
                     "text": self.doc_parser.args_doc.get(arg, ""),
                 }
                 for arg in self.introspector.args
@@ -191,7 +191,7 @@ class ProcedureWrapper:
     def return_doc(self) -> dict[str, str]:
         """Build a dict for method's return type and documentation"""
         return {
-            "type": self.doc_parser.return_type or self.introspector.return_type,
+            "type": self.introspector.return_type or self.doc_parser.return_type,
             "text": self.doc_parser.return_doc,
         }
 

@@ -1,12 +1,15 @@
+import random
+
 import pytest
 
+from modernrpc import RPCServer
 from modernrpc.core import Protocol
 from modernrpc.exceptions import RPCMethodNotFound
 from modernrpc.handlers import JsonRpcHandler, XmlRpcHandler
-from modernrpc.server import RPCServer
+from modernrpc.server import RPCNamespace, RPCServer
 
 
-class TestRPCServerBase:
+class TestInitialRpcServer:
     def test_procedure_unregistered(self):
         with pytest.raises(RPCMethodNotFound):
             RPCServer().get_procedure("foo")
@@ -75,3 +78,39 @@ class TestRpcServerRegistration:
         wrapper = dummy_server.get_procedure("dummy_procedure")
         assert wrapper.function == dummy_procedure
         assert wrapper.name == "dummy_procedure"
+
+
+namespace = RPCNamespace()
+
+
+@namespace.register_procedure(name="randint")
+def dummy():
+    return random.randint(0, 5)
+
+
+class TestRpcNamespace:
+    def test_unregistered(self):
+        server = RPCServer()
+
+        assert "dummy" not in server.procedures
+        assert "randint" not in server.procedures
+
+    def test_ns_registration(self):
+        server = RPCServer()
+        server.register_namespace(namespace, "foo")
+
+        assert "foo.randint" in server.procedures
+
+
+class TestJsonRpcHandler:
+    handler = JsonRpcHandler()
+
+    def test_correct_content_type(self):
+        assert self.handler.response_content_type() == "application/json"
+
+
+class TestXmlRpcHandler:
+    handler = XmlRpcHandler()
+
+    def test_correct_content_type(self):
+        assert self.handler.response_content_type() == "application/xml"

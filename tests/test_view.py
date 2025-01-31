@@ -10,7 +10,7 @@ from helpers import (
     extract_xmlrpc_success_result,
 )
 
-from modernrpc.exceptions import RPC_INTERNAL_ERROR, RPC_INVALID_PARAMS, RPC_METHOD_NOT_FOUND
+from modernrpc.exceptions import RPC_INTERNAL_ERROR, RPC_INVALID_PARAMS, RPC_METHOD_NOT_FOUND, RPC_PARSE_ERROR
 from modernrpc.server import RPCServer
 
 server = RPCServer()
@@ -81,6 +81,15 @@ class TestXmlRpc:
         code, message = extract_xmlrpc_fault_data(response)
         assert code == RPC_METHOD_NOT_FOUND
         assert message == 'Method not found: "non_existant_method"'
+
+    def test_invalid_xml_payload_request(self, xmlrpc_rf):
+        request = xmlrpc_rf(method_name="simple_procedure", params=["bar", 11])
+        request._body = request.body.replace(b"<value>", b"!value>")
+        response = server.view(request)
+        assert response.status_code == HTTPStatus.OK
+        code, message = extract_xmlrpc_fault_data(response)
+        assert code == RPC_PARSE_ERROR
+        assert "Parse error, unable to read the request: mismatched tag" in message
 
 
 @pytest.mark.usefixtures("all_xml_deserializers", "all_xml_serializers")
@@ -198,6 +207,15 @@ class TestJsonRpc:
         code, message = extract_jsonrpc_fault_data(response)
         assert code == RPC_METHOD_NOT_FOUND
         assert message == 'Method not found: "non_existant_method"'
+
+    def test_invalid_json_payload_request(self, jsonrpc_rf):
+        request = jsonrpc_rf(method_name="simple_procedure", params=["bar", 11])
+        request._body = request.body.replace(b'"', b"**")
+        response = server.view(request)
+        assert response.status_code == HTTPStatus.OK
+        code, message = extract_jsonrpc_fault_data(response)
+        assert code == RPC_PARSE_ERROR
+        assert message == "Parse error, unable to read the request: Expecting property name enclosed in double quotes"
 
 
 @pytest.mark.usefixtures("all_json_deserializers", "all_json_serializers")
