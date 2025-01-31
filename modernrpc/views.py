@@ -8,30 +8,34 @@ from django.http.response import HttpResponse
 
 from modernrpc.conf import settings
 from modernrpc.core import RpcRequestContext
-from modernrpc.exceptions import RPCInvalidRequest
 
 if TYPE_CHECKING:
     from django.http import HttpRequest
 
-    from modernrpc.server import RPCServer
+    from modernrpc.server import RpcServer
 
 
 logger = logging.getLogger(__name__)
 
 
 def run_procedure(
-    request: HttpRequest, server: RPCServer, default_encoding: str = settings.MODERNRPC_DEFAULT_ENCODING
+    request: HttpRequest, server: RpcServer, default_encoding: str = settings.MODERNRPC_DEFAULT_ENCODING
 ) -> HttpResponse:
     if not request.content_type:
         return HttpResponse(
             "Unable to handle your request, the Content-Type header is mandatory to allow server "
             "to determine which handler can interpret your request.",
+            status=HTTPStatus.BAD_REQUEST,
             content_type="text/plain",
         )
 
     handler = server.get_handler(request)
     if not handler:
-        raise RPCInvalidRequest("Unable to retrieve the correct handler for your request")
+        return HttpResponse(
+            f"Unable to handle your request, unsupported Content-Type {request.content_type}.",
+            status=HTTPStatus.BAD_REQUEST,
+            content_type=request.content_type,
+        )
 
     context = RpcRequestContext(request, server, handler, handler.protocol)
     request_body = request.body.decode(request.encoding or default_encoding)

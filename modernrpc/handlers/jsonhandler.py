@@ -92,34 +92,6 @@ class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
 
         return self.serializer.dumps(result)
 
-    # TODO: restore this ASAP
-    # @staticmethod
-    # def check_request(request_data: dict) -> None:
-    #     """Perform request validation raises RPCInvalidRequest on any error"""
-    #
-    #     method_name = request_data.get("method")
-    #     jsonrpc_version = request_data.get("jsonrpc")
-    #     is_notification = "id" not in request_data
-    #     request_id = request_data.get("id")
-    #
-    #     if not method_name:
-    #         raise RPCInvalidRequest('Missing parameter "method"')
-    #
-    #     if not jsonrpc_version:
-    #         raise RPCInvalidRequest('Missing parameter "jsonrpc"')
-    #
-    #     if jsonrpc_version != "2.0":
-    #         raise RPCInvalidRequest(
-    #             f'Parameter "jsonrpc" has an unsupported value "{jsonrpc_version}". It must be set to "2.0"'
-    #         )
-    #
-    #     if not is_notification and type(request_id) not in (type(None), int, float, str):
-    #         request_data["id"] = None
-    #         raise RPCInvalidRequest(
-    #             'Parameter "id" has an unsupported value. According to JSON-RPC 2.0 standard, it must '
-    #             "be a String, a Number or a Null value."
-    #         )
-
     def process_single_request(self, rpc_request: JsonRpcRequest, context: RpcRequestContext) -> JsonRpcResult:
         """Check and call the RPC method, based on given request dict."""
         # FIXME

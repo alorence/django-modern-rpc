@@ -1,11 +1,11 @@
 from modernrpc.core import Protocol, RpcRequestContext
-from modernrpc.server import RPCNamespace, RPCServer
+from modernrpc.server import RpcNamespace, RpcServer
 
 __all__ = [
     "Protocol",
-    "RPCNamespace",
-    "RPCServer",
+    "RpcNamespace",
     "RpcRequestContext",
+    "RpcServer",
 ]
 
 # Package version is now stored only in pyproject.toml. To retrieve it from code, use:

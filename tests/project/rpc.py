@@ -1,6 +1,6 @@
-from modernrpc import RPCNamespace
+from modernrpc import RpcNamespace
 
-math = RPCNamespace()
+math = RpcNamespace()
 
 
 @math.register_procedure

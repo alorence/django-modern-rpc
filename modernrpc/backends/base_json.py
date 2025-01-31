@@ -9,6 +9,28 @@ from modernrpc.handlers.base import GenericRpcErrorResult, JsonRpcRequest, JsonR
 
 
 class Unmarshaller:
+    @staticmethod
+    def validate_dict_request(request_data: dict[str, Any]) -> None:
+        if "method" not in request_data:
+            raise RPCInvalidRequest("Unable to find method name", data=request_data)
+
+        if "jsonrpc" not in request_data:
+            raise RPCInvalidRequest("jsonrpc required")
+
+        if request_data["jsonrpc"] != "2.0":
+            raise RPCInvalidRequest(
+                f'Parameter "jsonrpc" has an unsupported value "{request_data["jsonrpc"]}". It must be set to "2.0"'
+            )
+
+        # Notification request won't have "id" field
+        # None is also an allowed value. Both case are valid
+        request_id = request_data.get("id")
+        if type(request_id) not in (type(None), int, float, str):
+            raise RPCInvalidRequest(
+                'Parameter "id" has an unsupported value. According to JSON-RPC 2.0 standard, it must '
+                f"be a String, a Number or a Null value. Found: {type(request_id)}"
+            )
+
     @overload
     def dict_to_request(self, structured_data: dict[str, Any]) -> JsonRpcRequest: ...
 
@@ -21,11 +43,9 @@ class Unmarshaller:
         if isinstance(structured_data, list):
             return [self.dict_to_request(data) for data in structured_data]
 
-        try:
-            method_name = structured_data["method"]
-        except KeyError as e:
-            raise RPCInvalidRequest("Unable to find method name", data=structured_data) from e
+        self.validate_dict_request(structured_data)
 
+        method_name = structured_data["method"]
         params = structured_data.get("params")
         args = params if isinstance(params, (list, tuple)) else []
         kwargs = params if isinstance(params, dict) else {}

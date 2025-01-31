@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import functools
 import logging
 from collections import OrderedDict
 from dataclasses import dataclass
@@ -22,7 +21,7 @@ if TYPE_CHECKING:
     from django.http import HttpRequest
 
     from modernrpc.handlers.base import RpcHandler
-    from modernrpc.server import RPCServer
+    from modernrpc.server import RpcServer
 
 
 # Keys used in kwargs dict given to RPC methods
@@ -56,7 +55,7 @@ class RpcRequestContext:
     and may be used to populate kwargs dict in rpc method."""
 
     request: HttpRequest
-    server: RPCServer
+    server: RpcServer
     handler: RpcHandler
     protocol: Protocol
 
@@ -147,12 +146,12 @@ class ProcedureWrapper:
             # Any exception raised from the remote procedure
             raise RPCInternalError(str(exc)) from exc
 
-    def available_for_protocol(self, protocol: Protocol) -> bool:
-        """Check if the current function can be executed from a request through the given protocol"""
-        return bool(protocol & self.protocol)
-
-    is_available_in_json_rpc = functools.partialmethod(available_for_protocol, Protocol.JSON_RPC)
-    is_available_in_xml_rpc = functools.partialmethod(available_for_protocol, Protocol.XML_RPC)
+    # def available_for_protocol(self, protocol: Protocol) -> bool:
+    #     """Check if the current function can be executed from a request through the given protocol"""
+    #     return bool(protocol & self.protocol)
+    #
+    # is_available_in_json_rpc = functools.partialmethod(available_for_protocol, Protocol.JSON_RPC)
+    # is_available_in_xml_rpc = functools.partialmethod(available_for_protocol, Protocol.XML_RPC)
 
     @cached_property
     def accept_kwargs(self) -> bool:
@@ -180,7 +179,7 @@ class ProcedureWrapper:
         return OrderedDict(
             {
                 arg: {
-                    "type": self.doc_parser.args_types.get(arg, "") or self.introspector.args_types.get(arg, ""),
+                    "type": self.introspector.args_types.get(arg, "") or self.doc_parser.args_types.get(arg, ""),
                     "text": self.doc_parser.args_doc.get(arg, ""),
                 }
                 for arg in self.introspector.args
@@ -191,7 +190,7 @@ class ProcedureWrapper:
     def return_doc(self) -> dict[str, str]:
         """Build a dict for method's return type and documentation"""
         return {
-            "type": self.doc_parser.return_type or self.introspector.return_type,
+            "type": self.introspector.return_type or self.doc_parser.return_type,
             "text": self.doc_parser.return_doc,
         }
 

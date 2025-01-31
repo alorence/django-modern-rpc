@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from modernrpc import Protocol, RPCNamespace, RpcRequestContext
+from modernrpc import Protocol, RpcNamespace, RpcRequestContext
 from modernrpc.exceptions import RPCInvalidParams
 from modernrpc.handlers.base import GenericRpcErrorResult, XmlRpcRequest
 
-system = RPCNamespace()
+system = RpcNamespace()
 
 
 @system.register_procedure(name="listMethods", context_target="_ctx")
@@ -15,7 +15,7 @@ def __system_list_methods(_ctx: RpcRequestContext):
 
 
 @system.register_procedure(name="methodSignature", context_target="_ctx")
-def __system_method_signature(method_name, _ctx: RpcRequestContext):
+def __system_method_signature(method_name: str, _ctx: RpcRequestContext):
     """
     Returns an array describing the signature of the given method name.
 
@@ -28,9 +28,6 @@ def __system_method_signature(method_name, _ctx: RpcRequestContext):
     """
     server = _ctx.server
     wrapper = server.get_procedure(method_name)
-    if wrapper is None:
-        raise RPCInvalidParams(f"Unknown method {method_name}. Unable to retrieve signature.")
-
     # See http://xmlrpc-c.sourceforge.net/introspection.html
     undefined = "undef"
     return_type = wrapper.return_doc.get("type") or undefined
@@ -50,13 +47,11 @@ def __system_method_help(method_name: str, _ctx: RpcRequestContext):
     """
     server = _ctx.server
     method = server.get_procedure(method_name)
-    if method is None:
-        raise RPCInvalidParams(f"Unknown method {method_name}. Unable to retrieve its documentation.")
-    return method.html_doc
+    return method.raw_docstring
 
 
 @system.register_procedure(name="multicall", protocol=Protocol.XML_RPC, context_target="_ctx")
-def __system_multi_call(calls, _ctx: RpcRequestContext):
+def __system_multi_call(calls: list, _ctx: RpcRequestContext):
     """
     Call multiple RPC methods at once.
 

@@ -9,7 +9,7 @@ from modernrpc.exceptions import RPCInternalError, RPCInvalidRequest, RPCParseEr
 from modernrpc.handlers.base import XmlRpcErrorResult, XmlRpcRequest, XmlRpcSuccessResult
 
 
-class TestXmlDeserializer:
+class TestXmlRpcDeserializer:
     """
     This class will test the XmlRpcDeserializer classes.
     It will ensure that a given request payload is parsed correctly and the extracted data
@@ -23,6 +23,21 @@ class TestXmlDeserializer:
               <methodName>
                 foo.bar
               </methodName>
+            </methodCall>
+        """
+        request = xml_deserializer.loads(dedent(payload).strip())
+        assert request.method_name == "foo.bar"
+        assert request.args == []
+
+    def test_method_name_empty_params(self, xml_deserializer):
+        payload = """
+            <?xml version="1.0"?>
+            <methodCall>
+              <methodName>
+                foo.bar
+              </methodName>
+              <params>
+              </params>
             </methodCall>
         """
         request = xml_deserializer.loads(dedent(payload).strip())
@@ -64,7 +79,7 @@ class TestXmlDeserializer:
             ("dateTime.iso8601", "20250101T00:00:00", datetime(2025, 1, 1, 0, 0, 0)),
         ],
     )
-    def test_single_param(self, xml_deserializer, inner_template, outer_template, typ, value, expected_value, request):
+    def test_param_scalar(self, xml_deserializer, inner_template, outer_template, typ, value, expected_value, request):
         """
         This is a huge test, configured with multiple possible values.
         Here is a description of the parametrization applied to it:
@@ -106,7 +121,7 @@ class TestXmlDeserializer:
         request = xml_deserializer.loads(dedent(payload).strip())
         assert request.args == [expected_value]
 
-    def test_binary_params(self, xml_deserializer):
+    def test_param_binary(self, xml_deserializer):
         initial_data = b"\x3247\x9684\x41\x77\\x12\x34"
         b64_data = base64.b64encode(initial_data).decode()
         payload = f"""
@@ -126,7 +141,29 @@ class TestXmlDeserializer:
         assert request.method_name == "foo.bar.baz"
         assert request.args == [initial_data]
 
-    def test_array_params(self, xml_deserializer):
+    def test_param_array_single_value(self, xml_deserializer):
+        payload = """
+            <?xml version="1.0"?>
+            <methodCall>
+              <methodName>foo.bar.baz</methodName>
+              <params>
+                <param>
+                  <value>
+                    <array>
+                      <data>
+                        <value><i4>8</i4></value>
+                      </data>
+                    </array>
+                  </value>
+                </param>
+              </params>
+            </methodCall>
+        """
+        request = xml_deserializer.loads(dedent(payload).strip())
+        assert request.method_name == "foo.bar.baz"
+        assert request.args == [[8]]
+
+    def test_array_params_multiple_values(self, xml_deserializer):
         payload = """
             <?xml version="1.0"?>
             <methodCall>
@@ -159,7 +196,30 @@ class TestXmlDeserializer:
         assert request.method_name == "foo.bar.baz"
         assert request.args == [[5, 9, "abc"], [0.0]]
 
-    def test_struct_params(self, xml_deserializer):
+    def test_param_struc_single_value(self, xml_deserializer):
+        payload = """
+            <?xml version="1.0"?>
+            <methodCall>
+              <methodName>foo.bar.baz</methodName>
+              <params>
+                <param>
+                  <value>
+                    <struct>
+                      <member>
+                        <name>pi</name>
+                        <value><double>3.14</double></value>
+                      </member>
+                    </struct>
+                  </value>
+                </param>
+              </params>
+            </methodCall>
+        """
+        request = xml_deserializer.loads(dedent(payload).strip())
+        assert request.method_name == "foo.bar.baz"
+        assert request.args == [{"pi": 3.14}]
+
+    def test_param_struc_multiple_values(self, xml_deserializer):
         payload = """
             <?xml version="1.0"?>
             <methodCall>
@@ -196,8 +256,6 @@ class TestXmlDeserializer:
         assert request.method_name == "foo.bar.baz"
         assert request.args == [{"foo": 9}, {"bar": 9.0, "baz": "9"}]
 
-
-class TestXmlDeserializerErrors:
     def test_invalid_xml_payload(self, xml_deserializer):
         payload = """
             <?xml version="1.0"?>
@@ -270,8 +328,39 @@ class TestXmlDeserializerErrors:
             xml_deserializer.loads(dedent(payload).strip())
 
 
-class TestXmlSerializer:
+class TestXmlRpcSerializer:
     req = XmlRpcRequest(method_name="foo")
+
+    @pytest.mark.parametrize(
+        ("data", "expected_type", "expected_result"),
+        [
+            (False, "boolean", "0"),
+            (True, "boolean", "1"),
+            (55, "int", "55"),
+            (-999, "int", "-999"),
+            (0, "int", "0"),
+            ("55", "string", "55"),
+            ("foo.bar", "string", "foo.bar"),
+            ("foo\nbar", "string", "foo\nbar"),
+            (9.6, "double", "9.6"),
+            (-3.14, "double", "-3.14"),
+            (datetime(2025, 1, 1, 5, 6, 8), "dateTime.iso8601", "20250101T05:06:08"),
+        ],
+    )
+    def test_result_scalar(self, xml_serializer, data, expected_type, expected_result):
+        expected_payload = f"""<?xml version='1.0'?>
+            <methodResponse>
+                <params>
+                    <param>
+                        <value><{expected_type}>{expected_result}</{expected_type}></value>
+                    </param>
+                </params>
+            </methodResponse>
+        """
+        assert_xml_data_are_equal(
+            xml_serializer.dumps(XmlRpcSuccessResult(request=self.req, data=data)),
+            expected_payload,
+        )
 
     def test_result_null(self, xml_serializer):
         result = xml_serializer.dumps(XmlRpcSuccessResult(request=self.req, data=None))
@@ -282,75 +371,6 @@ class TestXmlSerializer:
                         <value><nil/></value>
                     </param>
                 </params>
-            </methodResponse>
-        """
-        assert_xml_data_are_equal(result, expected)
-
-    def test_result_bool(self, xml_serializer):
-        result = xml_serializer.dumps(XmlRpcSuccessResult(request=self.req, data=False))
-        expected = """<?xml version='1.0'?>
-            <methodResponse>
-                <params>
-                    <param>
-                        <value><boolean>0</boolean></value>
-                    </param>
-                </params>
-            </methodResponse>
-        """
-        assert_xml_data_are_equal(result, expected)
-
-    def test_result_int(self, xml_serializer):
-        result = xml_serializer.dumps(XmlRpcSuccessResult(request=self.req, data=55))
-        expected = """<?xml version='1.0'?>
-            <methodResponse>
-                <params>
-                    <param>
-                        <value><int>55</int></value>
-                    </param>
-                </params>
-            </methodResponse>
-        """
-        assert_xml_data_are_equal(result, expected)
-
-    def test_result_str(self, xml_serializer):
-        result = xml_serializer.dumps(XmlRpcSuccessResult(request=self.req, data="foo.bar"))
-        expected = """<?xml version='1.0'?>
-            <methodResponse>
-                <params>
-                    <param>
-                        <value><string>foo.bar</string></value>
-                    </param>
-                </params>
-            </methodResponse>
-        """
-        assert_xml_data_are_equal(result, expected)
-
-    def test_result_double(self, xml_serializer):
-        result = xml_serializer.dumps(XmlRpcSuccessResult(request=self.req, data=9.6))
-        expected = """<?xml version='1.0'?>
-            <methodResponse>
-                <params>
-                    <param>
-                        <value><double>9.6</double></value>
-                    </param>
-                </params>
-            </methodResponse>
-        """
-        assert_xml_data_are_equal(result, expected)
-
-    def test_result_datetime(self, xml_serializer):
-        result = xml_serializer.dumps(XmlRpcSuccessResult(request=self.req, data=datetime(2025, 1, 1, 5, 6, 8)))
-        expected = """<?xml version='1.0'?>
-            <methodResponse>
-              <params>
-                <param>
-                  <value>
-                    <dateTime.iso8601>
-                      20250101T05:06:08
-                    </dateTime.iso8601>
-                  </value>
-                </param>
-              </params>
             </methodResponse>
         """
         assert_xml_data_are_equal(result, expected)
@@ -372,7 +392,26 @@ class TestXmlSerializer:
         """
         assert_xml_data_are_equal(result, expected)
 
-    def test_result_array(self, xml_serializer):
+    def test_result_array_single_value(self, xml_serializer):
+        result = xml_serializer.dumps(XmlRpcSuccessResult(request=self.req, data=["foo"]))
+        expected = """<?xml version='1.0'?>
+            <methodResponse>
+              <params>
+                <param>
+                  <value>
+                    <array>
+                      <data>
+                        <value><string>foo</string></value>
+                      </data>
+                    </array>
+                  </value>
+                </param>
+              </params>
+            </methodResponse>
+        """
+        assert_xml_data_are_equal(result, expected)
+
+    def test_result_array_multiple_values(self, xml_serializer):
         result = xml_serializer.dumps(XmlRpcSuccessResult(request=self.req, data=[1, 3, 5, "foo", "bar", 3.14]))
         expected = """<?xml version='1.0'?>
             <methodResponse>
@@ -396,7 +435,29 @@ class TestXmlSerializer:
         """
         assert_xml_data_are_equal(result, expected)
 
-    def test_result_dict(self, xml_serializer):
+    def test_result_dict_single_value(self, xml_serializer):
+        result = xml_serializer.dumps(XmlRpcSuccessResult(request=self.req, data={"pi": 3.14}))
+        expected = """<?xml version='1.0'?>
+            <methodResponse>
+              <params>
+                <param>
+                  <value>
+                    <struct>
+                      <member>
+                        <name>pi</name>
+                        <value>
+                          <double>3.14</double>
+                        </value>
+                      </member>
+                    </struct>
+                  </value>
+                </param>
+              </params>
+            </methodResponse>
+        """
+        assert_xml_data_are_equal(result, expected)
+
+    def test_result_dict_multiple_values(self, xml_serializer):
         res_data = {"a": 12, "b": ["1", "2", "3"], "final": None}
         result = xml_serializer.dumps(XmlRpcSuccessResult(request=self.req, data=res_data))
         expected = """<?xml version='1.0'?>
@@ -425,7 +486,7 @@ class TestXmlSerializer:
                       </member>
                       <member>
                         <name>final</name>
-                        <value><nil></nil></value>
+                        <value><nil/></value>
                       </member>
                     </struct>
                   </value>
@@ -461,26 +522,9 @@ class TestXmlSerializer:
         """
         assert_xml_data_are_equal(result, expected)
 
-
-class TestXmlSerializerErrors:
-    req = XmlRpcRequest(method_name="foo")
-
-    # @pytest.mark.parametrize("val", [2**32, 2**31 + 5, -(2**31) - 1])
-    # def test_invalid_int_value(self, xml_deserializer, val):
-    #     payload = f"""
-    #         <?xml version="1.0"?>
-    #         <methodCall>
-    #           <methodName>foo.bar</methodName>
-    #           <params>
-    #             <param><value><int>{val}</int></value></param>
-    #           </params>
-    #         </methodCall>
-    #     """
-    #     with pytest.raises(RPCInvalidRequest):
-    #         xml_deserializer.loads(dedent(payload).strip())
-
     @pytest.mark.parametrize("val", [2**32, 2**31 + 5, -(2**31) - 1])
     def test_int_overflow_result(self, xml_serializer, val):
+        """XML-RPC enforce int value limits. Check that is correctly handled in backends"""
         result = XmlRpcSuccessResult(request=self.req, data=val)
 
         with pytest.raises(RPCInternalError):

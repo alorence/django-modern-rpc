@@ -44,7 +44,10 @@ class Introspector:
     @cached_property
     def args(self) -> list[str]:
         """List all function arguments"""
-        return list(self.signature.parameters.keys())
+        args = list(self.signature.parameters.keys())
+        if self.accept_kwargs:
+            return args[:-1]
+        return args
 
     @cached_property
     def return_type(self) -> str:

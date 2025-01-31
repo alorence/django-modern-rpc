@@ -49,7 +49,8 @@ class Unmarshaller:
         except KeyError as e:
             raise RPCInvalidRequest("missing methodCall.methodName tag", data=data) from e
 
-        param_list: Sequence[dict[str, Any]] = method_call.get("params", {}).get("param", [])
+        params = method_call.get("params") or {}
+        param_list: Sequence[dict[str, Any]] = params.get("param", [])
 
         args: list[Any] = []
         if len(param_list) == 0:
