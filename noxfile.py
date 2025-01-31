@@ -61,9 +61,9 @@ def build_test_matrix():
             yield nox.param(py, dj, id=session_id, tags=tags)
 
 
-@nox.session(venv_backend="uv")
+@nox.session(name="test", venv_backend="uv")
 @nox.parametrize(["python", "django"], build_test_matrix())
-def tests(session, python, django):
+def run_tests(session, python, django):
     """Execute test suite using pytest"""
     env = {"UV_PROJECT_ENVIRONMENT": session.virtualenv.location}
     session.run_install("uv", "sync", "-p", python, "--no-group", "django", env=env)
@@ -74,13 +74,13 @@ def tests(session, python, django):
     session.run("pytest", "-n", "auto", *post_args)
 
 
-@nox.session(name="ruff-lint", venv_backend="none", tags=["ruff"])
+@nox.session(name="lint", venv_backend="none", tags=["ruff"])
 def ruff_lint(session):
     """Check the project for common issues"""
     session.run("uv", "run", "ruff", "check", ".")
 
 
-@nox.session(name="ruff-format", venv_backend="none", tags=["ruff"])
+@nox.session(name="format", venv_backend="none", tags=["ruff"])
 def ruff_format(session):
     """Check that all files are well formated"""
     session.run("uv", "run", "ruff", "format", ".", "--check")
@@ -95,9 +95,15 @@ def mypy(session):
 
 
 @nox.session(venv_backend="none", default=False, tags=["tests"])
-def coverage(session):
+def cov(session):
     """Run tests and generate coverage report in 'htmlcov' directory"""
-    session.run("uv", "run", "pytest", "--cov=modernrpc", "--cov-report=html")
+    cov_type = "term"
+    if session.posargs:
+        cov_type = session.posargs.pop(0)
+        allowed_cov_types = ("term", "term-missing", "annotate", "html", "xml", "json", "lcov")
+        if cov_type not in allowed_cov_types:
+            raise ValueError(f"Invalid coverage report type {cov_type}, possible values are {allowed_cov_types}")
+    session.run("uv", "run", "pytest", "--cov=modernrpc", f"--cov-report={cov_type}", *session.posargs)
 
 
 @nox.session(venv_backend="none", default=False, tags=["tests"])
