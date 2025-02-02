@@ -18,7 +18,7 @@ server = RpcServer()
 
 @server.register_procedure
 def simple_procedure(foo: str, bar: int):
-    """A simple test procedure..."""
+    """Return a simple string when given 'bar' is positive, raise ValueError when 'bar' is negative"""
     if bar < 0:
         raise ValueError("bar cannot be negative")
     return f"{foo=} {bar=}"
@@ -26,13 +26,13 @@ def simple_procedure(foo: str, bar: int):
 
 @pytest.mark.usefixtures("all_xml_deserializers", "all_xml_serializers")
 class TestXmlRpc:
-    def test_success(self, xmlrpc_rf):
+    def test_standard_call(self, xmlrpc_rf):
         request = xmlrpc_rf(method_name="simple_procedure", params=["bar", 42])
         response = server.view(request)
         assert response.status_code == HTTPStatus.OK
         assert extract_xmlrpc_success_result(response) == "foo='bar' bar=42"
 
-    def test_error(self, xmlrpc_rf):
+    def test_procedure_exception(self, xmlrpc_rf):
         request = xmlrpc_rf(method_name="simple_procedure", params=["bar", -2])
         response = server.view(request)
 
@@ -83,7 +83,10 @@ class TestXmlRpc:
         request = xmlrpc_rf(method_name="system.methodHelp", params=["simple_procedure"])
         response = server.view(request)
         assert response.status_code == HTTPStatus.OK
-        assert extract_xmlrpc_success_result(response) == "A simple test procedure..."
+        assert (
+            extract_xmlrpc_success_result(response)
+            == "Return a simple string when given 'bar' is positive, raise ValueError when 'bar' is negative"
+        )
 
     def test_system_method_signature_invalid_arg(self, xmlrpc_rf):
         request = xmlrpc_rf(method_name="system.methodSignature", params=["non_existant_method"])
@@ -150,19 +153,19 @@ class TestXmlRpcMulticall:
 
 @pytest.mark.usefixtures("all_json_deserializers", "all_json_serializers")
 class TestJsonRpc:
-    def test_jsonrpc_success(self, jsonrpc_rf):
+    def test_standard_call(self, jsonrpc_rf):
         request = jsonrpc_rf(method_name="simple_procedure", params=["bar", 42])
         response = server.view(request)
         assert response.status_code == HTTPStatus.OK
         assert extract_jsonrpc_success_result(response) == "foo='bar' bar=42"
 
-    def test_jsonrpc_notification_success(self, jsonrpc_rf):
+    def test_notification_call(self, jsonrpc_rf):
         request = jsonrpc_rf(method_name="simple_procedure", params=["bar", 42], is_notification=True)
         response = server.view(request)
         assert response.status_code == HTTPStatus.NO_CONTENT
         assert response.content == b""
 
-    def test_jsonrpc_error(self, jsonrpc_rf):
+    def test_procedure_exception(self, jsonrpc_rf):
         request = jsonrpc_rf(method_name="simple_procedure", params=["bar", -2])
         response = server.view(request)
 
@@ -172,7 +175,7 @@ class TestJsonRpc:
         assert code == RPC_INTERNAL_ERROR
         assert message == "Internal error: bar cannot be negative"
 
-    def test_jsonrpc_notification_error(self, jsonrpc_rf):
+    def test_notification_exception(self, jsonrpc_rf):
         request = jsonrpc_rf(method_name="simple_procedure", params=["bar", -2], is_notification=True)
         response = server.view(request)
         assert response.status_code == HTTPStatus.NO_CONTENT
@@ -219,7 +222,10 @@ class TestJsonRpc:
         request = jsonrpc_rf(method_name="system.methodHelp", params=["simple_procedure"])
         response = server.view(request)
         assert response.status_code == HTTPStatus.OK
-        assert extract_jsonrpc_success_result(response) == "A simple test procedure..."
+        assert (
+            extract_jsonrpc_success_result(response)
+            == "Return a simple string when given 'bar' is positive, raise ValueError when 'bar' is negative"
+        )
 
     def test_system_method_signature_invalid_arg(self, jsonrpc_rf):
         request = jsonrpc_rf(method_name="system.methodSignature", params=["non_existant_method"])
@@ -236,6 +242,21 @@ class TestJsonRpc:
         code, message = extract_jsonrpc_fault_data(response)
         assert code == RPC_METHOD_NOT_FOUND
         assert message == 'Method not found: "non_existant_method"'
+
+    def test_system_multicall_unavailable(self, jsonrpc_rf):
+        mc_params = [
+            [
+                {"methodName": "simple_procedure", "params": ("xxx", 20)},
+                {"methodName": "simple_procedure", "params": ("yyy", -20)},
+            ]
+        ]
+        request = jsonrpc_rf(method_name="system.multicall", params=mc_params)
+        response = server.view(request)
+        assert response.status_code == HTTPStatus.OK
+
+        code, message = extract_jsonrpc_fault_data(response)
+        assert code == RPC_METHOD_NOT_FOUND
+        assert message == 'Method not found: "system.multicall"'
 
 
 @pytest.mark.usefixtures("all_json_deserializers", "all_json_serializers")

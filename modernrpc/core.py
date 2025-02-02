@@ -84,9 +84,13 @@ class ProcedureWrapper:
         self.predicates = getattr(func, "modernrpc_auth_predicates", None)
         self.predicates_params = getattr(func, "modernrpc_auth_predicates_params", ())
 
-        # Introspection:
-        self.introspector = Introspector(self.function)
-        self.doc_parser = DocstringParser(self.function)
+    @cached_property
+    def doc_parser(self):
+        return DocstringParser(self.function)
+
+    @cached_property
+    def introspector(self):
+        return Introspector(self.function)
 
     def __repr__(self) -> str:
         return f'ModernRPC Procedure "{self.name}"'
@@ -145,13 +149,6 @@ class ProcedureWrapper:
         except Exception as exc:
             # Any exception raised from the remote procedure
             raise RPCInternalError(str(exc)) from exc
-
-    # def available_for_protocol(self, protocol: Protocol) -> bool:
-    #     """Check if the current function can be executed from a request through the given protocol"""
-    #     return bool(protocol & self.protocol)
-    #
-    # is_available_in_json_rpc = functools.partialmethod(available_for_protocol, Protocol.JSON_RPC)
-    # is_available_in_xml_rpc = functools.partialmethod(available_for_protocol, Protocol.XML_RPC)
 
     @cached_property
     def accept_kwargs(self) -> bool:

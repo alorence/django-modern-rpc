@@ -3,7 +3,8 @@ import xmlrpc.client
 
 import pytest
 
-from modernrpc.helpers import ensure_sequence, get_builtin_date
+from modernrpc import Protocol
+from modernrpc.helpers import check_flags_compatibility, ensure_sequence, get_builtin_date
 
 
 @pytest.mark.parametrize(
@@ -51,3 +52,20 @@ def test_get_builtin_date_invalid(date_str):
     assert get_builtin_date(date_str) is None
     with pytest.raises(ValueError, match="time data .+ does not match format '%Y-%m-%dT%H:%M:%S'"):
         get_builtin_date(date_str, raise_exception=True)
+
+
+@pytest.mark.parametrize(
+    ("a", "b", "expected"),
+    [
+        (Protocol.ALL, Protocol.ALL, True),
+        (Protocol.ALL, Protocol.XML_RPC, True),
+        (Protocol.ALL, Protocol.JSON_RPC, True),
+        (Protocol.XML_RPC, Protocol.XML_RPC, True),
+        (Protocol.XML_RPC, Protocol.ALL, True),
+        (Protocol.JSON_RPC, Protocol.JSON_RPC, True),
+        (Protocol.JSON_RPC, Protocol.ALL, True),
+        (Protocol.JSON_RPC, Protocol.XML_RPC, False),
+    ],
+)
+def test_flags_compatibility(a, b, expected):
+    assert check_flags_compatibility(a, b) == expected

@@ -1,6 +1,7 @@
 import random
 
 import pytest
+from conftest import ALL_PROTOCOLS
 
 from modernrpc import RpcServer
 from modernrpc.core import Protocol
@@ -10,9 +11,10 @@ from modernrpc.server import RpcNamespace
 
 
 class TestInitialRpcServer:
-    def test_procedure_unregistered(self):
+    @pytest.mark.parametrize("proto", ALL_PROTOCOLS)
+    def test_procedure_unregistered(self, proto):
         with pytest.raises(RPCMethodNotFound):
-            RpcServer().get_procedure("foo")
+            RpcServer().get_procedure("foo", proto)
 
     def test_supported_handlers(self):
         """Check that a fresh RPCServer 'supported_handlers' is correct with its initialization"""
@@ -64,20 +66,43 @@ class TestInitialRpcServer:
         assert "system.multicall" in server.procedures
 
 
-# Define a server with basic config to register procedures
-dummy_server = RpcServer()
-
-
-@dummy_server.register_procedure
 def dummy_procedure():
     return True
 
 
 class TestRpcServerRegistration:
-    def test_procedure_registration(self):
-        wrapper = dummy_server.get_procedure("dummy_procedure")
+    @pytest.mark.parametrize("proto", ALL_PROTOCOLS)
+    def test_procedure_registration(self, proto):
+        dummy_server = RpcServer()
+
+        dummy_server.register_procedure(dummy_procedure)
+        wrapper = dummy_server.get_procedure("dummy_procedure", proto)
+
         assert wrapper.function == dummy_procedure
         assert wrapper.name == "dummy_procedure"
+
+    @pytest.mark.parametrize("proto", ALL_PROTOCOLS)
+    def test_procedure_registration_custom_name(self, proto):
+        dummy_server = RpcServer()
+
+        dummy_server.register_procedure(dummy_procedure, name="foo")
+
+        wrapper = dummy_server.get_procedure("foo", proto)
+        assert wrapper.function == dummy_procedure
+        assert wrapper.name == "foo"
+
+        with pytest.raises(RPCMethodNotFound):
+            dummy_server.get_procedure("dummy_procedure", proto)
+
+    @pytest.mark.parametrize("proto", ALL_PROTOCOLS)
+    def test_procedure_registration_with_invalid_name(self, proto):
+        dummy_server = RpcServer()
+
+        with pytest.raises(ValueError, match=r'method names starting with "rpc." are reserved for system extensions'):
+            dummy_server.register_procedure(dummy_procedure, name="rpc.foo")
+
+        with pytest.raises(RPCMethodNotFound):
+            dummy_server.get_procedure("rpc.foo", proto)
 
 
 namespace = RpcNamespace()
@@ -99,18 +124,30 @@ class TestRpcNamespace:
         server = RpcServer()
         server.register_namespace(namespace, "foo")
 
+        assert "dummy" not in server.procedures
         assert "foo.randint" in server.procedures
+
+    def test_forbidden_ns_registration(self):
+        server = RpcServer()
+
+        with pytest.raises(ValueError, match=r'method names starting with "rpc." are reserved for system extensions'):
+            server.register_namespace(namespace, "rpc")
+
+        assert "dummy" not in server.procedures
+        assert "randint" not in server.procedures
+        assert "rpc.randint" not in server.procedures
+        assert "rpc.dummy" not in server.procedures
 
 
 class TestJsonRpcHandler:
     handler = JsonRpcHandler()
 
-    def test_correct_content_type(self):
+    def test_response_content_type(self):
         assert self.handler.response_content_type() == "application/json"
 
 
 class TestXmlRpcHandler:
     handler = XmlRpcHandler()
 
-    def test_correct_content_type(self):
+    def test_response_content_type(self):
         assert self.handler.response_content_type() == "application/xml"
