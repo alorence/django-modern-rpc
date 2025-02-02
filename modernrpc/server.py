@@ -37,6 +37,12 @@ class RegistryMixin:
         """Decorator..."""
 
         def decorated(func: Callable):
+            if name and name.startswith("rpc."):
+                raise ValueError(
+                    'According to JSON-RPC specs, method names starting with "rpc." are reserved for system extensions '
+                    "and must not be used. See https://www.jsonrpc.org/specification#extensions for more information."
+                )
+
             wrapper = ProcedureWrapper(func, name, protocol, context_target)
             self._registry[wrapper.name] = wrapper
             logger.debug(f"Registered procedure {wrapper.name}")
@@ -71,11 +77,15 @@ class RpcServer(RegistryMixin):
         system = import_string("modernrpc.system_procedures.system")
         self.register_namespace(system, "system")
 
-    def get_procedure(self, name: str) -> ProcedureWrapper:
+    def get_procedure(self, name: str, protocol: Protocol) -> ProcedureWrapper:
         try:
-            return self.procedures[name]
+            wrapper = self.procedures[name]
         except KeyError:
             raise RPCMethodNotFound(name) from None
+
+        if wrapper.protocol & protocol:
+            return wrapper
+        raise RPCMethodNotFound(name) from None
 
     def get_handler(self, request: HttpRequest) -> RpcHandler | None:
         klass = first_true(self.supported_handlers, pred=lambda cls: cls.can_handle(request))

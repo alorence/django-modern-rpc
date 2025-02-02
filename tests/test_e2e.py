@@ -10,7 +10,7 @@ from modernrpc.exceptions import RPC_INTERNAL_ERROR
 
 @pytest.mark.usefixtures("all_xml_deserializers", "all_xml_serializers")
 class TestXmlRpc:
-    def test_xml_rpc_basic_call(self, live_server):
+    def test_xml_rpc_standard_call(self, live_server):
         server = xmlrpc.client.ServerProxy(live_server.url + "/rpc", verbose=True)
         result = server.math.add(5, 8, 10)
         assert result == 23

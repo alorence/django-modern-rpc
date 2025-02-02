@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 import pytest
 from django.contrib.auth.models import AnonymousUser, Group, Permission
 
+from modernrpc import Protocol
 from modernrpc.backends.builtin_json import BuiltinJSON
 from modernrpc.backends.builtin_xmlrpc import BuiltinXmlRpc
 from modernrpc.backends.simple_json import SimpleJSON
@@ -130,6 +131,7 @@ def jsonrpc_batch_rf(rf) -> Callable[..., HttpRequest]:
     return factory
 
 
+ALL_PROTOCOLS = [Protocol.XML_RPC, Protocol.JSON_RPC]
 # List all backends supported in tests for deserialization (data to request object) and
 # serialization (result to response data). These constants will be used to define some parametrized fixtures
 # in order to ensure every test is run with all backends combinations
