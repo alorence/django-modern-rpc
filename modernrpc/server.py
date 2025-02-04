@@ -11,7 +11,7 @@ from django.views.decorators.http import require_POST
 from modernrpc.conf import settings
 from modernrpc.core import ProcedureWrapper, Protocol
 from modernrpc.exceptions import RPCMethodNotFound
-from modernrpc.helpers import first_true
+from modernrpc.helpers import check_flags_compatibility, first_true
 from modernrpc.views import run_procedure
 
 if TYPE_CHECKING:
@@ -68,7 +68,7 @@ class RpcServer(RegistryMixin):
         super().__init__()
         self.supported_handlers = list(
             filter(
-                lambda cls: cls.protocol & supported_protocol,
+                lambda cls: check_flags_compatibility(cls.protocol, supported_protocol),
                 (import_string(klass) for klass in settings.MODERNRPC_HANDLERS),
             )
         )
@@ -83,7 +83,7 @@ class RpcServer(RegistryMixin):
         except KeyError:
             raise RPCMethodNotFound(name) from None
 
-        if wrapper.protocol & protocol:
+        if check_flags_compatibility(wrapper.protocol, protocol):
             return wrapper
         raise RPCMethodNotFound(name) from None
 

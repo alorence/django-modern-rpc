@@ -7,6 +7,11 @@ from typing import TYPE_CHECKING, Any, Iterable, Sequence
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+    from enum import Flag
+
+
+def check_flags_compatibility(a: Flag, b: Flag) -> bool:
+    return bool(a & b)
 
 
 def get_builtin_date(

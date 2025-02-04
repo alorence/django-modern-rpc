@@ -127,6 +127,17 @@ class TestRpcNamespace:
         assert "dummy" not in server.procedures
         assert "foo.randint" in server.procedures
 
+    def test_forbidden_ns_registration(self):
+        server = RpcServer()
+
+        with pytest.raises(ValueError, match=r'method names starting with "rpc." are reserved for system extensions'):
+            server.register_namespace(namespace, "rpc")
+
+        assert "dummy" not in server.procedures
+        assert "randint" not in server.procedures
+        assert "rpc.randint" not in server.procedures
+        assert "rpc.dummy" not in server.procedures
+
 
 class TestJsonRpcHandler:
     handler = JsonRpcHandler()
