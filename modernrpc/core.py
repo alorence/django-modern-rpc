@@ -15,6 +15,7 @@ from modernrpc.exceptions import (
     RPCInternalError,
     RPCInvalidParams,
 )
+from modernrpc.helpers import ensure_sequence
 from modernrpc.introspection import DocstringParser, Introspector
 
 if TYPE_CHECKING:
@@ -29,6 +30,8 @@ REQUEST_KEY = settings.MODERNRPC_KWARGS_REQUEST_KEY
 ENTRY_POINT_KEY = settings.MODERNRPC_KWARGS_ENTRY_POINT_KEY
 PROTOCOL_KEY = settings.MODERNRPC_KWARGS_PROTOCOL_KEY
 HANDLER_KEY = settings.MODERNRPC_KWARGS_HANDLER_KEY
+
+NOT_SET = object()
 
 
 logger = logging.getLogger(__name__)
@@ -58,6 +61,7 @@ class RpcRequestContext:
     server: RpcServer
     handler: RpcHandler
     protocol: Protocol
+    auth_result: Any = None
 
 
 class ProcedureWrapper:
@@ -70,6 +74,7 @@ class ProcedureWrapper:
         func: Callable,
         name: str | None = None,
         protocol: Protocol = Protocol.ALL,
+        auth=NOT_SET,
         context_target: str | None = None,
     ) -> None:
         # Store the reference to the registered function
@@ -80,9 +85,7 @@ class ProcedureWrapper:
         self.protocol = protocol
         self.context_target = context_target
 
-        # Authentication related attributes
-        self.predicates = getattr(func, "modernrpc_auth_predicates", None)
-        self.predicates_params = getattr(func, "modernrpc_auth_predicates_params", ())
+        self.auth = auth
 
     @cached_property
     def doc_parser(self):
@@ -103,20 +106,22 @@ class ProcedureWrapper:
             self.function == other.function
             and self.name == other.name
             and self.protocol == other.protocol
-            and self.predicates == other.predicates
-            and self.predicates_params == other.predicates_params
+            and self.auth == other.auth
         )
 
-    def check_permissions(self, request: HttpRequest) -> bool:
+    def check_permissions(self, request: HttpRequest) -> Any:
         """Call the predicate(s) associated with the RPC method, to check if the current request
         can actually call the method.
         Return a boolean indicating if the method should be executed (True) or not (False)
         """
-        if not self.predicates:
+        if self.auth == NOT_SET or not self.auth:
             return True
 
-        # All registered authentication predicates must return True
-        return all(predicate(request, *self.predicates_params[i]) for i, predicate in enumerate(self.predicates))
+        for callback in ensure_sequence(self.auth):
+            if result := callback(request):
+                return result
+
+        return False
 
     def execute(
         self,
@@ -126,8 +131,12 @@ class ProcedureWrapper:
     ) -> Any:
         kwargs = kwargs or {}
 
-        if not self.check_permissions(context.request):
+        auth_result = self.check_permissions(context.request)
+
+        if not auth_result:
             raise AuthenticationFailed(self.name)
+
+        context.auth_result = auth_result
 
         # If the RPC method needs to access some configuration, inject it in kwargs
         if self.context_target:

@@ -1,4 +1,5 @@
 import random
+from unittest.mock import Mock
 
 import pytest
 from conftest import ALL_PROTOCOLS
@@ -103,6 +104,80 @@ class TestRpcServerRegistration:
 
         with pytest.raises(RPCMethodNotFound):
             dummy_server.get_procedure("rpc.foo", proto)
+
+    @pytest.mark.parametrize("proto", ALL_PROTOCOLS)
+    def test_server_registration_auth(self, proto):
+        server_auth_calbacks = [Mock(), Mock()]
+        server = RpcServer(auth=server_auth_calbacks)
+
+        server.register_procedure(dummy_procedure)
+
+        wrapper = server.get_procedure("dummy_procedure", proto)
+        assert wrapper.auth == server_auth_calbacks
+
+    @pytest.mark.parametrize("proto", ALL_PROTOCOLS)
+    def test_server_registration_auth_overrides(self, rf, proto):
+        server_auth_calback = Mock(return_value=False)
+        server = RpcServer(auth=server_auth_calback)
+
+        server.register_procedure(dummy_procedure, auth=None)
+
+        wrapper = server.get_procedure("dummy_procedure", proto)
+        assert wrapper.auth is None
+        assert wrapper.check_permissions(rf.post("/")) is True
+        server_auth_calback.assert_not_called()
+
+    @pytest.mark.parametrize("proto", ALL_PROTOCOLS)
+    def test_namespace_registration_server_auth(self, rf, proto):
+        server_auth_calback = Mock(return_value=True)
+        server = RpcServer(auth=server_auth_calback)
+
+        namespace = RpcNamespace()
+
+        namespace.register_procedure(dummy_procedure)
+        server.register_namespace(namespace)
+
+        wrapper = server.get_procedure("dummy_procedure", proto)
+
+        assert wrapper.auth is server_auth_calback
+        assert wrapper.check_permissions(rf.post("/")) is True
+        server_auth_calback.assert_called_once()
+
+    @pytest.mark.parametrize("proto", ALL_PROTOCOLS)
+    def test_namespace_registration_auth(self, rf, proto):
+        server_auth_calback = Mock(return_value=True)
+        server = RpcServer(auth=server_auth_calback)
+
+        namespace_auth_callback = Mock(return_value=False)
+        namespace = RpcNamespace(auth=namespace_auth_callback)
+
+        namespace.register_procedure(dummy_procedure)
+        server.register_namespace(namespace)
+
+        wrapper = server.get_procedure("dummy_procedure", proto)
+
+        assert wrapper.auth is namespace_auth_callback
+        assert wrapper.check_permissions(rf.post("/")) is False
+        namespace_auth_callback.assert_called_once()
+        server_auth_calback.assert_not_called()
+
+    @pytest.mark.parametrize("proto", ALL_PROTOCOLS)
+    def test_namespace_registration_auth_overrides(self, rf, proto):
+        server_auth_calback = Mock(return_value=True)
+        server = RpcServer(auth=server_auth_calback)
+
+        namespace_auth_callback = Mock(return_value=False)
+        namespace = RpcNamespace(auth=namespace_auth_callback)
+
+        namespace.register_procedure(dummy_procedure, auth=None)
+        server.register_namespace(namespace)
+
+        wrapper = server.get_procedure("dummy_procedure", proto)
+
+        assert wrapper.auth is None
+        assert wrapper.check_permissions(rf.post("/")) is True
+        namespace_auth_callback.assert_not_called()
+        server_auth_calback.assert_not_called()
 
 
 namespace = RpcNamespace()

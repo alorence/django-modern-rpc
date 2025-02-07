@@ -1,5 +1,3 @@
-from testsite.rpc.servers import server
-
 from modernrpc.auth import set_authentication_predicate, user_is_authenticated
 from modernrpc.auth.basic import (
     http_basic_auth_all_groups_member_required,
@@ -10,6 +8,7 @@ from modernrpc.auth.basic import (
     http_basic_auth_superuser_required,
 )
 from modernrpc.core import REQUEST_KEY
+from testsite.rpc.servers import server
 
 # FIXME: Namespace
 
