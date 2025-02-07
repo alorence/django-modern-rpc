@@ -1,5 +1,6 @@
 import json
 import random
+from collections import OrderedDict
 from datetime import datetime
 
 import pytest
@@ -259,8 +260,10 @@ class TestJsonRpcSerializer:
             ("💗💗💗-💗💗💗", '"💗💗💗-💗💗💗"'),
             ([0], "[0]"),
             (["foo", "bar", 88, 99, 3.14], '["foo", "bar", 88, 99, 3.14]'),
+            (("foo", "bar", 88, 99, 3.14), '["foo", "bar", 88, 99, 3.14]'),
             ({"pi": 3.14159}, '{"pi": 3.14159}'),
             ({"π": 3.14159}, '{"π": 3.14159}'),
+            (OrderedDict(foo="bar", baz=55), '{"foo": "bar", "baz": 55}'),
         ],
     )
     def test_success_result_scalar(self, json_serializer, data, expected_result):
@@ -291,6 +294,7 @@ class TestJsonRpcSerializer:
             (["foo", "bar", 88, 99, 3.14], '["foo", "bar", 88, 99, 3.14]'),
             ({"pi": 3.14159}, '{"pi": 3.14159}'),
             ({"π": 3.14159}, '{"π": 3.14159}'),
+            (OrderedDict(foo="bar", baz=55), '{"foo": "bar", "baz": 55}'),
         ],
     )
     def test_notification_result(self, json_serializer, data, expected_result):

@@ -60,7 +60,7 @@ class XmlRpcHandler(RpcHandler[XmlRpcRequest]):
 
     def process_single_request(self, rpc_request: XmlRpcRequest, context: RpcRequestContext) -> XmlRpcResult:
         try:
-            wrapper: ProcedureWrapper = context.server.get_procedure(rpc_request.method_name, Protocol.XML_RPC)
+            wrapper: ProcedureWrapper = context.server.get_procedure_wrapper(rpc_request.method_name, Protocol.XML_RPC)
             result_data = wrapper.execute(context, rpc_request.args)
             return XmlRpcSuccessResult(request=rpc_request, data=result_data)
 

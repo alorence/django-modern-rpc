@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import base64
 import xml.parsers.expat
+from collections import OrderedDict
 from datetime import datetime
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Callable, Literal, OrderedDict, Sequence
+from typing import TYPE_CHECKING, Any, Callable, Literal, Sequence
 
 import xmltodict
 
@@ -139,6 +140,7 @@ class Marshaller:
             list: self.dump_list,
             tuple: self.dump_list,
             dict: self.dump_dict,
+            OrderedDict: self.dump_dict,
         }
 
     def result_to_dict(self, result: XmlRpcResult) -> dict[str, Any]:

@@ -37,12 +37,12 @@ def run_procedure(
             content_type=request.content_type,
         )
 
-    context = RpcRequestContext(request, server, handler, handler.protocol)
     request_body = request.body.decode(request.encoding or default_encoding)
 
-    status = HTTPStatus.OK
+    context = RpcRequestContext(request, server, handler, handler.protocol)
     result_data = handler.process_request(request_body, context)
 
+    status = HTTPStatus.OK
     if isinstance(result_data, tuple) and len(result_data) == 2:
         status, result_data = result_data
 

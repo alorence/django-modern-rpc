@@ -27,7 +27,7 @@ def __system_method_signature(method_name: str, _ctx: RpcRequestContext):
     :return: An array of arrays describing types of return values and method arguments
     """
     server = _ctx.server
-    wrapper = server.get_procedure(method_name, _ctx.protocol)
+    wrapper = server.get_procedure_wrapper(method_name, _ctx.protocol)
     # See http://xmlrpc-c.sourceforge.net/introspection.html
     undefined = "undef"
     return_type = wrapper.return_doc.get("type") or undefined
@@ -46,7 +46,7 @@ def __system_method_help(method_name: str, _ctx: RpcRequestContext):
     :return: Documentation text for the RPC method
     """
     server = _ctx.server
-    method = server.get_procedure(method_name, _ctx.protocol)
+    method = server.get_procedure_wrapper(method_name, _ctx.protocol)
     return method.raw_docstring
 
 

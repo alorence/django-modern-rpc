@@ -164,6 +164,7 @@ exclude_also = [
 exclude = [
     'noxfile\.py',
     '^tests/.+$',
+    '^legacy-test/.+$',
     '^docs/.+$',
 ]
 [[tool.mypy.overrides]]

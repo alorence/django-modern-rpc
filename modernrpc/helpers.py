@@ -31,7 +31,7 @@ def get_builtin_date(
     """
     if isinstance(date, datetime.datetime):
         # Default XML-RPC handler is configured to decode dateTime.iso8601 type
-        # to builtin datetime.datetim instance
+        # to builtin datetime.datetime instance
         return date
     if isinstance(date, xmlrpc_client.DateTime):
         # If constant settings.MODERNRPC_XMLRPC_USE_BUILTIN_TYPES has been set to True
