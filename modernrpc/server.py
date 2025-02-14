@@ -87,7 +87,8 @@ class RpcServer(RegistryMixin):
         system = import_string("modernrpc.system_procedures.system")
         self.register_namespace(system, "system")
 
-    def get_procedure(self, name: str, protocol: Protocol) -> ProcedureWrapper:
+    def get_procedure_wrapper(self, name: str, protocol: Protocol) -> ProcedureWrapper:
+        """Return the procedure wrapper with given name compatible with given protocol, or raise RPCMethodNotFound"""
         try:
             wrapper = self.procedures[name]
         except KeyError:

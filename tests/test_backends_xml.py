@@ -1,4 +1,5 @@
 import base64
+from collections import OrderedDict
 from datetime import datetime
 from textwrap import dedent
 
@@ -411,8 +412,15 @@ class TestXmlRpcSerializer:
         """
         assert_xml_data_are_equal(result, expected)
 
-    def test_result_array_multiple_values(self, xml_serializer):
-        result = xml_serializer.dumps(XmlRpcSuccessResult(request=self.req, data=[1, 3, 5, "foo", "bar", 3.14]))
+    @pytest.mark.parametrize(
+        "array_value",
+        [
+            [1, 3, 5, "foo", "bar", 3.14],
+            (1, 3, 5, "foo", "bar", 3.14),
+        ],
+    )
+    def test_result_array_multiple_values(self, xml_serializer, array_value):
+        result = xml_serializer.dumps(XmlRpcSuccessResult(request=self.req, data=array_value))
         expected = """<?xml version='1.0'?>
             <methodResponse>
               <params>
@@ -457,9 +465,19 @@ class TestXmlRpcSerializer:
         """
         assert_xml_data_are_equal(result, expected)
 
-    def test_result_dict_multiple_values(self, xml_serializer):
-        res_data = {"a": 12, "b": ["1", "2", "3"], "final": None}
-        result = xml_serializer.dumps(XmlRpcSuccessResult(request=self.req, data=res_data))
+    @pytest.mark.parametrize(
+        "struct_value",
+        [
+            {"a": 12, "b": ["1", "2", "3"], "final": None},
+            OrderedDict(a=12, b=["1", "2", "3"], final=None),
+        ],
+    )
+    def test_result_dict_multiple_values(self, request, xml_serializer, struct_value):
+        if "BuiltinXmlRpc" in xml_serializer.__class__.__name__ and isinstance(struct_value, OrderedDict):
+            marker = pytest.mark.xfail(reason="BuiltinXmlRpc does not support OrderedDict", strict=True)
+            request.applymarker(marker)
+
+        result = xml_serializer.dumps(XmlRpcSuccessResult(request=self.req, data=struct_value))
         expected = """<?xml version='1.0'?>
             <methodResponse>
               <params>

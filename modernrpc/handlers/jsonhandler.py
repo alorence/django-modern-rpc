@@ -102,7 +102,7 @@ class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
         #     pass
 
         try:
-            wrapper: ProcedureWrapper = context.server.get_procedure(rpc_request.method_name, Protocol.JSON_RPC)
+            wrapper: ProcedureWrapper = context.server.get_procedure_wrapper(rpc_request.method_name, Protocol.JSON_RPC)
             result_data = wrapper.execute(context, rpc_request.args, rpc_request.kwargs)
             return JsonRpcSuccessResult(request=rpc_request, data=result_data)
 

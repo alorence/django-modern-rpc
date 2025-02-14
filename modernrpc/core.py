@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, Any, Callable, Iterable
 
 from django.utils.functional import cached_property
 
-from modernrpc.conf import settings
 from modernrpc.exceptions import (
     AuthenticationFailed,
     RPCException,
@@ -26,10 +25,10 @@ if TYPE_CHECKING:
 
 
 # Keys used in kwargs dict given to RPC methods
-REQUEST_KEY = settings.MODERNRPC_KWARGS_REQUEST_KEY
-ENTRY_POINT_KEY = settings.MODERNRPC_KWARGS_ENTRY_POINT_KEY
-PROTOCOL_KEY = settings.MODERNRPC_KWARGS_PROTOCOL_KEY
-HANDLER_KEY = settings.MODERNRPC_KWARGS_HANDLER_KEY
+# REQUEST_KEY = settings.MODERNRPC_KWARGS_REQUEST_KEY
+# ENTRY_POINT_KEY = settings.MODERNRPC_KWARGS_ENTRY_POINT_KEY
+# PROTOCOL_KEY = settings.MODERNRPC_KWARGS_PROTOCOL_KEY
+# HANDLER_KEY = settings.MODERNRPC_KWARGS_HANDLER_KEY
 
 NOT_SET = object()
 
@@ -131,6 +130,7 @@ class ProcedureWrapper:
     ) -> Any:
         kwargs = kwargs or {}
 
+        # FIXME: handle exceptions raised from here...
         auth_result = self.check_permissions(context.request)
 
         if not auth_result:
@@ -160,13 +160,9 @@ class ProcedureWrapper:
             raise RPCInternalError(str(exc)) from exc
 
     @cached_property
-    def accept_kwargs(self) -> bool:
-        return self.introspector.accept_kwargs
-
-    @cached_property
     def args(self) -> list[str]:
         """Method arguments"""
-        return self.introspector.args
+        return [arg for arg in self.introspector.args if arg != self.context_target]
 
     @cached_property
     def raw_docstring(self) -> str:
@@ -189,6 +185,7 @@ class ProcedureWrapper:
                     "text": self.doc_parser.args_doc.get(arg, ""),
                 }
                 for arg in self.introspector.args
+                if arg != self.context_target
             }
         )
 

@@ -3,6 +3,7 @@ from unittest.mock import Mock
 
 import pytest
 
+from modernrpc import RpcRequestContext
 from modernrpc.core import NOT_SET, ProcedureWrapper
 from modernrpc.introspection import DocstringParser, Introspector
 
@@ -514,7 +515,6 @@ class TestWithDocstringOnlyFunction:
             "type": "",
             "text": "A string representation of given arguments",
         }
-        assert wrapper.accept_kwargs is False
 
     def test_wrapper_doc(self):
         wrapper = ProcedureWrapper(args_and_types_docstring)
@@ -559,7 +559,6 @@ class TestWithTypeHintAndDocstringTypes:
             "y": {"type": "str", "text": "xyz"},
         }
         assert wrapper.return_doc == {"type": "dict", "text": "efgh"}
-        assert wrapper.accept_kwargs is False
 
     def test_wrapper_doc(self):
         wrapper = ProcedureWrapper(typehints_and_types_docstring)
@@ -600,10 +599,22 @@ class TestWithTypeHintAndKwargs:
             "y": {"type": "str", "text": ""},
         }
         assert wrapper.return_doc == {"type": "dict", "text": ""}
-        assert wrapper.accept_kwargs is True
 
     def test_wrapper_doc(self):
         wrapper = ProcedureWrapper(with_kwargs)
 
-        assert wrapper.raw_docstring == ("This is the docstring part of the function")
-        assert wrapper.html_doc == ("<p>This is the docstring part of the function</p>")
+        assert wrapper.raw_docstring == "This is the docstring part of the function"
+        assert wrapper.html_doc == "<p>This is the docstring part of the function</p>"
+
+
+def dummy_with_ctx_target(a: int, b: str, context: RpcRequestContext): ...
+
+
+class TestContextTarget:
+    def test_context_target(self):
+        wrapper = ProcedureWrapper(dummy_with_ctx_target, context_target="context")
+        assert wrapper.args == ["a", "b"]
+        assert wrapper.args_doc == {
+            "a": {"type": "int", "text": ""},
+            "b": {"type": "str", "text": ""},
+        }

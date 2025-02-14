@@ -15,7 +15,7 @@ class TestInitialRpcServer:
     @pytest.mark.parametrize("proto", ALL_PROTOCOLS)
     def test_procedure_unregistered(self, proto):
         with pytest.raises(RPCMethodNotFound):
-            RpcServer().get_procedure("foo", proto)
+            RpcServer().get_procedure_wrapper("foo", proto)
 
     def test_supported_handlers(self):
         """Check that a fresh RPCServer 'supported_handlers' is correct with its initialization"""
@@ -77,7 +77,7 @@ class TestRpcServerRegistration:
         dummy_server = RpcServer()
 
         dummy_server.register_procedure(dummy_procedure)
-        wrapper = dummy_server.get_procedure("dummy_procedure", proto)
+        wrapper = dummy_server.get_procedure_wrapper("dummy_procedure", proto)
 
         assert wrapper.function == dummy_procedure
         assert wrapper.name == "dummy_procedure"
@@ -88,12 +88,12 @@ class TestRpcServerRegistration:
 
         dummy_server.register_procedure(dummy_procedure, name="foo")
 
-        wrapper = dummy_server.get_procedure("foo", proto)
+        wrapper = dummy_server.get_procedure_wrapper("foo", proto)
         assert wrapper.function == dummy_procedure
         assert wrapper.name == "foo"
 
         with pytest.raises(RPCMethodNotFound):
-            dummy_server.get_procedure("dummy_procedure", proto)
+            dummy_server.get_procedure_wrapper("dummy_procedure", proto)
 
     @pytest.mark.parametrize("proto", ALL_PROTOCOLS)
     def test_procedure_registration_with_invalid_name(self, proto):
@@ -103,7 +103,7 @@ class TestRpcServerRegistration:
             dummy_server.register_procedure(dummy_procedure, name="rpc.foo")
 
         with pytest.raises(RPCMethodNotFound):
-            dummy_server.get_procedure("rpc.foo", proto)
+            dummy_server.get_procedure_wrapper("rpc.foo", proto)
 
     @pytest.mark.parametrize("proto", ALL_PROTOCOLS)
     def test_server_registration_auth(self, proto):
@@ -112,7 +112,7 @@ class TestRpcServerRegistration:
 
         server.register_procedure(dummy_procedure)
 
-        wrapper = server.get_procedure("dummy_procedure", proto)
+        wrapper = server.get_procedure_wrapper("dummy_procedure", proto)
         assert wrapper.auth == server_auth_calbacks
 
     @pytest.mark.parametrize("proto", ALL_PROTOCOLS)
@@ -122,7 +122,7 @@ class TestRpcServerRegistration:
 
         server.register_procedure(dummy_procedure, auth=None)
 
-        wrapper = server.get_procedure("dummy_procedure", proto)
+        wrapper = server.get_procedure_wrapper("dummy_procedure", proto)
         assert wrapper.auth is None
         assert wrapper.check_permissions(rf.post("/")) is True
         server_auth_calback.assert_not_called()
@@ -137,7 +137,7 @@ class TestRpcServerRegistration:
         namespace.register_procedure(dummy_procedure)
         server.register_namespace(namespace)
 
-        wrapper = server.get_procedure("dummy_procedure", proto)
+        wrapper = server.get_procedure_wrapper("dummy_procedure", proto)
 
         assert wrapper.auth is server_auth_calback
         assert wrapper.check_permissions(rf.post("/")) is True
@@ -154,7 +154,7 @@ class TestRpcServerRegistration:
         namespace.register_procedure(dummy_procedure)
         server.register_namespace(namespace)
 
-        wrapper = server.get_procedure("dummy_procedure", proto)
+        wrapper = server.get_procedure_wrapper("dummy_procedure", proto)
 
         assert wrapper.auth is namespace_auth_callback
         assert wrapper.check_permissions(rf.post("/")) is False
@@ -172,7 +172,7 @@ class TestRpcServerRegistration:
         namespace.register_procedure(dummy_procedure, auth=None)
         server.register_namespace(namespace)
 
-        wrapper = server.get_procedure("dummy_procedure", proto)
+        wrapper = server.get_procedure_wrapper("dummy_procedure", proto)
 
         assert wrapper.auth is None
         assert wrapper.check_permissions(rf.post("/")) is True
