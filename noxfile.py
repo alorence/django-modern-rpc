@@ -14,6 +14,7 @@ class Python(StrEnum):
 
 
 class Django(StrEnum):
+    v5_2 = "5.2"
     v5_1 = "5.1"
     v5_0 = "5.0"
     v4_2 = "4.2"
@@ -45,7 +46,7 @@ def is_combination_supported(py: str, dj: str) -> bool:
     if dj == Django.v5_0:
         return Version("3.10") <= py <= Version("3.12")
 
-    if dj == Django.v5_1:
+    if dj in (Django.v5_1, Django.v5_2):
         return Version("3.10") <= py <= Version("3.13")
 
     return False
@@ -66,8 +67,8 @@ def build_test_matrix():
 def run_tests(session, python, django):
     """Execute test suite using pytest"""
     env = {"UV_PROJECT_ENVIRONMENT": session.virtualenv.location}
-    session.run_install("uv", "sync", "-p", python, "--no-group", "django", env=env)
-    session.install(f"django=={django}.*")
+    session.run_install("uv", "sync", "-p", python, "--no-install-package", "django", env=env)
+    session.install(f"django=={django}.*", "--prerelease=allow")
 
     session.run("django-admin", "--version")
     post_args = session.posargs or []
