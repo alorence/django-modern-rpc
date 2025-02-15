@@ -19,8 +19,13 @@ class HttpBearer(BaseHeadersParser):
 
 class BasicAuth(BaseHeadersParser):
     def parse_request(self) -> tuple[str, str]:
+        auth_header_content = self.request.META.get("HTTP_AUTHORIZATION")
+
+        if not auth_header_content:
+            raise ValueError("No Auhtorization header found !")
+
         try:
-            auth_type, credentials = self.request.META.get("HTTP_AUTHORIZATION").split()
+            auth_type, credentials = auth_header_content.split()
         except (AttributeError, ValueError):
             raise
 

@@ -137,6 +137,7 @@ FAIL_INVALID_TEMPLATE_VARS = true
 exclude = [
     'noxfile\.py',
     '^tests/.+$',
+    '^legacy-test/.+$',
     '^docs/.+$',
 ]
 [[tool.mypy.overrides]]
