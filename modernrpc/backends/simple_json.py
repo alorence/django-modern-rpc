@@ -19,7 +19,7 @@ class SimpleJSON:
         self.load_kwargs = load_kwargs or {}
         self.dump_kwargs = dump_kwargs or {}
 
-    def loads(self, data: str) -> JsonRpcRequest | Iterable[JsonRpcRequest]:
+    def loads(self, data: str) -> JsonRpcRequest | list[JsonRpcRequest]:
         try:
             structured_data: list[dict] | dict[str, Any] = simplejson.loads(data, **self.load_kwargs)
         except JSONDecodeError as e:
@@ -32,4 +32,4 @@ class SimpleJSON:
         try:
             return simplejson.dumps(structured_data, **self.dump_kwargs)
         except (TypeError, UnicodeDecodeError) as e:
-            raise RPCInternalError(f"Could not serialize {result}") from e
+            raise RPCInternalError(f"Could not serialize result {result}") from e

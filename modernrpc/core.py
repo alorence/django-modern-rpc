@@ -3,11 +3,12 @@ from __future__ import annotations
 import logging
 from collections import OrderedDict
 from dataclasses import dataclass
-from enum import Flag, auto
 from typing import TYPE_CHECKING, Any, Callable, Iterable
 
 from django.utils.functional import cached_property
 
+from modernrpc import Protocol
+from modernrpc.constants import NOT_SET
 from modernrpc.exceptions import (
     AuthenticationFailed,
     RPCException,
@@ -30,20 +31,8 @@ if TYPE_CHECKING:
 # PROTOCOL_KEY = settings.MODERNRPC_KWARGS_PROTOCOL_KEY
 # HANDLER_KEY = settings.MODERNRPC_KWARGS_HANDLER_KEY
 
-NOT_SET = object()
-
 
 logger = logging.getLogger(__name__)
-
-
-class Protocol(Flag):
-    """Define a custom type to use everywhere a protocol (JSON-RPC or XML-RPC) is expected"""
-
-    JSON_RPC = auto()
-    XML_RPC = auto()
-
-    ALL = JSON_RPC | XML_RPC
-
 
 # In 1.0.0, following constants were replaced by Protocol enum class
 # Redefine them for backward compatibility

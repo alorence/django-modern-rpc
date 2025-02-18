@@ -8,8 +8,10 @@ from django.utils.module_loading import import_string
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
+from modernrpc import Protocol
 from modernrpc.conf import settings
-from modernrpc.core import NOT_SET, ProcedureWrapper, Protocol
+from modernrpc.constants import NOT_SET
+from modernrpc.core import ProcedureWrapper
 from modernrpc.exceptions import RPCMethodNotFound
 from modernrpc.helpers import check_flags_compatibility, first_true
 from modernrpc.views import run_procedure
@@ -68,9 +70,7 @@ class RegistryMixin:
         return self._registry
 
 
-class RpcNamespace(RegistryMixin):
-    def __init__(self, auth=NOT_SET):
-        super().__init__(auth)
+class RpcNamespace(RegistryMixin): ...
 
 
 class RpcServer(RegistryMixin):
@@ -87,6 +87,19 @@ class RpcServer(RegistryMixin):
         system = import_string("modernrpc.system_procedures.system")
         self.register_namespace(system, "system")
 
+    def register_namespace(self, namespace: RpcNamespace, name: str | None = None):
+        prefix = f"{name}." if name else ""
+        logger.debug(f"About to register {len(namespace.procedures)} procedures into namespace '{prefix}'")
+
+        for procedure_name, wrapper in namespace.procedures.items():
+            self.register_procedure(
+                wrapper.function,
+                name=f"{prefix}{procedure_name}",
+                protocol=wrapper.protocol,
+                auth=wrapper.auth,
+                context_target=wrapper.context_target,
+            )
+
     def get_procedure_wrapper(self, name: str, protocol: Protocol) -> ProcedureWrapper:
         """Return the procedure wrapper with given name compatible with given protocol, or raise RPCMethodNotFound"""
         try:
@@ -96,6 +109,7 @@ class RpcServer(RegistryMixin):
 
         if check_flags_compatibility(wrapper.protocol, protocol):
             return wrapper
+
         raise RPCMethodNotFound(name) from None
 
     def get_handler(self, request: HttpRequest) -> RpcHandler | None:
@@ -109,15 +123,3 @@ class RpcServer(RegistryMixin):
     def view(self):
         view = functools.partial(run_procedure, server=self)
         return csrf_exempt(require_POST(view))
-
-    def register_namespace(self, namespace: RpcNamespace, name: str | None = None):
-        prefix = f"{name}." if name else ""
-        logger.debug(f"About to register {len(namespace.procedures)} procedures into namespace '{prefix}'")
-        for procedure_name, wrapper in namespace.procedures.items():
-            self.register_procedure(
-                wrapper.function,
-                name=f"{prefix}{procedure_name}",
-                protocol=wrapper.protocol,
-                auth=wrapper.auth,
-                context_target=wrapper.context_target,
-            )

@@ -4,7 +4,8 @@ from unittest.mock import Mock
 import pytest
 
 from modernrpc import RpcRequestContext
-from modernrpc.core import NOT_SET, ProcedureWrapper
+from modernrpc.constants import NOT_SET
+from modernrpc.core import ProcedureWrapper
 from modernrpc.introspection import DocstringParser, Introspector
 
 

@@ -17,7 +17,7 @@ class XmlRpcSerializer(Protocol):
 
 
 class JsonRpcDeserializer(Protocol):
-    def loads(self, data: str) -> JsonRpcRequest | Iterable[JsonRpcRequest]: ...
+    def loads(self, data: str) -> JsonRpcRequest | list[JsonRpcRequest]: ...
 
 
 class JsonRpcSerializer(Protocol):

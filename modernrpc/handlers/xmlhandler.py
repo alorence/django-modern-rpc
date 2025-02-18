@@ -5,10 +5,10 @@ from typing import TYPE_CHECKING, Any
 
 from django.utils.module_loading import import_string
 
+from modernrpc import Protocol, RpcRequestContext
 from modernrpc.conf import settings
-from modernrpc.core import ProcedureWrapper, Protocol, RpcRequestContext
-from modernrpc.exceptions import RPC_INTERNAL_ERROR, RPCException
-from modernrpc.handlers.base import RpcHandler, XmlRpcErrorResult, XmlRpcRequest, XmlRpcResult, XmlRpcSuccessResult
+from modernrpc.exceptions import RPCException
+from modernrpc.handlers.base import RpcHandler, XmlRpcErrorResult, XmlRpcRequest, XmlRpcSuccessResult
 
 if TYPE_CHECKING:
     from modernrpc.backends.base import XmlRpcDeserializer, XmlRpcSerializer
@@ -42,6 +42,14 @@ class XmlRpcHandler(RpcHandler[XmlRpcRequest]):
     def response_content_type(cls) -> str:
         return "application/xml"
 
+    @property
+    def success_result_type(self) -> type:
+        return XmlRpcSuccessResult
+
+    @property
+    def error_result_type(self) -> type:
+        return XmlRpcErrorResult
+
     def process_request(self, request_body: str, context: RpcRequestContext) -> str:
         """
         Parse request and delegates to process_single_request(), catching exceptions to handle errors.
@@ -57,19 +65,3 @@ class XmlRpcHandler(RpcHandler[XmlRpcRequest]):
 
         result = self.process_single_request(request, context)
         return self.serializer.dumps(result)
-
-    def process_single_request(self, rpc_request: XmlRpcRequest, context: RpcRequestContext) -> XmlRpcResult:
-        try:
-            wrapper: ProcedureWrapper = context.server.get_procedure_wrapper(rpc_request.method_name, Protocol.XML_RPC)
-            result_data = wrapper.execute(context, rpc_request.args)
-            return XmlRpcSuccessResult(request=rpc_request, data=result_data)
-
-        except RPCException as exc:
-            logger.exception(exc)
-            result = XmlRpcErrorResult(request=rpc_request, code=exc.code, message=exc.message, data=exc.data)
-
-        except Exception as exc:
-            logger.exception(exc)
-            result = XmlRpcErrorResult(request=rpc_request, code=RPC_INTERNAL_ERROR, message=str(exc))
-
-        return result

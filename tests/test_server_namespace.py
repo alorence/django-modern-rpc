@@ -4,8 +4,7 @@ from unittest.mock import Mock
 import pytest
 from conftest import ALL_PROTOCOLS
 
-from modernrpc import RpcServer
-from modernrpc.core import Protocol
+from modernrpc import Protocol, RpcServer
 from modernrpc.exceptions import RPCMethodNotFound
 from modernrpc.handlers import JsonRpcHandler, XmlRpcHandler
 from modernrpc.server import RpcNamespace

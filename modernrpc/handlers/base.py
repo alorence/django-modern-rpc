@@ -5,14 +5,17 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Generic, TypeVar, Union
 
+from modernrpc.constants import NOT_SET
+from modernrpc.exceptions import RPC_INTERNAL_ERROR, RPCException
+
 if TYPE_CHECKING:
     from http import HTTPStatus
 
     from django.http import HttpRequest
 
-    from modernrpc.core import Protocol, RpcRequestContext
+    from modernrpc import Protocol
+    from modernrpc.core import RpcRequestContext
 
-T = TypeVar("T")
 
 logger = logging.getLogger(__name__)
 
@@ -26,9 +29,15 @@ class RpcRequest:
     args: list[Any] | tuple[Any] = field(default_factory=list)
 
 
+T = TypeVar("T")
+
+
 @dataclass
 class GenericRpcResult(Generic[T]):
     request: T
+
+    def is_error(self) -> bool:
+        return False
 
 
 @dataclass
@@ -43,23 +52,26 @@ class GenericRpcErrorResult(GenericRpcResult[T]):
     # This field is only dumped to JSON-RPC clients!
     data: Any = None
 
+    def is_error(self) -> bool:
+        return True
+
 
 class XmlRpcRequest(RpcRequest): ...
 
 
-class XmlRpcSuccessResult(GenericRpcSuccessResult[XmlRpcRequest]):
-    """An XML-RPC success result"""
+# class XmlRpcSuccessResult(GenericRpcSuccessResult[XmlRpcRequest]):
+#     """An XML-RPC success result"""
+XmlRpcSuccessResult = GenericRpcSuccessResult[XmlRpcRequest]
 
 
-class XmlRpcErrorResult(GenericRpcErrorResult[XmlRpcRequest]): ...
-
+# class XmlRpcErrorResult(GenericRpcErrorResult[XmlRpcRequest]): ...
+XmlRpcErrorResult = GenericRpcErrorResult[XmlRpcRequest]
 
 # Alias to simplify typehints in XMLRPCHandler methods
 XmlRpcResult = Union[XmlRpcSuccessResult, XmlRpcErrorResult]
 
 
 RequestIdType = Union[str, int, float, None]
-UNDEFINED = object()
 
 
 @dataclass
@@ -69,27 +81,31 @@ class JsonRpcRequest(RpcRequest):
     """
 
     kwargs: dict[str, Any] = field(default_factory=dict)
-    request_id: RequestIdType | object = UNDEFINED
+    request_id: RequestIdType | object = NOT_SET
     jsonrpc: str = "2.0"
 
     @property
     def is_notification(self) -> bool:
-        return self.request_id is UNDEFINED
+        return self.request_id is NOT_SET
 
 
-@dataclass
-class JsonRpcSuccessResult(GenericRpcSuccessResult[JsonRpcRequest]): ...
+# @dataclass
+# class JsonRpcSuccessResult(GenericRpcSuccessResult[JsonRpcRequest]): ...
+JsonRpcSuccessResult = GenericRpcSuccessResult[JsonRpcRequest]
 
 
-@dataclass
-class JsonRpcErrorResult(GenericRpcErrorResult[JsonRpcRequest]): ...
-
+# @dataclass
+# class JsonRpcErrorResult(GenericRpcErrorResult[JsonRpcRequest]): ...
+JsonRpcErrorResult = GenericRpcErrorResult[JsonRpcRequest]
 
 # Alias to simplify typehints in JSONRPCHandler methods
 JsonRpcResult = Union[JsonRpcSuccessResult, JsonRpcErrorResult]
 
 
-class RpcHandler(ABC, Generic[T]):
+RequestType = TypeVar("RequestType", bound=RpcRequest)
+
+
+class RpcHandler(ABC, Generic[RequestType]):
     """Base class for concrete RPC Handlers. Provide an interface as well as some common methods implementations."""
 
     protocol: Protocol
@@ -104,6 +120,14 @@ class RpcHandler(ABC, Generic[T]):
     def response_content_type(cls) -> str:
         """Return the Content-Type value to set in responses"""
 
+    @property
+    @abstractmethod
+    def success_result_type(self) -> type[GenericRpcSuccessResult[RequestType]]: ...
+
+    @property
+    @abstractmethod
+    def error_result_type(self) -> type[GenericRpcErrorResult[RequestType]]: ...
+
     @classmethod
     def can_handle(cls, request: HttpRequest) -> bool:
         """
@@ -112,6 +136,33 @@ class RpcHandler(ABC, Generic[T]):
         Default implementation will check Content-Type for supported value
         """
         return getattr(request, "content_type", "").lower() in cls.valid_content_types()
+
+    # @abc.abstractmethod
+    def build_success_result(self, request: RequestType, data: Any) -> GenericRpcSuccessResult[RequestType]:
+        return self.success_result_type(request=request, data=data)
+
+    # @abc.abstractmethod
+    def build_error_result(
+        self, request: RequestType, code: int, message: str, data: Any = None
+    ) -> GenericRpcErrorResult[RequestType]:
+        return self.error_result_type(request=request, code=code, message=message, data=data)
+
+    def process_single_request(
+        self, rpc_request: RequestType, context: RpcRequestContext
+    ) -> GenericRpcSuccessResult[RequestType] | GenericRpcErrorResult[RequestType]:
+        """Check and call the RPC method, based on given request dict."""
+        try:
+            wrapper = context.server.get_procedure_wrapper(rpc_request.method_name, self.protocol)
+            call_kwargs = None if not hasattr(rpc_request, "kwargs") else rpc_request.kwargs
+            result_data = wrapper.execute(context, rpc_request.args, call_kwargs)
+
+        except RPCException as exc:
+            return self.build_error_result(request=rpc_request, code=exc.code, message=exc.message, data=exc.data)
+
+        except Exception as exc:
+            return self.build_error_result(request=rpc_request, code=RPC_INTERNAL_ERROR, message=str(exc))
+
+        return self.build_success_result(rpc_request, result_data)
 
     @abstractmethod
     def process_request(self, request_body: str, context: RpcRequestContext) -> str | tuple[HTTPStatus, str]:
@@ -126,17 +177,4 @@ class RpcHandler(ABC, Generic[T]):
 
         Implementations of this method must ensure no exception is raised from here. All code must be secured
         to return a proper RPC error response on any exception.
-        """
-
-    @abstractmethod
-    def process_single_request(self, rpc_request: T, context: RpcRequestContext) -> GenericRpcResult:
-        """
-        Perform all mandatory task before executing a single procedure.
-
-        Check request format, retrieve RPCMethod wrapper, call the corresponding function and return the resulting data.
-        All errors must be caught internally, concrete implementations must not raise exception from this method.
-
-        :param rpc_request: Request information, as returned by parse_request() method
-        :param context: Information needed to execution procedure
-        :return: A result instance (Error or Success)
         """
