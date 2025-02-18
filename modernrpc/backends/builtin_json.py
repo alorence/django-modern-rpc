@@ -10,7 +10,7 @@ from modernrpc.backends.base_json import Marshaller, Unmarshaller
 from modernrpc.exceptions import RPCInternalError, RPCParseError
 
 if TYPE_CHECKING:
-    from modernrpc.handlers.base import JsonRpcRequest, JsonRpcResult
+    from modernrpc.handlers.jsonhandler import JsonRpcRequest, JsonRpcResult
 
 
 class BuiltinJSON:

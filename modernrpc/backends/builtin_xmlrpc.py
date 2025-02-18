@@ -4,14 +4,12 @@ from __future__ import annotations
 
 import xml.parsers.expat
 import xmlrpc.client
-from typing import TYPE_CHECKING, Any
+from typing import Any
 from xmlrpc.client import Fault, ResponseError
 
 from modernrpc.exceptions import RPCInternalError, RPCInvalidRequest, RPCParseError
-from modernrpc.handlers.base import GenericRpcErrorResult, XmlRpcRequest
-
-if TYPE_CHECKING:
-    from modernrpc.handlers.base import XmlRpcResult
+from modernrpc.handlers.base import GenericRpcErrorResult
+from modernrpc.handlers.xmlhandler import XmlRpcRequest, XmlRpcResult
 
 
 class BuiltinXmlRpc:

@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from modernrpc import Protocol, RpcNamespace, RpcRequestContext
 from modernrpc.exceptions import RPCInvalidParams
-from modernrpc.handlers.base import GenericRpcErrorResult, XmlRpcRequest
+from modernrpc.handlers.base import GenericRpcErrorResult
+from modernrpc.handlers.xmlhandler import XmlRpcRequest
 
 system = RpcNamespace()
 
@@ -70,8 +71,6 @@ def __system_multi_call(calls: list, _ctx: RpcRequestContext):
             }
         return (result.data,)
 
-    requests = [XmlRpcRequest(call.get("methodName"), call.get("params")) for call in calls]
-
-    results = [_ctx.handler.process_single_request(request, _ctx) for request in requests]
-
+    requests = (XmlRpcRequest(call.get("methodName"), call.get("params")) for call in calls)
+    results = (_ctx.handler.process_single_request(request, _ctx) for request in requests)
     return [result_to_serializable_data(result) for result in results]

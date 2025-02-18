@@ -7,7 +7,7 @@ import pytest
 from helpers import assert_json_data_are_equal
 
 from modernrpc.exceptions import RPCInternalError, RPCInvalidRequest, RPCParseError
-from modernrpc.handlers.base import JsonRpcErrorResult, JsonRpcRequest, JsonRpcSuccessResult
+from modernrpc.handlers.jsonhandler import JsonRpcErrorResult, JsonRpcRequest, JsonRpcSuccessResult
 
 
 class TestJsonRpcDeserializer:

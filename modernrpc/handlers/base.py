@@ -3,18 +3,17 @@ from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Generic, TypeVar, Union
+from typing import TYPE_CHECKING, Generic, TypeVar
 
-from modernrpc.constants import NOT_SET
 from modernrpc.exceptions import RPC_INTERNAL_ERROR, RPCException
 
 if TYPE_CHECKING:
     from http import HTTPStatus
+    from typing import Any, ClassVar
 
     from django.http import HttpRequest
 
-    from modernrpc import Protocol
-    from modernrpc.core import RpcRequestContext
+    from modernrpc import Protocol, RpcRequestContext
 
 
 logger = logging.getLogger(__name__)
@@ -22,111 +21,41 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class RpcRequest:
-    """Basic information about RPC request.
-    XML-RPC protocol will use this as it"""
+    """Basic information about RPC request"""
 
     method_name: str
     args: list[Any] | tuple[Any] = field(default_factory=list)
 
 
-T = TypeVar("T")
+RequestType = TypeVar("RequestType", bound=RpcRequest)
 
 
 @dataclass
-class GenericRpcResult(Generic[T]):
-    request: T
-
-    def is_error(self) -> bool:
-        return False
+class GenericRpcResult(Generic[RequestType]):
+    request: RequestType
 
 
 @dataclass
-class GenericRpcSuccessResult(GenericRpcResult[T]):
+class GenericRpcSuccessResult(GenericRpcResult[RequestType]):
     data: Any = None
 
 
 @dataclass
-class GenericRpcErrorResult(GenericRpcResult[T]):
+class GenericRpcErrorResult(GenericRpcResult[RequestType]):
     code: int
     message: str
     # This field is only dumped to JSON-RPC clients!
     data: Any = None
-
-    def is_error(self) -> bool:
-        return True
-
-
-class XmlRpcRequest(RpcRequest): ...
-
-
-# class XmlRpcSuccessResult(GenericRpcSuccessResult[XmlRpcRequest]):
-#     """An XML-RPC success result"""
-XmlRpcSuccessResult = GenericRpcSuccessResult[XmlRpcRequest]
-
-
-# class XmlRpcErrorResult(GenericRpcErrorResult[XmlRpcRequest]): ...
-XmlRpcErrorResult = GenericRpcErrorResult[XmlRpcRequest]
-
-# Alias to simplify typehints in XMLRPCHandler methods
-XmlRpcResult = Union[XmlRpcSuccessResult, XmlRpcErrorResult]
-
-
-RequestIdType = Union[str, int, float, None]
-
-
-@dataclass
-class JsonRpcRequest(RpcRequest):
-    """
-    JSON-RPC request specific data
-    """
-
-    kwargs: dict[str, Any] = field(default_factory=dict)
-    request_id: RequestIdType | object = NOT_SET
-    jsonrpc: str = "2.0"
-
-    @property
-    def is_notification(self) -> bool:
-        return self.request_id is NOT_SET
-
-
-# @dataclass
-# class JsonRpcSuccessResult(GenericRpcSuccessResult[JsonRpcRequest]): ...
-JsonRpcSuccessResult = GenericRpcSuccessResult[JsonRpcRequest]
-
-
-# @dataclass
-# class JsonRpcErrorResult(GenericRpcErrorResult[JsonRpcRequest]): ...
-JsonRpcErrorResult = GenericRpcErrorResult[JsonRpcRequest]
-
-# Alias to simplify typehints in JSONRPCHandler methods
-JsonRpcResult = Union[JsonRpcSuccessResult, JsonRpcErrorResult]
-
-
-RequestType = TypeVar("RequestType", bound=RpcRequest)
 
 
 class RpcHandler(ABC, Generic[RequestType]):
     """Base class for concrete RPC Handlers. Provide an interface as well as some common methods implementations."""
 
     protocol: Protocol
-
-    @classmethod
-    @abstractmethod
-    def valid_content_types(cls) -> list[str]:
-        """Return the list of content-types supported by the concrete handler"""
-
-    @classmethod
-    @abstractmethod
-    def response_content_type(cls) -> str:
-        """Return the Content-Type value to set in responses"""
-
-    @property
-    @abstractmethod
-    def success_result_type(self) -> type[GenericRpcSuccessResult[RequestType]]: ...
-
-    @property
-    @abstractmethod
-    def error_result_type(self) -> type[GenericRpcErrorResult[RequestType]]: ...
+    valid_content_types: ClassVar[list[str]]
+    response_content_type: str
+    success_result_type: type[GenericRpcSuccessResult[RequestType]]
+    error_result_type: type[GenericRpcErrorResult[RequestType]]
 
     @classmethod
     def can_handle(cls, request: HttpRequest) -> bool:
@@ -135,7 +64,7 @@ class RpcHandler(ABC, Generic[RequestType]):
 
         Default implementation will check Content-Type for supported value
         """
-        return getattr(request, "content_type", "").lower() in cls.valid_content_types()
+        return getattr(request, "content_type", "").lower() in cls.valid_content_types
 
     # @abc.abstractmethod
     def build_success_result(self, request: RequestType, data: Any) -> GenericRpcSuccessResult[RequestType]:

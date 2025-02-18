@@ -1,35 +1,61 @@
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass, field
 from http import HTTPStatus
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 from django.utils.module_loading import import_string
 
 from modernrpc import Protocol
 from modernrpc.conf import settings
+from modernrpc.constants import NOT_SET
 from modernrpc.exceptions import RPCException
 from modernrpc.handlers.base import (
-    JsonRpcErrorResult,
-    JsonRpcRequest,
-    JsonRpcResult,
-    JsonRpcSuccessResult,
+    GenericRpcErrorResult,
+    GenericRpcSuccessResult,
     RpcHandler,
+    RpcRequest,
 )
 
 if TYPE_CHECKING:
-    from typing import Any, Generator
+    from typing import Any, ClassVar, Generator
 
+    from modernrpc import RpcRequestContext
     from modernrpc.backends.base import JsonRpcDeserializer, JsonRpcSerializer
-    from modernrpc.core import RpcRequestContext
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class JsonRpcRequest(RpcRequest):
+    """
+    JSON-RPC request specific data
+    """
+
+    kwargs: dict[str, Any] = field(default_factory=dict)
+    request_id: RequestIdType | object = NOT_SET
+    jsonrpc: str = "2.0"
+
+    @property
+    def is_notification(self) -> bool:
+        return self.request_id is NOT_SET
+
+
+RequestIdType = Union[str, int, float, None]
+JsonRpcSuccessResult = GenericRpcSuccessResult[JsonRpcRequest]
+JsonRpcErrorResult = GenericRpcErrorResult[JsonRpcRequest]
+JsonRpcResult = Union[JsonRpcSuccessResult, JsonRpcErrorResult]
 
 
 class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
     """Default JSON-RPC handler implementation"""
 
     protocol = Protocol.JSON_RPC
+    valid_content_types: ClassVar[list[str]] = ["application/json", "application/json-rpc", "application/jsonrequest"]
+    response_content_type = "application/json"
+    success_result_type = JsonRpcSuccessResult
+    error_result_type = JsonRpcErrorResult
 
     def __init__(self) -> None:
         deserializer_klass: type[JsonRpcDeserializer] = import_string(settings.MODERNRPC_JSON_DESERIALIZER["class"])
@@ -39,26 +65,6 @@ class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
         serializer_klass: type[JsonRpcSerializer] = import_string(settings.MODERNRPC_JSON_SERIALIZER["class"])
         serializer_kwargs: dict[str, Any] = settings.MODERNRPC_JSON_SERIALIZER.get("kwargs", {})
         self.serializer: JsonRpcSerializer = serializer_klass(**serializer_kwargs)
-
-    @classmethod
-    def valid_content_types(cls) -> list[str]:
-        return [
-            "application/json",
-            "application/json-rpc",
-            "application/jsonrequest",
-        ]
-
-    @classmethod
-    def response_content_type(cls) -> str:
-        return "application/json"
-
-    @property
-    def success_result_type(self) -> type[JsonRpcSuccessResult]:
-        return JsonRpcSuccessResult
-
-    @property
-    def error_result_type(self) -> type[JsonRpcErrorResult]:
-        return JsonRpcErrorResult
 
     def process_request(self, request_body: str, context: RpcRequestContext) -> str | tuple[HTTPStatus, str]:
         """
@@ -70,11 +76,11 @@ class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
         try:
             parsed_request = self.deserializer.loads(request_body)
         except RPCException as exc:
-            logger.error(exc, exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
-            # We can't extract request_id from incoming request. According to the spec, a null 'id' should be used
-            # in response payload
+            logger.exception("Error in request deserialization")
+            # We can't extract request_id from incoming request. According to the spec, a
+            # null 'id' should be used in response payload
             fake_request = JsonRpcRequest(request_id=None, method_name="")
-            return self.serializer.dumps(JsonRpcErrorResult(fake_request, exc.code, exc.message))
+            return self.serializer.dumps(self.build_error_result(fake_request, exc.code, exc.message))
 
         # Parsed request is an Iterable, we should handle it as batch request
         if isinstance(parsed_request, list):

@@ -217,11 +217,11 @@ class TestJsonRpcHandler:
     handler = JsonRpcHandler()
 
     def test_response_content_type(self):
-        assert self.handler.response_content_type() == "application/json"
+        assert self.handler.response_content_type == "application/json"
 
 
 class TestXmlRpcHandler:
     handler = XmlRpcHandler()
 
     def test_response_content_type(self):
-        assert self.handler.response_content_type() == "application/xml"
+        assert self.handler.response_content_type == "application/xml"

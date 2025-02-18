@@ -46,4 +46,4 @@ def run_procedure(
     if isinstance(result_data, tuple) and len(result_data) == 2:
         status, result_data = result_data
 
-    return HttpResponse(result_data, status=status, content_type=handler.response_content_type())
+    return HttpResponse(result_data, status=status, content_type=handler.response_content_type)

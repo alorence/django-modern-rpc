@@ -5,7 +5,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Iterable, Protocol
 
 if TYPE_CHECKING:
-    from modernrpc.handlers.base import JsonRpcRequest, JsonRpcResult, XmlRpcRequest, XmlRpcResult
+    from modernrpc.handlers.jsonhandler import JsonRpcRequest, JsonRpcResult
+    from modernrpc.handlers.xmlhandler import XmlRpcRequest, XmlRpcResult
 
 
 class XmlRpcDeserializer(Protocol):
