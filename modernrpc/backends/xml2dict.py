@@ -7,16 +7,14 @@ import xml.parsers.expat
 from collections import OrderedDict
 from datetime import datetime
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Callable, Literal, Sequence
+from typing import Any, Callable, Literal, Sequence
 
 import xmltodict
 
 from modernrpc.exceptions import RPCInternalError, RPCInvalidRequest, RPCParseError
-from modernrpc.handlers.base import XmlRpcErrorResult, XmlRpcRequest
+from modernrpc.handlers.base import GenericRpcErrorResult
+from modernrpc.handlers.xmlhandler import XmlRpcRequest, XmlRpcResult
 from modernrpc.helpers import ensure_sequence, first
-
-if TYPE_CHECKING:
-    from modernrpc.handlers.base import XmlRpcResult
 
 NIL = object()
 MAXINT = 2**31 - 1
@@ -144,7 +142,7 @@ class Marshaller:
         }
 
     def result_to_dict(self, result: XmlRpcResult) -> dict[str, Any]:
-        if isinstance(result, XmlRpcErrorResult):
+        if isinstance(result, GenericRpcErrorResult):
             return {
                 "methodResponse": {
                     "fault": {
@@ -254,6 +252,6 @@ class XML2Dict:
         try:
             structured_data = self.marshaller.result_to_dict(result)
         except Exception as e:
-            raise RPCInternalError(f"Could not serialize {result}") from e
+            raise RPCInternalError(f"Could not serialize result {result}") from e
 
         return xmltodict.unparse(structured_data, **self.dump_kwargs)

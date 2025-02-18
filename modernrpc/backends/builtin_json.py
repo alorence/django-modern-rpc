@@ -10,7 +10,7 @@ from modernrpc.backends.base_json import Marshaller, Unmarshaller
 from modernrpc.exceptions import RPCInternalError, RPCParseError
 
 if TYPE_CHECKING:
-    from modernrpc.handlers.base import JsonRpcRequest, JsonRpcResult
+    from modernrpc.handlers.jsonhandler import JsonRpcRequest, JsonRpcResult
 
 
 class BuiltinJSON:
@@ -18,7 +18,7 @@ class BuiltinJSON:
         self.load_kwargs = load_kwargs or {}
         self.dump_kwargs = dump_kwargs or {}
 
-    def loads(self, data: str) -> JsonRpcRequest | Iterable[JsonRpcRequest]:
+    def loads(self, data: str) -> JsonRpcRequest | list[JsonRpcRequest]:
         try:
             structured_data: list[dict] | dict[str, Any] = json.loads(data, **self.load_kwargs)
         except JSONDecodeError as e:
@@ -31,4 +31,4 @@ class BuiltinJSON:
         try:
             return json.dumps(structured_data, **self.dump_kwargs)
         except (TypeError, UnicodeDecodeError) as e:
-            raise RPCInternalError(f"Could not serialize {result}") from e
+            raise RPCInternalError(f"Could not serialize result {result}") from e

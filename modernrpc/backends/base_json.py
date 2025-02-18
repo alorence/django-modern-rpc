@@ -5,7 +5,8 @@ from __future__ import annotations
 from typing import Any, Iterable, overload
 
 from modernrpc.exceptions import RPCInvalidRequest
-from modernrpc.handlers.base import GenericRpcErrorResult, JsonRpcRequest, JsonRpcResult
+from modernrpc.handlers.base import GenericRpcErrorResult
+from modernrpc.handlers.jsonhandler import JsonRpcRequest, JsonRpcResult
 
 
 class Unmarshaller:

@@ -1,34 +1,61 @@
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass, field
 from http import HTTPStatus
-from typing import TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING, Union
 
 from django.utils.module_loading import import_string
 
+from modernrpc import Protocol
 from modernrpc.conf import settings
-from modernrpc.core import ProcedureWrapper, Protocol, RpcRequestContext
-from modernrpc.exceptions import RPC_INTERNAL_ERROR, RPCException
+from modernrpc.constants import NOT_SET
+from modernrpc.exceptions import RPCException
 from modernrpc.handlers.base import (
-    JsonRpcErrorResult,
-    JsonRpcRequest,
-    JsonRpcResult,
-    JsonRpcSuccessResult,
+    GenericRpcErrorResult,
+    GenericRpcSuccessResult,
     RpcHandler,
+    RpcRequest,
 )
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar, Generator
 
+    from modernrpc import RpcRequestContext
     from modernrpc.backends.base import JsonRpcDeserializer, JsonRpcSerializer
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class JsonRpcRequest(RpcRequest):
+    """
+    JSON-RPC request specific data
+    """
+
+    kwargs: dict[str, Any] = field(default_factory=dict)
+    request_id: RequestIdType | object = NOT_SET
+    jsonrpc: str = "2.0"
+
+    @property
+    def is_notification(self) -> bool:
+        return self.request_id is NOT_SET
+
+
+RequestIdType = Union[str, int, float, None]
+JsonRpcSuccessResult = GenericRpcSuccessResult[JsonRpcRequest]
+JsonRpcErrorResult = GenericRpcErrorResult[JsonRpcRequest]
+JsonRpcResult = Union[JsonRpcSuccessResult, JsonRpcErrorResult]
 
 
 class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
     """Default JSON-RPC handler implementation"""
 
     protocol = Protocol.JSON_RPC
+    valid_content_types: ClassVar[list[str]] = ["application/json", "application/json-rpc", "application/jsonrequest"]
+    response_content_type = "application/json"
+    success_result_type = JsonRpcSuccessResult
+    error_result_type = JsonRpcErrorResult
 
     def __init__(self) -> None:
         deserializer_klass: type[JsonRpcDeserializer] = import_string(settings.MODERNRPC_JSON_DESERIALIZER["class"])
@@ -39,18 +66,6 @@ class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
         serializer_kwargs: dict[str, Any] = settings.MODERNRPC_JSON_SERIALIZER.get("kwargs", {})
         self.serializer: JsonRpcSerializer = serializer_klass(**serializer_kwargs)
 
-    @classmethod
-    def valid_content_types(cls) -> list[str]:
-        return [
-            "application/json",
-            "application/json-rpc",
-            "application/jsonrequest",
-        ]
-
-    @classmethod
-    def response_content_type(cls) -> str:
-        return "application/json"
-
     def process_request(self, request_body: str, context: RpcRequestContext) -> str | tuple[HTTPStatus, str]:
         """
         Parse request and process it, according to its kind. Standard request as well as batch request is supported.
@@ -59,59 +74,38 @@ class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
         result of `parse_request()`, standard or batch request will be handled here.
         """
         try:
-            structured_req: JsonRpcRequest | Iterable[JsonRpcRequest] = self.deserializer.loads(request_body)
+            parsed_request = self.deserializer.loads(request_body)
         except RPCException as exc:
-            logger.error(exc, exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
-            # We can't extract request_id from incoming request. According to the spec, a null 'id' should be used
-            # in response payload
+            logger.exception("Error in request deserialization")
+            # We can't extract request_id from incoming request. According to the spec, a
+            # null 'id' should be used in response payload
             fake_request = JsonRpcRequest(request_id=None, method_name="")
-            return self.serializer.dumps(JsonRpcErrorResult(fake_request, exc.code, exc.message))
+            return self.serializer.dumps(self.build_error_result(fake_request, exc.code, exc.message))
 
         # Parsed request is an Iterable, we should handle it as batch request
-        if isinstance(structured_req, Iterable):
-            # Process each request, getting the resulting JsonResult instance (success or error)
-            results: Iterable[JsonRpcResult] = (
-                self.process_single_request(request, context) for request in structured_req
-            )
-
-            # Drop notification results
-            results = [result for result in results if not result.request.is_notification]
-
-            # Return JSON-serialized response list
-            if results:
-                return self.serializer.dumps(results)
-
-            # Notifications-only batch request returns 204 no content
-            return HTTPStatus.NO_CONTENT, ""
+        if isinstance(parsed_request, list):
+            return self.process_batch_request(parsed_request, context)
 
         # By default, handle a standard single request
-        result = self.process_single_request(structured_req, context)
+        result = self.process_single_request(parsed_request, context)
 
-        if structured_req.is_notification:
+        if parsed_request.is_notification:
             return HTTPStatus.NO_CONTENT, ""
 
         return self.serializer.dumps(result)
 
-    def process_single_request(self, rpc_request: JsonRpcRequest, context: RpcRequestContext) -> JsonRpcResult:
-        """Check and call the RPC method, based on given request dict."""
-        # FIXME
-        # try:
-        #     # Perform standard error checks
-        #     self.check_request(request_data)
-        # except:
-        #     pass
+    def process_batch_request(
+        self, requests: list[JsonRpcRequest], context: RpcRequestContext
+    ) -> str | tuple[HTTPStatus, str]:
+        # Process each request and store corresponding results (success or error)
+        results: Generator[JsonRpcResult] = (self.process_single_request(request, context) for request in requests)
 
-        try:
-            wrapper: ProcedureWrapper = context.server.get_procedure_wrapper(rpc_request.method_name, Protocol.JSON_RPC)
-            result_data = wrapper.execute(context, rpc_request.args, rpc_request.kwargs)
-            return JsonRpcSuccessResult(request=rpc_request, data=result_data)
+        # Filter out notification results
+        filtered_results = [result for result in results if not result.request.is_notification]
 
-        except RPCException as exc:
-            logger.warning(exc, exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
-            result = JsonRpcErrorResult(request=rpc_request, code=exc.code, message=exc.message, data=exc.data)
+        # Return JSON-serialized response list
+        if filtered_results:
+            return self.serializer.dumps(filtered_results)
 
-        except Exception as exc:
-            logger.error(exc, exc_info=settings.MODERNRPC_LOG_EXCEPTIONS)
-            result = JsonRpcErrorResult(request=rpc_request, code=RPC_INTERNAL_ERROR, message=str(exc))
-
-        return result
+        # Notifications-only batch request returns 204 no content
+        return HTTPStatus.NO_CONTENT, ""

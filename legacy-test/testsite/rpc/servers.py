@@ -1,4 +1,4 @@
-from modernrpc.core import Protocol
+from modernrpc import Protocol
 from modernrpc.server import RpcServer
 
 from .generic import bp as generic

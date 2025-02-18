@@ -7,7 +7,7 @@ import pytest
 from helpers import assert_json_data_are_equal
 
 from modernrpc.exceptions import RPCInternalError, RPCInvalidRequest, RPCParseError
-from modernrpc.handlers.base import JsonRpcErrorResult, JsonRpcRequest, JsonRpcSuccessResult
+from modernrpc.handlers.jsonhandler import JsonRpcErrorResult, JsonRpcRequest, JsonRpcSuccessResult
 
 
 class TestJsonRpcDeserializer:
@@ -328,7 +328,7 @@ class TestJsonRpcSerializer:
         result = JsonRpcSuccessResult(request=self.req1, data=value)
         with pytest.raises(RPCInternalError) as e:
             json_serializer.dumps(result)
-        assert "Could not serialize JsonRpcSuccessResult" in e.value.message
+        assert "Could not serialize result" in e.value.message
 
     def test_result_error(self, json_serializer):
         result = JsonRpcErrorResult(request=self.req0, code=-65000, message="foo")
