@@ -468,8 +468,12 @@ wheels = [
 
 [[package]]
 name = "django-modern-rpc"
-version = "2.0a1"
+version = "2.0.dev0"
 source = { editable = "." }
+dependencies = [
+    { name = "django", version = "4.2.19", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "django", version = "5.1.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+]
 
 [package.optional-dependencies]
 defusedxml = [
@@ -495,10 +499,6 @@ dev = [
     { name = "ruff" },
     { name = "simplejson" },
     { name = "xmltodict" },
-]
-django = [
-    { name = "django", version = "4.2.19", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "django", version = "5.1.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
 ]
 docs = [
     { name = "myst-parser", version = "3.0.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
@@ -533,6 +533,7 @@ type-checking = [
 [package.metadata]
 requires-dist = [
     { name = "defusedxml", marker = "extra == 'defusedxml'" },
+    { name = "django", specifier = ">=3.2" },
     { name = "docutils", marker = "extra == 'docutils'", specifier = ">=0.19" },
     { name = "markdown", marker = "extra == 'markdown'", specifier = ">=3.4" },
 ]
@@ -549,7 +550,6 @@ dev = [
     { name = "simplejson", specifier = ">=3.19" },
     { name = "xmltodict", specifier = ">=0.14.0" },
 ]
-django = [{ name = "django", specifier = ">=3.2" }]
 docs = [
     { name = "myst-parser" },
     { name = "sphinx", specifier = ">=6.2" },
@@ -698,7 +698,7 @@ resolution-markers = [
     "python_full_version == '3.9.*'",
 ]
 dependencies = [
-    { name = "zipp", version = "3.21.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
+    { name = "zipp", version = "3.21.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.9.*'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/33/08/c1395a292bb23fd03bdf572a1357c5a733d3eecbab877641ceacab23db6e/importlib_metadata-8.6.1.tar.gz", hash = "sha256:310b41d755445d74569f993ccfc22838295d9fe005425094fad953d7f15c8580", size = 55767 }
 wheels = [

@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------
 [project]
 name = "django-modern-rpc"
-version = "2.0a1"
+version = "2.0dev0"
 description = "Simple and powerful RPC server for your Django project"
 readme = "README.md"
 license = "MIT"
@@ -39,7 +39,9 @@ classifiers = [
     "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
 ]
 
-dependencies = []
+dependencies = [
+    "django >= 3.2",
+]
 requires-python = ">=3.8"
 
 [project.optional-dependencies]
@@ -79,12 +81,9 @@ exclude = [
 # |                        Dev dependencies
 # ------------------------------------------------------------------
 [tool.uv]
-default-groups = ["django", "dev", "tests"]
+default-groups = ["dev", "tests"]
 
 [dependency-groups]
-django = [
-    "django >= 3.2",
-]
 dev = [
     "ruff ~= 0.9",
     "jsonrpcclient ~= 4.0.3",

@@ -66,7 +66,7 @@ def build_test_matrix():
 def run_tests(session, python, django):
     """Execute test suite using pytest"""
     env = {"UV_PROJECT_ENVIRONMENT": session.virtualenv.location}
-    session.run_install("uv", "sync", "-p", python, "--no-group", "django", env=env)
+    session.run_install("uv", "sync", "-p", python, "--no-install-package", "django", env=env)
     session.install(f"django=={django}.*")
 
     session.run("django-admin", "--version")
