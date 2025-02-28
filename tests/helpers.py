@@ -7,7 +7,7 @@ from json import JSONDecodeError
 from typing import TYPE_CHECKING, Any, Callable
 from xml.etree import ElementTree as ET
 
-import jsonrpcclient
+import jsonrpcclient.sentinels
 import pytest
 from lxml.doctestcompare import PARSE_XML, LXMLOutputChecker
 
@@ -21,12 +21,12 @@ def build_xml_rpc_request_data(method="dummy", params=()) -> str:
     return xmlrpc.client.dumps(methodname=method, params=tuple(params))
 
 
-def build_json_rpc_request_data(method="dummy", params=(), is_notification=False) -> dict[str, Any]:
+def build_json_rpc_request_data(method="dummy", params=(), is_notification=False, req_id=None) -> dict[str, Any]:
     if params:
         params = ensure_sequence(params)
     if is_notification:
         return jsonrpcclient.notification(method=method, params=params)
-    return jsonrpcclient.request(method=method, params=params)
+    return jsonrpcclient.request(method=method, params=params, id=req_id or jsonrpcclient.sentinels.NOID)
 
 
 def assert_json_data_are_equal(got: str, want: str) -> None:

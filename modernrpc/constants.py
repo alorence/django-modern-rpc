@@ -21,5 +21,3 @@ class Id:
 
 
 NOT_SET = Id("NOT_SET")
-# zz = object()
-# NOT_SET.__str__ = lambda _: "NOT SET"

@@ -7,7 +7,7 @@ from json import JSONDecodeError
 from typing import TYPE_CHECKING, Any, Iterable
 
 from modernrpc.backends.base_json import Marshaller, Unmarshaller
-from modernrpc.exceptions import RPCInternalError, RPCParseError
+from modernrpc.exceptions import RPCMarshallingError, RPCParseError
 
 if TYPE_CHECKING:
     from modernrpc.handlers.jsonhandler import JsonRpcRequest, JsonRpcResult
@@ -31,4 +31,4 @@ class BuiltinJSON:
         try:
             return json.dumps(structured_data, **self.dump_kwargs)
         except (TypeError, UnicodeDecodeError) as e:
-            raise RPCInternalError(f"Could not serialize result {result}") from e
+            raise RPCMarshallingError(structured_data, e) from e

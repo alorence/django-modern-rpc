@@ -11,8 +11,6 @@ from modernrpc import Protocol
 from modernrpc.constants import NOT_SET
 from modernrpc.exceptions import (
     AuthenticationFailed,
-    RPCException,
-    RPCInternalError,
     RPCInvalidParams,
 )
 from modernrpc.helpers import ensure_sequence
@@ -33,11 +31,6 @@ if TYPE_CHECKING:
 
 
 logger = logging.getLogger(__name__)
-
-# In 1.0.0, following constants were replaced by Protocol enum class
-# Redefine them for backward compatibility
-JSONRPC_PROTOCOL, XMLRPC_PROTOCOL = Protocol.JSON_RPC, Protocol.XML_RPC
-GENERIC_ALL = ALL = Protocol.ALL
 
 
 @dataclass
@@ -119,34 +112,27 @@ class ProcedureWrapper:
     ) -> Any:
         kwargs = kwargs or {}
 
-        # FIXME: handle exceptions raised from here...
-        auth_result = self.check_permissions(context.request)
+        try:
+            auth_result = self.check_permissions(context.request)
+        except Exception as e:
+            raise AuthenticationFailed(self.name) from e
 
         if not auth_result:
             raise AuthenticationFailed(self.name)
 
-        context.auth_result = auth_result
-
         # If the RPC method needs to access some configuration, inject it in kwargs
         if self.context_target:
+            context.auth_result = auth_result
             kwargs[self.context_target] = context
 
         logger.debug("Params: args = %s - kwargs = %s", args, kwargs)
 
-        # Call the procedure, or raise an exception
         try:
             return self.function(*args, **kwargs)
 
         except TypeError as exc:
             # If given params cannot be transmitted properly to python function
             raise RPCInvalidParams(str(exc)) from None
-
-        except RPCException:
-            raise
-
-        except Exception as exc:
-            # Any exception raised from the remote procedure
-            raise RPCInternalError(str(exc)) from exc
 
     @cached_property
     def args(self) -> list[str]:

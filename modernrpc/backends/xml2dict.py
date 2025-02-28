@@ -11,7 +11,7 @@ from typing import Any, Callable, Literal, Sequence
 
 import xmltodict
 
-from modernrpc.exceptions import RPCInternalError, RPCInvalidRequest, RPCParseError
+from modernrpc.exceptions import RPCInvalidRequest, RPCMarshallingError, RPCParseError
 from modernrpc.handlers.base import GenericRpcErrorResult
 from modernrpc.handlers.xmlhandler import XmlRpcRequest, XmlRpcResult
 from modernrpc.helpers import ensure_sequence, first
@@ -252,6 +252,6 @@ class XML2Dict:
         try:
             structured_data = self.marshaller.result_to_dict(result)
         except Exception as e:
-            raise RPCInternalError(f"Could not serialize result {result}") from e
+            raise RPCMarshallingError(result.data, e) from e
 
         return xmltodict.unparse(structured_data, **self.dump_kwargs)

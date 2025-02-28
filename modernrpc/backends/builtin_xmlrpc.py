@@ -7,7 +7,7 @@ import xmlrpc.client
 from typing import Any
 from xmlrpc.client import Fault, ResponseError
 
-from modernrpc.exceptions import RPCInternalError, RPCInvalidRequest, RPCParseError
+from modernrpc.exceptions import RPCInvalidRequest, RPCMarshallingError, RPCParseError
 from modernrpc.handlers.base import GenericRpcErrorResult
 from modernrpc.handlers.xmlhandler import XmlRpcRequest, XmlRpcResult
 
@@ -41,4 +41,4 @@ class BuiltinXmlRpc:
         try:
             return xmlrpc.client.dumps(result_data, methodresponse=True, **self.dump_kwargs)
         except Exception as e:
-            raise RPCInternalError(str(e)) from e
+            raise RPCMarshallingError(result.data, e) from e
