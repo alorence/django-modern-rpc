@@ -2,9 +2,11 @@
 # PEP 604: use of typeA | typeB is available since Python 3.10, enable it for older versions
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Iterable, Protocol
+from typing import TYPE_CHECKING, Protocol
 
 if TYPE_CHECKING:
+    from typing import Iterable
+
     from modernrpc.handlers.jsonhandler import JsonRpcRequest, JsonRpcResult
     from modernrpc.handlers.xmlhandler import XmlRpcRequest, XmlRpcResult
 

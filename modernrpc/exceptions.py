@@ -122,6 +122,14 @@ class RPCInternalError(RPCException):
         super().__init__(RPC_INTERNAL_ERROR, err_msg, data)
 
 
+class RPCMarshallingError(RPCException):
+    def __init__(self, data: Any, exc: Exception):
+        super().__init__(
+            RPC_INTERNAL_ERROR,
+            f"Unable to serialize result data: {data}. Original exception: {exc}",
+        )
+
+
 class AuthenticationFailed(RPCException):
     """Raised when authentication system forbade execution of a RPC Method"""
 

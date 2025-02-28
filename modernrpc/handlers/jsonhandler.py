@@ -75,11 +75,12 @@ class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
         """
         try:
             parsed_request = self.deserializer.loads(request_body)
+
         except RPCException as exc:
-            logger.exception("Error in request deserialization")
             # We can't extract request_id from incoming request. According to the spec, a
             # null 'id' should be used in response payload
             fake_request = JsonRpcRequest(request_id=None, method_name="")
+            exc = context.server.on_error(exc)
             return self.serializer.dumps(self.build_error_result(fake_request, exc.code, exc.message))
 
         # Parsed request is an Iterable, we should handle it as batch request
@@ -92,7 +93,11 @@ class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
         if parsed_request.is_notification:
             return HTTPStatus.NO_CONTENT, ""
 
-        return self.serializer.dumps(result)
+        try:
+            return self.serializer.dumps(result)
+        except RPCException as exc:
+            exc = context.server.on_error(exc)
+            return self.serializer.dumps(self.build_error_result(parsed_request, exc.code, exc.message))
 
     def process_batch_request(
         self, requests: list[JsonRpcRequest], context: RpcRequestContext

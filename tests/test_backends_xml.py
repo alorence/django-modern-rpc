@@ -6,7 +6,7 @@ from textwrap import dedent
 import pytest
 from helpers import assert_xml_data_are_equal
 
-from modernrpc.exceptions import RPCInternalError, RPCInvalidRequest, RPCParseError
+from modernrpc.exceptions import RPCInvalidRequest, RPCMarshallingError, RPCParseError
 from modernrpc.handlers.xmlhandler import XmlRpcErrorResult, XmlRpcRequest, XmlRpcSuccessResult
 
 
@@ -545,5 +545,5 @@ class TestXmlRpcSerializer:
         """XML-RPC enforce int value limits. Check that is correctly handled in backends"""
         result = XmlRpcSuccessResult(request=self.req, data=val)
 
-        with pytest.raises(RPCInternalError):
+        with pytest.raises(RPCMarshallingError):
             xml_serializer.dumps(result)

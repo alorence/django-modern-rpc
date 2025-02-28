@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import functools
 import logging
-from typing import TYPE_CHECKING, Callable
+from collections import OrderedDict
+from typing import TYPE_CHECKING
 
 from django.utils.module_loading import import_string
 from django.views.decorators.csrf import csrf_exempt
@@ -12,11 +13,13 @@ from modernrpc import Protocol
 from modernrpc.conf import settings
 from modernrpc.constants import NOT_SET
 from modernrpc.core import ProcedureWrapper
-from modernrpc.exceptions import RPCMethodNotFound
+from modernrpc.exceptions import RPCException, RPCInternalError, RPCMethodNotFound
 from modernrpc.helpers import check_flags_compatibility, first_true
 from modernrpc.views import run_procedure
 
 if TYPE_CHECKING:
+    from typing import Callable
+
     from django.http import HttpRequest
 
     from modernrpc.handlers.base import RpcHandler
@@ -54,6 +57,10 @@ class RegistryMixin:
                 auth=self.auth if auth == NOT_SET else auth,
                 context_target=context_target,
             )
+
+            if wrapper.name in self._registry and wrapper != self._registry[wrapper.name]:
+                raise ValueError(f"Procedure {wrapper.name} is already registered")
+
             self._registry[wrapper.name] = wrapper
             logger.debug(f"Registered procedure {wrapper.name}")
             return func
@@ -87,6 +94,8 @@ class RpcServer(RegistryMixin):
         system = import_string("modernrpc.system_procedures.system")
         self.register_namespace(system, "system")
 
+        self.error_handlers: OrderedDict[type, Callable] = OrderedDict()
+
     def register_namespace(self, namespace: RpcNamespace, name: str | None = None):
         prefix = f"{name}." if name else ""
         logger.debug(f"About to register {len(namespace.procedures)} procedures into namespace '{prefix}'")
@@ -118,6 +127,21 @@ class RpcServer(RegistryMixin):
             return klass()
         except TypeError:
             return None
+
+    def error_handler(self, exception_klass: type[BaseException], handler: Callable):
+        """Register a new error handler for a specific function"""
+        self.error_handlers[exception_klass] = handler
+
+    def on_error(self, exception: BaseException) -> RPCException:
+        """Do something when an exception happen"""
+        # for klass, handler in self.error_handlers.items():
+        #     if issubclass(exception, klass):
+        #         result = handler(exception)
+        #         if result:
+        #             return result
+        if isinstance(exception, RPCException):
+            return exception
+        return RPCInternalError(message=str(exception))
 
     @property
     def view(self):

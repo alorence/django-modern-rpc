@@ -24,6 +24,12 @@ def simple_procedure(foo: str, bar: int):
     return f"{foo=} {bar=}"
 
 
+@server.register_procedure
+def unserializable_result_procedure():
+    """Return an object that cannot be serialized by default backends"""
+    return ...
+
+
 @pytest.mark.usefixtures("all_xml_deserializers", "all_xml_serializers")
 class TestXmlRpc:
     def test_standard_call(self, xmlrpc_rf):
@@ -61,6 +67,16 @@ class TestXmlRpc:
         assert code == RPC_INVALID_PARAMS
         assert message == "Invalid parameters: simple_procedure() takes 2 positional arguments but 3 were given"
 
+    def test_invalid_result(self, xmlrpc_rf):
+        request = xmlrpc_rf(method_name="unserializable_result_procedure", params=[])
+        response = server.view(request)
+
+        assert response.status_code == HTTPStatus.OK
+        code, message = extract_xmlrpc_fault_data(response)
+
+        assert code == RPC_INTERNAL_ERROR
+        assert "Unable to serialize result data: Ellipsis" in message
+
     def test_system_list_methods(self, xmlrpc_rf):
         request = xmlrpc_rf(method_name="system.listMethods")
         response = server.view(request)
@@ -71,6 +87,7 @@ class TestXmlRpc:
             "system.methodHelp",
             "system.multicall",
             "simple_procedure",
+            "unserializable_result_procedure",
         ]
 
     def test_system_method_signature(self, xmlrpc_rf):
@@ -160,7 +177,7 @@ class TestJsonRpc:
         assert extract_jsonrpc_success_result(response) == "foo='bar' bar=42"
 
     def test_notification_call(self, jsonrpc_rf):
-        request = jsonrpc_rf(method_name="simple_procedure", params=["bar", 42], is_notification=True)
+        request = jsonrpc_rf(method_name="simple_procedure", params=["bar", 42], is_notif=True)
         response = server.view(request)
         assert response.status_code == HTTPStatus.NO_CONTENT
         assert response.content == b""
@@ -176,7 +193,7 @@ class TestJsonRpc:
         assert message == "Internal error: bar cannot be negative"
 
     def test_notification_exception(self, jsonrpc_rf):
-        request = jsonrpc_rf(method_name="simple_procedure", params=["bar", -2], is_notification=True)
+        request = jsonrpc_rf(method_name="simple_procedure", params=["bar", -2], is_notif=True)
         response = server.view(request)
         assert response.status_code == HTTPStatus.NO_CONTENT
         assert response.content == b""
@@ -200,6 +217,16 @@ class TestJsonRpc:
         assert code == RPC_INVALID_PARAMS
         assert message == "Invalid parameters: simple_procedure() takes 2 positional arguments but 3 were given"
 
+    def test_invalid_result(self, jsonrpc_rf):
+        request = jsonrpc_rf(method_name="unserializable_result_procedure", params=[], req_id=33)
+        response = server.view(request)
+
+        assert response.status_code == HTTPStatus.OK
+        code, message = extract_jsonrpc_fault_data(response)
+
+        assert code == RPC_INTERNAL_ERROR
+        assert "Unable to serialize result data: {'id': 33, 'jsonrpc': '2.0', 'result': Ellipsis}" in message
+
     def test_system_list_methods(self, jsonrpc_rf):
         request = jsonrpc_rf(method_name="system.listMethods")
         response = server.view(request)
@@ -210,6 +237,7 @@ class TestJsonRpc:
             "system.methodHelp",
             "system.multicall",
             "simple_procedure",
+            "unserializable_result_procedure",
         ]
 
     def test_system_method_signature(self, jsonrpc_rf):

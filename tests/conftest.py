@@ -112,8 +112,10 @@ def xmlrpc_rf(rf) -> Callable[..., HttpRequest]:
 
 @pytest.fixture
 def jsonrpc_rf(rf) -> Callable[..., HttpRequest]:
-    def factory(path="/rpc", content_type="application/json", method_name="dummy", params=(), is_notification=False):
-        data = build_json_rpc_request_data(method=method_name, params=params, is_notification=is_notification)
+    def factory(
+        path="/rpc", content_type="application/json", method_name="dummy", params=(), is_notif=False, req_id=None
+    ):
+        data = build_json_rpc_request_data(method=method_name, params=params, is_notification=is_notif, req_id=req_id)
         return rf.post(path, data=data, content_type=content_type)
 
     return factory

@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Generic, TypeVar
 
-from modernrpc.exceptions import RPC_INTERNAL_ERROR, RPCException
+from modernrpc.exceptions import RPCMethodNotFound
 
 if TYPE_CHECKING:
     from http import HTTPStatus
@@ -80,16 +80,23 @@ class RpcHandler(ABC, Generic[RequestType]):
         self, rpc_request: RequestType, context: RpcRequestContext
     ) -> GenericRpcSuccessResult[RequestType] | GenericRpcErrorResult[RequestType]:
         """Check and call the RPC method, based on given request dict."""
+
         try:
             wrapper = context.server.get_procedure_wrapper(rpc_request.method_name, self.protocol)
-            call_kwargs = None if not hasattr(rpc_request, "kwargs") else rpc_request.kwargs
-            result_data = wrapper.execute(context, rpc_request.args, call_kwargs)
 
-        except RPCException as exc:
-            return self.build_error_result(request=rpc_request, code=exc.code, message=exc.message, data=exc.data)
+        except RPCMethodNotFound as exc:
+            # exc variable cannot be reused here without triggering an error with static type checker
+            # In this particular case, an error handler may decide to convert the given RPCMethodNotFound to a more
+            # generic RPCException (or one of its subclasses).
+            _exc = context.server.on_error(exc)
+            return self.build_error_result(request=rpc_request, code=_exc.code, message=_exc.message, data=_exc.data)
+
+        try:
+            result_data = wrapper.execute(context, rpc_request.args, getattr(rpc_request, "kwargs", None))
 
         except Exception as exc:
-            return self.build_error_result(request=rpc_request, code=RPC_INTERNAL_ERROR, message=str(exc))
+            exc = context.server.on_error(exc)
+            return self.build_error_result(request=rpc_request, code=exc.code, message=exc.message, data=exc.data)
 
         return self.build_success_result(rpc_request, result_data)
 
