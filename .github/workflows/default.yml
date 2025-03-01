@@ -82,7 +82,7 @@ jobs:
       with:
         version: ${{ env.UV_VERSION }}
     - name: Test session
-      run: nox -s "${{ matrix.session }}" -- --cov-report=xml:coverage.xml
+      run: nox -s "${{ matrix.session }}" -- --cov --cov-report=xml:coverage.xml
     - name: Submit coverage report - Coveralls
       continue-on-error: true
       uses: coverallsapp/github-action@v2
