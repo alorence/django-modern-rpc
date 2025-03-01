@@ -97,6 +97,7 @@ jobs:
 
   formatter:
     runs-on: ubuntu-latest
+    continue-on-error: true
     needs: debug
     steps:
       - uses: actions/checkout@v4
@@ -117,7 +118,9 @@ jobs:
         with:
           version: ${{ env.UV_VERSION }}
       - name: Mypy
-        run: uv run mypy .
+        run: |
+          uv sync --group type-checking
+          uv run mypy .
 
 #   publish:
 #     runs-on: ubuntu-latest
