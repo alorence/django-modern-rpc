@@ -99,7 +99,7 @@ jobs:
     - name: Pytest
       run: |
         echo "Django version: $(poetry run django-admin --version)"
-        poetry run pytest --cov=modernrpc --cov-report=term --cov-report=xml:coverage.xml .
+        poetry run pytest --cov-report=term --cov --cov-report=xml:coverage.xml .
 
     - name: Upload coverage results
       if: github.event_name != 'pull_request'
