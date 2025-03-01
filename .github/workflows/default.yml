@@ -65,7 +65,7 @@ jobs:
       shell: bash
       run: echo session=$(nox -k tests --json -l | jq -c '[.[].session]') | tee --append $GITHUB_OUTPUT
 
-  checks:
+  test:
     name: ${{ matrix.session }}
     needs: [debug, generate-jobs]
     runs-on: ubuntu-latest
@@ -81,7 +81,11 @@ jobs:
       uses: astral-sh/setup-uv@v5
       with:
         version: ${{ env.UV_VERSION }}
-    - run: nox -s "${{ matrix.session }}"
+    - name: Test session
+      run: nox -s "${{ matrix.session }}" -- --cov=modernrpc --cov-report=xml:coverage.xml
+    - name: Submit coverage report - Coveralls
+      continue-on-error: true
+      uses: coverallsapp/github-action@v2
 
   linter:
     runs-on: ubuntu-latest
