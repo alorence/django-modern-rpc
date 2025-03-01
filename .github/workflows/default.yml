@@ -86,6 +86,11 @@ jobs:
     - name: Submit coverage report - Coveralls
       continue-on-error: true
       uses: coverallsapp/github-action@v2
+    - name: Submit coverage report - Codacy
+      continue-on-error: true
+      env:
+        CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+      run: uvx --from codacy-coverage python-codacy-coverage -r coverage.xml
 
   linter:
     runs-on: ubuntu-latest
