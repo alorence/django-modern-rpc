@@ -216,8 +216,7 @@ class TestXmlRpcSpecificBehaviors:
         )
 
         assert (
-            message == "Invalid request: Missing methodName. Please "
-            "provide the name of the procedure you want to call"
+            message == "Invalid request: Missing methodName. Please provide the name of the procedure you want to call"
         )
         assert code == RPC_INVALID_REQUEST
 
