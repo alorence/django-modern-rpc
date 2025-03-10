@@ -104,7 +104,7 @@ def cov(session):
         allowed_cov_types = ("term", "term-missing", "annotate", "html", "xml", "json", "lcov")
         if cov_type not in allowed_cov_types:
             raise ValueError(f"Invalid coverage report type {cov_type}, possible values are {allowed_cov_types}")
-    session.run("uv", "run", "pytest", "--cov=modernrpc", f"--cov-report={cov_type}", *session.posargs)
+    session.run("uv", "run", "pytest", "--cov", f"--cov-report={cov_type}", *session.posargs)
 
 
 @nox.session(venv_backend="none", default=False, tags=["tests"])

@@ -119,7 +119,7 @@ docs = [
 ]
 
 # ------------------------------------------------------------------
-# |                        Pyetst settings
+# |                        Pytest settings
 # ------------------------------------------------------------------
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -128,6 +128,34 @@ python_files = ["test_*.py"]
 # pytest-django settings
 DJANGO_SETTINGS_MODULE = "tests.project.settings"
 FAIL_INVALID_TEMPLATE_VARS = true
+
+# ------------------------------------------------------------------
+# |                      Coverage settings
+# ------------------------------------------------------------------
+[tool.coverage.run]
+branch = true
+parallel = true
+
+include = [
+    "modernrpc/*",
+]
+omit = [
+  "modernrpc/apps.py",
+  "modernrpc/compat.py",
+]
+
+[tool.coverage.report]
+# Regexes for lines to exclude from consideration
+exclude_also = [
+  # Don't complain about missing debug-only code:
+  "def __repr__",
+  # Don't complain if tests don't hit defensive assertion code:
+  "raise AssertionError",
+  "raise NotImplementedError",
+  # Such block is used only when mypy is ran
+  "if TYPE_CHECKING:",
+]
+
 
 # ------------------------------------------------------------------
 # |                        Mypy settings
