@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def run_procedure(
+def handle_rpc_request(
     request: HttpRequest, server: RpcServer, default_encoding: str = settings.MODERNRPC_DEFAULT_ENCODING
 ) -> HttpResponse:
     if not request.content_type:

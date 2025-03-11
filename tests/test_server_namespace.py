@@ -1,4 +1,3 @@
-import random
 from unittest.mock import Mock
 
 import pytest
@@ -8,6 +7,20 @@ from modernrpc import Protocol, RpcServer
 from modernrpc.exceptions import RPCMethodNotFound
 from modernrpc.handlers import JsonRpcHandler, XmlRpcHandler
 from modernrpc.server import RpcNamespace
+
+
+class TestJsonRpcHandler:
+    handler = JsonRpcHandler()
+
+    def test_response_content_type(self):
+        assert self.handler.response_content_type == "application/json"
+
+
+class TestXmlRpcHandler:
+    handler = XmlRpcHandler()
+
+    def test_response_content_type(self):
+        assert self.handler.response_content_type == "application/xml"
 
 
 class TestInitialRpcServer:
@@ -106,30 +119,30 @@ class TestRpcServerRegistration:
 
     @pytest.mark.parametrize("proto", ALL_PROTOCOLS)
     def test_server_registration_auth(self, proto):
-        server_auth_calbacks = [Mock(), Mock()]
-        server = RpcServer(auth=server_auth_calbacks)
+        server_auth_callbacks = [Mock(), Mock()]
+        server = RpcServer(auth=server_auth_callbacks)
 
         server.register_procedure(dummy_procedure)
 
         wrapper = server.get_procedure_wrapper("dummy_procedure", proto)
-        assert wrapper.auth == server_auth_calbacks
+        assert wrapper.auth == server_auth_callbacks
 
     @pytest.mark.parametrize("proto", ALL_PROTOCOLS)
     def test_server_registration_auth_overrides(self, rf, proto):
-        server_auth_calback = Mock(return_value=False)
-        server = RpcServer(auth=server_auth_calback)
+        server_auth_callback = Mock(return_value=False)
+        server = RpcServer(auth=server_auth_callback)
 
         server.register_procedure(dummy_procedure, auth=None)
 
         wrapper = server.get_procedure_wrapper("dummy_procedure", proto)
         assert wrapper.auth is None
         assert wrapper.check_permissions(rf.post("/")) is True
-        server_auth_calback.assert_not_called()
+        server_auth_callback.assert_not_called()
 
     @pytest.mark.parametrize("proto", ALL_PROTOCOLS)
     def test_namespace_registration_server_auth(self, rf, proto):
-        server_auth_calback = Mock(return_value=True)
-        server = RpcServer(auth=server_auth_calback)
+        server_auth_callback = Mock(return_value=True)
+        server = RpcServer(auth=server_auth_callback)
 
         namespace = RpcNamespace()
 
@@ -138,14 +151,14 @@ class TestRpcServerRegistration:
 
         wrapper = server.get_procedure_wrapper("dummy_procedure", proto)
 
-        assert wrapper.auth is server_auth_calback
+        assert wrapper.auth is server_auth_callback
         assert wrapper.check_permissions(rf.post("/")) is True
-        server_auth_calback.assert_called_once()
+        server_auth_callback.assert_called_once()
 
     @pytest.mark.parametrize("proto", ALL_PROTOCOLS)
     def test_namespace_registration_auth(self, rf, proto):
-        server_auth_calback = Mock(return_value=True)
-        server = RpcServer(auth=server_auth_calback)
+        server_auth_callback = Mock(return_value=True)
+        server = RpcServer(auth=server_auth_callback)
 
         namespace_auth_callback = Mock(return_value=False)
         namespace = RpcNamespace(auth=namespace_auth_callback)
@@ -158,12 +171,12 @@ class TestRpcServerRegistration:
         assert wrapper.auth is namespace_auth_callback
         assert wrapper.check_permissions(rf.post("/")) is False
         namespace_auth_callback.assert_called_once()
-        server_auth_calback.assert_not_called()
+        server_auth_callback.assert_not_called()
 
     @pytest.mark.parametrize("proto", ALL_PROTOCOLS)
     def test_namespace_registration_auth_overrides(self, rf, proto):
-        server_auth_calback = Mock(return_value=True)
-        server = RpcServer(auth=server_auth_calback)
+        server_auth_callback = Mock(return_value=True)
+        server = RpcServer(auth=server_auth_callback)
 
         namespace_auth_callback = Mock(return_value=False)
         namespace = RpcNamespace(auth=namespace_auth_callback)
@@ -176,52 +189,39 @@ class TestRpcServerRegistration:
         assert wrapper.auth is None
         assert wrapper.check_permissions(rf.post("/")) is True
         namespace_auth_callback.assert_not_called()
-        server_auth_calback.assert_not_called()
+        server_auth_callback.assert_not_called()
 
 
-namespace = RpcNamespace()
-
-
-@namespace.register_procedure(name="randint")
-def dummy():
-    return random.randint(0, 5)
+dummy_ns = RpcNamespace()
 
 
 class TestRpcNamespace:
     def test_unregistered(self):
         server = RpcServer()
 
-        assert "dummy" not in server.procedures
-        assert "randint" not in server.procedures
+        assert "dummy_procedure" not in server.procedures
+        assert "dummy_procedure" not in dummy_ns.procedures
 
-    def test_ns_registration(self):
+    def test_valid_namespace_registration(self):
+        dummy_ns.register_procedure(dummy_procedure, name="bar")
+
+        assert "dummy_procedure" not in dummy_ns.procedures
+        assert "bar" in dummy_ns.procedures
+
         server = RpcServer()
-        server.register_namespace(namespace, "foo")
+        server.register_namespace(dummy_ns, "foo")
 
-        assert "dummy" not in server.procedures
-        assert "foo.randint" in server.procedures
+        assert "dummy_procedure" not in server.procedures
+        assert "foo.bar" in server.procedures
 
-    def test_forbidden_ns_registration(self):
+    def test_forbidden_namespace_registration(self):
+        dummy_ns.register_procedure(dummy_procedure, name="bar")
         server = RpcServer()
 
         with pytest.raises(ValueError, match=r'method names starting with "rpc." are reserved for system extensions'):
-            server.register_namespace(namespace, "rpc")
+            server.register_namespace(dummy_ns, "rpc")
 
-        assert "dummy" not in server.procedures
-        assert "randint" not in server.procedures
-        assert "rpc.randint" not in server.procedures
-        assert "rpc.dummy" not in server.procedures
-
-
-class TestJsonRpcHandler:
-    handler = JsonRpcHandler()
-
-    def test_response_content_type(self):
-        assert self.handler.response_content_type == "application/json"
-
-
-class TestXmlRpcHandler:
-    handler = XmlRpcHandler()
-
-    def test_response_content_type(self):
-        assert self.handler.response_content_type == "application/xml"
+        assert "dummy_procedure" not in server.procedures
+        assert "bar" not in server.procedures
+        assert "rpc.bar" not in server.procedures
+        assert "rpc.dummy_procedure" not in server.procedures

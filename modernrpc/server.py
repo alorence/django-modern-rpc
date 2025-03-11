@@ -15,7 +15,7 @@ from modernrpc.constants import NOT_SET
 from modernrpc.core import ProcedureWrapper
 from modernrpc.exceptions import RPCException, RPCInternalError, RPCMethodNotFound
 from modernrpc.helpers import check_flags_compatibility, first_true
-from modernrpc.views import run_procedure
+from modernrpc.views import handle_rpc_request
 
 if TYPE_CHECKING:
     from typing import Callable
@@ -145,5 +145,5 @@ class RpcServer(RegistryMixin):
 
     @property
     def view(self):
-        view = functools.partial(run_procedure, server=self)
+        view = functools.partial(handle_rpc_request, server=self)
         return csrf_exempt(require_POST(view))
