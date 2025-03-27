@@ -75,7 +75,7 @@ defusedxml = ["defusedxml"]
 [tool.poetry.group.django]
 optional = false
 [tool.poetry.group.django.dependencies]
-django = ">=2.2"
+django = ">=3.2"
 
 [tool.poetry.group.dev]
 optional = false

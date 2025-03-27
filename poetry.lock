@@ -981,14 +981,14 @@ dev = ["black", "flake8", "pre-commit"]
 
 [[package]]
 name = "pytz"
-version = "2025.1"
+version = "2025.2"
 description = "World timezone definitions, modern and historical"
 optional = false
 python-versions = "*"
 groups = ["code-analysis", "django", "docs"]
 files = [
-    {file = "pytz-2025.1-py2.py3-none-any.whl", hash = "sha256:89dd22dca55b46eac6eda23b2d72721bf1bdfef212645d81513ef5d03038de57"},
-    {file = "pytz-2025.1.tar.gz", hash = "sha256:c2db42be2a2518b28e65f9207c4d05e6ff547d1efa4086469ef855e4ab70178e"},
+    {file = "pytz-2025.2-py2.py3-none-any.whl", hash = "sha256:5ddf76296dd8c44c26eb8f4b6f35488f3ccbf6fbbd7adee0b7262d43f0ec2f00"},
+    {file = "pytz-2025.2.tar.gz", hash = "sha256:360b9e3dbb49a209c21ad61809c7fb453643e048b38924c765813546746e81c3"},
 ]
 markers = {docs = "python_version < \"3.9\""}
 
@@ -1573,4 +1573,4 @@ markdown = ["markdown"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.7"
-content-hash = "13347fa33fea6d88e6f54577a5da08e52299c88604afa367e3497dc5fd1f061c"
+content-hash = "000538e4ab0c467cedeb93a03d352a0b088a355f45a72d63f693921ada70c7c3"
