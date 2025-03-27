@@ -1,4 +1,3 @@
-# flake8: noqa
 # Configuration file for the Sphinx documentation builder.
 #
 # This file only contains a selection of the most common options. For a full
@@ -6,7 +5,6 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
 import pkg_resources
-
 from django.conf import settings
 
 settings.configure()
@@ -15,7 +13,7 @@ settings.configure()
 
 # General information about the project.
 project = "django-modern-rpc"
-copyright = "2025"
+copyright = "2025"  # noqa: A001
 author = "Antoine Lorence"
 
 # The full version, including alpha/beta/rc tags
