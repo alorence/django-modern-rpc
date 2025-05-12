@@ -1,10 +1,6 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
 
-# Need global exclusion here, as this file cannot be parsed because of wanted syntax errors. mypy and black cannot
-# exclude it the standard way because they cannot parse it :/
-exclude: ^.*/module_with_syntax_errors.py$
-
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
@@ -15,19 +11,19 @@ repos:
       - id: check-added-large-files
   - repo: https://github.com/astral-sh/uv-pre-commit
     # uv version.
-    rev: 0.5.14
+    rev: 0.7.3
     hooks:
       - id: uv-lock
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     # Ruff version.
-    rev: v0.9.3
+    rev: v0.11.9
     hooks:
       # Linter
       - id: ruff
       # Formatter
       - id: ruff-format
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.14.1
+    rev: v1.15.0
     hooks:
       - id: mypy
         files: ^modernrpc
