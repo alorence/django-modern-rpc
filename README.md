@@ -17,7 +17,7 @@ Expose global python functions through XML-RPC and/or JSON-RPC server using Djan
 
 ## Requirements
 
-The following Django / Python versions are supported, according to [Django Installation FAQ](https://docs.djangoproject.com/en/5.1/faq/install/#what-python-version-can-i-use-with-django)
+The following Django / Python versions are supported, according to [Django Installation FAQ](https://docs.djangoproject.com/en/5.2/faq/install/#what-python-version-can-i-use-with-django)
 
 |   Python ➞ | 3.8 | 3.9 | 3.10 | 3.11 | 3.12 | 3.13 |
 |-----------:|:---:|:---:|:----:|:----:|:----:|:----:|

@@ -5,6 +5,7 @@ from packaging.version import Version
 
 
 class Python(StrEnum):
+    v3_14 = "3.14"
     v3_13 = "3.13"
     v3_12 = "3.12"
     v3_11 = "3.11"
@@ -47,7 +48,7 @@ def is_combination_supported(py: str, dj: str) -> bool:
         return Version("3.10") <= py <= Version("3.12")
 
     if dj in (Django.v5_1, Django.v5_2):
-        return Version("3.10") <= py <= Version("3.13")
+        return Version("3.10") <= py <= Version("3.14")
 
     return False
 
