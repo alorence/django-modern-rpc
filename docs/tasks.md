@@ -4,7 +4,7 @@ This document contains a list of actionable improvement tasks for the django-mod
 
 ## Architecture Improvements
 
-1. [ ] Implement configuration option to disable automatic system procedure registration
+1. [x] Implement configuration option to disable automatic system procedure registration
    - Add a setting in `modernrpc.conf.settings` to control this behavior
    - Update the `RpcServer.__init__` method to respect this setting
    - Document the new setting in the documentation

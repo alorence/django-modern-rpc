@@ -24,6 +24,16 @@ MODERNRPC_LOG_EXCEPTIONS
 
 Set to ``False`` if you want to disable logging on exception catching
 
+MODERNRPC_REGISTER_SYSTEM_PROCEDURES
+-----------------------------------
+
+:Required:  No
+:Default:   ``True``
+
+Set to ``False`` if you want to disable automatic registration of system procedures. By default, the RPC server
+automatically registers system procedures (under the "system" namespace) that provide introspection capabilities.
+If you don't need these procedures, you can disable them by setting this to ``False``.
+
 MODERNRPC_DOC_FORMAT
 --------------------
 

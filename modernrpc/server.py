@@ -90,9 +90,10 @@ class RpcServer(RegistryMixin):
             )
         )
 
-        # TODO: allow to skip this using a specific config
-        system = import_string("modernrpc.system_procedures.system")
-        self.register_namespace(system, "system")
+        # Register system procedures if enabled in settings
+        if settings.MODERNRPC_REGISTER_SYSTEM_PROCEDURES:
+            system = import_string("modernrpc.system_procedures.system")
+            self.register_namespace(system, "system")
 
         self.error_handlers: OrderedDict[type, Callable] = OrderedDict()
 
