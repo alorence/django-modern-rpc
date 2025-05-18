@@ -3,7 +3,7 @@ from __future__ import annotations
 import functools
 import logging
 from collections import OrderedDict
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from django.utils.module_loading import import_string
 from django.views.decorators.csrf import csrf_exempt
@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 
 class RegistryMixin:
-    def __init__(self, auth=NOT_SET) -> None:
+    def __init__(self, auth: Any = NOT_SET) -> None:
         self._registry: dict[str, ProcedureWrapper] = {}
         self.auth = auth
 
@@ -38,12 +38,12 @@ class RegistryMixin:
         procedure: Callable | None = None,
         name: str | None = None,
         protocol: Protocol = Protocol.ALL,
-        auth=NOT_SET,
+        auth: Any = NOT_SET,
         context_target: str | None = None,
-    ):
+    ) -> Callable:
         """Decorator..."""
 
-        def decorated(func: Callable):
+        def decorated(func: Callable) -> Callable:
             if name and name.startswith("rpc."):
                 raise ValueError(
                     'According to JSON-RPC specs, method names starting with "rpc." are reserved for system extensions '
@@ -81,7 +81,7 @@ class RpcNamespace(RegistryMixin): ...
 
 
 class RpcServer(RegistryMixin):
-    def __init__(self, supported_protocol: Protocol = Protocol.ALL, auth=NOT_SET):
+    def __init__(self, supported_protocol: Protocol = Protocol.ALL, auth: Any = NOT_SET) -> None:
         super().__init__(auth)
         self.supported_handlers = list(
             filter(
@@ -97,7 +97,7 @@ class RpcServer(RegistryMixin):
 
         self.error_handlers: OrderedDict[type, Callable] = OrderedDict()
 
-    def register_namespace(self, namespace: RpcNamespace, name: str | None = None):
+    def register_namespace(self, namespace: RpcNamespace, name: str | None = None) -> None:
         prefix = f"{name}." if name else ""
         logger.debug(f"About to register {len(namespace.procedures)} procedures into namespace '{prefix}'")
 
@@ -129,7 +129,7 @@ class RpcServer(RegistryMixin):
         except TypeError:
             return None
 
-    def error_handler(self, exception_klass: type[BaseException], handler: Callable):
+    def error_handler(self, exception_klass: type[BaseException], handler: Callable) -> None:
         """Register a new error handler for a specific function"""
         self.error_handlers[exception_klass] = handler
 
@@ -144,6 +144,6 @@ class RpcServer(RegistryMixin):
         return RPCInternalError(message=str(exception))
 
     @property
-    def view(self):
+    def view(self) -> Callable:
         view = functools.partial(handle_rpc_request, server=self)
         return csrf_exempt(require_POST(view))
