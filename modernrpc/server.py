@@ -135,11 +135,10 @@ class RpcServer(RegistryMixin):
 
     def on_error(self, exception: BaseException) -> RPCException:
         """Do something when an exception happen"""
-        # for klass, handler in self.error_handlers.items():
-        #     if issubclass(exception, klass):
-        #         result = handler(exception)
-        #         if result:
-        #             return result
+        for klass, handler in self.error_handlers.items():
+            if isinstance(exception, klass):
+                if result := handler(exception):
+                    return result
         if isinstance(exception, RPCException):
             return exception
         return RPCInternalError(message=str(exception))

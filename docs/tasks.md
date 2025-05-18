@@ -9,7 +9,7 @@ This document contains a list of actionable improvement tasks for the django-mod
    - Update the `RpcServer.__init__` method to respect this setting
    - Document the new setting in the documentation
 
-2. [ ] Complete the error handling mechanism
+2. [x] Complete the error handling mechanism
    - Uncomment and fix the error handler loop in `RpcServer.on_error`
    - Add tests for custom error handlers
    - Document how to use custom error handlers
