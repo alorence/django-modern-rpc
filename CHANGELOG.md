@@ -1,5 +1,36 @@
 # Changelog
 
+## v2.0.0
+
+**Release date: unknown**
+
+### Breaking Changes
+
+- Complete architecture redesign: The library now uses a server-based approach instead of entry points
+- Removed the `RPCEntryPoint` class-based view in favor of the new `RpcServer` class
+- Removed automatic procedure registration via `MODERNRPC_METHODS_MODULES` setting
+- Removed HTML documentation generation through entry points
+- Changed the way procedures access request context, now using the `context_target` parameter
+
+### Improvements
+
+- New intuitive API with decorator-based procedure registration
+- Better error handling with customizable error handlers
+- Improved type annotations throughout the codebase
+- Support for namespaces to organize RPC methods
+- More flexible configuration options
+- Simplified server setup and procedure registration
+
+### API Changes
+
+- Added `RpcServer` class as the central component for handling RPC calls
+- Added `RpcNamespace` class for organizing procedures
+- Added `RpcRequestContext` class for accessing request context
+- Added `register_procedure` decorator for registering procedures
+- Added `error_handler` decorator for registering custom error handlers
+- Added `register_namespace` method for registering namespaces
+- The `Protocol` enum is now imported directly from the `modernrpc` package
+
 ## v1.1.0
 
 **Release date: 2025-01-01**

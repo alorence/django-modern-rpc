@@ -1,12 +1,15 @@
 Home
 ====
 
-RPC (Remote Procedure Call) is a pretty old network protocol used to call functions on another system or web server
-through HTTP POST requests. It has been created decades ago and is one of the predecessor of modern Web API protocols
+RPC (Remote Procedure Call) is a network protocol used to call functions on another system or web server
+through HTTP POST requests. It has been around for decades and is one of the predecessors of modern Web API protocols
 (REST, GraphQL, etc.).
 
-While it is a bit outdated now, there is still use-cases were XML-RPC or JSON-RPC server must be implemented.
-**Django-modern-rpc** will help you setup such a server as part of your Django project.
+While newer alternatives exist, there are still use-cases where XML-RPC or JSON-RPC servers are needed.
+**Django-modern-rpc** helps you set up such a server as part of your Django project.
+
+Version 2.0 brings significant improvements to the library, including a more intuitive API, better error handling,
+improved type annotations, and more flexible configuration options.
 
 .. image:: https://img.shields.io/pypi/l/django-modern-rpc?style=for-the-badge
    :alt: PyPI - License
@@ -44,7 +47,7 @@ your project, follow other topics in the menu.
    :hidden:
 
    basics/register_procedure.rst
-   basics/entrypoints.rst
+   basics/server.rst
    basics/error_handling.rst
    basics/settings.rst
 
