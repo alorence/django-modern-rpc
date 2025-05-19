@@ -1,9 +1,9 @@
-.content-container h1 {
-    color: #1c1c1c !important;
+/* fix colored pixels visible behind badges with links on Homepage */
+#home a.reference.external {
+    display: inline-block;
 }
 
-#settings h3 {
-    color: #434343 !important;
-    font-weight: bold;
-    font-size: 1.15em;
+/* remove unexpected scrollbar displayed in left sidebar */
+div.sidebar-primary-items__end.sidebar-primary__section {
+    margin: 0;
 }
