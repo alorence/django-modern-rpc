@@ -1,7 +1,14 @@
+import shutil
 from enum import StrEnum
+from pathlib import Path
 
 import nox
 from packaging.version import Version
+
+PROJECT_DIR = Path(__file__).parent
+DOCS_SRC_DIR = PROJECT_DIR / "docs"
+DOCS_BUILD_DIR = PROJECT_DIR / "dist" / "docs"
+AUTODOC_PORT = 8001
 
 
 class Python(StrEnum):
@@ -76,27 +83,7 @@ def run_tests(session, python, django):
     session.run("pytest", "-n", "auto", *post_args)
 
 
-@nox.session(name="lint", venv_backend="none", tags=["ruff"])
-def ruff_lint(session):
-    """Check the project for common issues"""
-    session.run("uv", "run", "ruff", "check", ".")
-
-
-@nox.session(name="format", venv_backend="none", tags=["ruff"])
-def ruff_format(session):
-    """Check that all files are well formated"""
-    session.run("uv", "run", "ruff", "format", ".", "--check")
-
-
-@nox.session(venv_backend="uv")
-def mypy(session):
-    """Verify type hints"""
-    env = {"UV_PROJECT_ENVIRONMENT": session.virtualenv.location}
-    session.run_install("uv", "sync", "--group", "type-checking", env=env)
-    session.run("mypy", ".", env=env)
-
-
-@nox.session(venv_backend="none", default=False, tags=["tests"])
+@nox.session(name="test:coverage", venv_backend="none", default=False, tags=["tests"])
 def cov(session):
     """Run tests and generate coverage report in 'htmlcov' directory"""
     cov_type = "term"
@@ -108,7 +95,51 @@ def cov(session):
     session.run("uv", "run", "pytest", "--cov", f"--cov-report={cov_type}", *session.posargs)
 
 
-@nox.session(venv_backend="none", default=False, tags=["tests"])
+@nox.session(name="test:duration", venv_backend="none", default=False, tags=["tests"])
 def tests_duration(session):
     """Run tests and report the 20 slowest tests"""
     session.run("uv", "run", "pytest", "--durations=20")
+
+
+@nox.session(name="lint", venv_backend="none", tags=["ruff", "checks"])
+def ruff_lint(session):
+    """Check the project for common issues"""
+    session.run("uv", "run", "ruff", "check", ".")
+
+
+@nox.session(name="format", venv_backend="none", tags=["ruff", "checks"])
+def ruff_format(session):
+    """Check that all files are well formated"""
+    session.run("uv", "run", "ruff", "format", ".", "--check")
+
+
+@nox.session(venv_backend="uv", tags=["checks"])
+def mypy(session):
+    """Verify type hints"""
+    env_vars = {"UV_PROJECT_ENVIRONMENT": session.virtualenv.location}
+    session.run_install("uv", "sync", "--group", "type-checking", env=env_vars)
+    session.run("mypy", ".", env=env_vars)
+
+
+@nox.session(name="docs:build", venv_backend="uv")
+def docs_build(session):
+    """Build the project's documentation"""
+    env_vars = {"UV_PROJECT_ENVIRONMENT": session.virtualenv.location}
+    session.run_install("uv", "sync", "--group", "docs", env=env_vars)
+    session.run("sphinx-build", DOCS_SRC_DIR, DOCS_BUILD_DIR, env=env_vars)
+
+
+@nox.session(name="docs:serve", venv_backend="uv")
+def docs_serve(session):
+    """Continuously rebuild the project's documentation and serve it on localhost:8001"""
+    env_vars = {"UV_PROJECT_ENVIRONMENT": session.virtualenv.location}
+    session.run_install("uv", "sync", "--group", "docs", env=env_vars)
+    session.run(
+        "sphinx-autobuild", "-b", "html", "--port", str(AUTODOC_PORT), DOCS_SRC_DIR, DOCS_BUILD_DIR, env=env_vars
+    )
+
+
+@nox.session(name="docs:clean", venv_backend="none")
+def docs_cleanup(session):
+    """Cleanup previously built docs files"""
+    shutil.rmtree(DOCS_BUILD_DIR)
