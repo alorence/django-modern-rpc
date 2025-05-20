@@ -63,7 +63,7 @@ jobs:
     - name: Build GH Actions test matrix from nox sessions
       id: set-matrix
       shell: bash
-      run: echo session=$(nox -k tests --json -l | jq -c '[.[].session]') | tee --append $GITHUB_OUTPUT
+      run: echo session=$(nox -t cicd-tests --list --json | jq -c '[.[].session]') | tee --append $GITHUB_OUTPUT
 
   test:
     name: ${{ matrix.session }}

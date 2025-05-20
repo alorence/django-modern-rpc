@@ -31,33 +31,35 @@ class Django(StrEnum):
     v3_2 = "3.2"
 
 
-def is_combination_supported(py: str, dj: str) -> bool:
+def is_combination_supported(py: Python, dj: Django) -> bool:
     """Determines if the given Python / Django versions combination is supported.
 
     This is a direct implementation of the table provided in Django FAQ:
      - https://docs.djangoproject.com/en/5.1/faq/install/#what-python-version-can-i-use-with-django
     """
-    py = Version(py)
-
     if dj == Django.v3_2:
-        return Version("3.6") <= py <= Version("3.10")
+        return Version("3.6") <= Version(py) <= Version("3.10")
 
     if dj == Django.v4_0:
-        return Version("3.8") <= py <= Version("3.10")
+        return Version("3.8") <= Version(py) <= Version("3.10")
 
     if dj == Django.v4_1:
-        return Version("3.8") <= py <= Version("3.11")
+        return Version("3.8") <= Version(py) <= Version("3.11")
 
     if dj == Django.v4_2:
-        return Version("3.8") <= py <= Version("3.12")
+        return Version("3.8") <= Version(py) <= Version("3.12")
 
     if dj == Django.v5_0:
-        return Version("3.10") <= py <= Version("3.12")
+        return Version("3.10") <= Version(py) <= Version("3.12")
 
     if dj in (Django.v5_1, Django.v5_2):
-        return Version("3.10") <= py <= Version("3.14")
+        return Version("3.10") <= Version(py) <= Version("3.14")
 
     return False
+
+
+def run_on_cicd(py: Python, dj: Django):
+    return py != Python.v3_14
 
 
 def build_test_matrix():
@@ -65,7 +67,13 @@ def build_test_matrix():
         for dj in Django:
             if not is_combination_supported(py, dj):
                 continue
-            tags = [f"py{py.replace('.', '')}", f"dj{dj.replace('.', '')}", "tests"]
+            tags = [
+                "tests",
+                f"py{py.replace('.', '')}",
+                f"dj{dj.replace('.', '')}",
+            ]
+            if run_on_cicd(py, dj):
+                tags.append("cicd-tests")
             session_id = f"Python {py} × Django {dj}"  # noqa: RUF001, RUF003 (disable warning about ambiguous × char)
             yield nox.param(py, dj, id=session_id, tags=tags)
 
