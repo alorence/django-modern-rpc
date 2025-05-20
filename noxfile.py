@@ -110,13 +110,25 @@ def tests_duration(session):
 
 
 @nox.session(name="lint", venv_backend="none", tags=["ruff", "checks"])
-def ruff_lint(session):
+def lint(session):
     """Check the project for common issues"""
     session.run("uv", "run", "ruff", "check", ".")
 
 
-@nox.session(name="format", venv_backend="none", tags=["ruff", "checks"])
-def ruff_format(session):
+@nox.session(name="lint:fix", venv_backend="none", default=False, tags=["ruff"])
+def lint_fix(session):
+    """Check the project for common issues, and apply obvious fixes"""
+    session.run("uv", "run", "ruff", "check", ".", "--fix")
+
+
+@nox.session(name="format", venv_backend="none", default=False, tags=["ruff", "checks"])
+def format_apply(session):
+    """Apply formatting rules on all files"""
+    session.run("uv", "run", "ruff", "format", ".")
+
+
+@nox.session(name="format:check", venv_backend="none", tags=["ruff", "checks"])
+def format_check(session):
     """Check that all files are well formated"""
     session.run("uv", "run", "ruff", "format", ".", "--check")
 
@@ -129,7 +141,7 @@ def mypy(session):
     session.run("mypy", ".", env=env_vars)
 
 
-@nox.session(name="docs:build", venv_backend="uv")
+@nox.session(name="docs:build", venv_backend="uv", default=False)
 def docs_build(session):
     """Build the project's documentation"""
     env_vars = {"UV_PROJECT_ENVIRONMENT": session.virtualenv.location}
@@ -137,7 +149,7 @@ def docs_build(session):
     session.run("sphinx-build", DOCS_SRC_DIR, DOCS_BUILD_DIR, env=env_vars)
 
 
-@nox.session(name="docs:serve", venv_backend="uv")
+@nox.session(name="docs:serve", venv_backend="uv", default=False)
 def docs_serve(session):
     """Continuously rebuild the project's documentation and serve it on localhost:8001"""
     env_vars = {"UV_PROJECT_ENVIRONMENT": session.virtualenv.location}
@@ -147,7 +159,7 @@ def docs_serve(session):
     )
 
 
-@nox.session(name="docs:clean", venv_backend="none")
+@nox.session(name="docs:clean", venv_backend="none", default=False)
 def docs_cleanup(session):
     """Cleanup previously built docs files"""
     shutil.rmtree(DOCS_BUILD_DIR)

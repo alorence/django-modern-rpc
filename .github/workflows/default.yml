@@ -24,7 +24,7 @@ on:
         - test.pypi.org
 
 env:
-  UV_VERSION: 0.7.3
+  UV_VERSION: 0.7.4
   # Hide warning about outdated pip version
   PIP_DISABLE_PIP_VERSION_CHECK: 1
 

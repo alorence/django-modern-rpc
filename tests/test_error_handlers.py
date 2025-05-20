@@ -1,6 +1,3 @@
-
-import pytest
-
 from modernrpc.exceptions import RPCException, RPCInternalError
 from modernrpc.server import RpcServer
 
@@ -11,6 +8,7 @@ class CustomException(Exception):
 
 class CustomRPCException(RPCException):
     """A custom RPC exception for testing error handlers."""
+
     def __init__(self):
         super().__init__(code=12345, message="Custom RPC exception")
 
