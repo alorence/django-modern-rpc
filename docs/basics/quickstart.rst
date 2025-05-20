@@ -20,55 +20,58 @@ Add ``modernrpc`` app to ``settings.INSTALLED_APPS``:
         'modernrpc',
     ]
 
-Declare a procedure
--------------------
+Create an RPC Server
+----------------
 
-Remote procedures are global Python functions decorated with ``@rpc_method``.
+In version 2.0, you first create an RPC server instance that will manage your procedures:
+
+.. code-block:: python
+   :caption: myapp/rpc.py
+
+    from modernrpc.server import RpcServer
+
+    # Create a server instance
+    server = RpcServer()
+
+Declare procedures
+-----------------
+
+Remote procedures are Python functions decorated with the server's ``register_procedure`` decorator:
 
 .. code-block:: python
    :caption: myapp/remote_procedures.py
 
-    from modernrpc.core import rpc_method
+    from myapp.rpc import server
 
-    @rpc_method
+    @server.register_procedure
     def add(a, b):
+        """Add two numbers and return the result.
+
+        :param a: First number
+        :param b: Second number
+        :return: Sum of a and b
+        """
         return a + b
 
-``@rpc_method`` behavior can be customized to your needs. Read :doc:`register_procedure` for a full list of available
-options.
-
-Locate procedures modules
--------------------------
-
-Django-modern-rpc will automatically register functions decorated with ``@rpc_method``, but needs a hint to locate them.
-Set ``settings.MODERNRPC_METHODS_MODULES`` variable to indicate project's modules where remote procedures are declared.
-
-.. code-block:: python
-   :caption: myproject/settings.py
-
-    MODERNRPC_METHODS_MODULES = [
-        'myapp.remote_procedures'
-    ]
+The ``register_procedure`` decorator can be customized to your needs. Read :doc:`register_procedure` for a full list of available options.
 
 Create an entry point
 ---------------------
 
-The entrypoint is a special Django view handling RPC calls. Like any other view, it must
-be declared in URLConf or any app specific ``urls.py``:
+The entry point is a Django view that handles RPC calls. In version 2.0, you use the ``view`` property of your RPC server:
 
 .. code-block:: python
    :caption: myproject/urls.py
 
     from django.urls import path
-    from modernrpc.views import RPCEntryPoint
+    from myapp.rpc import server
 
     urlpatterns = [
         # ... other url patterns
-        path('rpc/', RPCEntryPoint.as_view()),
+        path('rpc/', server.view),
     ]
 
-Entry points behavior can be customized to your needs. Read :doc:`entrypoints` for
-full documentation.
+The server's view is already configured with CSRF exemption and POST-only restrictions. You can customize the server behavior to your needs. Read :doc:`server` for full documentation.
 
 Test the server
 ---------------

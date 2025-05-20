@@ -39,6 +39,8 @@ extensions = [
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = [
+    "Thumbs.db",
+    ".DS_Store",
     "drafts/*",
 ]
 
@@ -62,15 +64,36 @@ templates_path = [
     "_templates",
 ]
 html_permalinks_icon = '<img src="/_static/permalink.svg" style="height: 0.75em; margin-bottom: 0.15em"/>'
+# All (**) pages will have 1 more sidebar content (donation.html) after the default one (sbt-sidebar-nav.html)
+# See https://sphinx-book-theme.readthedocs.io/en/stable/sections/sidebar-primary.html
 html_sidebars = {"**": ["sbt-sidebar-nav.html", "donation.html"]}
 html_theme_options = {
     "home_page_in_toc": True,
-    "show_toc_level": 1,
+    "show_toc_level": 2,
     "toc_title": "Navigation",
     "use_download_button": False,
     "use_repository_button": True,
     "repository_url": "https://github.com/alorence/django-modern-rpc",
+    "path_to_docs": "docs",
+    "repository_branch": "main",
     "analytics": {
         "google_analytics_id": "G-7KF8EXTF4W",
     },
+    "announcement": None,
+    "icon_links": [],
 }
+
+# -- MyST Parser configuration ----------------------------------------------
+myst_enable_extensions = [
+    "colon_fence",
+    "deflist",
+    "fieldlist",
+    "html_admonition",
+    "html_image",
+    "tasklist",
+]
+myst_heading_anchors = 3
+
+# -- Autodoc configuration ---------------------------------------------------
+autodoc_typehints = "description"
+autodoc_member_order = "bysource"

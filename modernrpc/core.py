@@ -55,7 +55,7 @@ class ProcedureWrapper:
         func: Callable,
         name: str | None = None,
         protocol: Protocol = Protocol.ALL,
-        auth=NOT_SET,
+        auth: Any = NOT_SET,
         context_target: str | None = None,
     ) -> None:
         # Store the reference to the registered function
@@ -69,11 +69,11 @@ class ProcedureWrapper:
         self.auth = auth
 
     @cached_property
-    def doc_parser(self):
+    def doc_parser(self) -> DocstringParser:
         return DocstringParser(self.function)
 
     @cached_property
-    def introspector(self):
+    def introspector(self) -> Introspector:
         return Introspector(self.function)
 
     def __repr__(self) -> str:
@@ -82,7 +82,9 @@ class ProcedureWrapper:
     def __str__(self) -> str:
         return f"{self.name}({', '.join(self.introspector.args)})"
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ProcedureWrapper):
+            return NotImplemented
         return (
             self.function == other.function
             and self.name == other.name
@@ -93,7 +95,8 @@ class ProcedureWrapper:
     def check_permissions(self, request: HttpRequest) -> Any:
         """Call the predicate(s) associated with the RPC method, to check if the current request
         can actually call the method.
-        Return a boolean indicating if the method should be executed (True) or not (False)
+        Return a boolean indicating if the method should be executed (True) or not (False),
+        or any other value that can be used by the caller.
         """
         if self.auth == NOT_SET or not self.auth:
             return True

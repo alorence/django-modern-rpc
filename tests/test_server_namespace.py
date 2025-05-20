@@ -70,6 +70,19 @@ class TestInitialRpcServer:
         handler = RpcServer(supported_protocol=Protocol.JSON_RPC).get_handler(request)
         assert handler is None
 
+
+    def test_system_procedures_disabled(self, settings):
+        # Temporarily disable system procedures registration
+        settings.MODERNRPC_REGISTER_SYSTEM_PROCEDURES = False
+
+        server = RpcServer()
+
+        # Verify that system procedures are not registered
+        assert "system.listMethods" not in server.procedures
+        assert "system.methodSignature" not in server.procedures
+        assert "system.methodHelp" not in server.procedures
+        assert "system.multicall" not in server.procedures
+
     def test_system_procedures(self):
         server = RpcServer()
 

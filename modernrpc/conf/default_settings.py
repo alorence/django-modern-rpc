@@ -15,6 +15,9 @@ MODERNRPC_DOC_FORMAT = ""
 # Set to False if you need to disable exception logging
 MODERNRPC_LOG_EXCEPTIONS = True
 
+# Set to False if you want to disable automatic registration of system procedures
+MODERNRPC_REGISTER_SYSTEM_PROCEDURES = True
+
 MODERNRPC_JSON_DESERIALIZER = {"class": "modernrpc.backends.builtin_json.BuiltinJSON", "kwargs": {}}
 MODERNRPC_JSON_SERIALIZER = {"class": "modernrpc.backends.builtin_json.BuiltinJSON", "kwargs": {}}
 MODERNRPC_XML_DESERIALIZER = {"class": "modernrpc.backends.builtin_xmlrpc.BuiltinXmlRpc", "kwargs": {}}
