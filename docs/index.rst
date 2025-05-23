@@ -33,32 +33,20 @@ Getting started
    older Python/Django versions, you must install a previous release. See :ref:`Changelog` for more information.
 
 Installing the library and configuring a Django project to use it can be achieved in a few minutes. Follow
-:doc:`basics/quickstart` for very basic setup process. Later, when you will need to configure more precisely
+:doc:`quickstart` for very basic setup process. Later, when you will need to configure more precisely
 your project, follow other topics in the menu.
 
 .. toctree::
    :hidden:
 
-   basics/quickstart.rst
-
-.. toctree::
-   :caption: Basics
-   :name: basics
-   :hidden:
-
-   basics/register_procedure.rst
-   basics/server.rst
-   basics/error_handling.rst
-
-.. toctree::
-   :caption: Advanced
-   :name: advanced
-   :hidden:
-
-   advanced/implementation_details.rst
-   advanced/authentication.rst
-   advanced/generated_doc.rst
-   advanced/security.rst
+   quickstart.rst
+   server.rst
+   procedure_registration.rst
+   authentication.rst
+   error_handling.rst
+   security.rst
+   faq.rst
+   migration_guide.rst
 
 .. toctree::
    :caption: Miscellaneous

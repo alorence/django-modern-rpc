@@ -7,3 +7,17 @@
 div.sidebar-primary-items__end.sidebar-primary__section {
     margin: 0;
 }
+
+/* Customize permalink icon size & position */
+img.permalink-icon {
+    position: relative;
+    top: -0.1em;
+    height: 0.8em;
+}
+
+/* Customize permalink color in dark theme */
+html[data-theme=dark] .bd-content img.permalink-icon {
+    /* https://isotropic.co/tool/hex-color-to-css-filter/ */
+    filter: invert(88%) sepia(34%) saturate(17%) hue-rotate(217deg) brightness(95%) contrast(101%);
+    background: transparent;
+}

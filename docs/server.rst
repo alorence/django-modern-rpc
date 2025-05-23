@@ -1,33 +1,30 @@
 Server configuration
-===================
+====================
 
-In Django-modern-rpc v2, the ``RpcServer`` class is the central component that handles remote procedure calls.
+Starting with v2, the ``RpcServer`` class is the central component that handles remote procedure calls.
 
 Basic usage
-----------
+-----------
 
 First, create an RPC server instance:
 
 .. code-block:: python
-   :caption: myapp/rpc.py
+   :caption: myproject/myapp/rpc.py
 
     from modernrpc.server import RpcServer
 
-    # Create a server instance
     server = RpcServer()
 
-Then, expose the server's view in your project or app's ``urls.py``:
 
-.. code-block:: python
-   :caption: urls.py
+    @server.register_procedure
+    def add(a: int, b: int) -> int:
+        """Add two numbers and return the result.
 
-    from django.urls import path
-    from myapp.rpc import server
-
-    urlpatterns = [
-        # ... other views
-        path('rpc/', server.view),
-    ]
+        :param a: First number
+        :param b: Second number
+        :return: Sum of a and b
+        """
+        return a + b
 
 All requests to ``http://yourwebsite/rpc/`` will be routed to the server's view. They will be inspected and
 parsed to be interpreted as RPC calls. The result of procedure calls will be encapsulated into a response according

@@ -146,7 +146,7 @@ def docs_build(session):
     """Build the project's documentation"""
     env_vars = {"UV_PROJECT_ENVIRONMENT": session.virtualenv.location}
     session.run_install("uv", "sync", "--group", "docs", env=env_vars)
-    session.run("sphinx-build", DOCS_SRC_DIR, DOCS_BUILD_DIR, env=env_vars)
+    session.run("sphinx-build", DOCS_SRC_DIR, DOCS_BUILD_DIR, *session.posargs, env=env_vars)
 
 
 @nox.session(name="docs:serve", venv_backend="uv", default=False)
@@ -155,7 +155,15 @@ def docs_serve(session):
     env_vars = {"UV_PROJECT_ENVIRONMENT": session.virtualenv.location}
     session.run_install("uv", "sync", "--group", "docs", env=env_vars)
     session.run(
-        "sphinx-autobuild", "-b", "html", "--port", str(AUTODOC_PORT), DOCS_SRC_DIR, DOCS_BUILD_DIR, env=env_vars
+        "sphinx-autobuild",
+        "-b",
+        "html",
+        "--port",
+        str(AUTODOC_PORT),
+        DOCS_SRC_DIR,
+        DOCS_BUILD_DIR,
+        *session.posargs,
+        env=env_vars,
     )
 
 
