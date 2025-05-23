@@ -10,5 +10,9 @@ Can I register a procedure in multiple servers?
 -----------------------------------------------
 Yes, link to page
 
-...
----
+Can I register a namespace into a namespace?
+--------------------------------------------
+
+No, this is currently not supported.
+
+If you need multiple levels, ...

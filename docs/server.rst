@@ -1,12 +1,15 @@
-Server configuration
-====================
+Server / Namespaces
+===================
+
+Server
+------
 
 The ``RpcServer`` class is the central component that handles remote procedure calls.
 
-Basic usage
------------
+Default configuration
+^^^^^^^^^^^^^^^^^^^^^
 
-First, create an RPC server instance:
+A default ``RpcServer`` instance will handle any RPC request it receives
 
 .. code-block:: python
    :caption: myproject/myapp/rpc.py
@@ -15,23 +18,9 @@ First, create an RPC server instance:
 
     server = RpcServer()
 
-
-    @server.register_procedure
-    def add(a: int, b: int) -> int:
-        """Add two numbers and return the result.
-
-        :param a: First number
-        :param b: Second number
-        :return: Sum of a and b
-        """
-        return a + b
-
 All requests to ``http://yourwebsite/rpc/`` will be routed to the server's view. They will be inspected and
 parsed to be interpreted as RPC calls. The result of procedure calls will be encapsulated into a response according
 to the request's protocol (JSON-RPC or XML-RPC).
-
-Server configuration
---------------------
 
 Protocol restriction
 ^^^^^^^^^^^^^^^^^^^^
@@ -73,11 +62,122 @@ By default, the server automatically registers :ref:`system procedures<sys-proce
 
     server = RpcServer()
 
+Authentication
+^^^^^^^^^^^^^^
 
-Multiple servers
-^^^^^^^^^^^^^^^
+.. code-block:: python
+   :caption: myapp/rpc.py
 
-You can create
+    from myapp.auth import my_auth_callback
+    from modernrpc.server import RpcServer
+
+    # Create a server with authentication
+    server = RpcServer(auth=my_auth_callback)
+
+    @server.register_procedure
+    def multiply(a, b):
+        return a * b
+
+All procedures registered in the server will use the auth callback configured in the namespace.
+
+.. note::
+  Configured authentication callback can be overridden at namespace or procedure level.
+
+For more information about authentication, see :ref:`Authentication`.
+
+
+Namespace
+---------
+
+Namespaces allow you to organize related RPC procedures under a common prefix. This is useful for:
+
+- Grouping related procedures together
+- Avoiding name conflicts between procedures
+- Creating versioned APIs
+- Providing a clearer API structure
+
+Creating a namespace
+^^^^^^^^^^^^^^^^^^^^
+
+To create a namespace, instantiate the ``RpcNamespace`` class:
+
+.. code-block:: python
+   :caption: myapp/math.py
+
+    from modernrpc import RpcNamespace
+
+    # Create a namespace for math operations
+    math = RpcNamespace()
+
+Registering procedures to a namespace
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can register procedures to a namespace using the ``register_procedure`` method, similar to how you would with an ``RpcServer``:
+
+.. code-block:: python
+   :caption: myapp/math.py
+
+    @math.register_procedure
+    def add(a, b):
+        return a + b
+
+    @math.register_procedure
+    def subtract(a, b):
+        return a - b
+
+Registering a namespace to a server
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To make the procedures in a namespace available through your RPC server, register the namespace to the server:
+
+.. code-block:: python
+   :caption: myapp/rpc.py
+
+    from modernrpc.server import RpcServer
+    from myapp.math import math
+
+    server = RpcServer()
+    server.register_namespace(math, "math")
+
+This will make the procedures available with the prefix "math.", so clients can call them as "math.add" and "math.subtract".
+
+If you don't provide a name when registering a namespace, the procedures will be registered without a prefix:
+
+.. code-block:: python
+   :caption: myapp/rpc.py
+
+    # Register without a prefix
+    server.register_namespace(math)
+
+    # Procedures are available as "add" and "subtract"
+
+Authentication
+^^^^^^^^^^^^^^
+
+Namespaces can have their own authentication settings that override the server's settings:
+
+.. code-block:: python
+   :caption: myapp/math.py
+
+    # Create a namespace with authentication
+    secure_math = RpcNamespace(auth=my_auth_callback)
+
+    @secure_math.register_procedure
+    def multiply(a, b):
+        return a * b
+
+All procedures registered in the namespace will use the auth callback configured in the namespace.
+
+.. note::
+  Configured authentication callback can be overridden at procedure level.
+
+For more information about authentication, see :ref:`Authentication <auth-ref>`.
+
+
+Multiple servers definition
+---------------------------
+
+You can create multiple server.
 
 .. code-block:: python
    :caption: myapp/rpc.py
@@ -98,3 +198,6 @@ You can create
        path('api/v1/', api_v1.view),
        path('api/v2/', api_v2.view),
     ]
+
+.. warning::
+  This section needs more detailed explanation & examples

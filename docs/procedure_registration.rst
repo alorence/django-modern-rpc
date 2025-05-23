@@ -70,7 +70,7 @@ Default: ``protocol = Protocol.ALL``
   The ``Protocol`` enum is now imported directly from the ``modernrpc`` package.
 
 Multiple servers
-^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^
 
 In version 2.0, the concept of entry points has been replaced with multiple server instances. You can create multiple RPC servers, each with its own set of procedures:
 
@@ -109,27 +109,22 @@ Then register procedures with the appropriate server:
 
 
 Access request context
----------------------
+----------------------
 
-In version 2.0, you can access the request context by specifying a parameter name that will receive the context object:
+If you need to access some context information in your procedure, simply add an argument with a name of your choice, and declare it in decorator: ``register_procedure(context_target="<arg_name>")``
 
 .. code-block:: python
 
+    from modernrpc import RpcRequestContext
     from myapp.rpc import server
 
-    @server.register_procedure(context_target='ctx')
-    def content_type_printer(ctx):
+
+    @server.register_procedure(context_target="ctx")
+    def content_type_printer(ctx: RpcRequestContext):
         """Return the Content-Type of the current request.
 
         :param ctx: Request context (automatically injected)
         :return: Content-Type header value
         """
-        # The context object contains:
-        # - ctx.request: Current HTTP request (HttpRequest instance)
-        # - ctx.protocol: Current protocol (JSON-RPC or XML-RPC)
-        # - ctx.server: The RPC server instance
-        # - ctx.handler: The handler instance processing the request
-        # - ctx.auth_result: Result of authentication check, if any
-
         # Return the Content-Type of the current request
         return ctx.request.content_type

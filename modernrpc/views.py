@@ -38,7 +38,6 @@ def handle_rpc_request(
         )
 
     request_body = request.body.decode(request.encoding or default_encoding)
-
     context = RpcRequestContext(request, server, handler, handler.protocol)
 
     result_data = handler.process_request(request_body, context)
