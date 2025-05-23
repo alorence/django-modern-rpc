@@ -92,28 +92,6 @@ In version 2.0, you can create multiple server instances, each with its own set 
        path('api/v2/', api_v2.view),
     ]
 
-Error handling
-^^^^^^^^^^^^^
-
-In version 2.0, you can register custom error handlers to handle specific exceptions:
-
-.. code-block:: python
-   :caption: myapp/rpc.py
-
-    from modernrpc.server import RpcServer
-    from modernrpc.exceptions import RPCInternalError
-
-    # Create a server instance
-    server = RpcServer()
-
-    # Register a custom error handler
-    @server.error_handler(ValueError)
-    def handle_value_error(exception):
-        # Convert ValueError to a custom RPC error
-        return RPCInternalError(f"Invalid value: {exception}")
-
-This allows you to customize how specific exceptions are handled and reported to clients.
-
 System procedures
 ^^^^^^^^^^^^^^^^
 

@@ -6,9 +6,26 @@ Installation
 
 Install ``django-modern-rpc`` in your environment, using pip or equivalent tool
 
-.. code-block:: bash
+.. tab:: pip
 
-    pip install django-modern-rpc
+   .. code-block:: bash
+
+       pip install django-modern-rpc
+
+.. tab:: poetry
+
+   .. code-block:: bash
+
+       poetry add django-modern-rpc
+
+.. tab:: uv
+
+   .. code-block:: bash
+
+       uv add django-modern-rpc
+
+
+
 
 Add ``modernrpc`` app to ``settings.INSTALLED_APPS``:
 
@@ -19,6 +36,7 @@ Add ``modernrpc`` app to ``settings.INSTALLED_APPS``:
         # ...
         'modernrpc',
     ]
+
 
 Create an RPC Server
 ----------------

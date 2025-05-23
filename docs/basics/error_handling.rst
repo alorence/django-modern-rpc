@@ -72,3 +72,27 @@ By default, when an exception is caught from modernrpc code, a stacktrace of the
 default log output. This allows developer to detect such case and fix the issue if needed.
 
 To disable this behavior, set :ref:`MODERNRPC_LOG_EXCEPTIONS` to `False`.
+
+---
+
+Error handling
+^^^^^^^^^^^^^
+
+In version 2.0, you can register custom error handlers to handle specific exceptions:
+
+.. code-block:: python
+   :caption: myapp/rpc.py
+
+    from modernrpc.server import RpcServer
+    from modernrpc.exceptions import RPCInternalError
+
+    # Create a server instance
+    server = RpcServer()
+
+    # Register a custom error handler
+    @server.error_handler(ValueError)
+    def handle_value_error(exception):
+        # Convert ValueError to a custom RPC error
+        return RPCInternalError(f"Invalid value: {exception}")
+
+This allows you to customize how specific exceptions are handled and reported to clients.
