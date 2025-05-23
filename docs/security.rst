@@ -1,6 +1,10 @@
 Security concerns
 =================
 
+TBD
+
+
+
 Since django-modern-rpc uses builtin xmlrpc.client internally, it is vulnerable to various security issues related to
 XML payloads parsing. To protect you project against these attacks, you can install the package `defusedxml` in your
 environment.

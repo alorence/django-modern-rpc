@@ -62,6 +62,7 @@ def test_get_builtin_date_invalid(date_str):
         (Protocol.ALL, Protocol.JSON_RPC, True),
         (Protocol.XML_RPC, Protocol.XML_RPC, True),
         (Protocol.XML_RPC, Protocol.ALL, True),
+        (Protocol.XML_RPC, Protocol.JSON_RPC, False),
         (Protocol.JSON_RPC, Protocol.JSON_RPC, True),
         (Protocol.JSON_RPC, Protocol.ALL, True),
         (Protocol.JSON_RPC, Protocol.XML_RPC, False),

@@ -37,7 +37,7 @@ class TestInitialRpcServer:
         assert list(RpcServer(supported_protocol=Protocol.XML_RPC).supported_handlers) == [XmlRpcHandler]
 
     def test_get_jsonrpc_handler(self, rf, jsonrpc_content_type):
-        """Check that correct RPC handler is retrieved from request's Content-Type header"""
+        """Check that correct handler is retrieved from request's Content-Type header"""
 
         # Build a dummy request. The only important thing is its "Content-Type"
         request = rf.post(path="dummy", content_type=jsonrpc_content_type)
@@ -54,7 +54,7 @@ class TestInitialRpcServer:
         assert handler is None
 
     def test_get_xmlrpc_handler(self, rf, xmlrpc_content_type):
-        """Check that correct RPC handler is retrieved from request's Content-Type header"""
+        """Check that correct handler is retrieved from request's Content-Type header"""
 
         # Build a dummy request. The only important thing is its "Content-Type"
         request = rf.post(path="dummy", content_type=xmlrpc_content_type)
@@ -71,10 +71,7 @@ class TestInitialRpcServer:
         assert handler is None
 
     def test_system_procedures_disabled(self, settings):
-        # Temporarily disable system procedures registration
-        settings.MODERNRPC_REGISTER_SYSTEM_PROCEDURES = False
-
-        server = RpcServer()
+        server = RpcServer(register_system_procedures=False)
 
         # Verify that system procedures are not registered
         assert "system.listMethods" not in server.procedures
