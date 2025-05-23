@@ -53,14 +53,21 @@ Default: ``supported_protocol = Protocol.ALL``
 System procedures
 ^^^^^^^^^^^^^^^^^
 
-By default, the server automatically registers :ref:`system procedures<sys-procedures-ref>`. You can disable this behavior by setting ``register_system_procedures=False``
+Using the ``register_system_procedures`` argument, you can disable the automatic registration of :ref:`system procedures<sys-procedures-ref>`.
+
+Default: ``register_system_procedures = True``
 
 .. code-block:: python
    :caption: myproject/myapp/rpc.py
 
     from modernrpc.server import RpcServer
 
-    server = RpcServer()
+    server = RpcServer(register_system_procedures=False)
+
+    # server won't register the system.* procedures
+
+.. warning::
+  Disabling the system procedure registration may prevent some clients (in particular, XML-RPC ones) to send request to your server, use at your own risks.
 
 Authentication
 ^^^^^^^^^^^^^^
@@ -78,7 +85,7 @@ Authentication
     def multiply(a, b):
         return a * b
 
-All procedures registered in the server will use the auth callback configured in the namespace.
+All procedures registered in the server will use the auth callback configured in the server.
 
 .. note::
   Configured authentication callback can be overridden at namespace or procedure level.
@@ -93,7 +100,6 @@ Namespaces allow you to organize related RPC procedures under a common prefix. T
 
 - Grouping related procedures together
 - Avoiding name conflicts between procedures
-- Creating versioned APIs
 - Providing a clearer API structure
 
 Creating a namespace
@@ -106,7 +112,7 @@ To create a namespace, instantiate the ``RpcNamespace`` class:
 
     from modernrpc import RpcNamespace
 
-    # Create a namespace for math operations
+    # Create a namespace for math procedures
     math = RpcNamespace()
 
 Registering procedures to a namespace
