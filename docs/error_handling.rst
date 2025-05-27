@@ -64,7 +64,7 @@ Here is an example:
 Such exceptions raised from your remote procedure will be properly returned to client.
 
 Error handling
-^^^^^^^^^^^^^
+^^^^^^^^^^^^^^
 
 In version 2.0, you can register custom error handlers to handle specific exceptions:
 
@@ -88,12 +88,12 @@ This allows you to customize how specific exceptions are handled and reported to
 ---
 
 Error Handling
--------------
+--------------
 
 When an exception occurs during the execution of an RPC method, django-modern-rpc converts it to an appropriate RPC error response. By default, any exception that is not an instance of ``RPCException`` is wrapped in an ``RPCInternalError`` with the exception message.
 
 Custom Error Handlers
-^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^
 
 You can customize how specific exceptions are handled by registering custom error handlers with the ``error_handler`` method. This allows you to:
 
