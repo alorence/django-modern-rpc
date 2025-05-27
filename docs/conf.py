@@ -22,6 +22,10 @@ release = importlib.metadata.version("django-modern-rpc")
 # The short X.Y version.
 version = release.rsplit(".", 1)[0]
 
+# The base URL which points to the root of the HTML documentation. It is used to indicate the
+# location of document using the Canonical Link Relation
+html_baseurl = "https://django-modern-rpc.readthedocs.io/"
+
 # -- General configuration ----------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
@@ -45,7 +49,8 @@ exclude_patterns = [
     "drafts/*",
 ]
 
-html_baseurl = "https://django-modern-rpc.readthedocs.io/"
+# Suppress warnings about duplicated labels
+suppress_warnings = ["autosectionlabel.*"]
 
 # -- Options for HTML output --------------------------------------------------
 

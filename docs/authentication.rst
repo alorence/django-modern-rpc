@@ -3,4 +3,6 @@
 Authentication
 ==============
 
-This section will contain all information needed to configure authentication on procedures
+.. note::
+
+   This section will contain all information needed to configure authentication on procedures
