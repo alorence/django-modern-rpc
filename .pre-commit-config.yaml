@@ -15,7 +15,7 @@ repos:
       - id: check-added-large-files
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     # Ruff version.
-    rev: 'v0.8.4'
+    rev: 'v0.11.13'
     hooks:
       # Linter
       - id: ruff
@@ -28,7 +28,7 @@ repos:
         files: ^modernrpc
         additional_dependencies: [django-stubs, types-docutils, types-Markdown, types-requests]
   - repo: https://github.com/python-poetry/poetry
-    rev: 2.1.1
+    rev: 2.1.3
     hooks:
       - id: poetry-check
       - id: poetry-lock
