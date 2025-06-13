@@ -2,15 +2,15 @@ from __future__ import annotations
 
 import datetime
 import xmlrpc.client as xmlrpc_client
-from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, Iterable, Sequence
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
     from enum import Flag
+    from typing import Callable
 
 
 def check_flags_compatibility(a: Flag, b: Flag) -> bool:
+    """Check that both flags are compatible"""
     return bool(a & b)
 
 

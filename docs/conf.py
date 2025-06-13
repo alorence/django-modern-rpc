@@ -22,6 +22,10 @@ release = importlib.metadata.version("django-modern-rpc")
 # The short X.Y version.
 version = release.rsplit(".", 1)[0]
 
+# The base URL which points to the root of the HTML documentation. It is used to indicate the
+# location of document using the Canonical Link Relation
+html_baseurl = "https://django-modern-rpc.readthedocs.io/"
+
 # -- General configuration ----------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
@@ -33,6 +37,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosectionlabel",
     "myst_parser",
+    "sphinx_inline_tabs",
 ]
 
 # List of patterns, relative to source directory, that match files and
@@ -44,7 +49,8 @@ exclude_patterns = [
     "drafts/*",
 ]
 
-html_baseurl = "https://django-modern-rpc.readthedocs.io/"
+# Suppress warnings about duplicated labels
+suppress_warnings = ["autosectionlabel.*"]
 
 # -- Options for HTML output --------------------------------------------------
 
@@ -63,7 +69,7 @@ html_css_files = ["custom.css"]
 templates_path = [
     "_templates",
 ]
-html_permalinks_icon = '<img src="/_static/permalink.svg" style="height: 0.75em; margin-bottom: 0.15em"/>'
+html_permalinks_icon = '<img src="/_static/permalink.svg" class="permalink-icon"/>'
 # All (**) pages will have 1 more sidebar content (donation.html) after the default one (sbt-sidebar-nav.html)
 # See https://sphinx-book-theme.readthedocs.io/en/stable/sections/sidebar-primary.html
 html_sidebars = {"**": ["sbt-sidebar-nav.html", "donation.html"]}

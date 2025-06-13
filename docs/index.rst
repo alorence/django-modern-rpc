@@ -29,37 +29,26 @@ improved type annotations, and more flexible configuration options.
 Getting started
 ---------------
 
-.. important:: django-modern-rpc requires python 3.7+ and Django 2.1+. If you need to install it in environment with
+.. important:: django-modern-rpc requires python 3.8+ and Django 3.2+. If you need to install it in environment with
    older Python/Django versions, you must install a previous release. See :ref:`Changelog` for more information.
 
 Installing the library and configuring a Django project to use it can be achieved in a few minutes. Follow
-:doc:`basics/quickstart` for very basic setup process. Later, when you will need to configure more precisely
+:doc:`quickstart` for very basic setup process. Later, when you will need to configure more precisely
 your project, follow other topics in the menu.
 
 .. toctree::
    :hidden:
 
-   basics/quickstart.rst
-
-.. toctree::
-   :caption: Basics
-   :name: basics
-   :hidden:
-
-   basics/register_procedure.rst
-   basics/server.rst
-   basics/error_handling.rst
-   basics/settings.rst
-
-.. toctree::
-   :caption: Advanced
-   :name: advanced
-   :hidden:
-
-   advanced/implementation_details.rst
-   advanced/authentication.rst
-   advanced/generated_doc.rst
-   advanced/security.rst
+   quickstart.rst
+   server.rst
+   procedure_registration.rst
+   backends.rst
+   authentication.rst
+   error_handling.rst
+   security.rst
+   faq.rst
+   references.rst
+   migration_guide.rst
 
 .. toctree::
    :caption: Miscellaneous

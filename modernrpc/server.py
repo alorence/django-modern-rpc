@@ -41,7 +41,20 @@ class RegistryMixin:
         auth: Any = NOT_SET,
         context_target: str | None = None,
     ) -> Callable:
-        """Decorator..."""
+        """
+        Registers a procedure for handling RPC (Remote Procedure Call) requests. This function can be used as a
+        decorator to register the given callable function as an RPC procedure.
+
+        :param procedure: A callable function to be registered as an RPC procedure
+        :param name: A custom name for the procedure. If not provided, the callable function's name is used by default.
+        :param protocol: Specifies the protocol (e.g., JSON-RPC, XML-RPC) under which the procedure can be executed.
+                         Defaults: Protocol.ALL
+        :param auth: Defines user authentication settings or access rules for the procedure. Defaults to NOT_SET, in
+                     which case the server's authentication settings will be used.
+        :param context_target: Specify the procedure argument name for accessing the RPC request context.
+
+        :raises ValueError: If a procedure can't be registered
+        """
 
         def decorated(func: Callable) -> Callable:
             if name and name.startswith("rpc."):
@@ -69,7 +82,7 @@ class RegistryMixin:
         if procedure is None:
             return decorated
 
-        # If @server.register_procedure is used without parenthesis
+        # If @server.register_procedure is used without a parenthesis
         return decorated(procedure)
 
     @property
@@ -81,7 +94,9 @@ class RpcNamespace(RegistryMixin): ...
 
 
 class RpcServer(RegistryMixin):
-    def __init__(self, supported_protocol: Protocol = Protocol.ALL, auth: Any = NOT_SET) -> None:
+    def __init__(
+        self, register_system_procedures: bool = True, supported_protocol: Protocol = Protocol.ALL, auth: Any = NOT_SET
+    ) -> None:
         super().__init__(auth)
         self.supported_handlers = list(
             filter(
@@ -90,8 +105,7 @@ class RpcServer(RegistryMixin):
             )
         )
 
-        # Register system procedures if enabled in settings
-        if settings.MODERNRPC_REGISTER_SYSTEM_PROCEDURES:
+        if register_system_procedures:
             system = import_string("modernrpc.system_procedures.system")
             self.register_namespace(system, "system")
 

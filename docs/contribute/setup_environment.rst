@@ -1,6 +1,10 @@
 Setup environment
 =================
 
+.. versionchanged:: 2.0
+
+   UV and NOX are now the main tools used to setup local project and run tests. This section needs an update
+
 Since 1.0, django-modern-rpc uses ``poetry`` as main tool to manage project dependencies, environments and packaging.
 It must be installed globally on your system.
 

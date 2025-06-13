@@ -1,5 +1,5 @@
-Implementation details
-======================
+Protocols specifications
+========================
 
 XML-RPC
 -------
@@ -13,16 +13,6 @@ The original website (xmlrpc.scripting.com) has also been archived with a new UR
 .. _Dave Winer: https://github.com/scripting
 .. _xmlrpc.com: http://xmlrpc.com
 .. _1998.xmlrpc.com: http://1998.xmlrpc.com
-
-System introspection methods
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-System introspection methods (listMethods, methodHelp, methodSignature) were not part of the original standard but were
-proposed in an unofficial addendum. Here is a list of references pages:
-
-- http://xmlrpc-c.sourceforge.net/introspection.html
-- http://scripts.incutio.com/xmlrpc/introspection.html (dead)
-- http://xmlrpc.usefulinc.com/doc/reserved.html) (dead)
 
 Multicall
 ^^^^^^^^^
@@ -160,8 +150,23 @@ All information about logging configuration can be found in `official Django doc
    Logging configuration is optional. If not configured, the errors will still be visible in logs unless you set
    :ref:`MODERNRPC_LOG_EXCEPTIONS` to `False`. See :ref:`Logging errors`
 
-System methods
---------------
+
+.. _sys-procedures-ref:
+
+Introspection procedures
+------------------------
+
+System introspection methods
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+System introspection methods (listMethods, methodHelp, methodSignature) were not part of the original standard but were
+proposed in an unofficial addendum. Here is a list of references pages:
+
+- http://xmlrpc-c.sourceforge.net/introspection.html
+- http://scripts.incutio.com/xmlrpc/introspection.html (dead)
+- http://xmlrpc.usefulinc.com/doc/reserved.html) (dead)
+
+---
 
 XML-RPC_ specification doesn't provide default methods to achieve introspection tasks, but some people proposed
 a standard for such methods. The `original document`_ is now offline, but has been retrieved from Google
@@ -199,59 +204,3 @@ at once using batch request.
 .. _well defined: https://mirrors.talideon.com/articles/multicall.html
 .. _Python's ServerProxy: https://docs.python.org/3/library/xmlrpc.client.html#multicall-objects
 .. _Eric Kidd: https://github.com/emk
-
-Error Handling
--------------
-
-When an exception occurs during the execution of an RPC method, django-modern-rpc converts it to an appropriate RPC error response. By default, any exception that is not an instance of ``RPCException`` is wrapped in an ``RPCInternalError`` with the exception message.
-
-Custom Error Handlers
-^^^^^^^^^^^^^^^^^^^^
-
-You can customize how specific exceptions are handled by registering custom error handlers with the ``error_handler`` method. This allows you to:
-
-- Convert specific exceptions to custom RPC errors
-- Add additional information to error responses
-- Handle exceptions in a way that makes sense for your application
-
-Here's an example of how to register and use a custom error handler:
-
-.. code-block:: python
-
-   from modernrpc.exceptions import RPCException
-   from modernrpc.server import RpcServer
-
-   server = RpcServer()
-
-   # Define a handler function for ValueError
-   def handle_value_error(exc):
-       # Convert ValueError to a custom RPC error
-       return RPCException(code=12345, message=f"Invalid value: {exc}")
-
-   # Register the handler for ValueError
-   server.error_handler(ValueError, handle_value_error)
-
-   # For a custom exception
-   class MyCustomException(Exception):
-       pass
-
-   def handle_custom_exception(exc):
-       # You can return any RPCException or subclass
-       return RPCException(code=54321, message="A custom error occurred")
-
-   server.error_handler(MyCustomException, handle_custom_exception)
-
-When an exception occurs, the server will:
-
-1. Check if the exception matches any registered error handler
-2. If a match is found, call the handler with the exception
-3. If the handler returns an RPCException, use it as the error response
-4. If the handler returns None, fall back to the default error handling
-5. If no handler matches, use the default error handling
-
-The default error handling:
-
-- Returns the exception as-is if it's an RPCException
-- Wraps the exception in an RPCInternalError otherwise
-
-This mechanism allows you to provide more meaningful error responses to your RPC clients while keeping your RPC methods focused on their core functionality.

@@ -1,25 +1,25 @@
-# .readthedocs.yml
 # Read the Docs configuration file
-# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
-
-# Required
+# Ref: https://docs.readthedocs.com/platform/stable/config-file/v2.html
 version: 2
-
-# Build documentation in the docs/ directory with Sphinx
-sphinx:
-  configuration: docs/conf.py
-
-# Optionally build your docs in additional formats such as PDF and ePub
 formats: all
 
-# Optionally set the version of Python and requirements required to build your docs
-python:
-  install:
-    - method: pip
-      path: .
-    - requirements: requirements.doc.txt
+# https://docs.readthedocs.com/platform/stable/config-file/v2.html#sphinx
+sphinx:
+  # Required: path to the 'conf.py' file
+  configuration: docs/conf.py
 
+# https://docs.readthedocs.com/platform/stable/config-file/v2.html#build
 build:
   os: ubuntu-24.04
   tools:
-    python: '3.12'
+    python: latest
+  jobs:
+    # Custom environment setup. Only uv is required (python is already setup)
+    create_environment:
+      - asdf plugin add uv
+      - asdf install uv latest
+      - asdf global uv latest
+
+    # Custom docs dependencies installation, based on uv.lock
+    install:
+      - UV_PROJECT_ENVIRONMENT=$READTHEDOCS_VIRTUALENV_PATH uv sync --group docs

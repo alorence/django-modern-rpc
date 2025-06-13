@@ -4,47 +4,41 @@ Quickstart
 Installation
 ------------
 
-Install ``django-modern-rpc`` in your environment, using pip or equivalent tool
+Install ``django-modern-rpc`` in your environment
 
-.. code-block:: bash
+.. tab:: pip
 
-    pip install django-modern-rpc
+   .. code-block:: bash
 
-Add ``modernrpc`` app to ``settings.INSTALLED_APPS``:
+       pip install django-modern-rpc
+
+.. tab:: poetry
+
+   .. code-block:: bash
+
+       poetry add django-modern-rpc
+
+.. tab:: uv
+
+   .. code-block:: bash
+
+       uv add django-modern-rpc
+
+Basic setup
+-----------
+
+Create an ``RpcServer`` instance and register your first procedure
 
 .. code-block:: python
-   :caption: myproject/settings.py
-
-    INSTALLED_APPS = [
-        # ...
-        'modernrpc',
-    ]
-
-Create an RPC Server
-----------------
-
-In version 2.0, you first create an RPC server instance that will manage your procedures:
-
-.. code-block:: python
-   :caption: myapp/rpc.py
+   :caption: myproject/myapp/rpc.py
 
     from modernrpc.server import RpcServer
 
-    # Create a server instance
     server = RpcServer()
 
-Declare procedures
------------------
-
-Remote procedures are Python functions decorated with the server's ``register_procedure`` decorator:
-
-.. code-block:: python
-   :caption: myapp/remote_procedures.py
-
-    from myapp.rpc import server
 
     @server.register_procedure
-    def add(a, b):
+    def add(a: int, b: int) -> int:
         """Add two numbers and return the result.
 
         :param a: First number
@@ -53,15 +47,17 @@ Remote procedures are Python functions decorated with the server's ``register_pr
         """
         return a + b
 
-The ``register_procedure`` decorator can be customized to your needs. Read :doc:`register_procedure` for a full list of available options.
+Remote procedures are Python functions decorated with the server's ``register_procedure`` decorator.
+Both server and procedure registration can be customized. See ...
 
-Create an entry point
----------------------
+Serve the procedures
+--------------------
 
-The entry point is a Django view that handles RPC calls. In version 2.0, you use the ``view`` property of your RPC server:
+To execute a remote procedure, clients will send a *POST* request to a single url in your project. Declare the route
+to this view in your project's ``urls.py``
 
 .. code-block:: python
-   :caption: myproject/urls.py
+   :caption: myproject/myproject/urls.py
 
     from django.urls import path
     from myapp.rpc import server
@@ -71,13 +67,16 @@ The entry point is a Django view that handles RPC calls. In version 2.0, you use
         path('rpc/', server.view),
     ]
 
-The server's view is already configured with CSRF exemption and POST-only restrictions. You can customize the server behavior to your needs. Read :doc:`server` for full documentation.
+The server's view is already configured with CSRF exemption and POST-only restrictions.
 
 Test the server
 ---------------
 
 Start your project using ``python manage.py runserver`` and call your procedure using JSON-RPC or XML-RPC client, or
 directly with your favourite HTTP client
+
+.. TODO
+   Add more code example, with curl for XML-RPC and with jsonrpcclient for JSON-RPC
 
 .. code-block:: bash
    :caption: JSON-RPC example
