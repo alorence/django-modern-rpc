@@ -31,10 +31,10 @@ class TestInitialRpcServer:
 
     def test_supported_handlers(self):
         """Check that a fresh RPCServer 'supported_handlers' is correct with its initialization"""
-        assert list(RpcServer().supported_handlers) == [JsonRpcHandler, XmlRpcHandler]
+        assert list(RpcServer().request_handlers_classes) == [JsonRpcHandler, XmlRpcHandler]
 
-        assert list(RpcServer(supported_protocol=Protocol.JSON_RPC).supported_handlers) == [JsonRpcHandler]
-        assert list(RpcServer(supported_protocol=Protocol.XML_RPC).supported_handlers) == [XmlRpcHandler]
+        assert list(RpcServer(supported_protocol=Protocol.JSON_RPC).request_handlers_classes) == [JsonRpcHandler]
+        assert list(RpcServer(supported_protocol=Protocol.XML_RPC).request_handlers_classes) == [XmlRpcHandler]
 
     def test_get_jsonrpc_handler(self, rf, jsonrpc_content_type):
         """Check that correct handler is retrieved from request's Content-Type header"""
@@ -43,14 +43,14 @@ class TestInitialRpcServer:
         request = rf.post(path="dummy", content_type=jsonrpc_content_type)
 
         # Server supports all protocols: OK
-        assert isinstance(RpcServer().get_handler(request), JsonRpcHandler)
+        assert isinstance(RpcServer().get_request_handler(request), JsonRpcHandler)
 
         # Server supports only JSON-RPC: OK
-        handler = RpcServer(supported_protocol=Protocol.JSON_RPC).get_handler(request)
+        handler = RpcServer(supported_protocol=Protocol.JSON_RPC).get_request_handler(request)
         assert isinstance(handler, JsonRpcHandler)
 
         # Server supports only XML-RPC: NOK
-        handler = RpcServer(supported_protocol=Protocol.XML_RPC).get_handler(request)
+        handler = RpcServer(supported_protocol=Protocol.XML_RPC).get_request_handler(request)
         assert handler is None
 
     def test_get_xmlrpc_handler(self, rf, xmlrpc_content_type):
@@ -60,14 +60,14 @@ class TestInitialRpcServer:
         request = rf.post(path="dummy", content_type=xmlrpc_content_type)
 
         # Server supports all protocols: OK
-        assert isinstance(RpcServer().get_handler(request), XmlRpcHandler)
+        assert isinstance(RpcServer().get_request_handler(request), XmlRpcHandler)
 
         # Server supports only XML-RPC: OK
-        handler = RpcServer(supported_protocol=Protocol.XML_RPC).get_handler(request)
+        handler = RpcServer(supported_protocol=Protocol.XML_RPC).get_request_handler(request)
         assert isinstance(handler, XmlRpcHandler)
 
         # Server supports only JSON-RPC: NOK
-        handler = RpcServer(supported_protocol=Protocol.JSON_RPC).get_handler(request)
+        handler = RpcServer(supported_protocol=Protocol.JSON_RPC).get_request_handler(request)
         assert handler is None
 
     def test_system_procedures_disabled(self, settings):

@@ -80,7 +80,7 @@ class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
             # We can't extract request_id from incoming request. According to the spec, a
             # null 'id' should be used in response payload
             fake_request = JsonRpcRequest(request_id=None, method_name="")
-            exc = context.server.on_error(exc)
+            exc = context.server.on_error(exc, context)
             return self.serializer.dumps(self.build_error_result(fake_request, exc.code, exc.message))
 
         # Parsed request is an Iterable, we should handle it as batch request
@@ -96,7 +96,7 @@ class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
         try:
             return self.serializer.dumps(result)
         except RPCException as exc:
-            exc = context.server.on_error(exc)
+            exc = context.server.on_error(exc, context)
             return self.serializer.dumps(self.build_error_result(parsed_request, exc.code, exc.message))
 
     def process_batch_request(

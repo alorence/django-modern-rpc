@@ -88,14 +88,14 @@ class RpcHandler(ABC, Generic[RequestType]):
             # exc variable cannot be reused here without triggering an error with static type checker
             # In this particular case, an error handler may decide to convert the given RPCMethodNotFound to a more
             # generic RPCException (or one of its subclasses).
-            _exc = context.server.on_error(exc)
+            _exc = context.server.on_error(exc, context)
             return self.build_error_result(request=rpc_request, code=_exc.code, message=_exc.message, data=_exc.data)
 
         try:
             result_data = wrapper.execute(context, rpc_request.args, getattr(rpc_request, "kwargs", None))
 
         except Exception as exc:
-            exc = context.server.on_error(exc)
+            exc = context.server.on_error(exc, context)
             return self.build_error_result(request=rpc_request, code=exc.code, message=exc.message, data=exc.data)
 
         return self.build_success_result(rpc_request, result_data)

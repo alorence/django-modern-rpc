@@ -29,7 +29,7 @@ def handle_rpc_request(
             content_type="text/plain",
         )
 
-    handler = server.get_handler(request)
+    handler = server.get_request_handler(request)
     if not handler:
         return HttpResponse(
             f"Unable to handle your request, unsupported Content-Type {request.content_type}.",

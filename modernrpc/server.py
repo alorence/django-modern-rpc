@@ -2,14 +2,13 @@ from __future__ import annotations
 
 import functools
 import logging
-from collections import OrderedDict
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Callable, Union
 
 from django.utils.module_loading import import_string
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
-from modernrpc import Protocol
+from modernrpc import Protocol, RpcRequestContext
 from modernrpc.conf import settings
 from modernrpc.constants import NOT_SET
 from modernrpc.core import ProcedureWrapper
@@ -18,7 +17,7 @@ from modernrpc.helpers import check_flags_compatibility, first_true
 from modernrpc.views import handle_rpc_request
 
 if TYPE_CHECKING:
-    from typing import Callable
+    from typing import Any, TypeAlias
 
     from django.http import HttpRequest
 
@@ -26,6 +25,8 @@ if TYPE_CHECKING:
 
 
 logger = logging.getLogger(__name__)
+
+RpcErrorHandler: TypeAlias = Callable[[BaseException, RpcRequestContext], Union[RPCException, None]]
 
 
 class RegistryMixin:
@@ -95,10 +96,14 @@ class RpcNamespace(RegistryMixin): ...
 
 class RpcServer(RegistryMixin):
     def __init__(
-        self, register_system_procedures: bool = True, supported_protocol: Protocol = Protocol.ALL, auth: Any = NOT_SET
+        self,
+        register_system_procedures: bool = True,
+        supported_protocol: Protocol = Protocol.ALL,
+        auth: Any = NOT_SET,
+        error_handler: RpcErrorHandler | None = None,
     ) -> None:
         super().__init__(auth)
-        self.supported_handlers = list(
+        self.request_handlers_classes = list(
             filter(
                 lambda cls: check_flags_compatibility(cls.protocol, supported_protocol),
                 (import_string(klass) for klass in settings.MODERNRPC_HANDLERS),
@@ -109,7 +114,7 @@ class RpcServer(RegistryMixin):
             system = import_string("modernrpc.system_procedures.system")
             self.register_namespace(system, "system")
 
-        self.error_handlers: OrderedDict[type, Callable] = OrderedDict()
+        self.error_handler = error_handler
 
     def register_namespace(self, namespace: RpcNamespace, name: str | None = None) -> None:
         prefix = f"{name}." if name else ""
@@ -136,21 +141,18 @@ class RpcServer(RegistryMixin):
 
         raise RPCMethodNotFound(name) from None
 
-    def get_handler(self, request: HttpRequest) -> RpcHandler | None:
-        klass = first_true(self.supported_handlers, pred=lambda cls: cls.can_handle(request))
+    def get_request_handler(self, request: HttpRequest) -> RpcHandler | None:
+        klass = first_true(self.request_handlers_classes, pred=lambda cls: cls.can_handle(request))
         try:
             return klass()
         except TypeError:
             return None
 
-    def error_handler(self, exception_klass: type[BaseException], handler: Callable) -> None:
-        """Register a new error handler for a specific function"""
-        self.error_handlers[exception_klass] = handler
-
-    def on_error(self, exception: BaseException) -> RPCException:
+    def on_error(self, exception: BaseException, context: RpcRequestContext) -> RPCException:
         """Do something when an exception happen"""
-        for klass, handler in self.error_handlers.items():
-            if isinstance(exception, klass) and (result := handler(exception)):
+        if self.error_handler:
+            result = self.error_handler(exception, context)
+            if result is not None:
                 return result
         if isinstance(exception, RPCException):
             return exception
