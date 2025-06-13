@@ -11,10 +11,24 @@ import jsonrpcclient.sentinels
 import pytest
 from lxml.doctestcompare import PARSE_XML, LXMLOutputChecker
 
+from modernrpc import Protocol
+from modernrpc.backends.builtin_json import BuiltinJSON
+from modernrpc.backends.builtin_xmlrpc import BuiltinXmlRpc
+from modernrpc.backends.simple_json import SimpleJSON
+from modernrpc.backends.xml2dict import XML2Dict
 from modernrpc.helpers import ensure_sequence
 
 if TYPE_CHECKING:
     from django.http import HttpResponse
+
+ALL_PROTOCOLS = [Protocol.XML_RPC, Protocol.JSON_RPC]
+# List all backends supported in tests for deserialization (data to request object) and
+# serialization (result to response data). These constants will be used to define some parametrized fixtures
+# in order to ensure every test is run with all backends combinations
+XML_DESERIALIZERS_CLASSES = [BuiltinXmlRpc, XML2Dict]
+XML_SERIALIZERS_CLASSES = [BuiltinXmlRpc, XML2Dict]
+JSON_DESERIALIZERS_CLASSES = [BuiltinJSON, SimpleJSON]
+JSON_SERIALIZERS_CLASSES = [BuiltinJSON, SimpleJSON]
 
 
 def build_xml_rpc_request_data(method="dummy", params=()) -> str:

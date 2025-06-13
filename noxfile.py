@@ -88,25 +88,33 @@ def run_tests(session, python, django):
 
     session.run("django-admin", "--version")
     post_args = session.posargs or []
-    session.run("pytest", "-n", "auto", *post_args)
+    # Benchmarks cannot be run with parallelization enabled, run tests & benchmarks separately
+    session.run("pytest", "-n", "auto", "--benchmark-disable", *post_args)
+    session.run("pytest", "tests/benchmarks", "--no-header", "--benchmark-only")
 
 
 @nox.session(name="test:coverage", venv_backend="none", default=False, tags=["tests"])
 def cov(session):
-    """Run tests and generate coverage report in 'htmlcov' directory"""
+    """Run tests and generate a coverage report (in terminal by default, or in format passed as posarg)"""
     cov_type = "term"
     if session.posargs:
         cov_type = session.posargs.pop(0)
         allowed_cov_types = ("term", "term-missing", "annotate", "html", "xml", "json", "lcov")
         if cov_type not in allowed_cov_types:
             raise ValueError(f"Invalid coverage report type {cov_type}, possible values are {allowed_cov_types}")
-    session.run("uv", "run", "pytest", "--cov", f"--cov-report={cov_type}", *session.posargs)
+    session.run("uv", "run", "pytest", "--benchmark-disable", "--cov", f"--cov-report={cov_type}", *session.posargs)
 
 
 @nox.session(name="test:duration", venv_backend="none", default=False, tags=["tests"])
 def tests_duration(session):
     """Run tests and report the 20 slowest tests"""
     session.run("uv", "run", "pytest", "--durations=20")
+
+
+@nox.session(name="benchmarks", venv_backend="none", default=False, tags=["tests"])
+def benchmarks(session):
+    """Run benchmarks"""
+    session.run("uv", "run", "pytest", "tests/benchmarks", "--benchmark-only")
 
 
 @nox.session(name="lint", venv_backend="none", tags=["ruff", "checks"])

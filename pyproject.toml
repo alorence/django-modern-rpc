@@ -103,6 +103,7 @@ tests = [
     "pytest-sugar",
     "pytest-cov",
     "pytest-xdist",
+    "pytest-benchmark>=4.0.0",
 ]
 type-checking = [
     "mypy",
@@ -128,7 +129,8 @@ docs = [
 # ------------------------------------------------------------------
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py"]
+python_files = ["test_*.py", "bench_*.py"]
+addopts = "--benchmark-autosave"
 
 # pytest-django settings
 DJANGO_SETTINGS_MODULE = "tests.project.settings"

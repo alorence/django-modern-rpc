@@ -47,6 +47,9 @@ coverage.xml
 *,cover
 .hypothesis/
 
+# Benchmark results
+.benchmarks/
+
 # Translations
 *.mo
 *.pot

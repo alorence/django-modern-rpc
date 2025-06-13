@@ -5,12 +5,14 @@ from typing import TYPE_CHECKING
 import pytest
 from django.contrib.auth.models import AnonymousUser, Group, Permission
 
-from modernrpc import Protocol
-from modernrpc.backends.builtin_json import BuiltinJSON
-from modernrpc.backends.builtin_xmlrpc import BuiltinXmlRpc
-from modernrpc.backends.simple_json import SimpleJSON
-from modernrpc.backends.xml2dict import XML2Dict
-from tests.helpers import build_json_rpc_request_data, build_xml_rpc_request_data
+from tests.helpers import (
+    JSON_DESERIALIZERS_CLASSES,
+    JSON_SERIALIZERS_CLASSES,
+    XML_DESERIALIZERS_CLASSES,
+    XML_SERIALIZERS_CLASSES,
+    build_json_rpc_request_data,
+    build_xml_rpc_request_data,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -131,16 +133,6 @@ def jsonrpc_batch_rf(rf) -> Callable[..., HttpRequest]:
         return rf.post(path, data=data, content_type=content_type)
 
     return factory
-
-
-ALL_PROTOCOLS = [Protocol.XML_RPC, Protocol.JSON_RPC]
-# List all backends supported in tests for deserialization (data to request object) and
-# serialization (result to response data). These constants will be used to define some parametrized fixtures
-# in order to ensure every test is run with all backends combinations
-XML_DESERIALIZERS_CLASSES = [BuiltinXmlRpc, XML2Dict]
-XML_SERIALIZERS_CLASSES = [BuiltinXmlRpc, XML2Dict]
-JSON_DESERIALIZERS_CLASSES = [BuiltinJSON, SimpleJSON]
-JSON_SERIALIZERS_CLASSES = [BuiltinJSON, SimpleJSON]
 
 
 # The next 4 fixtures can be used to retrieve an instance of the corresponding backend

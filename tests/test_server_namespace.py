@@ -1,7 +1,7 @@
 from unittest.mock import Mock
 
 import pytest
-from conftest import ALL_PROTOCOLS
+from helpers import ALL_PROTOCOLS
 
 from modernrpc import Protocol, RpcServer
 from modernrpc.exceptions import RPCMethodNotFound
