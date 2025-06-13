@@ -1,8 +1,23 @@
 Error handling
 ==============
 
+.. note:: TODO
+
+   This section needs to be reworked for v2
+
+
 Introduction
 ------------
+
+Error handling in RPC protocols is a challenging topic. Since errors must be returned as standard response,
+it must always be caught and returned properly with the right format.
+
+Status code
+-----------
+
+`XML-RPC spec <https://xmlrpc.com/spec.md#response-format>`_ about response status code
+
+    Unless there's a lower-level error, always return 200 OK.
 
 When remote procedures are executed, errors can be caused by almost anything: invalid request payload, arguments
 deserialization or result serialization error, exception in method execution, etc. All errors must be
@@ -63,37 +78,13 @@ Here is an example:
 
 Such exceptions raised from your remote procedure will be properly returned to client.
 
-Error handling
-^^^^^^^^^^^^^
-
-In version 2.0, you can register custom error handlers to handle specific exceptions:
-
-.. code-block:: python
-   :caption: myapp/rpc.py
-
-    from modernrpc.server import RpcServer
-    from modernrpc.exceptions import RPCInternalError
-
-    # Create a server instance
-    server = RpcServer()
-
-    # Register a custom error handler
-    @server.error_handler(ValueError)
-    def handle_value_error(exception):
-        # Convert ValueError to a custom RPC error
-        return RPCInternalError(f"Invalid value: {exception}")
-
-This allows you to customize how specific exceptions are handled and reported to clients.
-
----
-
-Error Handling
--------------
+Customize Error Handling
+------------------------
 
 When an exception occurs during the execution of an RPC method, django-modern-rpc converts it to an appropriate RPC error response. By default, any exception that is not an instance of ``RPCException`` is wrapped in an ``RPCInternalError`` with the exception message.
 
 Custom Error Handlers
-^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^
 
 You can customize how specific exceptions are handled by registering custom error handlers with the ``error_handler`` method. This allows you to:
 

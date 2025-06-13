@@ -3,4 +3,6 @@
 Authentication
 ==============
 
-This section will contain all information needed to configure authentication on procedures
+.. note:: TODO
+
+   This section is currently empty but will be completed as soon as authentication system is finalized in v2
