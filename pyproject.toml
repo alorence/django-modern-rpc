@@ -103,6 +103,7 @@ tests = [
     "pytest-sugar",
     "pytest-cov",
     "pytest-xdist",
+    "pytest-benchmark>=4.0.0",
 ]
 type-checking = [
     "mypy",
