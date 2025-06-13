@@ -129,7 +129,7 @@ docs = [
 # ------------------------------------------------------------------
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py"]
+python_files = ["test_*.py", "bench_*.py"]
 
 # pytest-django settings
 DJANGO_SETTINGS_MODULE = "tests.project.settings"
