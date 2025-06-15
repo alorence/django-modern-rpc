@@ -14,7 +14,9 @@ if TYPE_CHECKING:
     from modernrpc.jsonrpc.handler import JsonRpcRequest, JsonRpcResult
 
 
-class SimpleJSON:
+class SimpleJsonBackend:
+    """json-rpc serializer and deserializer based on the third-party simplejson library"""
+
     def __init__(self, load_kwargs: dict[str, Any] | None = None, dump_kwargs: dict[str, Any] | None = None):
         self.load_kwargs = load_kwargs or {}
         self.dump_kwargs = dump_kwargs or {}

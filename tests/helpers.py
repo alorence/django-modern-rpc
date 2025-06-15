@@ -13,11 +13,11 @@ from lxml.doctestcompare import PARSE_XML, LXMLOutputChecker
 
 from modernrpc import Protocol
 from modernrpc.helpers import ensure_sequence
-from modernrpc.jsonrpc.backends._json import BuiltinJSON
-from modernrpc.jsonrpc.backends._orjson import OrJSON
-from modernrpc.jsonrpc.backends._simplejson import SimpleJSON
-from modernrpc.xmlrpc.backends._xmlrpc import BuiltinXmlRpc
-from modernrpc.xmlrpc.backends._xmltodict import XML2Dict
+from modernrpc.jsonrpc.backends._json import PythonJsonBackend
+from modernrpc.jsonrpc.backends._orjson import OrjsonBackend
+from modernrpc.jsonrpc.backends._simplejson import SimpleJsonBackend
+from modernrpc.xmlrpc.backends._xmlrpc import PythonXmlRpcBackend
+from modernrpc.xmlrpc.backends._xmltodict import XmlToDictBackend
 
 if TYPE_CHECKING:
     from django.http import HttpResponse
@@ -26,10 +26,10 @@ ALL_PROTOCOLS = [Protocol.XML_RPC, Protocol.JSON_RPC]
 # List all backends supported in tests for deserialization (data to request object) and
 # serialization (result to response data). These constants will be used to define some parametrized fixtures
 # to ensure every test is run with all backend combinations
-XML_DESERIALIZERS_CLASSES = [BuiltinXmlRpc, XML2Dict]
-XML_SERIALIZERS_CLASSES = [BuiltinXmlRpc, XML2Dict]
-JSON_DESERIALIZERS_CLASSES = [BuiltinJSON, SimpleJSON, OrJSON]
-JSON_SERIALIZERS_CLASSES = [BuiltinJSON, SimpleJSON, OrJSON]
+XML_DESERIALIZERS_CLASSES = [PythonXmlRpcBackend, XmlToDictBackend]
+XML_SERIALIZERS_CLASSES = [PythonXmlRpcBackend, XmlToDictBackend]
+JSON_DESERIALIZERS_CLASSES = [PythonJsonBackend, SimpleJsonBackend, OrjsonBackend]
+JSON_SERIALIZERS_CLASSES = [PythonJsonBackend, SimpleJsonBackend, OrjsonBackend]
 
 
 def build_xml_rpc_request_data(method="dummy", params=()) -> str:

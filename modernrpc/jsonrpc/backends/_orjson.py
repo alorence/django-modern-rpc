@@ -15,7 +15,9 @@ if TYPE_CHECKING:
     from modernrpc.jsonrpc.handler import JsonRpcRequest, JsonRpcResult
 
 
-class OrJSON:
+class OrjsonBackend:
+    """json-rpc serializer and deserializer based on the third-party orjson library"""
+
     def __init__(self, load_kwargs: dict[str, Any] | None = None, dump_kwargs: dict[str, Any] | None = None):
         if load_kwargs:
             warnings.warn(

@@ -13,7 +13,9 @@ if TYPE_CHECKING:
     from modernrpc.jsonrpc.handler import JsonRpcRequest, JsonRpcResult
 
 
-class BuiltinJSON:
+class PythonJsonBackend:
+    """json-rpc serializer and deserializer based on python builtin json module"""
+
     def __init__(self, load_kwargs: dict[str, Any] | None = None, dump_kwargs: dict[str, Any] | None = None):
         self.load_kwargs = load_kwargs or {}
         self.dump_kwargs = dump_kwargs or {}

@@ -228,7 +228,9 @@ class Marshaller:
         }
 
 
-class XML2Dict:
+class XmlToDictBackend:
+    """xml-rpc serializer and deserializer based on the third-party xmltodict library"""
+
     def __init__(self, load_kwargs: dict[str, Any] | None = None, dump_kwargs: dict[str, Any] | None = None):
         self.load_kwargs = load_kwargs or {}
         self.dump_kwargs = dump_kwargs or {}
