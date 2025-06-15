@@ -97,6 +97,7 @@ dev = [
     "xmltodict>=0.14.0",
     "lxml>=5.3",
     "orjson>=3.10.15",
+    "python-rapidjson>=1.20",
 ]
 tests = [
     "pytest",
