@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import datetime
-import xmlrpc.client as xmlrpc_client
+import xmlrpc.client
 from typing import TYPE_CHECKING, Any, Iterable, Sequence
 
 if TYPE_CHECKING:
@@ -15,7 +15,7 @@ def check_flags_compatibility(a: Flag, b: Flag) -> bool:
 
 
 def get_builtin_date(
-    date: str | datetime.datetime | xmlrpc_client.DateTime,
+    date: str | datetime.datetime | xmlrpc.client.DateTime,
     date_format: str = "%Y-%m-%dT%H:%M:%S",
     raise_exception: bool = False,
 ) -> datetime.datetime | None:
@@ -25,20 +25,19 @@ def get_builtin_date(
     instance. The returned object is a ``datetime.datetime``.
 
     :param date: The date object to convert.
-    :param date_format: If the given date is a str, format is passed to strptime to parse it
+    :param date_format: If the given date is a str, it is passed to strptime for parsing
     :param raise_exception: If set to True, an exception will be raised if the input string cannot be parsed
     :return: A valid ``datetime.datetime`` instance
     """
     if isinstance(date, datetime.datetime):
-        # Default XML-RPC handler is configured to decode dateTime.iso8601 type
+        # Default XML-RPC handler is configured to decode a dateTime.iso8601 value
         # to builtin datetime.datetime instance
         return date
-    if isinstance(date, xmlrpc_client.DateTime):
-        # If constant settings.MODERNRPC_XMLRPC_USE_BUILTIN_TYPES has been set to True
-        # the date is decoded as DateTime object
+    if isinstance(date, xmlrpc.client.DateTime):
+        # If a special xmlrpc.client.DateTime instance is given, convert it to a standard datetime instance
         return datetime.datetime.strptime(date.value, "%Y%m%dT%H:%M:%S")
 
-    # If date is given as str. This is the normal behavior for JSON-RPC
+    # If the date is given as str. This is the normal behavior for JSON-RPC
     try:
         return datetime.datetime.strptime(date, date_format)
     except ValueError:

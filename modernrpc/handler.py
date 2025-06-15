@@ -50,7 +50,7 @@ class RpcHandler(ABC, Generic[RequestType]):
     def process_single_request(
         self, rpc_request: RequestType, context: RpcRequestContext
     ) -> RpcSuccessResult[RequestType] | RpcErrorResult[RequestType]:
-        """Check and call the RPC method, based on given request dict."""
+        """Check and call the RPC method, based on the given request dict."""
 
         try:
             wrapper = context.server.get_procedure_wrapper(rpc_request.method_name, self.protocol)

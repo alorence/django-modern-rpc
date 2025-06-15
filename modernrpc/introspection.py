@@ -24,7 +24,7 @@ MULTI_SPACES = re.compile(r"\s+")
 
 
 class Introspector:
-    """Helper to extract signature and type hint for given function"""
+    """Helper to extract the signature and type hint for the given function"""
 
     def __init__(self, function: Callable):
         self.func = function
@@ -74,8 +74,8 @@ class Introspector:
 
 
 class DocstringParser:
-    """Parse docstring to extract params docs & types and return doc & type. It also converts
-    long docstring part to an HTML representation using parser from settings (markdown/rst)
+    """Parse docstring to extract documentation (type and text) for parameters and return. It also converts
+    the docstring text part to an HTML representation using Markdown or Restructured parser (depending on settings)
     """
 
     def __init__(self, function: Callable):
@@ -93,7 +93,7 @@ class DocstringParser:
 
     @cached_property
     def text_documentation(self) -> str:
-        """Return the text part of the docstring block, excluding legacy typehints and parameters and return docs"""
+        """Return the text part of the docstring block, excluding legacy typehints, parameters and return docs"""
         content = self.raw_docstring
         for pattern in [PARAM_REXP, PARAM_TYPE_REXP, RETURN_REXP, RETURN_TYPE_REXP]:
             content = pattern.sub("", content)
@@ -107,7 +107,7 @@ class DocstringParser:
 
         if settings.MODERNRPC_DOC_FORMAT.lower() in (
             "rst",
-            "restructred",
+            "restructured",
             "restructuredtext",
         ):
             from docutils.core import publish_parts

@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class RpcRequestContext:
-    """Wraps all information needed to call a procedure. Instances of this class are created before call,
+    """Wraps all information needed to call a procedure. Instances of this class are created before call
     and may be used to populate kwargs dict in rpc method."""
 
     request: HttpRequest
@@ -92,7 +92,7 @@ class ProcedureWrapper:
         )
 
     def check_permissions(self, request: HttpRequest) -> Any:
-        """Call the predicate(s) associated with the RPC method, to check if the current request
+        """Call the predicate(s) associated with the RPC method to check if the current request
         can actually call the method.
         Return a boolean indicating if the method should be executed (True) or not (False),
         or any other value that can be used by the caller.
@@ -133,7 +133,7 @@ class ProcedureWrapper:
             return self.function(*args, **kwargs)
 
         except TypeError as exc:
-            # If given params cannot be transmitted properly to python function
+            # If given params cannot be transmitted properly to the procedure function
             raise RPCInvalidParams(str(exc)) from None
 
     @cached_property
@@ -168,113 +168,8 @@ class ProcedureWrapper:
 
     @cached_property
     def return_doc(self) -> dict[str, str]:
-        """Build a dict for method's return type and documentation"""
+        """Build a dict for the method's return type and documentation"""
         return {
             "type": self.introspector.return_type or self.doc_parser.return_type,
             "text": self.doc_parser.return_doc,
         }
-
-
-# class _RPCRegistry:
-#     def __init__(self):
-#         self._registry: defaultdict[str, dict[str, ProcedureWrapper]] = defaultdict(dict)
-#         self.reset()
-#
-#     def reset(self) -> None:
-#         self._registry.clear()
-#
-#     def register_method(self, func: Callable) -> str:
-#         """
-#         Register a function to be available as RPC method.
-#
-#         The given function will be inspected to find external_name, protocol and entry_point
-#         values set by the decorator @rpc_method.
-#         :param func: A function previously decorated using @rpc_method
-#         :return: The name of registered method
-#         """
-#         if not getattr(func, "modernrpc_enabled", False):
-#             raise ImproperlyConfigured(
-#                 f"Error: trying to register {func.__name__} as RPC method, but it has not been decorated."
-#             )
-#
-#         # Define the external name of the function
-#         name = getattr(func, "modernrpc_name", func.__name__)
-#
-#         logger.debug('Register RPC method "%s"', name)
-#
-#         if name.startswith("rpc."):
-#             raise ImproperlyConfigured(
-#                 'According to RPC standard, method names starting with "rpc." are reserved for system extensions and '
-#                 "must not be used. See https://www.jsonrpc.org/specification#extensions for more information."
-#             )
-#
-#         # Encapsulate the function in a RPCMethod object
-#         wrapper = ProcedureWrapper(func)
-#         entry_point = wrapper.entry_point
-#
-#         # Ensure method names are unique in the registry
-#         existing_method = self.get_method(wrapper.name, entry_point, Protocol.ALL)
-#         if existing_method is not None:
-#             # Trying to register many times the same function is OK, because if a method is decorated
-#             # with @rpc_method(), it could be imported in different places of the code
-#             if wrapper == existing_method:
-#                 return wrapper.name
-#
-#             # But if we try to use the same name to register 2 different methods, we
-#             # must inform the developer there is an error in the code
-#             raise ImproperlyConfigured(f"A RPC method with name {wrapper.name} has already been registered")
-#
-#         # Store the method
-#         self._registry[entry_point][wrapper.name] = wrapper
-#
-#         return wrapper.name
-#
-#     def get_methods_for_entry_point(self, entry_point=ALL) -> dict[str, ProcedureWrapper]:
-#         entry_points = self._registry.keys() if entry_point == ALL else [ALL, entry_point]
-#
-#         return {
-#             name: wrapper
-#             for entry_point in entry_points
-#             for name, wrapper in self._registry.get(entry_point, {}).items()
-#         }
-#
-#     def total_count(self) -> int:
-#         return len(self.get_methods_for_entry_point(entry_point=ALL))
-#
-#     def get_all_method_names(
-#         self, entry_point=ALL, protocol: Protocol = Protocol.ALL, sort_methods=False
-#     ) -> list[str]:
-#         """Return the names of all RPC methods registered supported by the given entry_point / protocol pair"""
-#         method_names = [
-#             name
-#             for name, wrapper in self.get_methods_for_entry_point(entry_point).items()
-#             if wrapper.available_for_protocol(protocol)
-#         ]
-#
-#         return sorted(method_names) if sort_methods else method_names
-#
-#     def get_all_methods(
-#         self,
-#         entry_point: str = ALL,
-#         protocol: Protocol = Protocol.ALL,
-#         sort_methods=False,
-#     ) -> list[ProcedureWrapper]:
-#         """Return a list of all methods in the registry supported by the given entry_point / protocol pair"""
-#         methods = self.get_methods_for_entry_point(entry_point)
-#         if sort_methods:
-#             methods = dict(sorted(methods.items()))
-#         return [wrapper for (_, wrapper) in methods.items() if wrapper.available_for_protocol(protocol)]
-#
-#     def get_method(self, name: str, entry_point: str, protocol: Protocol) -> ProcedureWrapper | None:
-#         """Retrieve a method from the given name"""
-#         _registry = self.get_methods_for_entry_point(entry_point)
-#
-#         try:
-#             candidate = _registry[name]
-#             if candidate.available_for_protocol(protocol):
-#                 return candidate
-#         except KeyError:
-#             logger.debug(f'Unable to retrieve RPCMethod with name "{name}" in entry_point "{entry_point}"')
-#             return None
-#
-#         return None

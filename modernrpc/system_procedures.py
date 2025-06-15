@@ -42,7 +42,7 @@ def __system_method_help(method_name: str, _ctx: RpcRequestContext):
     """
     Returns the documentation of the given method name.
 
-    :param method_name: Name of a method available for current entry point (and protocol)
+    :param method_name: Name of a method available for the current entry point (and protocol)
     :param _ctx: Request context for this call
     :return: Documentation text for the RPC method
     """
