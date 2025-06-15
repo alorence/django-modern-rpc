@@ -96,6 +96,7 @@ dev = [
     "simplejson>=3.19",
     "xmltodict>=0.14.0",
     "lxml>=5.3",
+    "orjson>=3.10.15",
 ]
 tests = [
     "pytest",

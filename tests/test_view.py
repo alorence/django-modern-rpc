@@ -232,7 +232,7 @@ class TestJsonRpc:
         assert response.status_code == HTTPStatus.OK
         code, message = extract_jsonrpc_fault_data(response)
         assert code == RPC_PARSE_ERROR
-        assert "Parse error, unable to read the request: Expecting property name enclosed in double quotes" in message
+        assert "Parse error, unable to read the request:" in message
         on_error_mock.assert_called_once()
 
     def test_invalid_params(self, jsonrpc_rf, on_error_mock):

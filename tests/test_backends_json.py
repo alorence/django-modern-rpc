@@ -324,7 +324,13 @@ class TestJsonRpcSerializer:
             b"foo\x98",
         ],
     )
-    def test_result_unsupported_type(self, json_serializer, value):
+    def test_result_unsupported_type(self, request, json_serializer, value):
+        is_orjson_backend = "orjson" in json_serializer.__class__.__name__.lower()
+        is_dt_value = isinstance(value, datetime)
+        if is_orjson_backend and is_dt_value:
+            marker = pytest.mark.xfail(reason="orjson backend is able to dumps from datetime objects", strict=True)
+            request.applymarker(marker)
+
         result = JsonRpcSuccessResult(request=self.req1, data=value)
         with pytest.raises(RPCMarshallingError) as e:
             json_serializer.dumps(result)
