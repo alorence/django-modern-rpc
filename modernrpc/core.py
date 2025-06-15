@@ -19,9 +19,8 @@ from modernrpc.introspection import DocstringParser, Introspector
 if TYPE_CHECKING:
     from django.http import HttpRequest
 
-    from modernrpc.handlers.base import RpcHandler
+    from modernrpc.handler import RpcHandler
     from modernrpc.server import RpcServer
-
 
 # Keys used in kwargs dict given to RPC methods
 # REQUEST_KEY = settings.MODERNRPC_KWARGS_REQUEST_KEY

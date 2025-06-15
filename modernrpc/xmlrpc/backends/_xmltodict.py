@@ -7,14 +7,18 @@ import xml.parsers.expat
 from collections import OrderedDict
 from datetime import datetime
 from functools import cached_property
-from typing import Any, Callable, Literal, Sequence
+from typing import TYPE_CHECKING, Any, Callable, Literal, Sequence
 
 import xmltodict
 
 from modernrpc.exceptions import RPCInvalidRequest, RPCMarshallingError, RPCParseError
-from modernrpc.handlers.base import GenericRpcErrorResult
-from modernrpc.handlers.xmlhandler import XmlRpcRequest, XmlRpcResult
 from modernrpc.helpers import ensure_sequence, first
+from modernrpc.typing import RpcErrorResult
+from modernrpc.xmlrpc.handler import XmlRpcRequest
+
+if TYPE_CHECKING:
+    from modernrpc.xmlrpc.handler import XmlRpcResult
+
 
 NIL = object()
 MAXINT = 2**31 - 1
@@ -142,7 +146,7 @@ class Marshaller:
         }
 
     def result_to_dict(self, result: XmlRpcResult) -> dict[str, Any]:
-        if isinstance(result, GenericRpcErrorResult):
+        if isinstance(result, RpcErrorResult):
             return {
                 "methodResponse": {
                     "fault": {

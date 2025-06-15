@@ -8,8 +8,8 @@ from typing import Any
 from xmlrpc.client import Fault, ResponseError
 
 from modernrpc.exceptions import RPCInvalidRequest, RPCMarshallingError, RPCParseError
-from modernrpc.handlers.base import GenericRpcErrorResult
-from modernrpc.handlers.xmlhandler import XmlRpcRequest, XmlRpcResult
+from modernrpc.typing import RpcErrorResult
+from modernrpc.xmlrpc.handler import XmlRpcRequest, XmlRpcResult
 
 
 class BuiltinXmlRpc:
@@ -35,9 +35,7 @@ class BuiltinXmlRpc:
         return XmlRpcRequest(method_name.strip(), list(params))
 
     def dumps(self, result: XmlRpcResult) -> str:
-        result_data = (
-            Fault(result.code, result.message) if isinstance(result, GenericRpcErrorResult) else (result.data,)
-        )
+        result_data = Fault(result.code, result.message) if isinstance(result, RpcErrorResult) else (result.data,)
         try:
             return xmlrpc.client.dumps(result_data, methodresponse=True, **self.dump_kwargs)
         except Exception as e:

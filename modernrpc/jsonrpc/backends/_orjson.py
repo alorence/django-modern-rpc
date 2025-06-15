@@ -1,3 +1,5 @@
+# PEP 585: use of list[Any] instead of List[Any] is available since Python 3.9, enable it for older versions
+# PEP 604: use of typeA | typeB is available since Python 3.10, enable it for older versions
 from __future__ import annotations
 
 import warnings
@@ -6,11 +8,11 @@ from typing import TYPE_CHECKING, Any, Iterable
 import orjson
 from orjson import JSONDecodeError, JSONEncodeError
 
-from modernrpc.backends.base_json import Marshaller, Unmarshaller
 from modernrpc.exceptions import RPCMarshallingError, RPCParseError
+from modernrpc.jsonrpc.backends.marshalling import Marshaller, Unmarshaller
 
 if TYPE_CHECKING:
-    from modernrpc.handlers.jsonhandler import JsonRpcRequest, JsonRpcResult
+    from modernrpc.jsonrpc.handler import JsonRpcRequest, JsonRpcResult
 
 
 class OrJSON:

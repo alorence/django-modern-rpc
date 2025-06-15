@@ -7,7 +7,7 @@ import pytest
 from helpers import assert_xml_data_are_equal
 
 from modernrpc.exceptions import RPCInvalidRequest, RPCMarshallingError, RPCParseError
-from modernrpc.handlers.xmlhandler import XmlRpcErrorResult, XmlRpcRequest, XmlRpcSuccessResult
+from modernrpc.xmlrpc.handler import XmlRpcErrorResult, XmlRpcRequest, XmlRpcSuccessResult
 
 
 class TestXmlRpcDeserializer:

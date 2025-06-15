@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from django.http.response import HttpResponse
 
-from modernrpc.conf import settings
+from modernrpc.config import settings
 from modernrpc.core import RpcRequestContext
 
 if TYPE_CHECKING:

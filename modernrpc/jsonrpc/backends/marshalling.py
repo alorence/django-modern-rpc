@@ -2,11 +2,16 @@
 # PEP 604: use of typeA | typeB is available since Python 3.10, enable it for older versions
 from __future__ import annotations
 
-from typing import Any, Iterable, overload
+from typing import TYPE_CHECKING, Iterable, overload
 
 from modernrpc.exceptions import RPCInvalidRequest
-from modernrpc.handlers.base import GenericRpcErrorResult
-from modernrpc.handlers.jsonhandler import JsonRpcRequest, JsonRpcResult
+from modernrpc.jsonrpc.handler import JsonRpcRequest
+from modernrpc.typing import RpcErrorResult
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from modernrpc.jsonrpc.handler import JsonRpcResult
 
 
 class Unmarshaller:
@@ -89,7 +94,7 @@ class Marshaller:
             "jsonrpc": result.request.jsonrpc,
         }
 
-        if isinstance(result, GenericRpcErrorResult):
+        if isinstance(result, RpcErrorResult):
             response_payload: dict[str, Any] = {
                 **base_result,
                 "error": {

@@ -3,8 +3,8 @@ from textwrap import dedent
 
 import pytest
 
-from modernrpc.handlers.jsonhandler import JsonRpcRequest, JsonRpcSuccessResult
-from modernrpc.handlers.xmlhandler import XmlRpcRequest, XmlRpcSuccessResult
+from modernrpc.jsonrpc.handler import JsonRpcRequest, JsonRpcSuccessResult
+from modernrpc.xmlrpc.handler import XmlRpcRequest, XmlRpcSuccessResult
 
 
 @pytest.fixture

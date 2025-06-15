@@ -1,3 +1,5 @@
+# PEP 585: use of list[Any] instead of List[Any] is available since Python 3.9, enable it for older versions
+# PEP 604: use of typeA | typeB is available since Python 3.10, enable it for older versions
 from __future__ import annotations
 
 import logging
@@ -8,21 +10,17 @@ from typing import TYPE_CHECKING, Union
 from django.utils.module_loading import import_string
 
 from modernrpc import Protocol
-from modernrpc.conf import settings
+from modernrpc.config import settings
 from modernrpc.constants import NOT_SET
 from modernrpc.exceptions import RPCException
-from modernrpc.handlers.base import (
-    GenericRpcErrorResult,
-    GenericRpcSuccessResult,
-    RpcHandler,
-    RpcRequest,
-)
+from modernrpc.handler import RpcHandler
+from modernrpc.typing import RpcErrorResult, RpcRequest, RpcSuccessResult
 
 if TYPE_CHECKING:
     from typing import Any, ClassVar, Generator
 
     from modernrpc import RpcRequestContext
-    from modernrpc.backends.base import JsonRpcDeserializer, JsonRpcSerializer
+    from modernrpc.jsonrpc.backends import JsonRpcDeserializer, JsonRpcSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -43,8 +41,8 @@ class JsonRpcRequest(RpcRequest):
 
 
 RequestIdType = Union[str, int, float, None]
-JsonRpcSuccessResult = GenericRpcSuccessResult[JsonRpcRequest]
-JsonRpcErrorResult = GenericRpcErrorResult[JsonRpcRequest]
+JsonRpcSuccessResult = RpcSuccessResult[JsonRpcRequest]
+JsonRpcErrorResult = RpcErrorResult[JsonRpcRequest]
 JsonRpcResult = Union[JsonRpcSuccessResult, JsonRpcErrorResult]
 
 
@@ -59,31 +57,31 @@ class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
 
     def __init__(self) -> None:
         deserializer_klass: type[JsonRpcDeserializer] = import_string(settings.MODERNRPC_JSON_DESERIALIZER["class"])
-        deserializer_kwargs: dict[str, Any] = settings.MODERNRPC_JSON_DESERIALIZER.get("kwargs", {})
-        self.deserializer: JsonRpcDeserializer = deserializer_klass(**deserializer_kwargs)
+        deserializer_init_kwargs: dict[str, Any] = settings.MODERNRPC_JSON_DESERIALIZER.get("kwargs", {})
+        self.deserializer: JsonRpcDeserializer = deserializer_klass(**deserializer_init_kwargs)
 
         serializer_klass: type[JsonRpcSerializer] = import_string(settings.MODERNRPC_JSON_SERIALIZER["class"])
-        serializer_kwargs: dict[str, Any] = settings.MODERNRPC_JSON_SERIALIZER.get("kwargs", {})
-        self.serializer: JsonRpcSerializer = serializer_klass(**serializer_kwargs)
+        serializer_init_kwargs: dict[str, Any] = settings.MODERNRPC_JSON_SERIALIZER.get("kwargs", {})
+        self.serializer: JsonRpcSerializer = serializer_klass(**serializer_init_kwargs)
 
     def process_request(self, request_body: str, context: RpcRequestContext) -> str | tuple[HTTPStatus, str]:
         """
         Parse request and process it, according to its kind. Standard request as well as batch request is supported.
 
         Delegates to `process_single_request()` to perform most of the checks and procedure execution. Depending on the
-        result of `parse_request()`, standard or batch request will be handled here.
+        result of `parse_request()`, a standard or a batch request will be handled here.
         """
         try:
             parsed_request = self.deserializer.loads(request_body)
 
         except RPCException as exc:
-            # We can't extract request_id from incoming request. According to the spec, a
+            # We can't extract request_id from an incoming request. According to the spec, a
             # null 'id' should be used in response payload
             fake_request = JsonRpcRequest(request_id=None, method_name="")
             exc = context.server.on_error(exc, context)
             return self.serializer.dumps(self.build_error_result(fake_request, exc.code, exc.message))
 
-        # Parsed request is an Iterable, we should handle it as batch request
+        # Parsed request is an Iterable, we should handle it as a batch request
         if isinstance(parsed_request, list):
             return self.process_batch_request(parsed_request, context)
 

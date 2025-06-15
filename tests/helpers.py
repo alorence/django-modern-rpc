@@ -12,12 +12,12 @@ import pytest
 from lxml.doctestcompare import PARSE_XML, LXMLOutputChecker
 
 from modernrpc import Protocol
-from modernrpc.backends._orjson import OrJSON
-from modernrpc.backends.builtin_json import BuiltinJSON
-from modernrpc.backends.builtin_xmlrpc import BuiltinXmlRpc
-from modernrpc.backends.simple_json import SimpleJSON
-from modernrpc.backends.xml2dict import XML2Dict
 from modernrpc.helpers import ensure_sequence
+from modernrpc.jsonrpc.backends._json import BuiltinJSON
+from modernrpc.jsonrpc.backends._orjson import OrJSON
+from modernrpc.jsonrpc.backends._simplejson import SimpleJSON
+from modernrpc.xmlrpc.backends._xmlrpc import BuiltinXmlRpc
+from modernrpc.xmlrpc.backends._xmltodict import XML2Dict
 
 if TYPE_CHECKING:
     from django.http import HttpResponse

@@ -1,4 +1,4 @@
-"""Handle all introspection related features on rpc_methods:
+"""Handle all introspection-related features on rpc_methods:
 - Help text
 - Signature
 """
@@ -11,7 +11,7 @@ from typing import Callable
 
 from django.utils.functional import cached_property
 
-from modernrpc.conf import settings
+from modernrpc.config import settings
 
 # Define regular expressions used to parse docstring
 PARAM_REXP = re.compile(r"^[:@]param (\w+): ?(.*(?:\n[^:@].+)?)$", flags=re.MULTILINE)
@@ -51,7 +51,7 @@ class Introspector:
 
     @cached_property
     def return_type(self) -> str:
-        """Return the return type as defined from signature typehint"""
+        """Return the return type as defined from the signature typehint"""
         return (
             ""
             if self.signature.return_annotation == self.signature.empty
@@ -124,13 +124,13 @@ class DocstringParser:
 
     @cached_property
     def args_doc(self) -> dict[str, str]:
-        """Return a dict with argument name as key and documentation text as value. The dict will contain only
-        documented arguments.
-        Basically this method parse and extract reST documented arguments:
+        """Return a dict with, for each argument, its name as key and documentation text as value. The dict
+        will contain only documented arguments.
+        Basically this method parses and extracts reST documented arguments:
 
             :param <argname>: Documentation for <argname>
 
-        Alternatively, it also supports @param format:
+        Alternatively, it also supports the @param format:
 
             @param <argname>: Documentation for <argname>
         """
@@ -138,13 +138,13 @@ class DocstringParser:
 
     @cached_property
     def args_types(self) -> dict[str, str]:
-        """Return a dict with argument name as key and documented type as value. The dict will contain only
-        documented arguments.
-        Basically this method parse and extract reST doctype documentation:
+        """Return a dict with, for each argument, its name as key and documented type as value. The dict
+        will contain only documented arguments.
+        Basically this method parses and extracts reST doctype documentation:
 
             :type <argname>: int or str
 
-        Alternatively, it also supports @type format:
+        Alternatively, it also supports the @type format:
 
             @type <argname>: int or str
         """
@@ -167,11 +167,11 @@ class DocstringParser:
 
     @cached_property
     def return_type(self) -> str:
-        """Return the documentation for method return type, as found in docstring:
+        """Return the documentation for the method return type, as found in docstring:
 
             :rtype: list
 
-        Alternatively, it also supports @rtype format:
+        Alternatively, it also supports the @rtype format:
 
             @rtype: list
 
