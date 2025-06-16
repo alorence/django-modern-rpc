@@ -115,6 +115,7 @@ type-checking = [
     "types-requests",
     "types-simplejson",
     "types-xmltodict",
+    "lxml-stubs",
 ]
 docs = [
     "sphinx >= 8.2; python_version >= '3.11'",

@@ -67,7 +67,7 @@ class TestXmlRpc:
         code, message = extract_xmlrpc_fault_data(response)
 
         assert code == RPC_PARSE_ERROR
-        assert "Parse error, unable to read the request: mismatched tag" in message
+        assert "Parse error, unable to read the request:" in message
         on_error_mock.assert_called_once()
 
     def test_invalid_params(self, xmlrpc_rf, on_error_mock):

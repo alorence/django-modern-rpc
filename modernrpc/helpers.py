@@ -4,6 +4,8 @@ import datetime
 import xmlrpc.client
 from typing import TYPE_CHECKING, Any, Iterable, Sequence
 
+from modernrpc.constants import NOT_SET
+
 if TYPE_CHECKING:
     from enum import Flag
     from typing import Callable
@@ -51,8 +53,20 @@ def ensure_sequence(element: Any) -> Sequence:
     return element if isinstance(element, (list, tuple)) else [element]
 
 
-def first(seq: Iterable) -> Any:
-    return next(iter(seq))
+def first(seq: Iterable, default=NOT_SET) -> Any:
+    """
+    Return the first element of the given iterable, or default value if the iterable is empty.
+    When the default value is not set, raise an IndexError if the iterable is empty.
+
+    This helper should be used when RUF015 is encountered on linting.
+    See https://docs.astral.sh/ruff/rules/unnecessary-iterable-allocation-for-first-element/
+    """
+    try:
+        return next(iter(seq))
+    except StopIteration:
+        if default is not NOT_SET:
+            return default
+        raise IndexError("No element found in iterable") from None
 
 
 def first_true(iterable: Iterable[Any], default: Any = None, pred: Callable[[Any], bool] | None = None) -> Any:
