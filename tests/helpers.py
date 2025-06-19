@@ -29,7 +29,7 @@ ALL_PROTOCOLS = [Protocol.XML_RPC, Protocol.JSON_RPC]
 # serialization (result to response data). These constants will be used to define some parametrized fixtures
 # to ensure every test is run with all backend combinations
 XML_DESERIALIZERS_CLASSES = [PythonXmlRpcBackend, XmlToDictBackend, LxmlBackend]
-XML_SERIALIZERS_CLASSES = [PythonXmlRpcBackend, XmlToDictBackend]
+XML_SERIALIZERS_CLASSES = [PythonXmlRpcBackend, XmlToDictBackend, LxmlBackend]
 JSON_DESERIALIZERS_CLASSES = [PythonJsonBackend, SimpleJsonBackend, OrjsonBackend, RapidJsonBackend]
 JSON_SERIALIZERS_CLASSES = [PythonJsonBackend, SimpleJsonBackend, OrjsonBackend, RapidJsonBackend]
 

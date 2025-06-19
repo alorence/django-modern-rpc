@@ -1,18 +1,22 @@
 from __future__ import annotations
 
 import base64
+from collections import OrderedDict
 from datetime import datetime
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Callable
 
 import lxml.etree
 
-from modernrpc.exceptions import RPCInvalidRequest, RPCParseError
+from modernrpc.exceptions import RPCInvalidRequest, RPCMarshallingError, RPCParseError
 from modernrpc.helpers import first
+from modernrpc.typing import RpcErrorResult
 from modernrpc.xmlrpc.handler import XmlRpcRequest
 
 if TYPE_CHECKING:
     from lxml.etree import _Element
+
+    from modernrpc.xmlrpc.handler import XmlRpcResult
 
 
 class Unmarshaller:
@@ -113,8 +117,130 @@ class Unmarshaller:
         return self.stripped_text(member_name), self.dispatch(value)
 
 
+class Marshaller:
+    def __init__(self):
+        self.__dispatch = {
+            type(None): self.dump_nil,
+            bool: self.dump_bool,
+            int: self.dump_int,
+            float: self.dump_float,
+            str: self.dump_str,
+            bytes: self.dump_bytearray,
+            bytearray: self.dump_bytearray,
+            datetime: self.dump_datetime,
+            list: self.dump_list,
+            tuple: self.dump_list,
+            dict: self.dump_dict,
+            OrderedDict: self.dump_dict,
+        }
+
+    def result_to_element(self, result: XmlRpcResult) -> _Element:
+        """Convert an XmlRpcResult to an XML element."""
+        root = lxml.etree.Element("methodResponse")
+
+        if isinstance(result, RpcErrorResult):
+            fault = lxml.etree.SubElement(root, "fault")
+            value = lxml.etree.SubElement(fault, "value")
+
+            struct = lxml.etree.SubElement(value, "struct")
+
+            # Add faultCode member
+            member = lxml.etree.SubElement(struct, "member")
+            name = lxml.etree.SubElement(member, "name")
+            name.text = "faultCode"
+            value = lxml.etree.SubElement(member, "value")
+            int_el = lxml.etree.SubElement(value, "int")
+            int_el.text = str(result.code)
+
+            # Add faultString member
+            member = lxml.etree.SubElement(struct, "member")
+            name = lxml.etree.SubElement(member, "name")
+            name.text = "faultString"
+            value = lxml.etree.SubElement(member, "value")
+            string = lxml.etree.SubElement(value, "string")
+            string.text = result.message
+        else:
+            params = lxml.etree.SubElement(root, "params")
+            param = lxml.etree.SubElement(params, "param")
+            value = lxml.etree.SubElement(param, "value")
+
+            # Add the result data
+            value.append(self.dispatch(result.data))
+
+        return root
+
+    def dispatch(self, value: Any) -> _Element:
+        """Dispatch a value to the appropriate dump method."""
+        f = self.__dispatch.get(type(value))
+        if f:
+            return f(value)
+        raise TypeError(f"Unsupported type: {type(value)}")
+
+    @staticmethod
+    def dump_nil(_: None) -> _Element:
+        return lxml.etree.Element("nil")
+
+    @staticmethod
+    def dump_bool(value: bool) -> _Element:
+        boolean = lxml.etree.Element("boolean")
+        boolean.text = "1" if value else "0"
+        return boolean
+
+    @staticmethod
+    def dump_int(value: int) -> _Element:
+        MAXINT = 2**31 - 1
+        MININT = -(2**31)
+        if value > MAXINT or value < MININT:
+            raise OverflowError("int value exceeds XML-RPC limits")
+        int_el = lxml.etree.Element("int")
+        int_el.text = str(value)
+        return int_el
+
+    @staticmethod
+    def dump_float(value: float) -> _Element:
+        double = lxml.etree.Element("double")
+        double.text = str(value)
+        return double
+
+    @staticmethod
+    def dump_str(value: str) -> _Element:
+        string = lxml.etree.Element("string")
+        string.text = value
+        return string
+
+    @staticmethod
+    def dump_datetime(value: datetime) -> _Element:
+        dt = lxml.etree.Element("dateTime.iso8601")
+        dt.text = value.strftime("%04Y%02m%02dT%H:%M:%S")
+        return dt
+
+    @staticmethod
+    def dump_bytearray(value: bytes | bytearray) -> _Element:
+        b64 = lxml.etree.Element("base64")
+        b64.text = base64.b64encode(value).decode()
+        return b64
+
+    def dump_dict(self, value: dict) -> _Element:
+        struct = lxml.etree.Element("struct")
+        for key, val in value.items():
+            member = lxml.etree.SubElement(struct, "member")
+            name = lxml.etree.SubElement(member, "name")
+            name.text = str(key)
+            value_el = lxml.etree.SubElement(member, "value")
+            value_el.append(self.dispatch(val))
+        return struct
+
+    def dump_list(self, value: list | tuple) -> _Element:
+        array = lxml.etree.Element("array")
+        data = lxml.etree.SubElement(array, "data")
+        for val in value:
+            value_el = lxml.etree.SubElement(data, "value")
+            value_el.append(self.dispatch(val))
+        return array
+
+
 class LxmlBackend:
-    """xml-rpc serializer and deserializer based on the third-party xmltodict library"""
+    """xml-rpc serializer and deserializer based on lxml"""
 
     def __init__(self, load_kwargs: dict[str, Any] | None = None, dump_kwargs: dict[str, Any] | None = None):
         self.load_kwargs = load_kwargs or {}
@@ -123,6 +249,10 @@ class LxmlBackend:
     @cached_property
     def unmarshaller(self):
         return Unmarshaller()
+
+    @cached_property
+    def marshaller(self):
+        return Marshaller()
 
     def loads(self, data: str) -> XmlRpcRequest:
         try:
@@ -134,3 +264,12 @@ class LxmlBackend:
             return self.unmarshaller.element_to_request(root_obj)
         except Exception as e:
             raise RPCInvalidRequest(str(e)) from e
+
+    def dumps(self, result: XmlRpcResult) -> str:
+        """Serialize an XmlRpcResult to an XML string."""
+        try:
+            root = self.marshaller.result_to_element(result)
+        except Exception as e:
+            raise RPCMarshallingError(result.data, e) from e
+
+        return lxml.etree.tostring(root, encoding="utf-8", xml_declaration=True).decode("utf-8")
