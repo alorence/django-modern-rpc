@@ -7,7 +7,6 @@ import xml.parsers.expat
 from collections import OrderedDict
 from datetime import datetime
 from functools import cached_property
-from types import NoneType
 from typing import TYPE_CHECKING, Any, Callable, Literal, Sequence
 
 import xmltodict
@@ -17,6 +16,13 @@ from modernrpc.helpers import ensure_sequence, first
 from modernrpc.typing import RpcErrorResult
 from modernrpc.xmlrpc.backends.constants import MAXINT, MININT
 from modernrpc.xmlrpc.handler import XmlRpcRequest
+
+# NoneType is available in types base module only from Python 3.10
+try:
+    from types import NoneType
+except ImportError:
+    NoneType = type(None)  # type: ignore[misc]
+
 
 if TYPE_CHECKING:
     from modernrpc.xmlrpc.handler import XmlRpcResult

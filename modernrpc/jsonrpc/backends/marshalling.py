@@ -2,12 +2,17 @@
 # PEP 604: use of typeA | typeB is available since Python 3.10, enable it for older versions
 from __future__ import annotations
 
-from types import NoneType
 from typing import TYPE_CHECKING, Iterable, overload
 
 from modernrpc.exceptions import RPCInvalidRequest
 from modernrpc.jsonrpc.handler import JsonRpcRequest
 from modernrpc.typing import RpcErrorResult
+
+# NoneType is available in types base module only from Python 3.10
+try:
+    from types import NoneType
+except ImportError:
+    NoneType = type(None)  # type: ignore[misc]
 
 if TYPE_CHECKING:
     from typing import Any

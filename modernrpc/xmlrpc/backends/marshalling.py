@@ -3,7 +3,6 @@ from __future__ import annotations
 import base64
 from collections import OrderedDict
 from datetime import datetime
-from types import NoneType
 from typing import Any, Callable, Generic, Iterable, Protocol, TypeVar
 
 from modernrpc.exceptions import RPCInvalidRequest
@@ -17,6 +16,12 @@ try:
     from typing import Self
 except ImportError:
     from typing_extensions import Self
+
+# NoneType is available in types base module only from Python 3.10
+try:
+    from types import NoneType
+except ImportError:
+    NoneType = type(None)  # type: ignore[misc]
 
 
 class ElementTypeProtocol(Protocol, Iterable):
