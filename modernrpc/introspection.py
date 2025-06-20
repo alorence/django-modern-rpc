@@ -110,12 +110,12 @@ class DocstringParser:
             "restructured",
             "restructuredtext",
         ):
-            from docutils.core import publish_parts
+            from docutils.core import publish_parts  # noqa: PLC0415 (import only when configured)
 
             return publish_parts(self.text_documentation, writer_name="html")["body"]
 
         if settings.MODERNRPC_DOC_FORMAT.lower() in ("md", "markdown"):
-            import markdown
+            import markdown  # noqa: PLC0415 (import only when configured)
 
             return markdown.markdown(self.text_documentation)
 

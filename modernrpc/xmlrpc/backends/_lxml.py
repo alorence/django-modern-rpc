@@ -30,7 +30,7 @@ class LxmlBackend:
 
     def loads(self, data: str) -> XmlRpcRequest:
         try:
-            root_obj: _Element = lxml.etree.fromstring(data)  # noqa: S320 (lxml is NOT vulnerable anymore)
+            root_obj: _Element = lxml.etree.fromstring(data)
         except lxml.etree.XMLSyntaxError as e:
             raise RPCParseError(str(e)) from e
 

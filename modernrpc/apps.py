@@ -15,7 +15,7 @@ class ModernRpcConfig(AppConfig):
     @staticmethod
     def defusedxml_monkey_patch():
         try:
-            import defusedxml.xmlrpc
+            import defusedxml.xmlrpc  # noqa: PLC0415 (will be moved soon)
         except ImportError:
             msg = (
                 '"defusedxml" package were not found. Your project may be vulnerable to malicious XML payloads. '

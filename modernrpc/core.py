@@ -91,6 +91,9 @@ class ProcedureWrapper:
             and self.auth == other.auth
         )
 
+    def __hash__(self):
+        return hash(self.function)
+
     def check_permissions(self, request: HttpRequest) -> Any:
         """Call the predicate(s) associated with the RPC method to check if the current request
         can actually call the method.
