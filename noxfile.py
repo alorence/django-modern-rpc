@@ -6,6 +6,7 @@ import nox
 from packaging.version import Version
 
 PROJECT_DIR = Path(__file__).parent
+BENCHMARK_DIR = PROJECT_DIR / "tests" / "benchmarks"
 DOCS_SRC_DIR = PROJECT_DIR / "docs"
 DOCS_BUILD_DIR = PROJECT_DIR / "dist" / "docs"
 AUTODOC_PORT = 8001
@@ -90,7 +91,6 @@ def run_tests(session, python, django):
     post_args = session.posargs or []
     # Benchmarks cannot be run with parallelization enabled, run tests & benchmarks separately
     session.run("pytest", "-n", "auto", "--benchmark-disable", *post_args)
-    session.run("pytest", "tests/benchmarks", "--no-header", "--benchmark-only")
 
 
 @nox.session(name="test:coverage", venv_backend="none", default=False, tags=["tests"])
@@ -111,10 +111,19 @@ def tests_duration(session):
     session.run("uv", "run", "pytest", "--durations=20")
 
 
-@nox.session(name="benchmarks", venv_backend="none", default=False, tags=["tests"])
+@nox.session(name="all_benchmarks", venv_backend="uv", default=False, tags=["benchmarks"])
+@nox.parametrize(["python"], [py.value for py in Python if run_on_cicd(py, None)])
+def all_benchmarks(session, python):
+    """Run benchmark with each supported Python version"""
+    env = {"UV_PROJECT_ENVIRONMENT": session.virtualenv.location}
+    session.run_install("uv", "sync", "-p", python, env=env)
+    session.run("pytest", BENCHMARK_DIR, "--benchmark-only")
+
+
+@nox.session(name="benchmarks", venv_backend="none", default=False, tags=["benchmarks"])
 def benchmarks(session):
-    """Run benchmarks"""
-    session.run("uv", "run", "pytest", "tests/benchmarks", "--benchmark-only")
+    """Run benchmarks with current virtualenv Python version"""
+    session.run("uv", "run", "pytest", BENCHMARK_DIR, "--benchmark-only")
 
 
 @nox.session(name="lint", venv_backend="none", tags=["ruff", "checks"])
