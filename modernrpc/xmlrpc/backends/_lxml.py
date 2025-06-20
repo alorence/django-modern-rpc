@@ -4,6 +4,7 @@ import base64
 from collections import OrderedDict
 from datetime import datetime
 from functools import cached_property
+from types import NoneType
 from typing import TYPE_CHECKING, Any, Callable
 
 import lxml.etree
@@ -11,6 +12,7 @@ import lxml.etree
 from modernrpc.exceptions import RPCInvalidRequest, RPCMarshallingError, RPCParseError
 from modernrpc.helpers import first
 from modernrpc.typing import RpcErrorResult
+from modernrpc.xmlrpc.backends.constants import MAXINT, MININT
 from modernrpc.xmlrpc.handler import XmlRpcRequest
 
 if TYPE_CHECKING:
@@ -21,7 +23,7 @@ if TYPE_CHECKING:
 
 class Unmarshaller:
     def __init__(self) -> None:
-        self.__dispatch: dict[str, Callable] = {
+        self.load_funcs: dict[str, Callable] = {
             "value": self.load_value,
             "nil": self.load_nil,
             "boolean": self.load_bool,
@@ -65,11 +67,11 @@ class Unmarshaller:
 
     def dispatch(self, elt: _Element) -> Any:
         try:
-            load_func = self.__dispatch[elt.tag]
-            return load_func(elt)
-
+            load_func = self.load_funcs[elt.tag]
         except KeyError as e:
             raise RPCInvalidRequest(f"Unsupported type {elt.tag}") from e
+
+        return load_func(elt)
 
     def load_value(self, element: _Element) -> Any:
         return self.dispatch(self.first_child(element))
@@ -119,8 +121,8 @@ class Unmarshaller:
 
 class Marshaller:
     def __init__(self):
-        self.__dispatch = {
-            type(None): self.dump_nil,
+        self.dump_funcs = {
+            NoneType: self.dump_nil,
             bool: self.dump_bool,
             int: self.dump_int,
             float: self.dump_float,
@@ -171,10 +173,12 @@ class Marshaller:
 
     def dispatch(self, value: Any) -> _Element:
         """Dispatch a value to the appropriate dump method."""
-        f = self.__dispatch.get(type(value))
-        if f:
-            return f(value)
-        raise TypeError(f"Unsupported type: {type(value)}")
+        try:
+            dump_func = self.dump_funcs[type(value)]
+        except KeyError as e:
+            raise TypeError(f"Unsupported type: {type(value)}") from e
+
+        return dump_func(value)
 
     @staticmethod
     def dump_nil(_: None) -> _Element:
@@ -188,8 +192,6 @@ class Marshaller:
 
     @staticmethod
     def dump_int(value: int) -> _Element:
-        MAXINT = 2**31 - 1
-        MININT = -(2**31)
         if value > MAXINT or value < MININT:
             raise OverflowError("int value exceeds XML-RPC limits")
         int_el = lxml.etree.Element("int")

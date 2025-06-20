@@ -2,6 +2,7 @@
 # PEP 604: use of typeA | typeB is available since Python 3.10, enable it for older versions
 from __future__ import annotations
 
+from types import NoneType
 from typing import TYPE_CHECKING, Iterable, overload
 
 from modernrpc.exceptions import RPCInvalidRequest
@@ -31,7 +32,7 @@ class Unmarshaller:
         # Notification request won't have "id" field
         # None is also an allowed value. Both case are valid
         request_id = request_data.get("id")
-        if type(request_id) not in (type(None), int, float, str):
+        if type(request_id) not in (NoneType, int, float, str):
             raise RPCInvalidRequest(
                 'Parameter "id" has an unsupported value. According to JSON-RPC 2.0 standard, it must '
                 f"be a String, a Number or a Null value. Found: {type(request_id)}"

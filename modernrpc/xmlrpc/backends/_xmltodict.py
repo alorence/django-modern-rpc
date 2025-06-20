@@ -7,6 +7,7 @@ import xml.parsers.expat
 from collections import OrderedDict
 from datetime import datetime
 from functools import cached_property
+from types import NoneType
 from typing import TYPE_CHECKING, Any, Callable, Literal, Sequence
 
 import xmltodict
@@ -14,20 +15,16 @@ import xmltodict
 from modernrpc.exceptions import RPCInvalidRequest, RPCMarshallingError, RPCParseError
 from modernrpc.helpers import ensure_sequence, first
 from modernrpc.typing import RpcErrorResult
+from modernrpc.xmlrpc.backends.constants import MAXINT, MININT
 from modernrpc.xmlrpc.handler import XmlRpcRequest
 
 if TYPE_CHECKING:
     from modernrpc.xmlrpc.handler import XmlRpcResult
 
 
-NIL = object()
-MAXINT = 2**31 - 1
-MININT = -(2**31)
-
-
 class Unmarshaller:
     def __init__(self) -> None:
-        self.__dispatch: dict[str, Callable] = {
+        self.load_funcs: dict[str, Callable] = {
             "value": self.load_value,
             "nil": self.load_nil,
             "boolean": self.load_bool,
@@ -69,11 +66,11 @@ class Unmarshaller:
 
     def dispatch(self, _type: str, value: Any) -> Any:
         try:
-            load_func = self.__dispatch[_type]
-            return load_func(value)
-
+            load_func = self.load_funcs[_type]
         except KeyError as e:
             raise RPCInvalidRequest(f"Unsupported type {_type}") from e
+
+        return load_func(value)
 
     def load_value(self, data: dict) -> Any:
         _type, v = first(data.items())
@@ -130,8 +127,8 @@ class Unmarshaller:
 
 class Marshaller:
     def __init__(self):
-        self.__dispatch = {
-            type(None): self.dump_nil,
+        self.dump_funcs = {
+            NoneType: self.dump_nil,
             bool: self.dump_bool,
             int: self.dump_int,
             float: self.dump_float,
@@ -169,10 +166,11 @@ class Marshaller:
         }
 
     def dispatch(self, value: Any) -> dict[str, Any]:
-        f = self.__dispatch.get(type(value))
-        if f:
-            return f(value)
-        raise TypeError(f"Unsupported type: {type(value)}")
+        try:
+            dump_func = self.dump_funcs.get(type(value))
+        except KeyError as e:
+            raise TypeError(f"Unsupported type: {type(value)}") from e
+        return dump_func(value)
 
     @staticmethod
     def dump_nil(_):
