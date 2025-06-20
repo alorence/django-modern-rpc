@@ -4,7 +4,8 @@ import pytest
 
 from modernrpc import Protocol, RpcRequestContext, RpcServer
 from modernrpc.exceptions import RPCException, RPCInternalError, RPCMethodNotFound
-from modernrpc.handlers import JsonRpcHandler, XmlRpcHandler
+from modernrpc.jsonrpc.handler import JsonRpcHandler
+from modernrpc.xmlrpc.handler import XmlRpcHandler
 
 
 @pytest.fixture

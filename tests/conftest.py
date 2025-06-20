@@ -19,7 +19,8 @@ if TYPE_CHECKING:
 
     from django.http import HttpRequest
 
-    from modernrpc.backends.base import JsonRpcDeserializer, JsonRpcSerializer, XmlRpcDeserializer, XmlRpcSerializer
+    from modernrpc.jsonrpx import JsonRpcDeserializer, JsonRpcSerializer
+    from modernrpc.xmlrpc import XmlRpcDeserializer, XmlRpcSerializer
 
 
 @pytest.fixture(scope="session")

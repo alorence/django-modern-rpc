@@ -43,6 +43,7 @@ classifiers = [
 
 dependencies = [
     "django >= 3.2",
+    "typing-extensions >= 4.12.0 ; python_version < '3.11'"
 ]
 requires-python = ">=3.8"
 
@@ -96,6 +97,8 @@ dev = [
     "simplejson>=3.19",
     "xmltodict>=0.14.0",
     "lxml>=5.3",
+    "orjson>=3.10.15",
+    "python-rapidjson>=1.20",
 ]
 tests = [
     "pytest",
@@ -113,6 +116,7 @@ type-checking = [
     "types-requests",
     "types-simplejson",
     "types-xmltodict",
+    "lxml-stubs",
 ]
 docs = [
     "sphinx >= 8.2; python_version >= '3.11'",

@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from modernrpc import Protocol, RpcRequestContext
-from modernrpc.conf import settings
+from modernrpc.config import settings
 from modernrpc.constants import NOT_SET
 from modernrpc.core import ProcedureWrapper
 from modernrpc.exceptions import RPCException, RPCInternalError, RPCMethodNotFound
@@ -17,16 +17,16 @@ from modernrpc.helpers import check_flags_compatibility, first_true
 from modernrpc.views import handle_rpc_request
 
 if TYPE_CHECKING:
-    from typing import Any, TypeAlias
+    from typing import Any
 
     from django.http import HttpRequest
 
-    from modernrpc.handlers.base import RpcHandler
+    from modernrpc.handler import RpcHandler
 
 
 logger = logging.getLogger(__name__)
 
-RpcErrorHandler: TypeAlias = Callable[[BaseException, RpcRequestContext], Union[RPCException, None]]
+RpcErrorHandler = Callable[[BaseException, RpcRequestContext], Union[RPCException, None]]
 
 
 class RegistryMixin:
@@ -149,7 +149,11 @@ class RpcServer(RegistryMixin):
             return None
 
     def on_error(self, exception: BaseException, context: RpcRequestContext) -> RPCException:
-        """Do something when an exception happen"""
+        """
+        If an error handler is defined, call it to run arbitrary code and return its not-None result.
+        Else, check the given exception type and return it if it is a subclass of RPCException.
+        Convert any other exception into RPCInternalError.
+        """
         if self.error_handler:
             result = self.error_handler(exception, context)
             if result is not None:

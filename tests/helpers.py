@@ -12,11 +12,15 @@ import pytest
 from lxml.doctestcompare import PARSE_XML, LXMLOutputChecker
 
 from modernrpc import Protocol
-from modernrpc.backends.builtin_json import BuiltinJSON
-from modernrpc.backends.builtin_xmlrpc import BuiltinXmlRpc
-from modernrpc.backends.simple_json import SimpleJSON
-from modernrpc.backends.xml2dict import XML2Dict
 from modernrpc.helpers import ensure_sequence
+from modernrpc.jsonrpc.backends._json import PythonJsonBackend
+from modernrpc.jsonrpc.backends._orjson import OrjsonBackend
+from modernrpc.jsonrpc.backends._rapidjson import RapidJsonBackend
+from modernrpc.jsonrpc.backends._simplejson import SimpleJsonBackend
+from modernrpc.xmlrpc.backends._etree import EtreeBackend
+from modernrpc.xmlrpc.backends._lxml import LxmlBackend
+from modernrpc.xmlrpc.backends._xmlrpc import PythonXmlRpcBackend
+from modernrpc.xmlrpc.backends._xmltodict import XmlToDictBackend
 
 if TYPE_CHECKING:
     from django.http import HttpResponse
@@ -24,11 +28,11 @@ if TYPE_CHECKING:
 ALL_PROTOCOLS = [Protocol.XML_RPC, Protocol.JSON_RPC]
 # List all backends supported in tests for deserialization (data to request object) and
 # serialization (result to response data). These constants will be used to define some parametrized fixtures
-# in order to ensure every test is run with all backends combinations
-XML_DESERIALIZERS_CLASSES = [BuiltinXmlRpc, XML2Dict]
-XML_SERIALIZERS_CLASSES = [BuiltinXmlRpc, XML2Dict]
-JSON_DESERIALIZERS_CLASSES = [BuiltinJSON, SimpleJSON]
-JSON_SERIALIZERS_CLASSES = [BuiltinJSON, SimpleJSON]
+# to ensure every test is run with all backend combinations
+XML_DESERIALIZERS_CLASSES = [PythonXmlRpcBackend, XmlToDictBackend, EtreeBackend, LxmlBackend]
+XML_SERIALIZERS_CLASSES = [PythonXmlRpcBackend, XmlToDictBackend, EtreeBackend, LxmlBackend]
+JSON_DESERIALIZERS_CLASSES = [PythonJsonBackend, SimpleJsonBackend, OrjsonBackend, RapidJsonBackend]
+JSON_SERIALIZERS_CLASSES = [PythonJsonBackend, SimpleJsonBackend, OrjsonBackend, RapidJsonBackend]
 
 
 def build_xml_rpc_request_data(method="dummy", params=()) -> str:

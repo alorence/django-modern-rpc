@@ -7,7 +7,7 @@ import pytest
 from helpers import assert_xml_data_are_equal
 
 from modernrpc.exceptions import RPCInvalidRequest, RPCMarshallingError, RPCParseError
-from modernrpc.handlers.xmlhandler import XmlRpcErrorResult, XmlRpcRequest, XmlRpcSuccessResult
+from modernrpc.xmlrpc.handler import XmlRpcErrorResult, XmlRpcRequest, XmlRpcSuccessResult
 
 
 class TestXmlRpcDeserializer:
@@ -97,14 +97,14 @@ class TestXmlRpcDeserializer:
 
         request: used to dynamically mark the test as XFail when some conditions are met
         """
-        is_builtin_backend = "BuiltinXmlRpc" in xml_deserializer.__class__.__name__
+        is_builtin_backend = "PythonXmlRpcBackend" in xml_deserializer.__class__.__name__
         have_space_around = "\n" in inner_template or " " in inner_template
         type_have_parsing_issues = typ in ("boolean", "string", "dateTime.iso8601")
         if is_builtin_backend and have_space_around and type_have_parsing_issues:
             # When spaces are parsed around the text value of a node, builtin XmlRpc
             # backend fail to extract the correct value. Mark this test as XFail in such case
             marker = pytest.mark.xfail(
-                reason="BuiltinXmlRpc incorrectly parse tags surrounded with spaces", strict=True
+                reason="PythonXmlRpcBackend incorrectly parse tags surrounded with spaces", strict=True
             )
             request.applymarker(marker)
 
@@ -271,9 +271,9 @@ class TestXmlRpcDeserializer:
             xml_deserializer.loads(dedent(payload).strip())
 
     def test_missing_root_tag(self, request, xml_deserializer):
-        if "BuiltinXmlRpc" in xml_deserializer.__class__.__name__:
+        if "PythonXmlRpcBackend" in xml_deserializer.__class__.__name__:
             marker = pytest.mark.xfail(
-                reason='BuiltinXmlRpc allows requests without any "methodCall" root tag', strict=True
+                reason='PythonXmlRpcBackend allows requests without any "methodCall" root tag', strict=True
             )
             request.applymarker(marker)
 
@@ -473,8 +473,8 @@ class TestXmlRpcSerializer:
         ],
     )
     def test_result_dict_multiple_values(self, request, xml_serializer, struct_value):
-        if "BuiltinXmlRpc" in xml_serializer.__class__.__name__ and isinstance(struct_value, OrderedDict):
-            marker = pytest.mark.xfail(reason="BuiltinXmlRpc does not support OrderedDict", strict=True)
+        if "PythonXmlRpcBackend" in xml_serializer.__class__.__name__ and isinstance(struct_value, OrderedDict):
+            marker = pytest.mark.xfail(reason="PythonXmlRpcBackend does not support OrderedDict", strict=True)
             request.applymarker(marker)
 
         result = xml_serializer.dumps(XmlRpcSuccessResult(request=self.req, data=struct_value))

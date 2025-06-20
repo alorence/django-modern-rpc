@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from modernrpc import Protocol, RpcNamespace, RpcRequestContext
 from modernrpc.exceptions import RPCInvalidParams
-from modernrpc.handlers.base import GenericRpcErrorResult
-from modernrpc.handlers.xmlhandler import XmlRpcRequest
+from modernrpc.typing import RpcErrorResult
+from modernrpc.xmlrpc.handler import XmlRpcRequest
 
 system = RpcNamespace()
 
@@ -42,7 +42,7 @@ def __system_method_help(method_name: str, _ctx: RpcRequestContext):
     """
     Returns the documentation of the given method name.
 
-    :param method_name: Name of a method available for current entry point (and protocol)
+    :param method_name: Name of a method available for the current entry point (and protocol)
     :param _ctx: Request context for this call
     :return: Documentation text for the RPC method
     """
@@ -64,7 +64,7 @@ def __system_multi_call(calls: list, _ctx: RpcRequestContext):
         raise RPCInvalidParams(f"system.multicall first argument should be a list, {type(calls).__name__} given.")
 
     def result_to_serializable_data(result):
-        if isinstance(result, GenericRpcErrorResult):
+        if isinstance(result, RpcErrorResult):
             return {
                 "faultCode": result.code,
                 "faultString": result.message,

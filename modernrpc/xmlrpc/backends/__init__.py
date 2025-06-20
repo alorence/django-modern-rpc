@@ -5,10 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Protocol
 
 if TYPE_CHECKING:
-    from typing import Iterable
-
-    from modernrpc.handlers.jsonhandler import JsonRpcRequest, JsonRpcResult
-    from modernrpc.handlers.xmlhandler import XmlRpcRequest, XmlRpcResult
+    from modernrpc.xmlrpc.handler import XmlRpcRequest, XmlRpcResult
 
 
 class XmlRpcDeserializer(Protocol):
@@ -17,11 +14,3 @@ class XmlRpcDeserializer(Protocol):
 
 class XmlRpcSerializer(Protocol):
     def dumps(self, result: XmlRpcResult) -> str: ...
-
-
-class JsonRpcDeserializer(Protocol):
-    def loads(self, data: str) -> JsonRpcRequest | list[JsonRpcRequest]: ...
-
-
-class JsonRpcSerializer(Protocol):
-    def dumps(self, result: JsonRpcResult | Iterable[JsonRpcResult]) -> str: ...

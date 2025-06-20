@@ -5,8 +5,9 @@ from helpers import ALL_PROTOCOLS
 
 from modernrpc import Protocol, RpcServer
 from modernrpc.exceptions import RPCMethodNotFound
-from modernrpc.handlers import JsonRpcHandler, XmlRpcHandler
+from modernrpc.jsonrpc.handler import JsonRpcHandler
 from modernrpc.server import RpcNamespace
+from modernrpc.xmlrpc.handler import XmlRpcHandler
 
 
 class TestJsonRpcHandler:

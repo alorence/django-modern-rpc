@@ -1,4 +1,4 @@
-"""Handle all introspection related features on rpc_methods:
+"""Handle all introspection-related features on rpc_methods:
 - Help text
 - Signature
 """
@@ -11,7 +11,7 @@ from typing import Callable
 
 from django.utils.functional import cached_property
 
-from modernrpc.conf import settings
+from modernrpc.config import settings
 
 # Define regular expressions used to parse docstring
 PARAM_REXP = re.compile(r"^[:@]param (\w+): ?(.*(?:\n[^:@].+)?)$", flags=re.MULTILINE)
@@ -24,7 +24,7 @@ MULTI_SPACES = re.compile(r"\s+")
 
 
 class Introspector:
-    """Helper to extract signature and type hint for given function"""
+    """Helper to extract the signature and type hint for the given function"""
 
     def __init__(self, function: Callable):
         self.func = function
@@ -51,7 +51,7 @@ class Introspector:
 
     @cached_property
     def return_type(self) -> str:
-        """Return the return type as defined from signature typehint"""
+        """Return the return type as defined from the signature typehint"""
         return (
             ""
             if self.signature.return_annotation == self.signature.empty
@@ -74,8 +74,8 @@ class Introspector:
 
 
 class DocstringParser:
-    """Parse docstring to extract params docs & types and return doc & type. It also converts
-    long docstring part to an HTML representation using parser from settings (markdown/rst)
+    """Parse docstring to extract documentation (type and text) for parameters and return. It also converts
+    the docstring text part to an HTML representation using Markdown or Restructured parser (depending on settings)
     """
 
     def __init__(self, function: Callable):
@@ -93,7 +93,7 @@ class DocstringParser:
 
     @cached_property
     def text_documentation(self) -> str:
-        """Return the text part of the docstring block, excluding legacy typehints and parameters and return docs"""
+        """Return the text part of the docstring block, excluding legacy typehints, parameters and return docs"""
         content = self.raw_docstring
         for pattern in [PARAM_REXP, PARAM_TYPE_REXP, RETURN_REXP, RETURN_TYPE_REXP]:
             content = pattern.sub("", content)
@@ -107,7 +107,7 @@ class DocstringParser:
 
         if settings.MODERNRPC_DOC_FORMAT.lower() in (
             "rst",
-            "restructred",
+            "restructured",
             "restructuredtext",
         ):
             from docutils.core import publish_parts
@@ -124,13 +124,13 @@ class DocstringParser:
 
     @cached_property
     def args_doc(self) -> dict[str, str]:
-        """Return a dict with argument name as key and documentation text as value. The dict will contain only
-        documented arguments.
-        Basically this method parse and extract reST documented arguments:
+        """Return a dict with, for each argument, its name as key and documentation text as value. The dict
+        will contain only documented arguments.
+        Basically this method parses and extracts reST documented arguments:
 
             :param <argname>: Documentation for <argname>
 
-        Alternatively, it also supports @param format:
+        Alternatively, it also supports the @param format:
 
             @param <argname>: Documentation for <argname>
         """
@@ -138,13 +138,13 @@ class DocstringParser:
 
     @cached_property
     def args_types(self) -> dict[str, str]:
-        """Return a dict with argument name as key and documented type as value. The dict will contain only
-        documented arguments.
-        Basically this method parse and extract reST doctype documentation:
+        """Return a dict with, for each argument, its name as key and documented type as value. The dict
+        will contain only documented arguments.
+        Basically this method parses and extracts reST doctype documentation:
 
             :type <argname>: int or str
 
-        Alternatively, it also supports @type format:
+        Alternatively, it also supports the @type format:
 
             @type <argname>: int or str
         """
@@ -167,11 +167,11 @@ class DocstringParser:
 
     @cached_property
     def return_type(self) -> str:
-        """Return the documentation for method return type, as found in docstring:
+        """Return the documentation for the method return type, as found in docstring:
 
             :rtype: list
 
-        Alternatively, it also supports @rtype format:
+        Alternatively, it also supports the @rtype format:
 
             @rtype: list
 
