@@ -17,6 +17,7 @@ from modernrpc.jsonrpc.backends._json import PythonJsonBackend
 from modernrpc.jsonrpc.backends._orjson import OrjsonBackend
 from modernrpc.jsonrpc.backends._rapidjson import RapidJsonBackend
 from modernrpc.jsonrpc.backends._simplejson import SimpleJsonBackend
+from modernrpc.xmlrpc.backends._etree import EtreeBackend
 from modernrpc.xmlrpc.backends._lxml import LxmlBackend
 from modernrpc.xmlrpc.backends._xmlrpc import PythonXmlRpcBackend
 from modernrpc.xmlrpc.backends._xmltodict import XmlToDictBackend
@@ -28,8 +29,8 @@ ALL_PROTOCOLS = [Protocol.XML_RPC, Protocol.JSON_RPC]
 # List all backends supported in tests for deserialization (data to request object) and
 # serialization (result to response data). These constants will be used to define some parametrized fixtures
 # to ensure every test is run with all backend combinations
-XML_DESERIALIZERS_CLASSES = [PythonXmlRpcBackend, XmlToDictBackend, LxmlBackend]
-XML_SERIALIZERS_CLASSES = [PythonXmlRpcBackend, XmlToDictBackend, LxmlBackend]
+XML_DESERIALIZERS_CLASSES = [PythonXmlRpcBackend, XmlToDictBackend, EtreeBackend, LxmlBackend]
+XML_SERIALIZERS_CLASSES = [PythonXmlRpcBackend, XmlToDictBackend, EtreeBackend, LxmlBackend]
 JSON_DESERIALIZERS_CLASSES = [PythonJsonBackend, SimpleJsonBackend, OrjsonBackend, RapidJsonBackend]
 JSON_SERIALIZERS_CLASSES = [PythonJsonBackend, SimpleJsonBackend, OrjsonBackend, RapidJsonBackend]
 

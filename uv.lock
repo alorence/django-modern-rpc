@@ -504,6 +504,8 @@ source = { editable = "." }
 dependencies = [
     { name = "django", version = "4.2.23", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
     { name = "django", version = "5.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "typing-extensions", version = "4.13.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
+    { name = "typing-extensions", version = "4.14.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9' and python_full_version < '3.11'" },
 ]
 
 [package.optional-dependencies]
@@ -584,6 +586,7 @@ requires-dist = [
     { name = "django", specifier = ">=3.2" },
     { name = "docutils", marker = "extra == 'docutils'", specifier = ">=0.19" },
     { name = "markdown", marker = "extra == 'markdown'", specifier = ">=3.4" },
+    { name = "typing-extensions", marker = "python_full_version < '3.11'", specifier = ">=4.12.0" },
 ]
 provides-extras = ["docutils", "markdown", "defusedxml"]
 
