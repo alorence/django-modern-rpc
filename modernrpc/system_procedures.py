@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from modernrpc import Protocol, RpcNamespace, RpcRequestContext
 from modernrpc.exceptions import RPCInvalidParams
-from modernrpc.typing import RpcErrorResult
+from modernrpc.types import RpcErrorResult
 from modernrpc.xmlrpc.handler import XmlRpcRequest
 
 system = RpcNamespace()

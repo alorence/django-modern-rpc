@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Iterable, overload
 
 from modernrpc.exceptions import RPCInvalidRequest
 from modernrpc.jsonrpc.handler import JsonRpcRequest
-from modernrpc.typing import RpcErrorResult
+from modernrpc.types import RpcErrorResult
 
 # NoneType is available in types base module only from Python 3.10
 try:

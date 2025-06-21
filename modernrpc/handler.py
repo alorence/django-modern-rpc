@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Generic
 
 from modernrpc.exceptions import RPCMethodNotFound
-from modernrpc.typing import RequestType, RpcErrorResult, RpcSuccessResult
+from modernrpc.types import RequestType, RpcErrorResult, RpcSuccessResult
 
 if TYPE_CHECKING:
     from http import HTTPStatus

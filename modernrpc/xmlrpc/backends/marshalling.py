@@ -7,7 +7,7 @@ from typing import Any, Callable, Generic, Iterable, Protocol, TypeVar
 
 from modernrpc.exceptions import RPCInvalidRequest
 from modernrpc.helpers import first
-from modernrpc.typing import RpcErrorResult
+from modernrpc.types import RpcErrorResult
 from modernrpc.xmlrpc.backends.constants import MAXINT, MININT
 from modernrpc.xmlrpc.handler import XmlRpcRequest, XmlRpcResult
 
@@ -41,10 +41,13 @@ class ElementTypeProtocol(Protocol, Iterable):
 
 ElementType = TypeVar("ElementType", bound=ElementTypeProtocol)
 
+LoadFuncType = Callable[[ElementType], Any]
+DumpFuncType = Callable[[Any], ElementType]
+
 
 class EtreeElementUnmarshaller(Generic[ElementType]):
     def __init__(self) -> None:
-        self.load_funcs: dict[str, Callable] = {
+        self.load_funcs: dict[str, LoadFuncType] = {
             "value": self.load_value,
             "nil": self.load_nil,
             "boolean": self.load_bool,
@@ -98,13 +101,13 @@ class EtreeElementUnmarshaller(Generic[ElementType]):
         return self.dispatch(self.first_child(element))
 
     @staticmethod
-    def load_nil(_: ElementType) -> Any:
+    def load_nil(_: ElementType) -> None:
         return None
 
-    def load_int(self, elt: ElementType) -> Any:
+    def load_int(self, elt: ElementType) -> int:
         return int(self.stripped_text(elt))
 
-    def load_bool(self, elt: ElementType) -> Any:
+    def load_bool(self, elt: ElementType) -> bool:
         value = self.stripped_text(elt)
         if value not in ("0", "1"):
             raise TypeError(f"Invalid boolean value: only 0 and 1 are allowed, found {value}")
@@ -125,11 +128,11 @@ class EtreeElementUnmarshaller(Generic[ElementType]):
     def load_array(self, elt: ElementType) -> list[Any]:
         return [self.dispatch(value_elt) for value_elt in elt.findall("./data/value")]
 
-    def load_struct(self, elt: ElementType):
+    def load_struct(self, elt: ElementType) -> dict[str, Any]:
         member_names_and_values = [self.load_struct_member(member) for member in elt.findall("./member")]
         return dict(member_names_and_values)
 
-    def load_struct_member(self, member_elt: ElementType):
+    def load_struct_member(self, member_elt: ElementType) -> tuple[str, Any]:
         member_name = member_elt.find("./name")
         if member_name is None:
             raise RPCInvalidRequest("missing member.name tag", data=member_elt)
@@ -148,7 +151,7 @@ class EtreeElementMarshaller(Generic[ElementType]):
     ) -> None:
         self.element_factory = element_factory
         self.sub_element_factory = sub_element_factory
-        self.dump_funcs: dict[type, Callable] = {
+        self.dump_funcs: dict[type, DumpFuncType] = {
             NoneType: self.dump_nil,
             bool: self.dump_bool,
             int: self.dump_int,

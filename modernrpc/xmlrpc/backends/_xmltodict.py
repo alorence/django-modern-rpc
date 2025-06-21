@@ -13,7 +13,7 @@ import xmltodict
 
 from modernrpc.exceptions import RPCInvalidRequest, RPCMarshallingError, RPCParseError
 from modernrpc.helpers import ensure_sequence, first
-from modernrpc.typing import RpcErrorResult
+from modernrpc.types import RpcErrorResult
 from modernrpc.xmlrpc.backends.constants import MAXINT, MININT
 from modernrpc.xmlrpc.handler import XmlRpcRequest
 
@@ -28,9 +28,13 @@ if TYPE_CHECKING:
     from modernrpc.xmlrpc.handler import XmlRpcResult
 
 
+LoadFuncType = Callable[[Any], Any]
+DumpFuncType = Callable[[Any], dict]
+
+
 class Unmarshaller:
     def __init__(self) -> None:
-        self.load_funcs: dict[str, Callable] = {
+        self.load_funcs: dict[str, LoadFuncType] = {
             "value": self.load_value,
             "nil": self.load_nil,
             "boolean": self.load_bool,
@@ -91,7 +95,7 @@ class Unmarshaller:
         return int(data)
 
     @staticmethod
-    def load_bool(data: str) -> int:
+    def load_bool(data: str) -> bool:
         if data not in ("0", "1"):
             raise TypeError("Invalid boolean value: only 0 and 1 are allowed")
         return data == "1"
@@ -133,7 +137,7 @@ class Unmarshaller:
 
 class Marshaller:
     def __init__(self):
-        self.dump_funcs = {
+        self.dump_funcs: dict[type, DumpFuncType] = {
             NoneType: self.dump_nil,
             bool: self.dump_bool,
             int: self.dump_int,
@@ -173,7 +177,7 @@ class Marshaller:
 
     def dispatch(self, value: Any) -> dict[str, Any]:
         try:
-            dump_func = self.dump_funcs.get(type(value))
+            dump_func = self.dump_funcs[type(value)]
         except KeyError as e:
             raise TypeError(f"Unsupported type: {type(value)}") from e
         return dump_func(value)

@@ -11,7 +11,7 @@ from modernrpc import Protocol
 from modernrpc.config import settings
 from modernrpc.exceptions import RPCException
 from modernrpc.handler import RpcHandler
-from modernrpc.typing import RpcErrorResult, RpcRequest, RpcSuccessResult
+from modernrpc.types import RpcErrorResult, RpcRequest, RpcSuccessResult
 
 if TYPE_CHECKING:
     from typing import Any, ClassVar

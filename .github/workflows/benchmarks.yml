@@ -28,7 +28,7 @@ jobs:
     - name: Build GH Actions test matrix from nox sessions
       id: set-matrix
       shell: bash
-      run: echo session=$(nox -e all_benchmarks --list --json | jq -c '[.[].session]') | tee --append $GITHUB_OUTPUT
+      run: echo session=$(nox -e benchmarks --list --json | jq -c '[.[].session]') | tee --append $GITHUB_OUTPUT
 
   benchmark:
     name: ${{ matrix.session }}

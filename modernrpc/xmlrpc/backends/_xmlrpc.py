@@ -8,7 +8,7 @@ from typing import Any
 from xmlrpc.client import Fault, ResponseError
 
 from modernrpc.exceptions import RPCInvalidRequest, RPCMarshallingError, RPCParseError
-from modernrpc.typing import RpcErrorResult
+from modernrpc.types import RpcErrorResult
 from modernrpc.xmlrpc.handler import XmlRpcRequest, XmlRpcResult
 
 

@@ -14,7 +14,7 @@ from modernrpc.config import settings
 from modernrpc.constants import NOT_SET
 from modernrpc.exceptions import RPCException
 from modernrpc.handler import RpcHandler
-from modernrpc.typing import RpcErrorResult, RpcRequest, RpcSuccessResult
+from modernrpc.types import RpcErrorResult, RpcRequest, RpcSuccessResult
 
 if TYPE_CHECKING:
     from typing import Any, ClassVar, Generator
