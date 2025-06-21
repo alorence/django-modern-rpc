@@ -5,9 +5,10 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Any
 from xml.etree.ElementTree import Element, SubElement
 
+import defusedxml
 import defusedxml.ElementTree as DefusedElementTree
 
-from modernrpc.exceptions import RPCInvalidRequest, RPCMarshallingError, RPCParseError
+from modernrpc.exceptions import RPCInsecureRequest, RPCInvalidRequest, RPCMarshallingError, RPCParseError
 from modernrpc.xmlrpc.backends.marshalling import EtreeElementMarshaller, EtreeElementUnmarshaller
 
 if TYPE_CHECKING:
@@ -34,6 +35,8 @@ class EtreeBackend:
             root_obj: Element = DefusedElementTree.XML(data)
         except ET.ParseError as e:
             raise RPCParseError(str(e)) from e
+        except (defusedxml.DTDForbidden, defusedxml.EntitiesForbidden, defusedxml.ExternalReferenceForbidden) as e:
+            raise RPCInsecureRequest(str(e)) from e
 
         try:
             return self.unmarshaller.element_to_request(root_obj)

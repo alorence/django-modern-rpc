@@ -109,6 +109,7 @@ tests = [
 type-checking = [
     "mypy",
     "django-stubs",
+    "types-defusedxml",
     "types-docutils",
     "types-markdown",
     "types-requests",

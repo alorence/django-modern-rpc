@@ -90,6 +90,14 @@ class RPCParseError(RPCException):
         super().__init__(RPC_PARSE_ERROR, err_msg, data)
 
 
+class RPCInsecureRequest(RPCParseError):
+    """Raised in backends if the request is maliciously formed."""
+
+    def __init__(self, message: str, data: Any = None):
+        err_msg = f"Security error: {message}"
+        super().__init__(err_msg, data)
+
+
 class RPCInvalidRequest(RPCException):
     """Raised by handlers if incoming JSON or XML data is not a valid JSON-RPC or XML-RPC data."""
 

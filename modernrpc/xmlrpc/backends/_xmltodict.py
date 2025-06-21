@@ -9,9 +9,10 @@ from datetime import datetime
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Callable, Literal, Sequence
 
+import defusedxml.ElementTree
 import xmltodict
 
-from modernrpc.exceptions import RPCInvalidRequest, RPCMarshallingError, RPCParseError
+from modernrpc.exceptions import RPCInsecureRequest, RPCInvalidRequest, RPCMarshallingError, RPCParseError
 from modernrpc.helpers import ensure_sequence, first
 from modernrpc.types import RpcErrorResult
 from modernrpc.xmlrpc.backends.constants import MAXINT, MININT
@@ -252,6 +253,19 @@ class XmlToDictBackend:
         return Unmarshaller()
 
     def loads(self, data: str) -> XmlRpcRequest:
+        try:
+            # First parse the XML using defusedxml.ElementTree for security
+            # This will raise appropriate exceptions for XML vulnerabilities
+            root = defusedxml.ElementTree.fromstring(data)
+
+            # Convert the parsed XML to a string and then parse it with xmltodict
+            # This is safe because defusedxml has already validated the XML
+            data = defusedxml.ElementTree.tostring(root, encoding="utf-8").decode("utf-8")
+        except defusedxml.ElementTree.ParseError as e:
+            raise RPCParseError(str(e)) from e
+        except defusedxml.DefusedXmlException as e:
+            raise RPCInsecureRequest(str(e)) from e
+
         try:
             structured_data: OrderedDict[str, Any] = xmltodict.parse(data, **self.load_kwargs)
         except xml.parsers.expat.ExpatError as e:

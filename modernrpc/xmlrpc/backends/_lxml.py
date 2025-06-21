@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any
 import lxml.etree
 from lxml.etree import Element, SubElement, _Element
 
-from modernrpc.exceptions import RPCInvalidRequest, RPCMarshallingError, RPCParseError
+from modernrpc.exceptions import RPCInsecureRequest, RPCInvalidRequest, RPCMarshallingError, RPCParseError
 from modernrpc.xmlrpc.backends.marshalling import EtreeElementMarshaller, EtreeElementUnmarshaller
 
 if TYPE_CHECKING:
@@ -29,10 +29,24 @@ class LxmlBackend:
         return EtreeElementMarshaller[_Element](Element, SubElement)
 
     def loads(self, data: str) -> XmlRpcRequest:
+        # Check for DTD declarations and reject them
+        if "<!DOCTYPE" in data:
+            raise RPCInsecureRequest("DTD declarations are not allowed")
+
         try:
-            root_obj: _Element = lxml.etree.fromstring(data)
+            # Create a secure parser that disables DTDs, external entities, and entity expansion
+            parser = lxml.etree.XMLParser(
+                resolve_entities=False,  # Prevent entity expansion
+                no_network=True,  # Prevent network access
+                dtd_validation=False,  # Disable DTD validation
+                load_dtd=False,  # Disable DTD loading
+                huge_tree=False,  # Prevent billion laughs attack
+            )
+            root_obj: _Element = lxml.etree.fromstring(data, parser)
         except lxml.etree.XMLSyntaxError as e:
             raise RPCParseError(str(e)) from e
+        # FIXME: add tests to retrieve common XML vulnerabilities exceptions, catch them, and correctly raises
+        #  an RPCInsecureRequest() instance
 
         try:
             return self.unmarshaller.element_to_request(root_obj)

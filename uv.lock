@@ -567,6 +567,8 @@ type-checking = [
     { name = "lxml-stubs" },
     { name = "mypy", version = "1.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
     { name = "mypy", version = "1.16.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
+    { name = "types-defusedxml", version = "0.7.0.20240218", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
+    { name = "types-defusedxml", version = "0.7.0.20250516", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
     { name = "types-docutils", version = "0.21.0.20241128", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
     { name = "types-docutils", version = "0.21.0.20250604", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
     { name = "types-markdown", version = "3.7.0.20241204", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
@@ -623,6 +625,7 @@ type-checking = [
     { name = "django-stubs" },
     { name = "lxml-stubs" },
     { name = "mypy" },
+    { name = "types-defusedxml" },
     { name = "types-docutils" },
     { name = "types-markdown" },
     { name = "types-requests" },
@@ -2565,6 +2568,32 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/2b/ae/c1b22d4524b0e10da2f29a176fb2890386f7bd1f63aacf186444873a88a0/tornado-6.4.2-cp38-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:932d195ca9015956fa502c6b56af9eb06106140d844a335590c1ec7f5277d10c", size = 437261, upload-time = "2024-11-22T03:06:32.458Z" },
     { url = "https://files.pythonhosted.org/packages/b5/25/36dbd49ab6d179bcfc4c6c093a51795a4f3bed380543a8242ac3517a1751/tornado-6.4.2-cp38-abi3-win32.whl", hash = "sha256:2876cef82e6c5978fde1e0d5b1f919d756968d5b4282418f3146b79b58556482", size = 438463, upload-time = "2024-11-22T03:06:34.71Z" },
     { url = "https://files.pythonhosted.org/packages/61/cc/58b1adeb1bb46228442081e746fcdbc4540905c87e8add7c277540934edb/tornado-6.4.2-cp38-abi3-win_amd64.whl", hash = "sha256:908b71bf3ff37d81073356a5fadcc660eb10c1476ee6e2725588626ce7e5ca38", size = 438907, upload-time = "2024-11-22T03:06:36.71Z" },
+]
+
+[[package]]
+name = "types-defusedxml"
+version = "0.7.0.20240218"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version < '3.9'",
+]
+sdist = { url = "https://files.pythonhosted.org/packages/5c/04/acc0a4ef3ea7eff334e3bc73e7a7af54f06684dfea405c0c81fb28a243ab/types-defusedxml-0.7.0.20240218.tar.gz", hash = "sha256:05688a7724dc66ea74c4af5ca0efc554a150c329cb28c13a64902cab878d06ed", size = 5493, upload-time = "2024-02-18T02:15:19.986Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/82/a3/6c007483045d362f45cc30955eb07644a3e8a0d57ee6293f5b540b127558/types_defusedxml-0.7.0.20240218-py3-none-any.whl", hash = "sha256:2b7f3c5ca14fdbe728fab0b846f5f7eb98c4bd4fd2b83d25f79e923caa790ced", size = 7827, upload-time = "2024-02-18T02:15:18.427Z" },
+]
+
+[[package]]
+name = "types-defusedxml"
+version = "0.7.0.20250516"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.11'",
+    "python_full_version == '3.10.*'",
+    "python_full_version == '3.9.*'",
+]
+sdist = { url = "https://files.pythonhosted.org/packages/55/9d/3ba8b80536402f1a125bc5a44d82ab686aafa55a85f56160e076b2ac30de/types_defusedxml-0.7.0.20250516.tar.gz", hash = "sha256:164c2945077fa450f24ed09633f8b3a80694687fefbbc1cba5f24e4ba570666b", size = 10298, upload-time = "2025-05-16T03:08:18.951Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2e/7b/567b0978150edccf7fa3aa8f2566ea9c3ffc9481ce7d64428166934d6d7f/types_defusedxml-0.7.0.20250516-py3-none-any.whl", hash = "sha256:00e793e5c385c3e142d7c2acc3b4ccea2fe0828cee11e35501f0ba40386630a0", size = 12576, upload-time = "2025-05-16T03:08:17.892Z" },
 ]
 
 [[package]]
