@@ -23,7 +23,7 @@ repos:
       # Formatter
       - id: ruff-format
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.16.0
+    rev: v1.16.1
     hooks:
       - id: mypy
         files: ^modernrpc

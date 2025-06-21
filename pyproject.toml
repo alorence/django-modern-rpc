@@ -43,6 +43,7 @@ classifiers = [
 
 dependencies = [
     "django >= 3.2",
+    "defusedxml >= 0.7.1",
     "typing-extensions >= 4.12.0 ; python_version < '3.11'"
 ]
 requires-python = ">=3.8"
@@ -53,9 +54,6 @@ docutils = [
 ]
 markdown = [
     "markdown >= 3.4",
-]
-defusedxml = [
-    "defusedxml",
 ]
 
 [project.urls]

@@ -7,6 +7,8 @@ import xmlrpc.client
 from typing import Any
 from xmlrpc.client import Fault, ResponseError
 
+import defusedxml.xmlrpc as defused_xmlrpc
+
 from modernrpc.exceptions import RPCInvalidRequest, RPCMarshallingError, RPCParseError
 from modernrpc.types import RpcErrorResult
 from modernrpc.xmlrpc.handler import XmlRpcRequest, XmlRpcResult
@@ -16,6 +18,8 @@ class PythonXmlRpcBackend:
     """xml-rpc serializer and deserializer based on python builtin xmlrpc module"""
 
     def __init__(self, load_kwargs: dict[str, Any] | None = None, dump_kwargs: dict[str, Any] | None = None):
+        defused_xmlrpc.monkey_patch()
+
         self.load_kwargs = load_kwargs or {}
         self.load_kwargs.setdefault("use_datetime", True)
         self.load_kwargs.setdefault("use_builtin_types", True)
