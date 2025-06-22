@@ -127,6 +127,14 @@ docs = [
     "sphinx-inline-tabs>=2023.4.21",
 ]
 
+
+[[tool.uv.index]]
+name = "testpypi"
+url = "https://test.pypi.org/simple/"
+publish-url = "https://test.pypi.org/legacy/"
+explicit = true
+
+
 # ------------------------------------------------------------------
 # |                        Pytest settings
 # ------------------------------------------------------------------
