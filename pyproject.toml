@@ -98,7 +98,7 @@ tox = "^4.8"
 [tool.poetry.group.code-analysis]
 optional = true
 [tool.poetry.group.code-analysis.dependencies]
-ruff = ">=0.8.4,<0.12.0"
+ruff = ">=0.8.4,<0.13.0"
 # mypy 1.5+ requires Python 3.8+
 mypy = "^1.4.0"
 django-stubs = "^4.2.0"
