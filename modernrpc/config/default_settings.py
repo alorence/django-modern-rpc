@@ -14,3 +14,5 @@ MODERNRPC_XML_SERIALIZER = {"class": "modernrpc.xmlrpc.backends._xmlrpc.PythonXm
 # Configure the format of the docstring used to document your RPC methods.
 # Possible values are: '', 'rst' or 'md'
 MODERNRPC_DOC_FORMAT = ""
+
+MODERNRPC_XMLRPC_ASYNC_MULTICALL = False

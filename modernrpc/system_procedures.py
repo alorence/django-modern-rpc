@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import asyncio
+
 from modernrpc import Protocol, RpcNamespace, RpcRequestContext
+from modernrpc.config import settings
 from modernrpc.exceptions import RPCInvalidParams
 from modernrpc.types import RpcErrorResult
 from modernrpc.xmlrpc.handler import XmlRpcRequest
@@ -51,26 +54,54 @@ def __system_method_help(method_name: str, _ctx: RpcRequestContext):
     return method.raw_docstring
 
 
-@system.register_procedure(name="multicall", protocol=Protocol.XML_RPC, context_target="_ctx")
-def __system_multi_call(calls: list, _ctx: RpcRequestContext):
-    """
-    Call multiple RPC methods at once.
+if settings.MODERNRPC_XMLRPC_ASYNC_MULTICALL:
 
-    :param calls: An array of struct like {"methodName": string, "params": array }
-    :param _ctx: Request context for this call
-    :return:
-    """
-    if not isinstance(calls, list):
-        raise RPCInvalidParams(f"system.multicall first argument should be a list, {type(calls).__name__} given.")
+    @system.register_procedure(name="multicall", protocol=Protocol.XML_RPC, context_target="_ctx")
+    async def __system_multi_call(calls: list, _ctx: RpcRequestContext):
+        """
+        Call multiple RPC methods at once, using asyncio.gather().
 
-    def result_to_serializable_data(result):
-        if isinstance(result, RpcErrorResult):
-            return {
-                "faultCode": result.code,
-                "faultString": result.message,
-            }
-        return (result.data,)
+        :param calls: An array of struct like {"methodName": string, "params": array }
+        :param _ctx: Request context for this call
+        :return: An array containing the result of each procedure call
+        """
+        if not isinstance(calls, list):
+            raise RPCInvalidParams(f"system.multicall first argument should be a list, {type(calls).__name__} given.")
 
-    requests = (XmlRpcRequest(call.get("methodName"), call.get("params")) for call in calls)
-    results = (_ctx.handler.process_single_request(request, _ctx) for request in requests)
-    return [result_to_serializable_data(result) for result in results]
+        def result_to_serializable_data(result):
+            if isinstance(result, RpcErrorResult):
+                return {
+                    "faultCode": result.code,
+                    "faultString": result.message,
+                }
+            return (result.data,)
+
+        requests = (XmlRpcRequest(call.get("methodName"), call.get("params")) for call in calls)
+        results = await asyncio.gather(*(_ctx.handler.aprocess_single_request(request, _ctx) for request in requests))
+        return [result_to_serializable_data(result) for result in results]
+
+else:
+
+    @system.register_procedure(name="multicall", protocol=Protocol.XML_RPC, context_target="_ctx")
+    def __system_multi_call(calls: list, _ctx: RpcRequestContext):
+        """
+        Call multiple RPC methods at once.
+
+        :param calls: An array of struct like {"methodName": string, "params": array }
+        :param _ctx: Request context for this call
+        :return: An array containing the result of each procedure call
+        """
+        if not isinstance(calls, list):
+            raise RPCInvalidParams(f"system.multicall first argument should be a list, {type(calls).__name__} given.")
+
+        def result_to_serializable_data(result):
+            if isinstance(result, RpcErrorResult):
+                return {
+                    "faultCode": result.code,
+                    "faultString": result.message,
+                }
+            return (result.data,)
+
+        requests = (XmlRpcRequest(call.get("methodName"), call.get("params")) for call in calls)
+        results = (_ctx.handler.process_single_request(request, _ctx) for request in requests)
+        return [result_to_serializable_data(result) for result in results]
