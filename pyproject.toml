@@ -49,12 +49,13 @@ dependencies = [
 requires-python = ">=3.8"
 
 [project.optional-dependencies]
-docutils = [
-    "docutils >= 0.19",
-]
-markdown = [
-    "markdown >= 3.4",
-]
+docutils = ["docutils"]
+markdown = ["markdown"]
+orjson = ["orjson"]
+simplejson = ["simplejson"]
+rapidjson = ["python-rapidjson"]
+xmltodict = ["xmltodict"]
+lxml = ["lxml"]
 
 [project.urls]
 "Bug Tracker" = "https://github.com/alorence/django-modern-rpc/issues"
@@ -91,7 +92,6 @@ dev = [
     "requests",
     "docutils >= 0.19",
     "markdown >= 3.4",
-    "defusedxml",
     "simplejson>=3.19",
     "xmltodict>=0.14.0",
     "lxml>=5.3",
