@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import importlib
 import inspect
 import re
 from typing import Callable
@@ -105,19 +106,13 @@ class DocstringParser:
         if not self.text_documentation:
             return ""
 
-        if settings.MODERNRPC_DOC_FORMAT.lower() in (
-            "rst",
-            "restructured",
-            "restructuredtext",
-        ):
-            from docutils.core import publish_parts  # noqa: PLC0415 (import only when configured)
-
-            return publish_parts(self.text_documentation, writer_name="html")["body"]
+        if settings.MODERNRPC_DOC_FORMAT.lower() in ("rst", "restructured", "restructuredtext"):
+            docutils = importlib.import_module("docutils.core")
+            return docutils.publish_parts(self.text_documentation, writer_name="html")["body"]
 
         if settings.MODERNRPC_DOC_FORMAT.lower() in ("md", "markdown"):
-            import markdown  # noqa: PLC0415 (import only when configured)
-
-            return markdown.markdown(self.text_documentation)
+            markdown_module = importlib.import_module("markdown")
+            return markdown_module.markdown(self.text_documentation)
 
         html_content = self.text_documentation.replace("\n\n", "</p><p>").replace("\n", " ")
         return f"<p>{html_content}</p>"
