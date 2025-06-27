@@ -142,7 +142,7 @@ explicit = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py", "bench_*.py"]
-addopts = "--benchmark-autosave"
+addopts = "--benchmark-autosave --benchmark-disable"
 
 # pytest-django settings
 DJANGO_SETTINGS_MODULE = "tests.project.settings"

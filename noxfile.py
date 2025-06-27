@@ -87,7 +87,7 @@ def tests(session, python, django):
     session.run("django-admin", "--version")
     post_args = session.posargs or []
     # Benchmarks cannot be run with parallelization enabled, run tests & benchmarks separately
-    session.run("pytest", "-n", "auto", "--benchmark-disable", *post_args)
+    session.run("pytest", "-n", "auto", *post_args)
 
 
 @nox.session(name="tests:coverage", venv_backend="none", default=False, tags=["tests"])
@@ -99,7 +99,7 @@ def coverage(session):
         allowed_cov_types = ("term", "term-missing", "annotate", "html", "xml", "json", "lcov")
         if cov_type not in allowed_cov_types:
             raise ValueError(f"Invalid coverage report type {cov_type}, possible values are {allowed_cov_types}")
-    session.run("uv", "run", "pytest", "--benchmark-disable", "--cov", f"--cov-report={cov_type}", *session.posargs)
+    session.run("uv", "run", "pytest", "--cov", f"--cov-report={cov_type}", *session.posargs)
 
 
 @nox.session(name="tests:duration", venv_backend="none", default=False, tags=["tests"])
@@ -114,13 +114,13 @@ def benchmarks(session, python):
     """Run benchmarks on all supported Python versions"""
     env = {"UV_PROJECT_ENVIRONMENT": session.virtualenv.location}
     session.run_install("uv", "sync", "-p", python, env=env)
-    session.run("pytest", BENCHMARK_DIR, "--benchmark-only")
+    session.run("pytest", BENCHMARK_DIR, "--benchmark-enable")
 
 
 @nox.session(name="benchmarks:current-venv", venv_backend="none", default=False, tags=["benchmarks"])
 def benchmarks_current_venv(session):
     """Run benchmarks in current virtualenv only"""
-    session.run("uv", "run", "pytest", BENCHMARK_DIR, "--benchmark-only")
+    session.run("uv", "run", "pytest", BENCHMARK_DIR, "--benchmark-enable")
 
 
 @nox.session(name="lint", venv_backend="none", tags=["ruff", "checks"])
