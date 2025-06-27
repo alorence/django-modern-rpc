@@ -1,3 +1,4 @@
+import re
 from http import HTTPStatus
 
 import pytest
@@ -53,7 +54,9 @@ class TestXmlRpcAsyncView:
         assert response.status_code == HTTPStatus.OK
         code, message = extract_xmlrpc_fault_data(response)
         assert code == RPC_INVALID_PARAMS
-        assert message == f"Invalid parameters: {method_name}() takes 2 positional arguments but 3 were given"
+        assert re.match(
+            rf"Invalid parameters: [\w.<>]*{method_name}\(\) takes 2 positional arguments but 3 were given", message
+        )
         on_error_mock.assert_called_once()
 
     async def test_invalid_result(self, xmlrpc_rf, server, asynchronous, on_error_mock):
