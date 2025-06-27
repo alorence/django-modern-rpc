@@ -64,10 +64,29 @@ to this view in your project's ``urls.py``
 
     urlpatterns = [
         # ... other url patterns
-        path('rpc/', server.view),
+        path('rpc/', server.view),  # Synchronous view
     ]
 
 The server's view is already configured with CSRF exemption and POST-only restrictions.
+
+Async Support
+^^^^^^^^^^^^
+
+For Django projects using ASGI and async views, you can use the async version of the view:
+
+.. code-block:: python
+   :caption: myproject/myproject/urls.py (with async support)
+
+    from django.urls import path
+    from myapp.rpc import server
+
+    urlpatterns = [
+        # ... other url patterns
+        path('rpc/', server.async_view),  # Asynchronous view
+    ]
+
+The async view provides the same functionality as the synchronous view but can be used in an async context,
+allowing your Django application to handle other requests while waiting for RPC operations to complete.
 
 Test the server
 ---------------
