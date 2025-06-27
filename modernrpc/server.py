@@ -14,7 +14,7 @@ from modernrpc.constants import NOT_SET
 from modernrpc.core import ProcedureWrapper
 from modernrpc.exceptions import RPCException, RPCInternalError, RPCMethodNotFound
 from modernrpc.helpers import check_flags_compatibility, first_true
-from modernrpc.views import handle_rpc_request
+from modernrpc.views import handle_rpc_request, handle_rpc_request_async
 
 if TYPE_CHECKING:
     from typing import Any
@@ -122,7 +122,7 @@ class RpcServer(RegistryMixin):
 
         for procedure_name, wrapper in namespace.procedures.items():
             self.register_procedure(
-                wrapper.function,
+                wrapper.func_or_coro,
                 name=f"{prefix}{procedure_name}",
                 protocol=wrapper.protocol,
                 auth=wrapper.auth,
@@ -164,5 +164,22 @@ class RpcServer(RegistryMixin):
 
     @property
     def view(self) -> Callable:
+        """
+        Returns a synchronous view function that can be used in Django URL patterns.
+        The view is decorated with csrf_exempt and require_POST.
+
+        :return: A callable view function
+        """
         view = functools.partial(handle_rpc_request, server=self)
+        return csrf_exempt(require_POST(view))
+
+    @property
+    def async_view(self) -> Callable:
+        """
+        Returns an asynchronous view function that can be used in Django URL patterns.
+        The view is decorated with csrf_exempt and require_POST.
+
+        :return: An awaitable async view function
+        """
+        view = functools.partial(handle_rpc_request_async, server=self)
         return csrf_exempt(require_POST(view))
