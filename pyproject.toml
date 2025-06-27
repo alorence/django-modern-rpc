@@ -250,8 +250,8 @@ select = [
     "PTH", # flake8-use-pathlib
     #    "TD", # flake8-todos
     #    "FIX", # flake8-fixme
-    #    "ERA", # eradicate
-#    "PD", # pandas-vet
+    "ERA", # eradicate
+    #    "PD", # pandas-vet
     "PGH", # pygrep-hooks
     "PLC", # PyLint (Convention)
     "PLE", # PyLint (Error)

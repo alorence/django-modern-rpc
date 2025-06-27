@@ -23,12 +23,6 @@ if TYPE_CHECKING:
     from modernrpc.handler import RpcHandler
     from modernrpc.server import RpcServer
 
-# Keys used in kwargs dict given to RPC methods
-# REQUEST_KEY = settings.MODERNRPC_KWARGS_REQUEST_KEY
-# ENTRY_POINT_KEY = settings.MODERNRPC_KWARGS_ENTRY_POINT_KEY
-# PROTOCOL_KEY = settings.MODERNRPC_KWARGS_PROTOCOL_KEY
-# HANDLER_KEY = settings.MODERNRPC_KWARGS_HANDLER_KEY
-
 
 logger = logging.getLogger(__name__)
 

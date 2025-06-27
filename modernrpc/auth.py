@@ -32,9 +32,6 @@ class BasicAuth(BaseHeadersParser):
         # Handle BasicAuth
         if auth_type.lower() == "basic":
             uname, passwd = base64.b64decode(credentials).decode("utf-8").split(":")
-            # django_user = authenticate(username=uname, password=passwd)
-            # if django_user is not None:
-            #     login(request, django_user)
             return unquote(uname), unquote(passwd)
         raise ValueError("Missing required header content!")
 

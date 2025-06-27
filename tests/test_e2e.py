@@ -99,7 +99,6 @@ class TestJsonRpc:
             jsonrpcclient.request(method="math.divide", params=(20, 0)),
             jsonrpcclient.request(method="math.divide", params=(20, 2)),
         ]
-        # request = jsonrpcclient.request(method="math.add", params=(5, 8, 10))
         response = requests.post(live_server.url + "/rpc", json=reqs)
 
         assert response.status_code == HTTPStatus.OK
