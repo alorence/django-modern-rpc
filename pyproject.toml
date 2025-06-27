@@ -187,22 +187,14 @@ exclude_also = [
 exclude = [
     'noxfile\.py',
     '^tests/.+$',
-    '^legacy-test/.+$',
     '^docs/.+$',
 ]
-[[tool.mypy.overrides]]
-module = [
-    "defusedxml",
-    "defusedxml.xmlrpc",
-]
-ignore_missing_imports = true
 
 # ------------------------------------------------------------------
 # |                        Ruff settings
 # ------------------------------------------------------------------
 [tool.ruff]
 line-length = 120
-extend-exclude = ["legacy-test"]
 
 [tool.ruff.format]
 # Use `\n` line endings for all files
@@ -259,7 +251,7 @@ select = [
     #    "TD", # flake8-todos
     #    "FIX", # flake8-fixme
     #    "ERA", # eradicate
-    #    "PD", # pandas-vet
+#    "PD", # pandas-vet
     "PGH", # pygrep-hooks
     "PLC", # PyLint (Convention)
     "PLE", # PyLint (Error)
@@ -277,7 +269,9 @@ select = [
 
 [tool.ruff.lint.per-file-ignores]
 # Some issues are irrelevant in tests
-"tests/*" = ["PLR2004", "PLR0913", "PLC1901", "S"]
+"tests/*" = [
+    "S"  # Disable flake8-bandit in the "tests" directory: all alerts are mainly false positive
+]
 
 [tool.ruff.lint.mccabe]
 # Unlike Flake8, default to a complexity level of 10.
