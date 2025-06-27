@@ -137,7 +137,7 @@ class Unmarshaller:
 
 
 class Marshaller:
-    def __init__(self):
+    def __init__(self) -> None:
         self.dump_funcs: dict[type, DumpFuncType] = {
             NoneType: self.dump_nil,
             bool: self.dump_bool,

@@ -2,6 +2,7 @@
 # PEP 604: use of typeA | typeB is available since Python 3.10, enable it for older versions
 from __future__ import annotations
 
+import asyncio
 import logging
 from dataclasses import dataclass, field
 from http import HTTPStatus
@@ -97,11 +98,62 @@ class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
             exc = context.server.on_error(exc, context)
             return self.serializer.dumps(self.build_error_result(parsed_request, exc.code, exc.message))
 
+    async def aprocess_request(self, request_body: str, context: RpcRequestContext) -> str | tuple[HTTPStatus, str]:
+        """
+        Parse request and process it, according to its kind. Standard request as well as batch request is supported.
+
+        Delegates to `process_single_request()` to perform most of the checks and procedure execution. Depending on the
+        result of `parse_request()`, a standard or a batch request will be handled here.
+        """
+        try:
+            parsed_request = self.deserializer.loads(request_body)
+
+        except RPCException as exc:
+            # We can't extract request_id from an incoming request. According to the spec, a
+            # null 'id' should be used in response payload
+            fake_request = JsonRpcRequest(request_id=None, method_name="")
+            exc = context.server.on_error(exc, context)
+            return self.serializer.dumps(self.build_error_result(fake_request, exc.code, exc.message))
+
+        # Parsed request is an Iterable, we should handle it as a batch request
+        if isinstance(parsed_request, list):
+            return await self.aprocess_batch_request(parsed_request, context)
+
+        # By default, handle a standard single request
+        result = await self.aprocess_single_request(parsed_request, context)
+
+        if parsed_request.is_notification:
+            return HTTPStatus.NO_CONTENT, ""
+
+        try:
+            return self.serializer.dumps(result)
+        except RPCException as exc:
+            exc = context.server.on_error(exc, context)
+            return self.serializer.dumps(self.build_error_result(parsed_request, exc.code, exc.message))
+
     def process_batch_request(
         self, requests: list[JsonRpcRequest], context: RpcRequestContext
     ) -> str | tuple[HTTPStatus, str]:
         # Process each request and store corresponding results (success or error)
         results: Generator[JsonRpcResult] = (self.process_single_request(request, context) for request in requests)
+
+        # Filter out notification results
+        filtered_results = [result for result in results if not result.request.is_notification]
+
+        # Return JSON-serialized response list
+        if filtered_results:
+            return self.serializer.dumps(filtered_results)
+
+        # Notifications-only batch request returns 204 no content
+        return HTTPStatus.NO_CONTENT, ""
+
+    async def aprocess_batch_request(
+        self, requests: list[JsonRpcRequest], context: RpcRequestContext
+    ) -> str | tuple[HTTPStatus, str]:
+        # Process each request and store corresponding results (success or error)
+        results: list[JsonRpcResult] = await asyncio.gather(
+            *(self.aprocess_single_request(request, context) for request in requests)
+        )
 
         # Filter out notification results
         filtered_results = [result for result in results if not result.request.is_notification]

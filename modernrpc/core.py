@@ -5,6 +5,7 @@ from collections import OrderedDict
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Callable, Iterable
 
+from asgiref.sync import async_to_sync, iscoroutinefunction, sync_to_async
 from django.utils.functional import cached_property
 
 from modernrpc import Protocol
@@ -51,17 +52,17 @@ class ProcedureWrapper:
 
     def __init__(
         self,
-        func: Callable,
+        func_or_coro: Callable,
         name: str | None = None,
         protocol: Protocol = Protocol.ALL,
         auth: Any = NOT_SET,
         context_target: str | None = None,
     ) -> None:
         # Store the reference to the registered function
-        self.function = func
+        self.func_or_coro = func_or_coro
 
         # @decorator parameters
-        self.name = name or func.__name__
+        self.name = name or func_or_coro.__name__
         self.protocol = protocol
         self.context_target = context_target
 
@@ -69,11 +70,11 @@ class ProcedureWrapper:
 
     @cached_property
     def doc_parser(self) -> DocstringParser:
-        return DocstringParser(self.function)
+        return DocstringParser(self.func_or_coro)
 
     @cached_property
     def introspector(self) -> Introspector:
-        return Introspector(self.function)
+        return Introspector(self.func_or_coro)
 
     def __repr__(self) -> str:
         return f'ModernRPC Procedure "{self.name}"'
@@ -85,14 +86,14 @@ class ProcedureWrapper:
         if not isinstance(other, ProcedureWrapper):
             return NotImplemented
         return (
-            self.function == other.function
+            self.func_or_coro == other.func_or_coro
             and self.name == other.name
             and self.protocol == other.protocol
             and self.auth == other.auth
         )
 
     def __hash__(self):
-        return hash(self.function)
+        return hash(self.func_or_coro)
 
     def check_permissions(self, request: HttpRequest) -> Any:
         """Call the predicate(s) associated with the RPC method to check if the current request
@@ -112,9 +113,10 @@ class ProcedureWrapper:
     def execute(
         self,
         context: RpcRequestContext,
-        args: Iterable[Any],
+        args: Iterable[Any] | None = None,
         kwargs: dict | None = None,
     ) -> Any:
+        args = args or []
         kwargs = kwargs or {}
 
         try:
@@ -125,16 +127,50 @@ class ProcedureWrapper:
         if not auth_result:
             raise AuthenticationFailed(self.name)
 
-        # If the RPC method needs to access some configuration, inject it in kwargs
+        # If the remote procedure requested access to context data, provide it into proper kwargs key
         if self.context_target:
             context.auth_result = auth_result
             kwargs[self.context_target] = context
 
         logger.debug("Params: args = %s - kwargs = %s", args, kwargs)
 
-        try:
-            return self.function(*args, **kwargs)
+        function = async_to_sync(self.func_or_coro) if iscoroutinefunction(self.func_or_coro) else self.func_or_coro
 
+        try:
+            return function(*args, **kwargs)
+
+        except TypeError as exc:
+            # If given params cannot be transmitted properly to the procedure function
+            raise RPCInvalidParams(str(exc)) from None
+
+    async def aexecute(
+        self,
+        context: RpcRequestContext,
+        args: Iterable[Any] | None = None,
+        kwargs: dict | None = None,
+    ) -> Any:
+        args = args or []
+        kwargs = kwargs or {}
+
+        try:
+            auth_result = self.check_permissions(context.request)
+        except Exception as e:
+            raise AuthenticationFailed(self.name) from e
+
+        if not auth_result:
+            raise AuthenticationFailed(self.name)
+
+        # If the remote procedure requested access to context data, provide it into proper kwargs key
+        if self.context_target:
+            context.auth_result = auth_result
+            kwargs[self.context_target] = context
+
+        logger.debug("Params: args = %s - kwargs = %s", args, kwargs)
+
+        coro = self.func_or_coro if iscoroutinefunction(self.func_or_coro) else sync_to_async(self.func_or_coro)
+
+        try:
+            return await coro(*args, **kwargs)
         except TypeError as exc:
             # If given params cannot be transmitted properly to the procedure function
             raise RPCInvalidParams(str(exc)) from None

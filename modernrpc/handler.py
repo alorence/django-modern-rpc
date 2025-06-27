@@ -71,6 +71,33 @@ class RpcHandler(ABC, Generic[RequestType]):
 
         return self.build_success_result(rpc_request, result_data)
 
+    async def aprocess_single_request(
+        self, rpc_request: RequestType, context: RpcRequestContext
+    ) -> RpcSuccessResult[RequestType] | RpcErrorResult[RequestType]:
+        """
+        Asynchronous version of process_single_request().
+        Check and call the RPC method, based on the given request dict.
+        """
+
+        try:
+            wrapper = context.server.get_procedure_wrapper(rpc_request.method_name, self.protocol)
+
+        except RPCMethodNotFound as exc:
+            # exc variable cannot be reused here without triggering an error with static type checker
+            # In this particular case, an error handler may decide to convert the given RPCMethodNotFound to a more
+            # generic RPCException (or one of its subclasses).
+            excp = context.server.on_error(exc, context)
+            return self.build_error_result(request=rpc_request, code=excp.code, message=excp.message, data=excp.data)
+
+        try:
+            result_data = await wrapper.aexecute(context, rpc_request.args, getattr(rpc_request, "kwargs", None))
+
+        except Exception as exc:
+            exc = context.server.on_error(exc, context)
+            return self.build_error_result(request=rpc_request, code=exc.code, message=exc.message, data=exc.data)
+
+        return self.build_success_result(rpc_request, result_data)
+
     @abstractmethod
     def process_request(self, request_body: str, context: RpcRequestContext) -> str | tuple[HTTPStatus, str]:
         """
@@ -84,4 +111,11 @@ class RpcHandler(ABC, Generic[RequestType]):
 
         Implementations of this method must ensure no exception is raised from here. All code must be secured
         to return a proper RPC error response on any exception.
+        """
+
+    @abstractmethod
+    async def aprocess_request(self, request_body: str, context: RpcRequestContext) -> str | tuple[HTTPStatus, str]:
+        """
+        Asynchronous version of process_request(). It takes the same arguments and returns the same result.
+        Delegates its work to aprocess_single_request() instead of process_single_request() for async support.
         """

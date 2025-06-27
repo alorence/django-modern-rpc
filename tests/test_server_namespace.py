@@ -101,7 +101,7 @@ class TestRpcServerRegistration:
         dummy_server.register_procedure(dummy_procedure)
         wrapper = dummy_server.get_procedure_wrapper("dummy_procedure", proto)
 
-        assert wrapper.function == dummy_procedure
+        assert wrapper.func_or_coro == dummy_procedure
         assert wrapper.name == "dummy_procedure"
 
     @pytest.mark.parametrize("proto", ALL_PROTOCOLS)
@@ -111,7 +111,7 @@ class TestRpcServerRegistration:
         dummy_server.register_procedure(dummy_procedure, name="foo")
 
         wrapper = dummy_server.get_procedure_wrapper("foo", proto)
-        assert wrapper.function == dummy_procedure
+        assert wrapper.func_or_coro == dummy_procedure
         assert wrapper.name == "foo"
 
         with pytest.raises(RPCMethodNotFound):

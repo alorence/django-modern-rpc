@@ -158,6 +158,12 @@ def json_serializer(request) -> JsonRpcSerializer:
     return request.param()
 
 
+@pytest.fixture(params=(False, True))
+def async_multicall_settings(settings, request):
+    settings.MODERNRPC_XMLRPC_ASYNC_MULTICALL = request.param
+    return settings
+
+
 # The next 4 fixtures can be requested with "usefixtures" mark at class or function level to ensure that
 # tests ran against live_server will be executed with all combinations. See 'test_e2e.py' for an example
 @pytest.fixture(params=XML_DESERIALIZERS_CLASSES)
