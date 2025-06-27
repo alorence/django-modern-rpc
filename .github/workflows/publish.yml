@@ -2,8 +2,6 @@ name: Releases
 
 on:
   push:
-    branches-ignore:
-      - '*-no-ci'
     tags:
       - '*'
   # Manually triggered workflow
