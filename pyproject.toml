@@ -105,6 +105,7 @@ tests = [
     "pytest-cov",
     "pytest-xdist",
     "pytest-benchmark>=4.0.0",
+    "pytest-asyncio",
 ]
 type-checking = [
     "mypy",
@@ -146,6 +147,10 @@ addopts = "--benchmark-autosave"
 # pytest-django settings
 DJANGO_SETTINGS_MODULE = "tests.project.settings"
 FAIL_INVALID_TEMPLATE_VARS = true
+
+# pytest-asyncio (asyncio is the only async framework for now, set to auto mode)
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
 
 # ------------------------------------------------------------------
 # |                      Coverage settings
