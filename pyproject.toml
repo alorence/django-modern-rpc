@@ -86,7 +86,7 @@ default-groups = ["dev", "tests"]
 
 [dependency-groups]
 dev = [
-    "ruff ~= 0.11",
+    "ruff ~= 0.12",
     "jsonrpcclient ~= 4.0.3",
     "requests",
     "docutils >= 0.19",
