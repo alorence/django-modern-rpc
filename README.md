@@ -74,9 +74,12 @@ The server's view is already configured with CSRF exemption and POST-only restri
 
 ## Code quality
 
-Continuous integration and code analysis is performed automatically to ensure a decent code quality. Project health
-is publicly available on following apps:
+The projects uses nox as a task runner to launch tests suite with all supported Python / Django combinations. In
+addition, ruff is used to lint and format the codebase and mypy is used to perform type checking.
 
-[![Coveralls](https://img.shields.io/coverallsCoverage/github/alorence/django-modern-rpc?style=for-the-badge&logo=coveralls)](https://coveralls.io/github/alorence/django-modern-rpc)
-[![Codacy Coverage](https://img.shields.io/codacy/coverage/37607e2ecaf549b890fc6defca88c7f8?style=for-the-badge&logo=codacy)](https://app.codacy.com/gh/alorence/django-modern-rpc/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage)
+All these tools are run automatically in various GitHub Actions workflows and to upload coverage results and static
+code analysis reports to the following tools.
+
 [![Codacy Grade](https://img.shields.io/codacy/grade/37607e2ecaf549b890fc6defca88c7f8?style=for-the-badge&logo=codacy)](https://app.codacy.com/gh/alorence/django-modern-rpc/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+[![Codacy Coverage](https://img.shields.io/codacy/coverage/37607e2ecaf549b890fc6defca88c7f8?style=for-the-badge&logo=codacy)](https://app.codacy.com/gh/alorence/django-modern-rpc/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage)
+[![Coveralls](https://img.shields.io/coverallsCoverage/github/alorence/django-modern-rpc?style=for-the-badge&logo=coveralls)](https://coveralls.io/github/alorence/django-modern-rpc)

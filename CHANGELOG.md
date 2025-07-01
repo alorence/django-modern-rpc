@@ -4,6 +4,19 @@
 
 **Release date: unknown**
 
+### Improvements
+
+- The new API, heavily inspired from tools like FastAPI or django-ninja, encapsulate procedures registration in a
+  dedicated `RpcServer` instance. This removes the need to lookup modules based on `settings.MODERNRPC_METHODS_MODULES`
+  value, so `modernrpc` does not need to be added to INSTALLED_APPS anymore.
+- `RpcNamespace` were added to provide a better organization of procedures. Each one can be registered in a
+  previously defined `RpcServer`.
+- Error handling has been improved, allowing to execute a callback function when an exception is caught and before an
+  RPC error response is built.
+- It is now possible to configure different backends to deserialize XML-RPC and JSON-RPC requests or to serialize
+  XML-RPC and JSON-RPC responses. Alternative backends may provide more features, configuration options, specific types
+  support or better performances.
+
 ### Breaking Changes
 
 - Complete architecture redesign: The library now uses a server-based approach instead of entry points
@@ -11,25 +24,21 @@
 - Removed automatic procedure registration via `MODERNRPC_METHODS_MODULES` setting
 - Removed HTML documentation generation through entry points
 - Changed the way procedures access request context, now using the `context_target` parameter
+- Some settings were removed:
+  - MODERNRPC_METHODS_MODULES is now useless
+  - MODERNRPC_LOG_EXCEPTIONS
+  - MODERNRPC_DEFAULT_ENTRYPOINT_NAME
+  - MODERNRPC_JSON_DECODER
+  - MODERNRPC_JSON_ENCODER
+  - MODERNRPC_XMLRPC_USE_BUILTIN_TYPES
+  - MODERNRPC_XMLRPC_ALLOW_NONE
+  - MODERNRPC_XMLRPC_DEFAULT_ENCODING
 
-### Improvements
+### Misc
 
-- New intuitive API with decorator-based procedure registration
-- Better error handling with customizable error handlers
-- Improved type annotations throughout the codebase
-- Support for namespaces to organize RPC methods
-- More flexible configuration options
-- Simplified server setup and procedure registration
-
-### API Changes
-
-- Added `RpcServer` class as the central component for handling RPC calls
-- Added `RpcNamespace` class for organizing procedures
-- Added `RpcRequestContext` class for accessing request context
-- Added `register_procedure` decorator for registering procedures
-- Added `error_handler` decorator for registering custom error handlers
-- Added `register_namespace` method for registering namespaces
-- The `Protocol` enum is now imported directly from the `modernrpc` package
+  - Added support for Django 5.2
+  - Dropped support of Django 2.2, 3.0 and 3.2
+  - Dropped support of Python 3.7
 
 ## v1.1.0
 
