@@ -157,6 +157,10 @@ asyncio_default_fixture_loop_scope = "session"
 [tool.coverage.run]
 branch = true
 parallel = true
+disable_warnings = [
+    # See https://github.com/pytest-dev/pytest-cov/issues/369
+    "include-ignored"
+]
 
 include = [
     "modernrpc/*",
