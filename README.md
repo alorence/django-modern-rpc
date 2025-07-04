@@ -74,12 +74,23 @@ The server's view is already configured with CSRF exemption and POST-only restri
 
 ## Code quality
 
-The projects uses nox as a task runner to launch tests suite with all supported Python / Django combinations. In
-addition, ruff is used to lint and format the codebase and mypy is used to perform type checking.
+The project uses nox as a task runner to launch tests suite against all supported Python / Django combinations and
+generate a coverage report file. Ruff is used to lint and format the codebase, and mypy is used to perform
+type checking.
 
-All these tools are run automatically in various GitHub Actions workflows and to upload coverage results and static
-code analysis reports to the following tools.
+All these tools are automatically run in various GitHub Actions workflows, and external tools are used to perform
+static code analysis and collect coverage results.
 
-[![Codacy Grade](https://img.shields.io/codacy/grade/37607e2ecaf549b890fc6defca88c7f8?style=for-the-badge&logo=codacy)](https://app.codacy.com/gh/alorence/django-modern-rpc/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+### SonarQube
+[![Sonar Coverage](https://img.shields.io/sonar/coverage/alorence_django-modern-rpc?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge&logo=sonar&logoColor=mintcream)](https://sonarcloud.io/component_measures?id=alorence_django-modern-rpc&metric=new_coverage&view=list)
+[![Sonar Quality Gate](https://img.shields.io/sonar/quality_gate/alorence_django-modern-rpc?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge&logo=sonar&logoColor=mintcream)](https://sonarcloud.io/summary/new_code?id=alorence_django-modern-rpc)
+[![Sonar Tech Debt](https://img.shields.io/sonar/tech_debt/alorence_django-modern-rpc?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge&logo=sonar&logoColor=mintcream)](https://sonarcloud.io/component_measures?metric=new_sqale_debt_ratio&id=alorence_django-modern-rpc)
+[![Sonar Violations](https://img.shields.io/sonar/violations/alorence_django-modern-rpc?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge&logo=sonar&logoColor=mintcream)
+](https://sonarcloud.io/project/issues?issueStatuses=OPEN%2CCONFIRMED&id=alorence_django-modern-rpc)
+
+### Codacy
 [![Codacy Coverage](https://img.shields.io/codacy/coverage/37607e2ecaf549b890fc6defca88c7f8?style=for-the-badge&logo=codacy)](https://app.codacy.com/gh/alorence/django-modern-rpc/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage)
+[![Codacy Grade](https://img.shields.io/codacy/grade/37607e2ecaf549b890fc6defca88c7f8?style=for-the-badge&logo=codacy)](https://app.codacy.com/gh/alorence/django-modern-rpc/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+
+### Coveralls
 [![Coveralls](https://img.shields.io/coverallsCoverage/github/alorence/django-modern-rpc?style=for-the-badge&logo=coveralls)](https://coveralls.io/github/alorence/django-modern-rpc)
