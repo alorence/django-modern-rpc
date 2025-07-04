@@ -92,8 +92,8 @@ class EtreeElementUnmarshaller(Generic[ElementType]):
     def dispatch(self, elt: ElementType) -> Any:
         try:
             load_func = self.load_funcs[elt.tag]
-        except KeyError as e:
-            raise RPCInvalidRequest(f"Unsupported type {elt.tag}") from e
+        except KeyError as exc:
+            raise RPCInvalidRequest(f"Unsupported type {elt.tag}") from exc
 
         return load_func(elt)
 
@@ -205,8 +205,8 @@ class EtreeElementMarshaller(Generic[ElementType]):
         """Dispatch a value to the appropriate dump method."""
         try:
             dump_func = self.dump_funcs[type(value)]
-        except KeyError as e:
-            raise TypeError(f"Unsupported type: {type(value)}") from e
+        except KeyError as exc:
+            raise TypeError(f"Unsupported type: {type(value)}") from exc
 
         return dump_func(value)
 

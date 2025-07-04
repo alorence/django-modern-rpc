@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import xml.etree.ElementTree as ET
 from functools import cached_property
 from typing import TYPE_CHECKING, Any
 from xml.etree.ElementTree import Element, SubElement
@@ -33,21 +32,21 @@ class EtreeBackend:
     def loads(self, data: str) -> XmlRpcRequest:
         try:
             root_obj: Element = DefusedElementTree.XML(data)
-        except ET.ParseError as e:
-            raise RPCParseError(str(e)) from e
-        except (defusedxml.DTDForbidden, defusedxml.EntitiesForbidden, defusedxml.ExternalReferenceForbidden) as e:
-            raise RPCInsecureRequest(str(e)) from e
+        except DefusedElementTree.ParseError as exc:
+            raise RPCParseError(str(exc)) from exc
+        except (defusedxml.DTDForbidden, defusedxml.EntitiesForbidden, defusedxml.ExternalReferenceForbidden) as exc:
+            raise RPCInsecureRequest(str(exc)) from exc
 
         try:
             return self.unmarshaller.element_to_request(root_obj)
-        except Exception as e:
-            raise RPCInvalidRequest(str(e)) from e
+        except Exception as exc:
+            raise RPCInvalidRequest(str(exc)) from exc
 
     def dumps(self, result: XmlRpcResult) -> str:
         """Serialize an XmlRpcResult to an XML string."""
         try:
             root = self.marshaller.result_to_element(result)
-        except Exception as e:
-            raise RPCMarshallingError(result.data, e) from e
+        except Exception as exc:
+            raise RPCMarshallingError(result.data, exc) from exc
 
-        return ET.tostring(root, encoding="utf-8", xml_declaration=True).decode("utf-8")
+        return DefusedElementTree.tostring(root, encoding="utf-8", xml_declaration=True).decode("utf-8")

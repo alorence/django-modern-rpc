@@ -90,11 +90,11 @@ dev = [
     "jsonrpcclient ~= 4.0.3",
     "requests",
     "docutils >= 0.19",
-    "markdown >= 3.4",
+    "markdown >= 3.5",
     "simplejson>=3.19",
-    "xmltodict>=0.14.0",
+    "xmltodict>=0.14.1",
     "lxml>=5.3",
-    "orjson>=3.10.15",
+    "orjson>=3.10",
     "python-rapidjson>=1.20",
 ]
 tests = [

@@ -115,8 +115,8 @@ class ProcedureWrapper:
 
         try:
             auth_result = self.check_permissions(context.request)
-        except Exception as e:
-            raise AuthenticationFailed(self.name) from e
+        except Exception as exc:
+            raise AuthenticationFailed(self.name) from exc
 
         if not auth_result:
             raise AuthenticationFailed(self.name)
@@ -148,8 +148,8 @@ class ProcedureWrapper:
 
         try:
             auth_result = self.check_permissions(context.request)
-        except Exception as e:
-            raise AuthenticationFailed(self.name) from e
+        except Exception as exc:
+            raise AuthenticationFailed(self.name) from exc
 
         if not auth_result:
             raise AuthenticationFailed(self.name)

@@ -43,21 +43,22 @@ class LxmlBackend:
                 huge_tree=False,  # Prevent billion laughs attack
             )
             root_obj: _Element = lxml.etree.fromstring(data, parser)
-        except lxml.etree.XMLSyntaxError as e:
-            raise RPCParseError(str(e)) from e
+        except lxml.etree.XMLSyntaxError as exc:
+            raise RPCParseError(str(exc)) from exc
+
         # FIXME: add tests to retrieve common XML vulnerabilities exceptions, catch them, and correctly raises
         #  an RPCInsecureRequest() instance
 
         try:
             return self.unmarshaller.element_to_request(root_obj)
-        except Exception as e:
-            raise RPCInvalidRequest(str(e)) from e
+        except Exception as exc:
+            raise RPCInvalidRequest(str(exc)) from exc
 
     def dumps(self, result: XmlRpcResult) -> str:
         """Serialize an XmlRpcResult to an XML string."""
         try:
             root = self.marshaller.result_to_element(result)
-        except Exception as e:
-            raise RPCMarshallingError(result.data, e) from e
+        except Exception as exc:
+            raise RPCMarshallingError(result.data, exc) from exc
 
         return lxml.etree.tostring(root, encoding="utf-8", xml_declaration=True).decode("utf-8")

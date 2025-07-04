@@ -67,16 +67,24 @@ jobs:
       uses: astral-sh/setup-uv@v5
       with:
         version: ${{ env.UV_VERSION }}
+
     - name: Test session
       run: nox -s "${{ matrix.session }}" -- --cov --cov-report=xml:coverage.xml
+
     - name: Submit coverage report - Coveralls
       continue-on-error: true
       uses: coverallsapp/github-action@v2
+
     - name: Submit coverage report - Codacy
       continue-on-error: true
       env:
         CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
       run: uvx --from codacy-coverage python-codacy-coverage -r coverage.xml
+
+    - name: SonarQube Scan + Coverage upload
+      uses: SonarSource/sonarqube-scan-action@v5
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   linter:
     runs-on: ubuntu-latest

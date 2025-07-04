@@ -332,9 +332,9 @@ class TestJsonRpcSerializer:
             request.applymarker(marker)
 
         result = JsonRpcSuccessResult(request=self.req1, data=value)
-        with pytest.raises(RPCMarshallingError) as e:
+        with pytest.raises(RPCMarshallingError) as exc:
             json_serializer.dumps(result)
-        assert "Unable to serialize result data" in e.value.message
+        assert "Unable to serialize result data" in exc.value.message
 
     def test_result_error(self, json_serializer):
         result = JsonRpcErrorResult(request=self.req0, code=-65000, message="foo")

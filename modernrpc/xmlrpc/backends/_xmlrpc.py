@@ -30,12 +30,12 @@ class PythonXmlRpcBackend:
     def loads(self, data: str) -> XmlRpcRequest:
         try:
             params, method_name = xmlrpc.client.loads(data, **self.load_kwargs)
-        except xml.parsers.expat.ExpatError as e:
-            raise RPCParseError(str(e)) from e
-        except (ResponseError, TypeError) as e:
-            raise RPCInvalidRequest(str(e)) from e
-        except defusedxml.DefusedXmlException as e:
-            raise RPCInsecureRequest(str(e)) from e
+        except xml.parsers.expat.ExpatError as exc:
+            raise RPCParseError(str(exc)) from exc
+        except (ResponseError, TypeError) as exc:
+            raise RPCInvalidRequest(str(exc)) from exc
+        except defusedxml.DefusedXmlException as exc:
+            raise RPCInsecureRequest(str(exc)) from exc
 
         if not method_name:
             raise RPCInvalidRequest("Unable to find method name", data=data)
@@ -46,5 +46,5 @@ class PythonXmlRpcBackend:
         result_data = Fault(result.code, result.message) if isinstance(result, RpcErrorResult) else (result.data,)
         try:
             return xmlrpc.client.dumps(result_data, methodresponse=True, **self.dump_kwargs)
-        except Exception as e:
-            raise RPCMarshallingError(result.data, e) from e
+        except Exception as exc:
+            raise RPCMarshallingError(result.data, exc) from exc

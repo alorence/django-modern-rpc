@@ -52,13 +52,13 @@ class Unmarshaller:
     def dict_to_request(self, data: OrderedDict[str, Any]) -> XmlRpcRequest:
         try:
             method_call = data["methodCall"]
-        except KeyError as e:
-            raise RPCInvalidRequest("missing methodCall tag", data=data) from e
+        except KeyError as exc:
+            raise RPCInvalidRequest("missing methodCall tag", data=data) from exc
 
         try:
             method_name = method_call["methodName"]
-        except KeyError as e:
-            raise RPCInvalidRequest("missing methodCall.methodName tag", data=data) from e
+        except KeyError as exc:
+            raise RPCInvalidRequest("missing methodCall.methodName tag", data=data) from exc
 
         params = method_call.get("params") or {}
         param_list: Sequence[dict[str, Any]] = params.get("param", [])
@@ -78,8 +78,8 @@ class Unmarshaller:
     def dispatch(self, _type: str, value: Any) -> Any:
         try:
             load_func = self.load_funcs[_type]
-        except KeyError as e:
-            raise RPCInvalidRequest(f"Unsupported type {_type}") from e
+        except KeyError as exc:
+            raise RPCInvalidRequest(f"Unsupported type {_type}") from exc
 
         return load_func(value)
 
@@ -261,20 +261,20 @@ class XmlToDictBackend:
             # Convert the parsed XML to a string and then parse it with xmltodict
             # This is safe because defusedxml has already validated the XML
             data = defusedxml.ElementTree.tostring(root, encoding="utf-8").decode("utf-8")
-        except defusedxml.ElementTree.ParseError as e:
-            raise RPCParseError(str(e)) from e
-        except defusedxml.DefusedXmlException as e:
-            raise RPCInsecureRequest(str(e)) from e
+        except defusedxml.ElementTree.ParseError as exc:
+            raise RPCParseError(str(exc)) from exc
+        except defusedxml.DefusedXmlException as exc:
+            raise RPCInsecureRequest(str(exc)) from exc
 
         try:
             structured_data: OrderedDict[str, Any] = xmltodict.parse(data, **self.load_kwargs)
-        except xml.parsers.expat.ExpatError as e:
-            raise RPCParseError(str(e)) from e
+        except xml.parsers.expat.ExpatError as exc:
+            raise RPCParseError(str(exc)) from exc
 
         try:
             return self.unmarshaller.dict_to_request(structured_data)
-        except TypeError as e:
-            raise RPCInvalidRequest(str(e)) from e
+        except TypeError as exc:
+            raise RPCInvalidRequest(str(exc)) from exc
 
     def dumps(self, result: XmlRpcResult) -> str:
         try:

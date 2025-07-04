@@ -24,8 +24,8 @@ class RapidJsonBackend:
     def loads(self, data: str) -> JsonRpcRequest | list[JsonRpcRequest]:
         try:
             structured_data: list[dict] | dict[str, Any] = rapidjson.loads(data, **self.load_kwargs)
-        except JSONDecodeError as e:
-            raise RPCParseError(str(e), data=e) from e
+        except JSONDecodeError as exc:
+            raise RPCParseError(str(exc), data=exc) from exc
 
         return Unmarshaller().dict_to_request(structured_data)
 
@@ -33,5 +33,5 @@ class RapidJsonBackend:
         structured_data = Marshaller().result_to_dict(result)
         try:
             return rapidjson.dumps(structured_data, **self.dump_kwargs)
-        except (TypeError, UnicodeDecodeError) as e:
-            raise RPCMarshallingError(structured_data, e) from e
+        except (TypeError, UnicodeDecodeError) as exc:
+            raise RPCMarshallingError(structured_data, exc) from exc

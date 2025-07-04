@@ -32,8 +32,8 @@ class OrjsonBackend:
     def loads(data: str) -> JsonRpcRequest | list[JsonRpcRequest]:
         try:
             structured_data: list[dict] | dict[str, Any] = orjson.loads(data)
-        except JSONDecodeError as e:
-            raise RPCParseError(e.msg, data=e) from e
+        except JSONDecodeError as exc:
+            raise RPCParseError(exc.msg, data=exc) from exc
 
         return Unmarshaller().dict_to_request(structured_data)
 
@@ -41,5 +41,5 @@ class OrjsonBackend:
         structured_data = Marshaller().result_to_dict(result)
         try:
             return orjson.dumps(structured_data, **self.dump_kwargs).decode("utf-8")
-        except (JSONEncodeError, TypeError, UnicodeDecodeError) as e:
-            raise RPCMarshallingError(structured_data, e) from e
+        except (JSONEncodeError, TypeError, UnicodeDecodeError) as exc:
+            raise RPCMarshallingError(structured_data, exc) from exc
