@@ -29,13 +29,52 @@ jobs:
     runs-on: ubuntu-latest
     needs: debug
     steps:
-      - uses: actions/checkout@v4
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-        with:
-          version: ${{ env.UV_VERSION }}
-      - name: Check lockfile
-        run: uv lock --check
+    - uses: actions/checkout@v4
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: ${{ env.UV_VERSION }}
+    - name: Check lockfile
+      run: uv lock --check
+
+
+  linter:
+    runs-on: ubuntu-latest
+    needs: debug
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: ${{ env.UV_VERSION }}
+    - name: Ruff
+      run: uv run ruff check .
+
+  formatter:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    needs: debug
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: ${{ env.UV_VERSION }}
+    - name: Ruff Format
+      run: uv run ruff format . --check
+
+  mypy:
+    runs-on: ubuntu-latest
+    needs: debug
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: ${{ env.UV_VERSION }}
+    - name: Mypy
+      run: |
+        uv run --group=type-checking mypy .
 
   generate-jobs:
     runs-on: ubuntu-latest
@@ -61,8 +100,6 @@ jobs:
         session: ${{ fromJson(needs.generate-jobs.outputs.session) }}
     steps:
     - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0  # SonraQube analysis requires disabling shallow clones
 
     - name: Install nox
       uses: wntrblm/nox@2254a1ee500bbf66c2a5e4ff5dad030b9f579dcd  # https://github.com/wntrblm/nox/tags
@@ -75,6 +112,16 @@ jobs:
     - name: Test session
       run: nox -s "${{ matrix.session }}" -- --cov --cov-report=xml:coverage.xml
 
+    - name: Build a random name for coverage result upload
+      id: gen-uuid
+      run: echo uuid=$(uuidgen) >> $GITHUB_OUTPUT
+
+    - name: Archive coverage report
+      uses: actions/upload-artifact@v4
+      with:
+        name: "coverage-report-${{ steps.gen-uuid.outputs.uuid }}"
+        path: coverage.xml
+
     - name: Submit coverage report - Coveralls
       continue-on-error: true
       uses: coverallsapp/github-action@v2
@@ -85,45 +132,29 @@ jobs:
         CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
       run: uvx --from codacy-coverage python-codacy-coverage -r coverage.xml
 
+  sonar:
+    runs-on: ubuntu-latest
+    needs: tests
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # SonraQube analysis requires disabling shallow clones
+
+    - name: Collect coverage report files
+      uses: actions/download-artifact@v4
+      with:
+        pattern: coverage-report*
+        path: ./artifacts
+
+    - name: Join artifacts paths
+      id: joined-cov-paths
+      run: echo paths=$(find ./artifacts -name 'coverage.xml' | tr '\n' ',') >> $GITHUB_OUTPUT
+
     - name: SonarQube Scan + Coverage upload
+      continue-on-error: true
       uses: SonarSource/sonarqube-scan-action@v5
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-  linter:
-    runs-on: ubuntu-latest
-    needs: debug
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-        with:
-          version: ${{ env.UV_VERSION }}
-      - name: Ruff
-        run: uv run ruff check .
-
-  formatter:
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    needs: debug
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-        with:
-          version: ${{ env.UV_VERSION }}
-      - name: Ruff Format
-        run: uv run ruff format . --check
-
-  mypy:
-    runs-on: ubuntu-latest
-    needs: debug
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-        with:
-          version: ${{ env.UV_VERSION }}
-      - name: Mypy
-        run: |
-          uv run --group=type-checking mypy .
+      with:
+        args: >
+          --define sonar.python.coverage.reportPaths="${{ steps.joined-cov-paths.outputs.paths }}"
