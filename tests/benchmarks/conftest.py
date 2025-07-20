@@ -1931,7 +1931,7 @@ def random_data():
                 "status": "active",
                 "name": {"first": "Kane", "middle": "Shawn", "last": "Padberg"},
                 "username": "Kane-Padberg",
-                "password": "dcim2pc7ObdOZIX",
+                "auth_kkk": "dcim2pc7ObdOZIX",
                 "emails": ["Cory5@example.com", "Carson.Dickens24@example.com"],
                 "location": {
                     "street": "8691 S High Street",
@@ -1961,7 +1961,7 @@ def random_data():
                 "status": "active",
                 "name": {"first": "Zack", "middle": "Jamie", "last": "Stroman"},
                 "username": "Zack-Stroman",
-                "password": "rLGJOmstq1cmWgO",
+                "another_value": "rLGJOmstq1cmWgO",
                 "emails": ["Glenna_Nicolas99@example.com", "Hildegard.Denesik@gmail.com"],
                 "location": {
                     "street": "29801 Haley Skyway",
@@ -1991,7 +1991,6 @@ def random_data():
                 "status": "active",
                 "name": {"first": "Kiara", "middle": "Billie", "last": "Schneider"},
                 "username": "Kiara-Schneider",
-                "password": "HOiJvKaiojXhHPU",
                 "emails": ["Elyse.Bernier@example.com", "Jackeline85@example.com"],
                 "location": {
                     "street": "4927 Pfannerstill Glens",
