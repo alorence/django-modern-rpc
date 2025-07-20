@@ -155,9 +155,11 @@ class RpcServer(RegistryMixin):
         Convert any other exception into RPCInternalError.
         """
         if self.error_handler:
-            result = self.error_handler(exception, context)
-            if result is not None:
-                return result
+            try:
+                self.error_handler(exception, context)
+            except Exception as exc:
+                exception = exc
+
         if isinstance(exception, RPCException):
             return exception
         return RPCInternalError(message=str(exception))

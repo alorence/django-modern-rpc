@@ -41,7 +41,7 @@ class TestRpcServerErrorHandling:
 
     def test_custom_error_handler(self, mocked_request_context):
         """Test that custom error handler is called and its result is used."""
-        custom_handler = Mock(return_value=RPCException(-1000, "Custom error"))
+        custom_handler = Mock(side_effect=RPCException(-1000, "Custom error"))
         server = RpcServer(error_handler=custom_handler)
 
         exception = ValueError("Test error message")
@@ -75,7 +75,7 @@ class TestRpcServerErrorHandling:
     def test_error_handling_integration_with_handler(self, rf, protocol, handler, content_type):
         """Test integration of error handling with request handlers."""
         # Create a server with a custom error handler
-        custom_handler = Mock(return_value=RPCException(-1000, "Custom error"))
+        custom_handler = Mock(side_effect=RPCException(-1000, "Custom error"))
         server = RpcServer(error_handler=custom_handler)
 
         request = rf.post("/rpc", content_type=content_type)
