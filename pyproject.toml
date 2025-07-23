@@ -183,6 +183,8 @@ exclude = [
 # ------------------------------------------------------------------
 [tool.ty.src]
 exclude = ["docs", "tests", "noxfile.py"]
+[tool.ty.environment]
+python-version = "3.12"
 
 # ------------------------------------------------------------------
 # |                        Ruff settings
