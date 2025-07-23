@@ -528,7 +528,7 @@ wheels = [
 
 [[package]]
 name = "django-modern-rpc"
-version = "2.0.dev1"
+version = "2.0.dev2"
 source = { editable = "." }
 dependencies = [
     { name = "defusedxml" },
