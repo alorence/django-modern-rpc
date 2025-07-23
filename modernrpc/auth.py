@@ -8,21 +8,21 @@ if TYPE_CHECKING:
     from django.http import HttpRequest
 
 
-class BaseHeadersParser:
+class HeadersParser:
     def __init__(self, request: HttpRequest):
         self.request = request
 
 
-class HttpBearer(BaseHeadersParser):
+class HttpBearer(HeadersParser):
     def authorize(self, token: str): ...
 
 
-class BasicAuth(BaseHeadersParser):
+class BasicAuth(HeadersParser):
     def parse_request(self) -> tuple[str, str]:
-        auth_header_content = self.request.META.get("HTTP_AUTHORIZATION")
+        auth_header_content = self.request.headers.get("Authorization")
 
         if not auth_header_content:
-            raise ValueError("No Auhtorization header found !")
+            raise ValueError("No Authorization header found !")
 
         try:
             auth_type, credentials = auth_header_content.split()
@@ -33,6 +33,7 @@ class BasicAuth(BaseHeadersParser):
         if auth_type.lower() == "basic":
             uname, passwd = base64.b64decode(credentials).decode("utf-8").split(":")
             return unquote(uname), unquote(passwd)
+
         raise ValueError("Missing required header content!")
 
     def authorize(self, username: str, password: str): ...

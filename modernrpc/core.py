@@ -14,7 +14,7 @@ from modernrpc.exceptions import (
     AuthenticationFailed,
     RPCInvalidParams,
 )
-from modernrpc.helpers import ensure_sequence
+from modernrpc.helpers import check_flags_compatibility, ensure_sequence
 from modernrpc.introspection import DocstringParser, Introspector
 
 if TYPE_CHECKING:
@@ -74,7 +74,7 @@ class ProcedureWrapper:
         return f'ModernRPC Procedure "{self.name}"'
 
     def __str__(self) -> str:
-        return f"{self.name}({', '.join(self.introspector.args)})"
+        return f"{self.name}({', '.join(self.args)})"
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, ProcedureWrapper):
@@ -206,3 +206,11 @@ class ProcedureWrapper:
             "type": self.introspector.return_type or self.doc_parser.return_type,
             "text": self.doc_parser.return_doc,
         }
+
+    @cached_property
+    def is_available_in_xml_rpc(self):
+        return check_flags_compatibility(self.protocol, Protocol.XML_RPC)
+
+    @cached_property
+    def is_available_in_json_rpc(self):
+        return check_flags_compatibility(self.protocol, Protocol.JSON_RPC)
