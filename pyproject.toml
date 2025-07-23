@@ -5,8 +5,9 @@
 name = "django-modern-rpc"
 version = "2.0.dev2"
 description = "Simple and powerful RPC server for your Django project"
-readme = "README.md"
 license = "MIT"
+license-files = ["LICENSE.txt"]
+readme = "README.md"
 
 authors = [
     { name = "Antoine Lorence", email = "antoine.lorence@gmail.com" }
@@ -61,22 +62,12 @@ lxml = ["lxml"]
 "Demo" = "https://modernrpc.onrender.com"
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["uv_build>=0.8.2,<0.9.0"]
+build-backend = "uv_build"
 
-[tool.hatch.build.targets.wheel]
-packages = ["modernrpc"]
-
-[tool.hatch.build.targets.sdist]
-exclude = [
-    ".*",
-    "*.ini",
-    "*.lock",
-    "noxfile.py",
-    "requirements*",
-    "tests",
-    "docs",
-]
+[tool.uv.build-backend]
+module-root = ""
+module-name = "modernrpc"
 
 # ------------------------------------------------------------------
 # |                        Dev dependencies
