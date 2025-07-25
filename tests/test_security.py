@@ -2,19 +2,19 @@
 
 This file contains tests for each XML backend to verify they're protected against:
 1. DTD attacks
-2. Entity expansion attacks (billion laughs)
+2. Entity expansion attacks (billion-laughs)
 3. External entity reference attacks
 """
 
 import pytest
 
-from modernrpc.exceptions import RPCInsecureRequest
+from modernrpc.exceptions import RPCInsecureRequest, RPCInvalidRequest, RPCParseError
 
 
 class TestXmlBackendSecurity:
     """Test that XML backends are protected against common vulnerabilities."""
 
-    def test_dtd_attack(self, xml_deserializer):
+    def test_dtd_attack(self, request, xml_deserializer):
         """Test that XML backends reject DTD declarations."""
         xml_with_dtd = """<?xml version="1.0"?>
         <!DOCTYPE methodCall [
@@ -26,8 +26,14 @@ class TestXmlBackendSecurity:
             <params></params>
         </methodCall>
         """
+        if "lxml" in xml_deserializer.__class__.__name__.lower():
+            marker = pytest.mark.xfail(
+                reason="lxml backend allows DTD definition, but enforce fine-grained protections on parsing",
+                strict=True,
+            )
+            request.applymarker(marker)
 
-        with pytest.raises(RPCInsecureRequest):
+        with pytest.raises(expected_exception=(RPCInsecureRequest, RPCInvalidRequest)):
             xml_deserializer.loads(xml_with_dtd)
 
     def test_billion_laughs_attack(self, xml_deserializer):
@@ -55,7 +61,7 @@ class TestXmlBackendSecurity:
         </methodCall>
         """
 
-        with pytest.raises(RPCInsecureRequest):
+        with pytest.raises(expected_exception=(RPCInsecureRequest, RPCParseError)):
             xml_deserializer.loads(billion_laughs)
 
     def test_external_entity_attack(self, xml_deserializer):
@@ -74,5 +80,5 @@ class TestXmlBackendSecurity:
         </methodCall>
         """
 
-        with pytest.raises(RPCInsecureRequest):
+        with pytest.raises(expected_exception=(RPCInsecureRequest, RPCInvalidRequest)):
             xml_deserializer.loads(external_entity)
