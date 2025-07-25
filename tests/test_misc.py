@@ -21,6 +21,33 @@ def test_ensure_sequence(arg, expected_result):
 
 
 @pytest.mark.parametrize(
+    ("arg", "expected_result"),
+    [
+        ([1, 2, 3], 1),
+        ((1, 2, 3), 1),
+        (("a", "b", "c"), "a"),
+        ("azerty", "a"),
+        ({"x": 42}, "x"),
+    ],
+)
+def test_first_helper(arg, expected_result):
+    assert first(arg) == expected_result
+
+
+@pytest.mark.parametrize(
+    ("arg", "expected_exception"),
+    [
+        ((), IndexError),
+        ([], IndexError),
+        ({}, IndexError),
+    ],
+)
+def test_first_helper_with_empty_arg(arg, expected_exception):
+    with pytest.raises(expected_exception):
+        first(arg)
+
+
+@pytest.mark.parametrize(
     "date",
     [
         "2016-10-20T21:54:00",
@@ -70,14 +97,3 @@ def test_get_builtin_date_invalid(date_str):
 )
 def test_flags_compatibility(a, b, expected):
     assert check_flags_compatibility(a, b) == expected
-
-
-def test_first_helper():
-    assert first([1, 2, 3]) == 1
-    assert first({"a": 55, "b": 95}) == "a"
-
-    with pytest.raises(IndexError):
-        first([])
-
-    with pytest.raises(IndexError):
-        first(())

@@ -1,47 +1,47 @@
 from textwrap import dedent
 
-from modernrpc import RpcRequestContext
+from modernrpc import Protocol, RpcRequestContext
 from modernrpc.core import ProcedureWrapper
 from modernrpc.introspection import DocstringParser, Introspector
 
 
-def no_doc(): ...
+def dummy_procedure(): ...
 
 
 class TestNoDoc:
     """Make sure docstring and introspection works as expected"""
 
     def test_docstring_parser_docs(self):
-        parser = DocstringParser(no_doc)
+        parser = DocstringParser(dummy_procedure)
         assert parser.raw_docstring == ""
         assert parser.text_documentation == ""
         assert parser.html_documentation == ""
 
     def test_docstring_parser_signature(self):
-        parser = DocstringParser(no_doc)
+        parser = DocstringParser(dummy_procedure)
         assert parser.args_doc == {}
         assert parser.args_types == {}
         assert parser.return_doc == ""
         assert parser.return_type == ""
 
     def test_introspector(self):
-        intros = Introspector(no_doc)
+        intros = Introspector(dummy_procedure)
         assert intros.args == []
         assert intros.args_types == {}
         assert intros.return_type == ""
         assert intros.accept_kwargs is False
 
     def test_wrapper_str_representation(self):
-        wrapper = ProcedureWrapper(no_doc)
+        wrapper = ProcedureWrapper(dummy_procedure)
         assert str(wrapper) == "no_doc()"
 
     def test_wrapper_doc(self):
-        wrapper = ProcedureWrapper(no_doc)
+        wrapper = ProcedureWrapper(dummy_procedure)
         assert wrapper.raw_docstring == ""
         assert wrapper.html_doc == ""
 
     def test_wrapper_signature(self):
-        wrapper = ProcedureWrapper(no_doc)
+        wrapper = ProcedureWrapper(dummy_procedure)
         assert wrapper.args == []
         assert wrapper.args_doc == {}
         assert wrapper.return_doc == {"type": "", "text": ""}
@@ -533,6 +533,26 @@ class TestWithTypeHintAndKwargs:
 
         assert wrapper.raw_docstring == "This is the docstring part of the function"
         assert wrapper.html_doc == "<p>This is the docstring part of the function</p>"
+
+
+class TestProtocolsAvailability:
+    def test_all_protocols(self):
+        wrapper = ProcedureWrapper(dummy_procedure)
+
+        assert wrapper.is_available_in_xml_rpc is True
+        assert wrapper.is_available_in_json_rpc is True
+
+    def test_xml_rpc_only(self):
+        wrapper = ProcedureWrapper(dummy_procedure, protocol=Protocol.XML_RPC)
+
+        assert wrapper.is_available_in_xml_rpc is True
+        assert wrapper.is_available_in_json_rpc is False
+
+    def test_json_rpc_only(self):
+        wrapper = ProcedureWrapper(dummy_procedure, protocol=Protocol.JSON_RPC)
+
+        assert wrapper.is_available_in_xml_rpc is False
+        assert wrapper.is_available_in_json_rpc is True
 
 
 def dummy_with_ctx_target(a: int, b: str, context: RpcRequestContext): ...

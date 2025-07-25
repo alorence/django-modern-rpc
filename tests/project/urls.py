@@ -6,7 +6,7 @@ from modernrpc import RpcServer
 server = RpcServer()
 server.register_namespace(math, "math")
 
-
 urlpatterns = [
     path("rpc", server.view, name="rpc"),
+    path("async_rpc", server.async_view, name="async_rpc"),
 ]
