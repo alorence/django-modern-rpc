@@ -148,9 +148,6 @@ class ProcedureWrapper:
         except Exception as exc:
             raise AuthenticationError(self.name) from exc
 
-        if not auth_result:
-            raise AuthenticationError(self.name)
-
         # If the remote procedure requested access to context data, provide it into proper kwargs key
         if self.context_target:
             context.auth_result = auth_result

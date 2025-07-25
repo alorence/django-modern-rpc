@@ -22,13 +22,14 @@ class TestProcedureAuth:
         handler = server.get_request_handler(req)
         return RpcRequestContext(req, server, handler, handler.protocol)
 
-    def test_auth_not_set(self, req, context):
+    async def test_auth_not_set(self, req, context):
         wrapper = ProcedureWrapper(dummy)
 
         assert wrapper.auth is NOT_SET
         assert wrapper.check_permissions(req) is True
 
         assert wrapper.execute(context) == 42
+        assert await wrapper.aexecute(context) == 42
 
     def test_auth_none(self, req, context):
         wrapper = ProcedureWrapper(dummy, auth=None)
@@ -47,7 +48,7 @@ class TestProcedureAuth:
             "john.doe",
         ],
     )
-    def test_single_auth_returns_ok(self, req, context, auth_result):
+    async def test_single_auth_returns_ok(self, req, context, auth_result):
         auth_callback = Mock(return_value=auth_result)
 
         wrapper = ProcedureWrapper(dummy, auth=auth_callback)
@@ -58,9 +59,10 @@ class TestProcedureAuth:
         assert wrapper.check_permissions(req) is auth_result
 
         assert wrapper.execute(context) == 42
+        assert await wrapper.aexecute(context) == 42
 
     @pytest.mark.parametrize("auth_result", [False, None, 0, ""])
-    def test_single_auth_returns_ko(self, req, context, auth_result):
+    async def test_single_auth_returns_ko(self, req, context, auth_result):
         auth_callback = Mock(return_value=auth_result)
         wrapper = ProcedureWrapper(dummy, auth=auth_callback)
 
@@ -72,8 +74,11 @@ class TestProcedureAuth:
         with pytest.raises(AuthenticationError):
             wrapper.execute(context)
 
+        with pytest.raises(AuthenticationError):
+            await wrapper.aexecute(context)
+
     @pytest.mark.parametrize("exception_klass", [KeyError, ValueError, TypeError, RuntimeError])
-    def test_single_auth_raises_exception(self, req, context, exception_klass):
+    async def test_single_auth_raises_exception(self, req, context, exception_klass):
         auth_callback = Mock(side_effect=exception_klass)
         wrapper = ProcedureWrapper(dummy, auth=auth_callback)
 
@@ -85,7 +90,10 @@ class TestProcedureAuth:
         with pytest.raises(AuthenticationError):
             wrapper.execute(context)
 
-    def test_multiple_auth(self, req, context):
+        with pytest.raises(AuthenticationError):
+            await wrapper.aexecute(context)
+
+    async def test_multiple_auth(self, req, context):
         auth_callbacks = [Mock(), Mock()]
 
         wrapper = ProcedureWrapper(dummy, auth=auth_callbacks)
@@ -94,8 +102,9 @@ class TestProcedureAuth:
         assert wrapper.check_permissions(req) == auth_callbacks[0].return_value
 
         assert wrapper.execute(context) == 42
+        assert await wrapper.aexecute(context) == 42
 
-    def test_multiple_auth_false_true(self, req, context):
+    async def test_multiple_auth_false_true(self, req, context):
         ok_result = object()
         auth_callbacks = [Mock(return_value=False), Mock(return_value=ok_result)]
 
@@ -109,8 +118,9 @@ class TestProcedureAuth:
         auth_callbacks[1].assert_called_once()
 
         assert wrapper.execute(context) == 42
+        assert await wrapper.aexecute(context) == 42
 
-    def test_multiple_auth_true_false(self, req, context):
+    async def test_multiple_auth_true_false(self, req, context):
         ok_result = object()
         auth_callbacks = [Mock(return_value=ok_result), Mock(return_value=False)]
 
@@ -124,3 +134,4 @@ class TestProcedureAuth:
         auth_callbacks[1].assert_not_called()
 
         assert wrapper.execute(context) == 42
+        assert await wrapper.aexecute(context) == 42
