@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import warnings
+from functools import cached_property
 from typing import TYPE_CHECKING, Any, Iterable
 
 import orjson
@@ -28,17 +29,24 @@ class OrjsonBackend:
 
         self.dump_kwargs = dump_kwargs or {}
 
-    @staticmethod
-    def loads(data: str) -> JsonRpcRequest | list[JsonRpcRequest]:
+    @cached_property
+    def unmarshaller(self):
+        return Unmarshaller()
+
+    @cached_property
+    def marshaller(self):
+        return Marshaller()
+
+    def loads(self, data: str) -> JsonRpcRequest | list[JsonRpcRequest]:
         try:
             structured_data: list[dict] | dict[str, Any] = orjson.loads(data)
         except JSONDecodeError as exc:
             raise RPCParseError(exc.msg, data=exc) from exc
 
-        return Unmarshaller().dict_to_request(structured_data)
+        return self.unmarshaller.dict_to_request(structured_data)
 
     def dumps(self, result: JsonRpcResult | Iterable[JsonRpcResult]) -> str:
-        structured_data = Marshaller().result_to_dict(result)
+        structured_data = self.marshaller.result_to_dict(result)
         try:
             return orjson.dumps(structured_data, **self.dump_kwargs).decode("utf-8")
         except (JSONEncodeError, TypeError, UnicodeDecodeError) as exc:

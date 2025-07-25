@@ -40,7 +40,7 @@ class LxmlBackend:
                 no_network=True,  # Prevent network access
                 dtd_validation=False,  # Disable DTD validation
                 load_dtd=False,  # Disable DTD loading
-                huge_tree=False,  # Prevent billion laughs attack
+                huge_tree=False,  # Prevent the billion-laugh attack
             )
             root_obj: _Element = lxml.etree.fromstring(data, parser)
         except lxml.etree.XMLSyntaxError as exc:

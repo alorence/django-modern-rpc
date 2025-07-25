@@ -18,8 +18,8 @@ from modernrpc.types import RpcErrorResult
 from modernrpc.xmlrpc.backends.constants import MAXINT, MININT
 from modernrpc.xmlrpc.handler import XmlRpcRequest
 
-# NoneType is available in types base module only from Python 3.10
 try:
+    # types.NoneType is available only with Python 3.10+
     from types import NoneType
 except ImportError:
     NoneType = type(None)  # type: ignore[misc]
@@ -254,7 +254,7 @@ class XmlToDictBackend:
 
     def loads(self, data: str) -> XmlRpcRequest:
         try:
-            # First parse the XML using defusedxml.ElementTree for security
+            # First, parse the XML using defusedxml.ElementTree for security
             # This will raise appropriate exceptions for XML vulnerabilities
             root = defusedxml.ElementTree.fromstring(data)
 

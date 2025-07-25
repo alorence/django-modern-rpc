@@ -17,8 +17,8 @@ try:
 except ImportError:
     from typing_extensions import Self
 
-# NoneType is available in types base module only from Python 3.10
 try:
+    # types.NoneType is available only with Python 3.10+
     from types import NoneType
 except ImportError:
     NoneType = type(None)  # type: ignore[misc]

@@ -8,8 +8,8 @@ from modernrpc.exceptions import RPCInvalidRequest
 from modernrpc.jsonrpc.handler import JsonRpcRequest
 from modernrpc.types import RpcErrorResult
 
-# NoneType is available in types base module only from Python 3.10
 try:
+    # types.NoneType is available only with Python 3.10+
     from types import NoneType
 except ImportError:
     NoneType = type(None)  # type: ignore[misc]
@@ -35,7 +35,7 @@ class Unmarshaller:
             )
 
         # Notification request won't have "id" field
-        # None is also an allowed value. Both case are valid
+        # None is also an allowed value. Both cases are valid
         request_id = request_data.get("id")
         if type(request_id) not in (NoneType, int, float, str):
             raise RPCInvalidRequest(
@@ -62,7 +62,7 @@ class Unmarshaller:
         args = params if isinstance(params, (list, tuple)) else []
         kwargs = params if isinstance(params, dict) else {}
 
-        # Standard request (with "id" field)
+        # Standard request (with the "id" field)
         if "id" in structured_data:
             return JsonRpcRequest(
                 request_id=structured_data["id"],
