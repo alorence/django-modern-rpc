@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 import pytest
 from django.contrib.auth.models import AnonymousUser, Group, Permission
 
+from modernrpc import RpcServer
 from tests.helpers import (
     JSON_DESERIALIZERS_CLASSES,
     JSON_SERIALIZERS_CLASSES,
@@ -76,6 +77,11 @@ def change_user_perm(transactional_db):
 def delete_user_perm(transactional_db):
     """Return permission 'auth.delete_user'"""
     return Permission.objects.get(codename="delete_user")
+
+
+@pytest.fixture
+def server():
+    return RpcServer()
 
 
 @pytest.fixture(

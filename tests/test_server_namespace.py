@@ -4,7 +4,7 @@ import pytest
 from helpers import ALL_PROTOCOLS
 
 from modernrpc import Protocol, RpcServer
-from modernrpc.exceptions import RPCMethodNotFound
+from modernrpc.exceptions import AuthenticationError, RPCMethodNotFound
 from modernrpc.jsonrpc.handler import JsonRpcHandler
 from modernrpc.server import RpcNamespace
 from modernrpc.xmlrpc.handler import XmlRpcHandler
@@ -179,7 +179,10 @@ class TestRpcServerRegistration:
         wrapper = server.get_procedure_wrapper("dummy_procedure", proto)
 
         assert wrapper.auth is namespace_auth_callback
-        assert wrapper.check_permissions(rf.post("/")) is False
+
+        with pytest.raises(AuthenticationError):
+            wrapper.check_permissions(rf.post("/"))
+
         namespace_auth_callback.assert_called_once()
         server_auth_callback.assert_not_called()
 

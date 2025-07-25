@@ -11,7 +11,7 @@ from django.utils.functional import cached_property
 from modernrpc import Protocol
 from modernrpc.constants import NOT_SET
 from modernrpc.exceptions import (
-    AuthenticationFailed,
+    AuthenticationError,
     RPCInvalidParams,
 )
 from modernrpc.helpers import check_flags_compatibility, ensure_sequence
@@ -90,10 +90,10 @@ class ProcedureWrapper:
         return hash(self.func_or_coro)
 
     def check_permissions(self, request: HttpRequest) -> Any:
-        """Call the predicate(s) associated with the RPC method to check if the current request
-        can actually call the method.
-        Return a boolean indicating if the method should be executed (True) or not (False),
-        or any other value that can be used by the caller.
+        """
+        Call each predicate associated with the procedure to check authentication.
+        If any of the predicate returns a truthy value, it is returned as result.
+        In other cases, raise an AuthenticationFailed exception.
         """
         if self.auth == NOT_SET or not self.auth:
             return True
@@ -102,7 +102,7 @@ class ProcedureWrapper:
             if result := callback(request):
                 return result
 
-        return False
+        raise AuthenticationError(self.name)
 
     def execute(
         self,
@@ -116,10 +116,7 @@ class ProcedureWrapper:
         try:
             auth_result = self.check_permissions(context.request)
         except Exception as exc:
-            raise AuthenticationFailed(self.name) from exc
-
-        if not auth_result:
-            raise AuthenticationFailed(self.name)
+            raise AuthenticationError(self.name) from exc
 
         # If the remote procedure requested access to context data, provide it into proper kwargs key
         if self.context_target:
@@ -149,10 +146,10 @@ class ProcedureWrapper:
         try:
             auth_result = self.check_permissions(context.request)
         except Exception as exc:
-            raise AuthenticationFailed(self.name) from exc
+            raise AuthenticationError(self.name) from exc
 
         if not auth_result:
-            raise AuthenticationFailed(self.name)
+            raise AuthenticationError(self.name)
 
         # If the remote procedure requested access to context data, provide it into proper kwargs key
         if self.context_target:

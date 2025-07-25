@@ -4,7 +4,7 @@ import xmlrpc.client
 import pytest
 
 from modernrpc import Protocol
-from modernrpc.helpers import check_flags_compatibility, ensure_sequence, get_builtin_date
+from modernrpc.helpers import check_flags_compatibility, ensure_sequence, first, get_builtin_date
 
 
 @pytest.mark.parametrize(
@@ -70,3 +70,14 @@ def test_get_builtin_date_invalid(date_str):
 )
 def test_flags_compatibility(a, b, expected):
     assert check_flags_compatibility(a, b) == expected
+
+
+def test_first_helper():
+    assert first([1, 2, 3]) == 1
+    assert first({"a": 55, "b": 95}) == "a"
+
+    with pytest.raises(IndexError):
+        first([])
+
+    with pytest.raises(IndexError):
+        first(())

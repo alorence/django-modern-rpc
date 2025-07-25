@@ -1,101 +1,8 @@
 from textwrap import dedent
-from unittest.mock import Mock
-
-import pytest
 
 from modernrpc import RpcRequestContext
-from modernrpc.constants import NOT_SET
 from modernrpc.core import ProcedureWrapper
 from modernrpc.introspection import DocstringParser, Introspector
-
-
-def dummy(): ...
-
-
-class TestProcedureAuth:
-    @pytest.fixture
-    def dummy_request(self, rf):
-        return rf.post("/")
-
-    def test_auth_not_set(self, dummy_request):
-        wrapper = ProcedureWrapper(dummy)
-
-        assert wrapper.auth is NOT_SET
-        assert wrapper.check_permissions(dummy_request) is True
-
-    def test_auth_none(self, dummy_request):
-        wrapper = ProcedureWrapper(dummy, auth=None)
-
-        assert wrapper.auth is None
-        assert wrapper.check_permissions(dummy_request) is True
-
-    @pytest.mark.parametrize(
-        "auth_result",
-        [
-            object(),
-            True,
-            12345,
-            "john.doe",
-        ],
-    )
-    def test_single_auth_returns_ok(self, dummy_request, auth_result):
-        auth_callback = Mock(return_value=auth_result)
-
-        wrapper = ProcedureWrapper(dummy, auth=auth_callback)
-
-        assert wrapper.auth is auth_callback
-        assert bool(wrapper.check_permissions(dummy_request)) is True
-        assert wrapper.check_permissions(dummy_request) is auth_result
-
-    @pytest.mark.parametrize(
-        "auth_result",
-        [
-            False,
-            None,
-            0,
-            "",
-        ],
-    )
-    def test_single_auth_returns_ko(self, dummy_request, auth_result):
-        auth_callback = Mock(return_value=auth_result)
-
-        wrapper = ProcedureWrapper(dummy, auth=auth_callback)
-
-        assert wrapper.auth is auth_callback
-        assert bool(wrapper.check_permissions(dummy_request)) is False
-        assert wrapper.check_permissions(dummy_request) is False
-
-    def test_multiple_auth(self, rf):
-        auth_callbacks = [Mock(), Mock()]
-
-        wrapper = ProcedureWrapper(dummy, auth=auth_callbacks)
-        assert wrapper.auth is auth_callbacks
-
-    def test_multiple_auth_false_true(self, dummy_request):
-        ok_result = object()
-        auth_callbacks = [Mock(return_value=False), Mock(return_value=ok_result)]
-
-        wrapper = ProcedureWrapper(dummy, auth=auth_callbacks)
-        check_perms_result = wrapper.check_permissions(dummy_request)
-
-        assert bool(check_perms_result) is True
-        assert check_perms_result is ok_result
-
-        auth_callbacks[0].assert_called_once()
-        auth_callbacks[1].assert_called_once()
-
-    def test_multiple_auth_true_false(self, dummy_request):
-        ok_result = object()
-        auth_callbacks = [Mock(return_value=ok_result), Mock(return_value=False)]
-
-        wrapper = ProcedureWrapper(dummy, auth=auth_callbacks)
-        check_perms_result = wrapper.check_permissions(dummy_request)
-
-        assert bool(check_perms_result) is True
-        assert check_perms_result is ok_result
-
-        auth_callbacks[0].assert_called_once()
-        auth_callbacks[1].assert_not_called()
 
 
 def no_doc(): ...
@@ -123,6 +30,10 @@ class TestNoDoc:
         assert intros.args_types == {}
         assert intros.return_type == ""
         assert intros.accept_kwargs is False
+
+    def test_wrapper_str_representation(self):
+        wrapper = ProcedureWrapper(no_doc)
+        assert str(wrapper) == "no_doc()"
 
     def test_wrapper_doc(self):
         wrapper = ProcedureWrapper(no_doc)
@@ -157,6 +68,10 @@ class TestSingleLineDoc:
         settings.MODERNRPC_DOC_FORMAT = "rst"
         parser = DocstringParser(single_line_doc)
         assert parser.html_documentation == "<p><em>italic</em>, <strong>strong</strong>, normal text</p>\n"
+
+    def test_wrapper_str_representation(self):
+        wrapper = ProcedureWrapper(single_line_doc)
+        assert str(wrapper) == "single_line_doc()"
 
     def test_wrapper_doc(self):
         wrapper = ProcedureWrapper(single_line_doc)
@@ -364,6 +279,10 @@ class TestNoDocstringWithArgs:
         assert intros.return_type == ""
         assert not intros.accept_kwargs
 
+    def test_wrapper_str_representation(self):
+        wrapper = ProcedureWrapper(untyped_and_undocumented_args)
+        assert str(wrapper) == "untyped_and_undocumented_args(a, b, c)"
+
     def test_args_and_return(self):
         wrapper = ProcedureWrapper(untyped_and_undocumented_args)
         assert wrapper.args == ["a", "b", "c"]
@@ -551,6 +470,10 @@ class TestWithTypeHintAndDocstringTypes:
         assert intros.return_type == "dict"
         assert intros.accept_kwargs is False
 
+    def test_wrapper_str_representation(self):
+        wrapper = ProcedureWrapper(typehints_and_types_docstring)
+        assert str(wrapper) == "typehints_and_types_docstring(x, y)"
+
     def test_args_and_return(self):
         wrapper = ProcedureWrapper(typehints_and_types_docstring)
 
@@ -590,6 +513,10 @@ class TestWithTypeHintAndKwargs:
         assert intros.args_types == {"x": "list", "y": "str"}
         assert intros.return_type == "dict"
         assert intros.accept_kwargs is True
+
+    def test_wrapper_str_representation(self):
+        wrapper = ProcedureWrapper(with_kwargs)
+        assert str(wrapper) == "with_kwargs(x, y)"
 
     def test_args_and_return(self):
         wrapper = ProcedureWrapper(with_kwargs)

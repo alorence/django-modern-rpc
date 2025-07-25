@@ -138,7 +138,7 @@ class RPCMarshallingError(RPCException):
         )
 
 
-class AuthenticationFailed(RPCException):
+class AuthenticationError(RPCException):
     """Raised when authentication system forbade execution of a RPC Method"""
 
     def __init__(self, method_name: str):
