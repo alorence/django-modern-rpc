@@ -33,7 +33,7 @@ class TestNoDoc:
 
     def test_wrapper_str_representation(self):
         wrapper = ProcedureWrapper(dummy_procedure)
-        assert str(wrapper) == "no_doc()"
+        assert str(wrapper) == "dummy_procedure()"
 
     def test_wrapper_doc(self):
         wrapper = ProcedureWrapper(dummy_procedure)

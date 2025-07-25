@@ -7,7 +7,6 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Any, Iterable
 
 import orjson
-from orjson import JSONDecodeError, JSONEncodeError
 
 from modernrpc.exceptions import RPCMarshallingError, RPCParseError
 from modernrpc.jsonrpc.backends.marshalling import Marshaller, Unmarshaller
@@ -40,7 +39,7 @@ class OrjsonBackend:
     def loads(self, data: str) -> JsonRpcRequest | list[JsonRpcRequest]:
         try:
             structured_data: list[dict] | dict[str, Any] = orjson.loads(data)
-        except JSONDecodeError as exc:
+        except orjson.JSONDecodeError as exc:
             raise RPCParseError(exc.msg, data=exc) from exc
 
         return self.unmarshaller.dict_to_request(structured_data)
@@ -49,5 +48,5 @@ class OrjsonBackend:
         structured_data = self.marshaller.result_to_dict(result)
         try:
             return orjson.dumps(structured_data, **self.dump_kwargs).decode("utf-8")
-        except (JSONEncodeError, TypeError, UnicodeDecodeError) as exc:
+        except (orjson.JSONEncodeError, UnicodeDecodeError, TypeError) as exc:
             raise RPCMarshallingError(structured_data, exc) from exc
