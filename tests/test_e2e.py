@@ -71,7 +71,7 @@ class TestXmlRpc:
 
 @pytest.mark.usefixtures("all_json_deserializers", "all_json_serializers")
 class TestJsonRpc:
-    def test_json_rpc_basic_call(self, live_server, server_path):
+    def test_json_rpc_standard_call(self, live_server, server_path):
         request = jsonrpcclient.request(method="math.add", params=(5, 8, 10))
         response = requests.post(live_server.url + server_path, json=request)
         data = jsonrpcclient.parse_json(response.text)

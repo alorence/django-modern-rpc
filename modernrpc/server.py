@@ -4,6 +4,7 @@ import functools
 import logging
 from typing import TYPE_CHECKING, Callable, Union
 
+import django
 from django.utils.module_loading import import_string
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -184,4 +185,11 @@ class RpcServer(RegistryMixin):
         :return: An awaitable async view function
         """
         view = functools.partial(handle_rpc_request_async, server=self)
-        return csrf_exempt(require_POST(view))
+
+        if django.VERSION < (5, 0):
+            view.csrf_exempt = True
+            # FIXME: how to manually prevent other methods than POST on Django < 5.0 ?
+        else:
+            view = csrf_exempt(require_POST(view))
+
+        return view
