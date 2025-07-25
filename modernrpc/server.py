@@ -10,7 +10,7 @@ from django.views.decorators.http import require_POST
 
 from modernrpc import Protocol, RpcRequestContext
 from modernrpc.config import settings
-from modernrpc.constants import NOT_SET
+from modernrpc.constants import NOT_SET, SYSTEM_NAMESPACE_DOTTED_PATH
 from modernrpc.core import ProcedureWrapper
 from modernrpc.exceptions import RPCException, RPCInternalError, RPCMethodNotFound
 from modernrpc.helpers import check_flags_compatibility, first_true
@@ -111,8 +111,8 @@ class RpcServer(RegistryMixin):
         )
 
         if register_system_procedures:
-            system = import_string("modernrpc.system_procedures.system")
-            self.register_namespace(system, "system")
+            system_namespace = import_string(SYSTEM_NAMESPACE_DOTTED_PATH)
+            self.register_namespace(system_namespace, "system")
 
         self.error_handler = error_handler
 

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from enum import Flag, auto
 
+SYSTEM_NAMESPACE_DOTTED_PATH = "modernrpc.system_procedures.system"
+
 
 class Protocol(Flag):
     """Define a custom type to use everywhere a protocol (JSON-RPC or XML-RPC) is expected"""

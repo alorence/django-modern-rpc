@@ -68,18 +68,15 @@ if settings.MODERNRPC_XMLRPC_ASYNC_MULTICALL:
         if not isinstance(calls, list):
             raise RPCInvalidParams(f"system.multicall first argument should be a list, {type(calls).__name__} given.")
 
-        def result_to_serializable_data(result):
-            if isinstance(result, RpcErrorResult):
-                return {
-                    "faultCode": result.code,
-                    "faultString": result.message,
-                }
-            return (result.data,)
-
         requests = (XmlRpcRequest(call.get("methodName"), call.get("params")) for call in calls)
         results = await asyncio.gather(*(_ctx.handler.aprocess_single_request(request, _ctx) for request in requests))
-        return [result_to_serializable_data(result) for result in results]
 
+        return [
+            {"faultCode": result.code, "faultString": result.message}
+            if isinstance(result, RpcErrorResult)
+            else (result.data,)
+            for result in results
+        ]
 else:
 
     @system.register_procedure(name="multicall", protocol=Protocol.XML_RPC, context_target="_ctx")
@@ -94,14 +91,12 @@ else:
         if not isinstance(calls, list):
             raise RPCInvalidParams(f"system.multicall first argument should be a list, {type(calls).__name__} given.")
 
-        def result_to_serializable_data(result):
-            if isinstance(result, RpcErrorResult):
-                return {
-                    "faultCode": result.code,
-                    "faultString": result.message,
-                }
-            return (result.data,)
-
         requests = (XmlRpcRequest(call.get("methodName"), call.get("params")) for call in calls)
         results = (_ctx.handler.process_single_request(request, _ctx) for request in requests)
-        return [result_to_serializable_data(result) for result in results]
+
+        return [
+            {"faultCode": result.code, "faultString": result.message}
+            if isinstance(result, RpcErrorResult)
+            else (result.data,)
+            for result in results
+        ]
