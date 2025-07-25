@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
     from django.http import HttpRequest
 
-    from modernrpc.jsonrpx import JsonRpcDeserializer, JsonRpcSerializer
+    from modernrpc.jsonrpc import JsonRpcDeserializer, JsonRpcSerializer
     from modernrpc.xmlrpc import XmlRpcDeserializer, XmlRpcSerializer
 
 

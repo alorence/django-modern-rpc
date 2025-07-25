@@ -18,7 +18,8 @@ class TestExtractHeader:
 
     def test_extract_existing_header(self, rf):
         """Test that extract_header returns the correct value for an existing header."""
-        request = rf.get("/", headers={"X-Test-Header": "test-value"})
+        request = rf.get("/")
+        request.headers = {"X-Test-Header": "test-value"}
 
         result = extract_header(request, "X-Test-Header")
 
@@ -37,7 +38,8 @@ class TestExtractGenericToken:
 
     def test_extract_valid_token(self, rf):
         """Test that extract_generic_token returns the correct token for valid input."""
-        request = rf.get("/", headers={"Authorization": "Bearer my-token"})
+        request = rf.get("/")
+        request.headers = {"Authorization": "Bearer my-token"}
 
         result = extract_generic_token(request, "Authorization", "Bearer")
 
@@ -46,7 +48,8 @@ class TestExtractGenericToken:
     def test_extract_quoted_token(self, rf):
         """Test that extract_generic_token handles URL-encoded tokens correctly."""
         token = quote("token with spaces")
-        request = rf.get("/", headers={"Authorization": f"Bearer {token}"})
+        request = rf.get("/")
+        request.headers = {"Authorization": f"Bearer {token}"}
 
         result = extract_generic_token(request, "Authorization", "Bearer")
 
@@ -61,7 +64,8 @@ class TestExtractGenericToken:
 
     def test_invalid_auth_type(self, rf):
         """Test that extract_generic_token raises ValueError when the auth type is invalid."""
-        request = rf.get("/", headers={"Authorization": "Basic dXNlcjpwYXNzd29yZA=="})
+        request = rf.get("/")
+        request.headers = {"Authorization": "Basic dXNlcjpwYXNzd29yZA=="}
 
         with pytest.raises(ValueError, match='Invalid authentication type. Expected "Bearer", found "Basic"'):
             extract_generic_token(request, "Authorization", "Bearer")
@@ -75,7 +79,8 @@ class TestExtractHttpBasicAuth:
         username = "user"
         password = "password"
         credentials = base64.b64encode(f"{username}:{password}".encode()).decode("utf-8")
-        request = rf.get("/", headers={"Authorization": f"Basic {credentials}"})
+        request = rf.get("/")
+        request.headers = {"Authorization": f"Basic {credentials}"}
 
         result_username, result_password = extract_http_basic_auth(request)
 
@@ -87,7 +92,8 @@ class TestExtractHttpBasicAuth:
         username = quote("user with spaces")
         password = quote("password with spaces")
         credentials = base64.b64encode(f"{username}:{password}".encode()).decode("utf-8")
-        request = rf.get("/", headers={"Authorization": f"Basic {credentials}"})
+        request = rf.get("/")
+        request.headers = {"Authorization": f"Basic {credentials}"}
 
         result_username, result_password = extract_http_basic_auth(request)
 
@@ -103,7 +109,8 @@ class TestExtractHttpBasicAuth:
 
     def test_invalid_auth_type(self, rf):
         """Test that extract_http_basic_auth raises ValueError when the auth type is invalid."""
-        request = rf.get("/", headers={"Authorization": "Bearer token"})
+        request = rf.get("/")
+        request.headers = {"Authorization": "Bearer token"}
 
         with pytest.raises(ValueError, match='Invalid authentication type. Expected "Basic", found "Bearer"'):
             extract_http_basic_auth(request)
@@ -112,7 +119,8 @@ class TestExtractHttpBasicAuth:
         """Test that extract_http_basic_auth raises ValueError when the credential format is invalid."""
         # Missing colon in credentials
         credentials = base64.b64encode(b"userpassword").decode("utf-8")
-        request = rf.get("/", headers={"Authorization": f"Basic {credentials}"})
+        request = rf.get("/")
+        request.headers = {"Authorization": f"Basic {credentials}"}
 
         with pytest.raises(ValueError, match="not enough values to unpack"):
             extract_http_basic_auth(request)
@@ -123,7 +131,8 @@ class TestExtractBearerToken:
 
     def test_extract_valid_token(self, rf):
         """Test that extract_bearer_token returns the correct token for valid input."""
-        request = rf.get("/", headers={"Authorization": "Bearer my-token"})
+        request = rf.get("/")
+        request.headers = {"Authorization": "Bearer my-token"}
 
         result = extract_bearer_token(request)
 
@@ -132,7 +141,8 @@ class TestExtractBearerToken:
     def test_extract_quoted_token(self, rf):
         """Test that extract_bearer_token handles URL-encoded tokens correctly."""
         token = quote("token with spaces")
-        request = rf.get("/", headers={"Authorization": f"Bearer {token}"})
+        request = rf.get("/")
+        request.headers = {"Authorization": f"Bearer {token}"}
 
         result = extract_bearer_token(request)
 
@@ -147,7 +157,8 @@ class TestExtractBearerToken:
 
     def test_invalid_auth_type(self, rf):
         """Test that extract_bearer_token raises ValueError when the auth type is invalid."""
-        request = rf.get("/", headers={"Authorization": "Basic dXNlcjpwYXNzd29yZA=="})
+        request = rf.get("/")
+        request.headers = {"Authorization": "Basic dXNlcjpwYXNzd29yZA=="}
 
         with pytest.raises(ValueError, match='Invalid authentication type. Expected "Bearer", found "Basic"'):
             extract_bearer_token(request)
