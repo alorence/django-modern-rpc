@@ -187,7 +187,7 @@ class RpcServer(RegistryMixin):
         view = functools.partial(handle_rpc_request_async, server=self)
 
         if django.VERSION < (5, 0):
-            view.csrf_exempt = True
+            view.csrf_exempt = True  # type: ignore[attr-defined]
             # FIXME: how to manually prevent other methods than POST on Django < 5.0 ?
         else:
             view = csrf_exempt(require_POST(view))
