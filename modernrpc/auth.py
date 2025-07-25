@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import functools
 from typing import TYPE_CHECKING
 from urllib.parse import unquote
 
@@ -8,41 +9,32 @@ if TYPE_CHECKING:
     from django.http import HttpRequest
 
 
-class HeadersParser:
-    def __init__(self, request: HttpRequest):
-        self.request = request
+def extract_header(request: HttpRequest, header_name: str) -> str:
+    """Extract a header from a request object and raise a ValueError when it is not found"""
+    try:
+        return request.headers[header_name]
+    except Exception as exc:
+        raise ValueError(f'Unable to find "{header_name}" header in request') from exc
 
 
-class HttpBearer(HeadersParser):
-    def authorize(self, token: str): ...
+def extract_generic_token(request: HttpRequest, header_name: str, auth_type: str):
+    """Extract a generic token from a request object and raise a ValueError when it is not found"""
+    auth_header = extract_header(request, header_name)
+
+    current_auth_type, credentials = auth_header.split()
+
+    if current_auth_type.lower() != auth_type.lower():
+        raise ValueError(f'Invalid authentication type. Expected "{auth_type}", found "{current_auth_type}"')
+
+    return unquote(credentials)
 
 
-class BasicAuth(HeadersParser):
-    def parse_request(self) -> tuple[str, str]:
-        auth_header_content = self.request.headers.get("Authorization")
+def extract_http_basic_auth(request: HttpRequest) -> tuple[str, str]:
+    """Extract HTTP Basic authentication credentials from a request object. Return a tuple with username and password"""
+    credentials = extract_generic_token(request, "Authorization", "Basic")
 
-        if not auth_header_content:
-            raise ValueError("No Authorization header found !")
-
-        try:
-            auth_type, credentials = auth_header_content.split()
-        except (AttributeError, ValueError):
-            raise
-
-        # Handle BasicAuth
-        if auth_type.lower() == "basic":
-            uname, passwd = base64.b64decode(credentials).decode("utf-8").split(":")
-            return unquote(uname), unquote(passwd)
-
-        raise ValueError("Missing required header content!")
-
-    def authorize(self, username: str, password: str): ...
+    uname, passwd = base64.b64decode(credentials).decode("utf-8").split(":")
+    return unquote(uname), unquote(passwd)
 
 
-class BaseAuth:
-    auth_klass = BasicAuth
-
-    def __call__(self, request: HttpRequest):
-        auth = self.auth_klass(request)
-        data = auth.parse_request()
-        return auth.authorize(*data)
+extract_bearer_token = functools.partial(extract_generic_token, header_name="Authorization", auth_type="Bearer")
