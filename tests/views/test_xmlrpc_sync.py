@@ -108,7 +108,7 @@ class TestXmlRpcSyncView:
         assert response.status_code == HTTPStatus.OK
         assert (
             extract_xmlrpc_success_result(response)
-            == "Return a simple string when given 'bar' is positive, raise ValueError when 'bar' is negative"
+            == "Return a simple string when the given 'bar' is positive, raise ValueError when it is negative"
         )
         on_error_mock.assert_not_called()
 

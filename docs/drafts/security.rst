@@ -15,4 +15,4 @@ Once `defusedxml` can be imported, various method are automatically patched agai
 
 For more information, check the `defusedxml project's`_ README.
 
-.. _defusedxml project: https://github.com/tiran/defusedxml
+.. _defusedxml project's: https://github.com/tiran/defusedxml

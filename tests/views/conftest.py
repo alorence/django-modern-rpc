@@ -11,7 +11,7 @@ def server():
 
     @server.register_procedure
     def simple_procedure(foo: str, bar: int):
-        """Return a simple string when given 'bar' is positive, raise ValueError when 'bar' is negative"""
+        """Return a simple string when the given 'bar' is positive, raise ValueError when it is negative"""
         if bar < 0:
             raise ValueError("bar cannot be negative")
         return f"{foo=} {bar=}"
@@ -23,7 +23,7 @@ def server():
 
     @server.register_procedure
     async def async_simple_procedure(foo: str, bar: int):
-        """Return a simple string when given 'bar' is positive, raise ValueError when 'bar' is negative"""
+        """Return a simple string when the given 'bar' is positive, raise ValueError when it is negative"""
         if bar < 0:
             raise ValueError("bar cannot be negative")
         return f"{foo=} {bar=}"

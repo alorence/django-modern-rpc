@@ -52,7 +52,7 @@ class XmlRpcHandler(RpcHandler[XmlRpcRequest]):
         """
         Parse request and delegates to process_single_request(), catching exceptions to handle errors.
 
-        `system.multicall()` is implemented in `modernrpc.system_methods` module.
+        `system.multicall()` is implemented in the `modernrpc.system_procedures` module.
         """
         try:
             request = self.deserializer.loads(request_body)
@@ -73,7 +73,7 @@ class XmlRpcHandler(RpcHandler[XmlRpcRequest]):
         """
         Parse request and delegates to process_single_request(), catching exceptions to handle errors.
 
-        `system.multicall()` is implemented in `modernrpc.system_methods` module.
+        `system.multicall()` is implemented in the `modernrpc.system_procedures` module.
         """
         try:
             request = self.deserializer.loads(request_body)

@@ -275,7 +275,7 @@ class TestMultiLinesDocstringWithBlock:
         )
 
 
-def multiline_docstring_with_args_doc():
+def multiline_docstring_with_args_doc(one, two, three, four, five):
     """Lorem ipsum dolor sit amet. ferox, talis valebats nunquam reperire de alter, varius advena.
     musa camerarius sectam est. grandis, primus axonas hic transferre de neuter, barbatus pes?
     :param one: single line description
@@ -324,7 +324,7 @@ class TestMultilineDocstringWithArgs:
 
     def test_introspector(self):
         intros = Introspector(multiline_docstring_with_args_doc)
-        assert intros.args == []
+        assert intros.args == ["one", "two", "three", "four", "five"]
         assert intros.args_types == {}
         assert intros.return_type == ""
         assert intros.accept_kwargs is False
