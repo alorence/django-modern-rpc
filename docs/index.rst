@@ -43,9 +43,11 @@ your project, follow other topics in the menu.
    server.rst
    procedure_registration.rst
    backends.rst
+   data_types_support.rst
    authentication.rst
    error_handling.rst
    security.rst
+   settings.rst
    faq.rst
    references.rst
    migration_guide.rst
