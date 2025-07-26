@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from modernrpc import Protocol, RpcRequestContext
-from modernrpc.compat import async_csrf_exempt, async_require_POST
+from modernrpc.compat import async_csrf_exempt, async_require_post
 from modernrpc.config import settings
 from modernrpc.constants import NOT_SET, SYSTEM_NAMESPACE_DOTTED_PATH
 from modernrpc.core import ProcedureWrapper
@@ -185,4 +185,4 @@ class RpcServer(RegistryMixin):
         :return: An awaitable async view function
         """
         view_func = functools.partial(handle_rpc_request_async, server=self)
-        return async_csrf_exempt(async_require_POST(view_func))
+        return async_csrf_exempt(async_require_post(view_func))

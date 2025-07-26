@@ -11,7 +11,7 @@ if django.VERSION >= (5, 0):
     # REF: https://docs.djangoproject.com/en/5.2/releases/5.0/#decorators
 
     async_csrf_exempt = csrf_exempt
-    async_require_POST = require_POST
+    async_require_post = require_POST
 
 else:
     # Fore Django version < 5.0, we partially redefine decorators to support async view
@@ -20,7 +20,7 @@ else:
         view.csrf_exempt = True
         return view
 
-    def async_require_POST(func):
+    def async_require_post(func):
         @functools.wraps(func)
         async def inner(request, *args, **kwargs):
             if request.method != "POST":
