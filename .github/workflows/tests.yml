@@ -37,7 +37,6 @@ jobs:
     - name: Check lockfile
       run: uv lock --check
 
-
   linter:
     runs-on: ubuntu-latest
     needs: debug
@@ -92,7 +91,7 @@ jobs:
 
   tests:
     name: ${{ matrix.session }}
-    needs: [debug, generate-jobs]
+    needs: generate-jobs
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
