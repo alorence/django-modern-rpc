@@ -46,6 +46,8 @@ def test_first_helper_with_empty_arg(arg, expected_exception):
     with pytest.raises(expected_exception):
         first(arg)
 
+    assert first(arg, default="default") == "default"
+
 
 @pytest.mark.parametrize(
     "date",

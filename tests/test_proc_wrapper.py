@@ -559,10 +559,14 @@ def dummy_with_ctx_target(a: int, b: str, context: RpcRequestContext): ...
 
 
 class TestContextTarget:
-    def test_context_target(self):
+    def test_args_and_return(self):
         wrapper = ProcedureWrapper(dummy_with_ctx_target, context_target="context")
         assert wrapper.args == ["a", "b"]
         assert wrapper.args_doc == {
             "a": {"type": "int", "text": ""},
             "b": {"type": "str", "text": ""},
         }
+
+    def test_wrapper_str_representation(self):
+        wrapper = ProcedureWrapper(dummy_with_ctx_target, context_target="context")
+        assert str(wrapper) == "dummy_with_ctx_target(a, b)"
