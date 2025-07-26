@@ -7,6 +7,8 @@ on:
     tags:
       - '*'
   pull_request:
+    branches:
+      - main
   schedule:
     # * is a special character in YAML and must be quoted
     - cron: '55 2 */7 * *'
@@ -36,7 +38,6 @@ jobs:
         version: ${{ env.UV_VERSION }}
     - name: Check lockfile
       run: uv lock --check
-
 
   linter:
     runs-on: ubuntu-latest
@@ -92,7 +93,7 @@ jobs:
 
   tests:
     name: ${{ matrix.session }}
-    needs: [debug, generate-jobs]
+    needs: generate-jobs
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
