@@ -11,12 +11,12 @@ repos:
       - id: check-added-large-files
   - repo: https://github.com/astral-sh/uv-pre-commit
     # uv version.
-    rev: 0.8.2
+    rev: 0.8.3
     hooks:
       - id: uv-lock
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     # Ruff version.
-    rev: v0.12.4
+    rev: v0.12.5
     hooks:
       # Linter
       - id: ruff
@@ -29,8 +29,10 @@ repos:
         files: ^modernrpc
         additional_dependencies:
           - django-stubs
+          - lxml-stubs
+          - types-defusedxml
           - types-docutils
-          - types-Markdown
+          - types-markdown
           - types-requests
           - types-simplejson
           - types-xmltodict

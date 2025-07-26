@@ -100,13 +100,13 @@ tests = [
 type-checking = [
     "mypy",
     "django-stubs",
+    "lxml-stubs",
     "types-defusedxml",
     "types-docutils",
     "types-markdown",
     "types-requests",
     "types-simplejson",
     "types-xmltodict",
-    "lxml-stubs",
 ]
 docs = [
     "sphinx >= 8.2; python_version >= '3.11'",
