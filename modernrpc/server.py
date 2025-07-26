@@ -4,12 +4,12 @@ import functools
 import logging
 from typing import TYPE_CHECKING, Callable, Union
 
-import django
 from django.utils.module_loading import import_string
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from modernrpc import Protocol, RpcRequestContext
+from modernrpc.compat import async_csrf_exempt, async_require_POST
 from modernrpc.config import settings
 from modernrpc.constants import NOT_SET, SYSTEM_NAMESPACE_DOTTED_PATH
 from modernrpc.core import ProcedureWrapper
@@ -173,8 +173,8 @@ class RpcServer(RegistryMixin):
 
         :return: A callable view function
         """
-        view = functools.partial(handle_rpc_request, server=self)
-        return csrf_exempt(require_POST(view))
+        view_func = functools.partial(handle_rpc_request, server=self)
+        return csrf_exempt(require_POST(view_func))
 
     @property
     def async_view(self) -> Callable:
@@ -184,12 +184,5 @@ class RpcServer(RegistryMixin):
 
         :return: An awaitable async view function
         """
-        view = functools.partial(handle_rpc_request_async, server=self)
-
-        if django.VERSION < (5, 0):
-            view.csrf_exempt = True  # type: ignore[attr-defined]
-            # FIXME: how to manually prevent other methods than POST on Django < 5.0 ?
-        else:
-            view = csrf_exempt(require_POST(view))
-
-        return view
+        view_func = functools.partial(handle_rpc_request_async, server=self)
+        return async_csrf_exempt(async_require_POST(view_func))

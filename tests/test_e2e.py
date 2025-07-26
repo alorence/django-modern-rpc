@@ -130,6 +130,12 @@ class TestJsonRpc:
 
 
 class TestCommonErrors:
+    @pytest.mark.parametrize("method", ["GET", "HEAD", "OPTIONS", "DELETE", "PATCH", "PUT"])
+    def test_invalid_method(self, live_server, server_path, method):
+        res = requests.request(method, live_server.url + server_path)
+
+        assert res.status_code == HTTPStatus.METHOD_NOT_ALLOWED
+
     def test_no_content_type(self, live_server, server_path):
         res = requests.post(live_server.url + server_path, data="Hello World !", headers={"content-type": ""})
 
