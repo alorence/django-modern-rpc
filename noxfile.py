@@ -57,7 +57,8 @@ def is_combination_supported(py: Python, dj: Django) -> bool:
 
 
 def is_test_enabled_on_cicd(py: Python):
-    return py != Python.v3_14
+    # Use this to filter out some Python version from CICD
+    return True
 
 
 def build_test_matrix():
