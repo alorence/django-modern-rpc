@@ -62,7 +62,7 @@ lxml = ["lxml"]
 "Demo" = "https://modernrpc.onrender.com"
 
 [build-system]
-requires = ["uv_build>=0.8.2,<0.9.0"]
+requires = ["uv_build>=0.8.12,<0.9.0"]
 build-backend = "uv_build"
 
 [tool.uv.build-backend]
@@ -82,11 +82,11 @@ dev = [
     "requests",
     "docutils >= 0.19",
     "markdown >= 3.5",
-    "simplejson>=3.19",
-    "xmltodict>=0.14.1",
-    "lxml>=5.3",
-    "orjson>=3.10",
-    "python-rapidjson>=1.20",
+    "simplejson >= 3.19",
+    "xmltodict >= 0.14.1",
+    "lxml >= 5.3",
+    "orjson >= 3.10",
+    "python-rapidjson >= 1.20",
 ]
 tests = [
     "pytest",
@@ -94,7 +94,7 @@ tests = [
     "pytest-sugar",
     "pytest-cov",
     "pytest-xdist",
-    "pytest-benchmark>=4.0.0",
+    "pytest-benchmark >= 4.0.0",
     "pytest-asyncio",
 ]
 type-checking = [
@@ -109,10 +109,10 @@ type-checking = [
     "types-xmltodict",
 ]
 docs = [
-    "sphinx >= 8.2; python_version >= '3.11'",
     "sphinx >= 6.2; python_version < '3.11'",
-    "sphinx-book-theme >= 1.1.0; python_version >= '3.9'",
+    "sphinx >= 8.2; python_version >= '3.11'",
     "sphinx-book-theme ~= 1.0; python_version < '3.9'",
+    "sphinx-book-theme >= 1.1.0; python_version >= '3.9'",
     "sphinx-autobuild",
     "myst-parser",
     "sphinx-inline-tabs>=2023.4.21",
