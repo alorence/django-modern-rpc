@@ -22,6 +22,7 @@ if TYPE_CHECKING:
 
     from modernrpc.handler import RpcHandler
     from modernrpc.server import RpcServer
+    from modernrpc.types import AuthPredicateType
 
 
 logger = logging.getLogger(__name__)
@@ -49,7 +50,7 @@ class ProcedureWrapper:
         func_or_coro: Callable,
         name: str | None = None,
         protocol: Protocol = Protocol.ALL,
-        auth: Any = NOT_SET,
+        auth: AuthPredicateType = NOT_SET,
         context_target: str | None = None,
     ) -> None:
         # Store the reference to the registered function

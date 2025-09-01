@@ -18,11 +18,10 @@ from modernrpc.helpers import check_flags_compatibility, first_true
 from modernrpc.views import handle_rpc_request, handle_rpc_request_async
 
 if TYPE_CHECKING:
-    from typing import Any
-
     from django.http import HttpRequest
 
     from modernrpc.handler import RpcHandler
+    from modernrpc.types import AuthPredicateType
 
 
 logger = logging.getLogger(__name__)
@@ -31,7 +30,7 @@ RpcErrorHandler = Callable[[BaseException, RpcRequestContext], Union[RPCExceptio
 
 
 class RegistryMixin:
-    def __init__(self, auth: Any = NOT_SET) -> None:
+    def __init__(self, auth: AuthPredicateType = NOT_SET) -> None:
         self._registry: dict[str, ProcedureWrapper] = {}
         self.auth = auth
 
@@ -40,7 +39,7 @@ class RegistryMixin:
         procedure: Callable | None = None,
         name: str | None = None,
         protocol: Protocol = Protocol.ALL,
-        auth: Any = NOT_SET,
+        auth: AuthPredicateType = NOT_SET,
         context_target: str | None = None,
     ) -> Callable:
         """
@@ -100,7 +99,7 @@ class RpcServer(RegistryMixin):
         self,
         register_system_procedures: bool = True,
         supported_protocol: Protocol = Protocol.ALL,
-        auth: Any = NOT_SET,
+        auth: AuthPredicateType = NOT_SET,
         error_handler: RpcErrorHandler | None = None,
     ) -> None:
         super().__init__(auth)

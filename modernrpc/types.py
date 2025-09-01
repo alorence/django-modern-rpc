@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Generic, TypeVar
+from typing import Any, Callable, Generic, Sequence, TypeVar
 
 
 @dataclass
@@ -31,3 +31,8 @@ class RpcErrorResult(RpcResult[RequestType]):
     message: str
     # This field is only dumped to JSON-RPC clients!
     data: Any = None
+
+
+NotSetType = object
+AuthPredicate = Callable[[RpcRequest], bool]
+AuthPredicateType = NotSetType | AuthPredicate | Sequence[AuthPredicate]
