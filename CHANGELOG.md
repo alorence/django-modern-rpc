@@ -37,7 +37,8 @@
 ### Misc
 
   - Added support for Django 5.2
-  - Dropped support of Django 2.2, 3.0 and 3.2
+  - Added support for Python 3.14
+  - Dropped support of Django < 3.2
   - Dropped support of Python 3.7
 
 ## v1.1.0
