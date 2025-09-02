@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Callable, Generic, Sequence, TypeVar
+from typing import Any, Callable, Generic, Sequence, TypeVar, Union
 
 
 @dataclass
@@ -35,4 +35,4 @@ class RpcErrorResult(RpcResult[RequestType]):
 
 NotSetType = object
 AuthPredicate = Callable[[RpcRequest], bool]
-AuthPredicateType = NotSetType | AuthPredicate | Sequence[AuthPredicate]
+AuthPredicateType = Union[NotSetType, AuthPredicate, Sequence[AuthPredicate]]
