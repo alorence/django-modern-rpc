@@ -90,6 +90,8 @@ and declare it in decorator: ``register_procedure(context_target="<arg_name>")``
         return ctx.request.content_type
 
 
+.. _multi-servers-registration:
+
 Multiple servers
 ----------------
 

@@ -5,10 +5,15 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
 import importlib.metadata
+import sys
+from pathlib import Path
 
 from django.conf import settings
 
 settings.configure()
+
+root = Path("..").resolve()
+sys.path.insert(0, str(root))
 
 # -- Project information ------------------------------------------------------
 

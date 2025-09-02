@@ -135,3 +135,26 @@ Notes and best practices
 - Return a meaningful truthy object (e.g., the authenticated user, a claims dict, or a token string) to make it
   usable in your procedures via ctx.auth_result.
 - Precedence: procedure auth > namespace auth > server auth.
+
+Utilities
+---------
+
+Since authentication system has been rewritten from scratch in v2, the decorators previously available to retrieve
+Basic Auth information from request and control the permissions of the corresponding user have been removed.
+
+A new module `modernrpc.auth` contains some utility functions to help you reading authentication from
+request (Basic Auth, Bearer token, etc.).
+
+
+.. automodule:: modernrpc.auth
+   :members:
+   :exclude-members: extract_bearer_token
+
+.. py:function:: modernrpc.auth.extract_bearer_token(request: HttpRequest) -> str
+
+   Extract a Bearer token from a request object. Return the token.
+
+   :param request: HTTP request containing the headers
+   :type request: HttpRequest
+   :return: Token string
+   :rtype: str
