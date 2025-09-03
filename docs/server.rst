@@ -25,8 +25,8 @@ to the request's protocol (JSON-RPC or XML-RPC).
 Protocol restriction
 ^^^^^^^^^^^^^^^^^^^^
 
-Using the ``supported_protocol`` argument, you can make sure a given server will handle only JSON-RPC or XML-RPC requests.
-This can be used to set up protocol-specific servers.
+Using the ``supported_protocol`` argument, you can configure a given server to handle only JSON-RPC or XML-RPC
+requests. This can be used to set up protocol-specific servers.
 
 Default: ``supported_protocol = Protocol.ALL``
 
@@ -67,7 +67,9 @@ Default: ``register_system_procedures = True``
     # server won't register the system.* procedures
 
 .. warning::
-  Disabling the system procedure registration may prevent some clients (in particular, XML-RPC ones) to send request to your server, use at your own risks.
+
+  Disabling the system procedure registration may prevent some clients (in particular, XML-RPC ones) to
+  send request to your server, use at your own risk.
 
 Authentication
 ^^^^^^^^^^^^^^
@@ -206,4 +208,5 @@ You can create multiple server.
     ]
 
 .. warning::
+
   This section needs more detailed explanation & examples

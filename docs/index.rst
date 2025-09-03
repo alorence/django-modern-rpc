@@ -42,12 +42,12 @@ your project, follow other topics in the menu.
    quickstart.rst
    server.rst
    procedure_registration.rst
-   backends.rst
    authentication.rst
    error_handling.rst
+   backends.rst
    security.rst
-   faq.rst
    references.rst
+   faq.rst
    migration_guide.rst
 
 .. toctree::

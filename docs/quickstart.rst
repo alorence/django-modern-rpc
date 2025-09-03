@@ -48,7 +48,7 @@ Create an ``RpcServer`` instance and register your first procedure
         return a + b
 
 Remote procedures are Python functions decorated with the server's ``register_procedure`` decorator.
-Both server and procedure registration can be customized. See ...
+Both server and procedure registration can be customized. See :ref:`Procedures registration`
 
 Serve the procedures
 --------------------
@@ -70,7 +70,7 @@ to this view in your project's ``urls.py``
 The server's view is already configured with CSRF exemption and POST-only restrictions.
 
 Async Support
-^^^^^^^^^^^^
+^^^^^^^^^^^^^
 
 For Django projects using ASGI and async views, you can use the async version of the view:
 
@@ -100,10 +100,10 @@ directly with your favourite HTTP client
 .. code-block:: bash
    :caption: JSON-RPC example
 
-    ~  $ curl -X POST localhost:8000/rpc -H "Content-Type: application/json" -d '{"id": 1, "method": "system.listMethods", "jsonrpc": "2.0"}'
+    ~$ curl -X POST localhost:8000/rpc -H "Content-Type: application/json" -d '{"id": 1, "method": "system.listMethods", "jsonrpc": "2.0"}'
     {"id": 1, "jsonrpc": "2.0", "result": ["add", "system.listMethods", "system.methodHelp", "system.methodSignature"]}
 
-    ~  $ curl -X POST localhost:8000/rpc -H "Content-Type: application/json" -d '{"id": 2, "method": "add", "params": [5, 9], "jsonrpc": "2.0"}'
+    ~$ curl -X POST localhost:8000/rpc -H "Content-Type: application/json" -d '{"id": 2, "method": "add", "params": [5, 9], "jsonrpc": "2.0"}'
     {"id": 2, "jsonrpc": "2.0", "result": 14}
 
 .. code-block:: python

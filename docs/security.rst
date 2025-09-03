@@ -30,7 +30,7 @@ All built-in XML-RPC backends are configured with protections against XXE/DoS:
 - etree backend (xml.etree.ElementTree)
   - Uses defusedxml.ElementTree for parsing and serialization.
   - Forbidden constructs (DTD, entities, external references) raise defusedxml exceptions, which are translated into
-    RPCInsecureRequest.
+  RPCInsecureRequest.
   - Malformed XML raises RPCParseError.
 
 - xmltodict backend
@@ -39,7 +39,7 @@ All built-in XML-RPC backends are configured with protections against XXE/DoS:
 
 - lxml backend
   - Uses a hardened lxml.etree.XMLParser with resolve_entities=False, no_network=True, dtd_validation=False,
-    load_dtd=False, huge_tree=False.
+  load_dtd=False, huge_tree=False.
   - XMLSyntaxError is mapped to RPCParseError.
 
 What you will see on insecure input
