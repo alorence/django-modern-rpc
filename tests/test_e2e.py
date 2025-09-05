@@ -16,12 +16,12 @@ def server_path(request):
 
 @pytest.mark.usefixtures("all_xml_deserializers", "all_xml_serializers")
 class TestXmlRpc:
-    def test_xml_rpc_standard_call(self, live_server, server_path):
+    def test_xmlrpc_standard_call(self, live_server, server_path):
         server = xmlrpc.client.ServerProxy(live_server.url + server_path, verbose=True)
         result = server.math.add(5, 8, 10)
         assert result == 23
 
-    def test_xml_rpc_procedure_exception(self, live_server, server_path):
+    def test_xmlrpc_procedure_exception(self, live_server, server_path):
         server = xmlrpc.client.ServerProxy(live_server.url + server_path, verbose=True)
 
         with pytest.raises(xmlrpc.client.Fault) as exc_info:
@@ -30,7 +30,7 @@ class TestXmlRpc:
         assert exc_info.value.faultCode == RPC_INTERNAL_ERROR
         assert exc_info.value.faultString == "Internal error: division by zero"
 
-    def test_basic_xml_rpc_multicall(self, live_server, server_path):
+    def test_basic_xmlrpc_multicall(self, live_server, server_path):
         server = xmlrpc.client.ServerProxy(live_server.url + server_path, verbose=True)
         multicall = xmlrpc.client.MultiCall(server)
         multicall.math.add(1, 3, 5)
@@ -40,7 +40,7 @@ class TestXmlRpc:
         assert result[0] == 9
         assert result[1] == 97
 
-    def test_xml_rpc_multicall_with_errors(self, live_server, server_path):
+    def test_xmlrpc_multicall_with_errors(self, live_server, server_path):
         server = xmlrpc.client.ServerProxy(live_server.url + server_path, verbose=True)
         multicall = xmlrpc.client.MultiCall(server)
         multicall.math.add(1, 3, 5)
@@ -51,7 +51,7 @@ class TestXmlRpc:
         with pytest.raises(xmlrpc.client.Fault):
             assert result[1]
 
-    def test_xml_rpc_multicall(self, live_server, server_path):
+    def test_xmlrpc_multicall(self, live_server, server_path):
         server = xmlrpc.client.ServerProxy(live_server.url + server_path, verbose=True)
         multicall = xmlrpc.client.MultiCall(server)
         multicall.math.add(1, 3, 5)
@@ -71,7 +71,7 @@ class TestXmlRpc:
 
 @pytest.mark.usefixtures("all_json_deserializers", "all_json_serializers")
 class TestJsonRpc:
-    def test_json_rpc_standard_call(self, live_server, server_path):
+    def test_jsonrpc_standard_call(self, live_server, server_path):
         request = jsonrpcclient.request(method="math.add", params=(5, 8, 10))
         response = requests.post(live_server.url + server_path, json=request)
         data = jsonrpcclient.parse_json(response.text)
@@ -80,14 +80,14 @@ class TestJsonRpc:
         assert isinstance(data, jsonrpcclient.Ok)
         assert data.result == 23
 
-    def test_json_rpc_basic_notification(self, live_server, server_path):
+    def test_jsonrpc_basic_notification(self, live_server, server_path):
         request = jsonrpcclient.notification(method="math.add", params=(5, 8, 10))
         response = requests.post(live_server.url + server_path, json=request)
 
         assert response.status_code == HTTPStatus.NO_CONTENT
         assert response.text == ""
 
-    def test_json_rpc_procedure_exception(self, live_server, server_path):
+    def test_jsonrpc_procedure_exception(self, live_server, server_path):
         request = jsonrpcclient.request(method="math.divide", params=(12, 0))
         response = requests.post(live_server.url + server_path, json=request)
         data = jsonrpcclient.parse_json(response.text)
@@ -97,7 +97,7 @@ class TestJsonRpc:
         assert data.code == RPC_INTERNAL_ERROR
         assert data.message == "Internal error: division by zero"
 
-    def test_json_rpc_batch_call(self, live_server, server_path):
+    def test_jsonrpc_batch_call(self, live_server, server_path):
         reqs = [
             jsonrpcclient.request(method="math.add", params=(5, 8, 10)),
             jsonrpcclient.request(method="math.divide", params=(13.0, 2)),

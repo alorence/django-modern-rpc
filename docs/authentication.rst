@@ -3,8 +3,8 @@
 Authentication
 ==============
 
-.. versionchanged:: 2.0 Authentication system has been completely rewritten in release 2.0.
-   Please carefully read this documentation to understand how the new system works
+.. versionchanged:: 2.0 Authentication system has been completely rewritten. Please carefully read this
+   page to understand how the new system works
 
 Overview
 --------
@@ -88,29 +88,29 @@ Multiple predicates and evaluation order
 
 Auth can be a single callable or any iterable (list/tuple) of callables. They are called in the order you provide.
 The first truthy result short‑circuits evaluation and authorizes the request; if none return a truthy value, an
-AuthenticationError is raised.
+``AuthenticationError`` is raised.
 
 .. code-block:: python
 
    from django.http.request import HttpRequest
 
-   def via_session(request: HttpRequest):
-       return request.user if request.user.is_authenticated else None
-
    def via_token(request: HttpRequest):
        token = request.headers.get("Authorization", "").removeprefix("Bearer ")
        return {"token": token} if token == "valid" else None
 
+   def via_session(request: HttpRequest):
+       return request.user if request.user.is_authenticated else None
+
    server = RpcServer(auth=[via_session, via_token])
 
-In the example above, via_session is tried first, then via_token if needed.
+In the example above, ``via_session`` is tried first, then ``via_token`` if needed.
 
 Accessing the authentication result in procedures
 -------------------------------------------------
 
-When a predicate returns a truthy value, that value is stored in the RpcRequestContext.auth_result. To access it from
-within a procedure, ask the server to inject the context into a named parameter using context_target at registration
-time, then read context.auth_result.
+When a predicate returns a truthy value, that value is stored in ``RpcRequestContext.auth_result``. To access it from
+within a procedure, ask the server to inject the context into a named parameter using ``context_target`` at
+registration, then read ``context.auth_result``.
 
 .. code-block:: python
 
@@ -126,14 +126,14 @@ time, then read context.auth_result.
    def echo_secure(message: str, ctx: RpcRequestContext):
        # ctx is a modernrpc.core.RpcRequestContext
        api_key = ctx.auth_result  # value returned by has_api_key
-       return {"message": message, "who": api_key}
+       return {"message": message, "clear-text-api-key": api_key}
 
 Notes and best practices
 ------------------------
 
 - Predicates should be side‑effect free and fast; they are called on every request of protected procedures.
 - Return a meaningful truthy object (e.g., the authenticated user, a claims dict, or a token string) to make it
-  usable in your procedures via ctx.auth_result.
+  usable in your procedures via ``ctx.auth_result``.
 - Precedence: procedure auth > namespace auth > server auth.
 
 Utilities

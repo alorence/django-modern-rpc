@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import shutil
 from enum import StrEnum
 from pathlib import Path
@@ -21,6 +23,10 @@ class Python(StrEnum):
     v3_9 = "3.9"
     v3_8 = "3.8"
 
+    @property
+    def tag(self):
+        return f"py{self.value.replace('.', '')}"
+
 
 class Django(StrEnum):
     v5_2 = "5.2"
@@ -30,6 +36,10 @@ class Django(StrEnum):
     v4_1 = "4.1"
     v4_0 = "4.0"
     v3_2 = "3.2"
+
+    @property
+    def tag(self):
+        return f"py{self.value.replace('.', '')}"
 
 
 def is_combination_supported(py: Python, dj: Django) -> bool:
@@ -66,11 +76,7 @@ def build_test_matrix():
         for dj in Django:
             if not is_combination_supported(py, dj):
                 continue
-            tags = [
-                "tests",
-                f"py{py.replace('.', '')}",
-                f"dj{dj.replace('.', '')}",
-            ]
+            tags = ["tests", py.tag, dj.tag]
             if is_test_enabled_on_cicd(py):
                 tags.append("cicd-tests")
             session_id = f"Python {py} × Django {dj}"  # noqa: RUF001, RUF003 (disable warning about ambiguous × char)
@@ -91,6 +97,13 @@ def tests(session, python, django):
     session.run("pytest", "-n", "auto", *post_args)
 
 
+@nox.session(name="tests:current-venv", venv_backend="none", default=False)
+def tests_current_venv(session):
+    """Run tests in the current virtualenv only"""
+    post_args = session.posargs or []
+    session.run("uv", "run", "pytest", "-n", "auto", *post_args)
+
+
 @nox.session(name="tests:coverage", venv_backend="none", default=False, tags=["tests"])
 def coverage(session):
     """Run tests and generate a coverage report (in terminal by default, or in format passed as posarg)"""
@@ -109,8 +122,12 @@ def tests_duration(session):
     session.run("uv", "run", "pytest", "--durations=20")
 
 
+bench_ids = [f"Python {py}" for py in Python if is_test_enabled_on_cicd(py)]
+bench_tags = [[py.tag] for py in Python if is_test_enabled_on_cicd(py)]
+
+
 @nox.session(name="benchmarks", venv_backend="uv", default=False, tags=["benchmarks"])
-@nox.parametrize(["python"], [py.value for py in Python if is_test_enabled_on_cicd(py)])
+@nox.parametrize(["python"], bench_ids, tags=bench_tags)
 def benchmarks(session, python):
     """Run benchmarks on all supported Python versions"""
     env = {"UV_PROJECT_ENVIRONMENT": session.virtualenv.location}
@@ -120,7 +137,7 @@ def benchmarks(session, python):
 
 @nox.session(name="benchmarks:current-venv", venv_backend="none", default=False, tags=["benchmarks"])
 def benchmarks_current_venv(session):
-    """Run benchmarks in current virtualenv only"""
+    """Run benchmarks in the current virtualenv only"""
     session.run("uv", "run", "pytest", BENCHMARK_DIR, "--benchmark-enable")
 
 

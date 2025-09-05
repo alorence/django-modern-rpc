@@ -56,5 +56,4 @@ your project, follow other topics in the menu.
    :hidden:
 
    changelog.rst
-   contribute/contribute.rst
-   contribute/setup_environment.rst
+   contribution_guide.rst
