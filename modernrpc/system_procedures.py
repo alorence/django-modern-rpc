@@ -26,6 +26,7 @@ def __system_method_signature(method_name: str, _ctx: RpcRequestContext):
     The result is an array with:
      - Return type as first elements
      - Types of method arguments from element 1 to N
+
     :param method_name: Name of a method available for current entry point (and protocol)
     :param _ctx: Request context for this call
     :return: An array of arrays describing types of return values and method arguments
@@ -57,7 +58,7 @@ def __system_method_help(method_name: str, _ctx: RpcRequestContext):
 if settings.MODERNRPC_XMLRPC_ASYNC_MULTICALL:
 
     @system.register_procedure(name="multicall", protocol=Protocol.XML_RPC, context_target="_ctx")
-    async def __system_multi_call(calls: list, _ctx: RpcRequestContext):
+    async def __system_multicall(calls: list, _ctx: RpcRequestContext):
         """
         Call multiple RPC methods at once, using asyncio.gather().
 
@@ -80,7 +81,7 @@ if settings.MODERNRPC_XMLRPC_ASYNC_MULTICALL:
 else:
 
     @system.register_procedure(name="multicall", protocol=Protocol.XML_RPC, context_target="_ctx")
-    def __system_multi_call(calls: list, _ctx: RpcRequestContext):
+    def __system_multicall(calls: list, _ctx: RpcRequestContext):
         """
         Call multiple RPC methods at once.
 

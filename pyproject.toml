@@ -115,8 +115,9 @@ docs = [
     "sphinx-book-theme ~= 1.0; python_version < '3.9'",
     "sphinx-book-theme >= 1.1.0; python_version >= '3.9'",
     "sphinx-autobuild",
-    "myst-parser",
+    "sphinx-design>=0.5.0",
     "sphinx-inline-tabs>=2023.4.21",
+    "myst-parser",
 ]
 
 

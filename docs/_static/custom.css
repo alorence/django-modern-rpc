@@ -25,3 +25,11 @@ html[data-theme=dark] main.bd-main img.permalink-icon {
     filter: invert(88%) sepia(34%) saturate(17%) hue-rotate(217deg) brightness(95%) contrast(101%);
     background: transparent;
 }
+
+html[data-theme=light] h4 {
+    color: #595858;
+}
+
+html[data-theme=dark] h4 {
+    color: #b2b0a9;
+}

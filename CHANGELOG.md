@@ -406,8 +406,8 @@ please read carefully.
 ### API Changes
 
   - New unified way to register methods. Documentation in progress
-  - XMl-RPC handler will now correctly serialize and unserialize None values by default. This behavior can be configured
-  using `MODERNRPC_XMLRPC_ALLOW_NONE` setting.
+  - XML-RPC handler will now correctly serialize and deserialize None values by default. This behavior can
+  be configured using `MODERNRPC_XMLRPC_ALLOW_NONE` setting.
 
 ### Fixes
 

@@ -1,127 +1,73 @@
-========
 Settings
 ========
 
-Django-modern-rpc behavior can be customized by defining some values in project's ``settings.py``.
+This page list all settings that can be used to customize django-modern-rpc's behavior. Set it inside you
+project's ``settings.py``.
 
-Basic settings
-==============
+Global settings
+---------------
 
-MODERNRPC_METHODS_MODULES
--------------------------
+MODERNRPC_DEFAULT_ENCODING
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:Required:  Yes
-:Default:   ``[]`` (Empty list)
+Default encoding used to parse incoming requests when no charsed is set in request headers.
 
-Define the list of python modules containing RPC methods. You must set this list with at least one module.
-At startup, the list is looked up to register all python functions decorated with ``@rpc_method``.
-
-MODERNRPC_LOG_EXCEPTIONS
-------------------------
-
-:Required:  No
-:Default:   ``True``
-
-Set to ``False`` if you want to disable logging on exception catching
-
-MODERNRPC_REGISTER_SYSTEM_PROCEDURES
------------------------------------
-
-:Required:  No
-:Default:   ``True``
-
-Set to ``False`` if you want to disable automatic registration of system procedures. By default, the RPC server
-automatically registers system procedures (under the "system" namespace) that provide introspection capabilities.
-If you don't need these procedures, you can disable them by setting this to ``False``.
+:Default:   ``utf-8``
 
 MODERNRPC_DOC_FORMAT
---------------------
-
-:Required:  No
-:Default:   ``""`` (Empty string)
+^^^^^^^^^^^^^^^^^^^^
 
 Configure the format of the docstring used to document your RPC methods.
+Possible values are: ``""`` (empty string), ``rst`` or ``markdown``.
 
-Possible values are: ``""``, ``rst`` or ``markdown``.
+:Default:   ``""`` (Empty string)
 
 .. note::
-    The corresponding package is not automatically installed. You have to ensure library `markdown` or `docutils` is
-    installed in your environment if set to a non-empty value
+   The corresponding package is not automatically installed. You have to ensure library `markdown` or `docutils` is
+   installed in your environment if set to a non-empty value.
+
+MODERNRPC_XMLRPC_ASYNC_MULTICALL
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Default encoding used to parse incoming requests when no charset is set in request headers.
+
+:Default:   ``False``
 
 MODERNRPC_HANDLERS
-------------------
+^^^^^^^^^^^^^^^^^^
 
-:Required:  No
-:Default:   ``['modernrpc.handlers.JSONRPCHandler', 'modernrpc.handlers.XMLRPCHandler']``
+List of handler classes used by default in ``RpcServer`` instances. If you overriden a handler class, you may need
+to specify its dotted path here to use it automatically.
 
-List of handler classes used by default in any ``RPCEntryPoint`` instance. If you defined your custom handler for any
-protocol, you can replace the default class used
+:Default:   ``["modernrpc.jsonrpc.handler.JsonRpcHandler", "modernrpc.handlers.XMLRPCHandler"]``
 
-MODERNRPC_DEFAULT_ENTRYPOINT_NAME
----------------------------------
 
-:Required:  No
-:Default:   ``"__default_entry_point__"``
-
-Default name used for anonymous ``RPCEntryPoint``
-
-Protocol specific
-=================
-You can configure how JSON-RPC handler will serialize and deserialize data:
-
-MODERNRPC_JSON_DECODER
+Backends customization
 ----------------------
 
-:Required:  No
-:Default:   ``"json.decoder.JSONDecoder"``
+Each protocol (XML-RPC & JSON-RPC) can be configured with a specific backend for both deserialization (parsing of
+incoming request) and serialization (dumping outgoing response).
 
-Decoder class used to convert JSON data to python values.
+For each setting, a dict is defined with ``class`` and ``kwargs`` keys to set the dotted path of the class to
+instantiate and a dictionary passed to the class when instantiating. Valid `kwargs` depend on the selected `class`.
+Refer to :ref:`Backends` to get a list of all valid arguments for each backend.
 
-MODERNRPC_JSON_ENCODER
-----------------------
+MODERNRPC_XML_DESERIALIZER
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:Required:  No
-:Default:   ``"django.core.serializers.json.DjangoJSONEncoder"``
+:Default:   ``{"class": "modernrpc.xmlrpc.backends.xmlrpc.PythonXmlRpcBackend", "kwargs": {}}``
 
-Encoder class used to convert python values to JSON data. Internally, modernrpc uses the default `Django JSON encoder`_,
-which improves the builtin python encoder by adding support for additional types (DateTime, UUID, etc.).
+MODERNRPC_XML_SERIALIZER
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. _Django JSON encoder: https://docs.djangoproject.com/en/dev/topics/serialization/#djangojsonencoder
+:Default:   ``{"class": "modernrpc.xmlrpc.backends.xmlrpc.PythonXmlRpcBackend", "kwargs": {}}``
 
-MODERNRPC_XMLRPC_USE_BUILTIN_TYPES
-----------------------------------
+MODERNRPC_JSON_DESERIALIZER
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:Required:  No
-:Default:   ``True``
+:Default:   ``{"class": "modernrpc.jsonrpc.backends.json.PythonJsonBackend", "kwargs": {}}``
 
-Control how builtin types are handled by XML-RPC serializer and deserializer. If set to True (default), dates will be
-converted to ``datetime.datetime`` by XML-RPC deserializer. If set to False, dates will be converted to
-`XML-RPC DateTime`_ instances (or `equivalent`_ for Python 2).
+MODERNRPC_JSON_SERIALIZER
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This setting will be passed directly to `ServerProxy`_ instantiation.
-
-.. _XML-RPC DateTime: https://docs.python.org/3/library/xmlrpc.client.html#datetime-objects
-.. _equivalent: https://docs.python.org/2/library/xmlrpclib.html#datetime-objects
-.. _ServerProxy: https://docs.python.org/3/library/xmlrpc.client.html#xmlrpc.client.ServerProxy
-
-MODERNRPC_XMLRPC_ALLOW_NONE
----------------------------
-
-:Required:  No
-:Default:   ``True``
-
-Control how XML-RPC serializer will handle None values. If set to True (default), None values will be converted to
-`<nil>`. If set to False, the serializer will raise a ``TypeError`` when encountering a `None` value.
-
-MODERNRPC_XMLRPC_DEFAULT_ENCODING
----------------------------------
-
-:Required:  No
-:Default:   ``None``
-
-Configure the default encoding used by XML-RPC serializer.
-
-MODERNRPC_XML_USE_BUILTIN_TYPES
--------------------------------
-
-Deprecated. Define ``MODERNRPC_XMLRPC_USE_BUILTIN_TYPES`` instead.
+:Default:   ``{"class": "modernrpc.jsonrpc.backends.json.PythonJsonBackend", "kwargs": {}}``

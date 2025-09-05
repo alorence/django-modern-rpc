@@ -6,10 +6,7 @@ Server
 
 The ``RpcServer`` class is the central component that handles remote procedure calls.
 
-Default configuration
-^^^^^^^^^^^^^^^^^^^^^
-
-A default ``RpcServer`` instance will handle any RPC request it receives
+At least one instance must be created.
 
 .. code-block:: python
    :caption: myproject/myapp/rpc.py
@@ -18,9 +15,30 @@ A default ``RpcServer`` instance will handle any RPC request it receives
 
     server = RpcServer()
 
-All requests to ``http://yourwebsite/rpc/`` will be routed to the server's view. They will be inspected and
-parsed to be interpreted as RPC calls. The result of procedure calls will be encapsulated into a response according
-to the request's protocol (JSON-RPC or XML-RPC).
+A server instance expose a view that must be added to the Django routing system
+
+.. code-block:: python
+   :caption: myproject/myproject/urls.py
+
+    from django.urls import path
+    from myapp.rpc import server
+
+    urlpatterns = [
+        # ... other url patterns
+        path('rpc/', server.view),  # Synchronous view
+    ]
+
+Then, all requests to ``http://yourwebsite/rpc/`` will be routed to the server's view. They will be inspected and
+parsed to be interpreted as RPC calls.
+
+If a `POST` request have a correct `Content-Type` header and a well formed body, it will be handled by the right
+XML-RPC or JSON-RPC backend. The result of procedure calls will be encapsulated into a well-formed response, according
+to the request protocol (XML or JSON-RPC)
+
+.. note:: You are free to choose the path that will be used to handle your remote procedure calls, but ``/rpc`` or
+   ``/RPC2`` are the moste commonly used paths (example in `xmlrpc.server docs`_)
+
+.. _xmlrpc.server docs: https://docs.python.org/fr/3/library/xmlrpc.server.html#simplexmlrpcserver-example
 
 Protocol restriction
 ^^^^^^^^^^^^^^^^^^^^
@@ -53,7 +71,20 @@ Default: ``supported_protocol = Protocol.ALL``
 System procedures
 ^^^^^^^^^^^^^^^^^
 
-Using the ``register_system_procedures`` argument, you can disable the automatic registration of :ref:`system procedures<sys-procedures-ref>`.
+By default, 3 introspection procedures (+ 1 multicall procedure, only for XML-RPC requests) are registered by a server,
+under the namespace ``system``. See :ref:`Introspection procedures` for history and  protocol specific details, as
+well as :ref:`Introspection procedures & multicall` for JSON-RPC specific implementation.
+
+
+.. automodule:: modernrpc.system_procedures
+   :private-members: __system_list_methods, __system_method_signature, __system_method_help, __system_multicall
+
+.. note:: `system.multicall` builtin method is registered as synchronous version by default. In this version, each
+   procedure is executed sequentially. If you want to opt-in for the asynchronous version (procedures executed
+   concurently using ``asyncio.gather()``, set ``settings.MODERNRPC_XMLRPC_ASYNC_MULTICALL = True``.
+
+
+Using the ``register_system_procedures`` argument, you can completely disable their automatic registration.
 
 Default: ``register_system_procedures = True``
 
@@ -120,7 +151,8 @@ To create a namespace, instantiate the ``RpcNamespace`` class:
 Registering procedures to a namespace
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-You can register procedures to a namespace using the ``register_procedure`` method, similar to how you would with an ``RpcServer``:
+You can register procedures to a namespace using the ``register_procedure`` method, similar to how you
+would with an ``RpcServer``:
 
 .. code-block:: python
    :caption: myapp/math.py
@@ -147,7 +179,8 @@ To make the procedures in a namespace available through your RPC server, registe
     server = RpcServer()
     server.register_namespace(math, "math")
 
-This will make the procedures available with the prefix "math.", so clients can call them as "math.add" and "math.subtract".
+This will make the procedures available under the prefix "math.", so clients can call
+them as `math.add` and `math.subtract`.
 
 If you don't provide a name when registering a namespace, the procedures will be registered without a prefix:
 
@@ -207,6 +240,13 @@ You can create multiple server.
        path('api/v2/', api_v2.view),
     ]
 
-.. warning::
+When multiple servers are defined, each server can register its own procedures. This is useful to have different
+functions performing the same task under the same name, but from a different path (a.k.a multiple API versions).
 
-  This section needs more detailed explanation & examples
+If needed, a procedure can be registered into multiple servers. This can be used to avoid code duplication when a
+specific procedure should run the same code for different paths.
+
+Async view
+----------
+
+By default, a server ...
