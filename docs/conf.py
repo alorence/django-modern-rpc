@@ -40,6 +40,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
     "sphinx.ext.autodoc",
+    "sphinx.ext.todo",
     "sphinx.ext.autosectionlabel",
     "myst_parser",
     "sphinx_inline_tabs",
@@ -56,6 +57,8 @@ exclude_patterns = [
 
 # Suppress warnings about duplicated labels
 suppress_warnings = ["autosectionlabel.*"]
+# Enable todos blocks
+todo_include_todos = True
 
 # -- Options for HTML output --------------------------------------------------
 
@@ -71,9 +74,7 @@ html_static_path = ["_static"]
 # -- Theme options ------------------------------------------------------------
 html_title = "django-modern-rpc"
 html_css_files = ["custom.css"]
-templates_path = [
-    "_templates",
-]
+templates_path = ["_templates"]
 html_permalinks_icon = '<img src="/_static/permalink.svg" class="permalink-icon"/>'
 # All (**) pages will have 1 more sidebar content (donation.html) after the default one (sbt-sidebar-nav.html)
 # See https://sphinx-book-theme.readthedocs.io/en/stable/sections/sidebar-primary.html
@@ -90,7 +91,11 @@ html_theme_options = {
     "analytics": {
         "google_analytics_id": "G-7KF8EXTF4W",
     },
-    "announcement": None,
+    "announcement": (
+        "⚠️ This documentation is only applicable to the upcoming v2, currently in "
+        "alpha. If you installed a stable version of django-modern-rpc, please refer "
+        'to <a href="https://django-modern-rpc.readthedocs.io/v1.1.0/">this page.</a>.'
+    ),
     "icon_links": [],
 }
 

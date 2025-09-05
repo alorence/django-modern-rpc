@@ -101,7 +101,7 @@ commands:
    # Display duration of 20 slowest tests
    uv run pytest --durations=20
 
-Alternatively, use ``nox``:
+Alternatively, use :command:`nox`:
 
 .. code-block:: bash
 
@@ -164,7 +164,7 @@ pytest-cov_ and coverage_ are used to compute code coverage analytics. To get it
    # Custom output type (see https://pytest-cov.readthedocs.io/en/latest/reporting.html#reporting)
    uv run pytest --cov --cov-report term-missing
 
-Alternatively, use ``nox``:
+Alternatively, use :command:`nox`:
 
 .. code-block:: bash
 
@@ -186,7 +186,7 @@ By default, benchmarks are disabled by ``addopts`` in ``pyproject.toml``. To run
 
    uv run pytest tests/benchmarks --benchmark-enable
 
-Alternatively, use ``nox``:
+Alternatively, use :command:`nox`:
 
 .. code-block:: bash
 
@@ -219,7 +219,7 @@ This project uses Ruff_ for linting and formatting
    # Formatting
    uv run ruff format .
 
-Alternatively, use ``nox``:
+Alternatively, use :command:`nox`:
 
 .. code-block:: bash
 
@@ -236,7 +236,7 @@ Type checking
 -------------
 
 .. important:: The requirements to use type checker are not installed by default. Make sure you ran
-   ``uv sync --group type-checking`` if you want to run it directly with ``uv run``. Nox task will do it automatically
+   :command:`uv sync --group type-checking` if you want to run it directly with :command:`uv run`. Nox task will do it automatically
 
 .. _Mypy: https://mypy.readthedocs.io
 
@@ -246,7 +246,7 @@ This project uses Mypy_ to check type hints consistency
 
    uv run mypy .
 
-Alternatively, use ``nox``:
+Alternatively, use :command:`nox`:
 
 .. code-block:: bash
 
@@ -278,5 +278,5 @@ is served through a minimal HTTP server from ``http://localhost:8001``
 
    nox -s docs:serve
 
-.. important:: The requirements to build docs are not installed by default. Make sure you ran ``uv sync --group docs``
-   if you want to use them directy with ``uv run``.
+.. important:: The requirements to build docs are not installed by default. Make sure you
+   ran :command:`uv sync --group docs` if you want to use them directy with :command:`uv run`.

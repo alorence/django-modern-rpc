@@ -1,5 +1,5 @@
-Protocols specifications
-========================
+Protocols references
+====================
 
 XML-RPC
 -------

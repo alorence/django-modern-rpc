@@ -143,10 +143,26 @@ deserialization and serialization of XML-RPC requests and responses.
 **PROS**
 
 - no dependency required
+- secure parsing via defusedxml protections enabled by default
 
 **CONS**
 
 - may be slower
+
+etree (xml.etree.ElementTree)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Uses Python’s standard library ``xml.etree.ElementTree`` (through defusedxml wrappers) to parse and build XML-RPC
+messages. Can be used as both serializer and deserializer.
+
+**PROS**
+
+- no additional dependency required (stdlib)
+- secure parsing via defusedxml protections enabled by default
+
+**CONS**
+
+- may be slower and less feature-rich than lxml for large or complex XML
 
 xmltodict
 ^^^^^^^^^
@@ -181,21 +197,6 @@ To use it, ``xmltodict`` must be installed in the current environment. An extra 
 **CONS**
 
 - requires an additional dependency
-
-etree (xml.etree.ElementTree)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Uses Python’s standard library ``xml.etree.ElementTree`` (through defusedxml wrappers) to parse and build XML-RPC
-messages. Can be used as both serializer and deserializer.
-
-**PROS**
-
-- no additional dependency required (stdlib)
-- secure parsing via defusedxml protections enabled by default
-
-**CONS**
-
-- may be slower and less feature-rich than lxml for large or complex XML
 
 lxml
 ^^^^
