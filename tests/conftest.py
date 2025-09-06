@@ -108,7 +108,7 @@ def json_serializer(request) -> JsonRpcSerializer:
     return request.param()
 
 
-# The next 4 fixtures can be requested with "usefixtures" mark at class or function level to ensure that
+# The next 4 fixtures can be requested with the "usefixtures" mark at class or function level to ensure that
 # tests ran against live_server will be executed with all combinations. See 'test_e2e.py' for an example
 @pytest.fixture(params=XML_DESERIALIZERS_CLASSES)
 def all_xml_deserializers(settings, request):

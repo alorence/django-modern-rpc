@@ -15,10 +15,10 @@ from modernrpc.config import settings
 from modernrpc.constants import NOT_SET
 from modernrpc.exceptions import RPCException
 from modernrpc.handler import RpcHandler
-from modernrpc.types import RpcErrorResult, RpcRequest, RpcSuccessResult
+from modernrpc.types import DictStrAny, RpcErrorResult, RpcRequest, RpcSuccessResult
 
 if TYPE_CHECKING:
-    from typing import Any, ClassVar, Generator
+    from typing import ClassVar, Generator
 
     from modernrpc import RpcRequestContext
     from modernrpc.jsonrpc.backends import JsonRpcDeserializer, JsonRpcSerializer
@@ -32,7 +32,7 @@ class JsonRpcRequest(RpcRequest):
     JSON-RPC request specific data
     """
 
-    kwargs: dict[str, Any] = field(default_factory=dict)
+    kwargs: DictStrAny = field(default_factory=dict)
     request_id: RequestIdType | object = NOT_SET
     jsonrpc: str = "2.0"
 
@@ -57,12 +57,14 @@ class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
     error_result_type = JsonRpcErrorResult
 
     def __init__(self) -> None:
-        deserializer_klass: type[JsonRpcDeserializer] = import_string(settings.MODERNRPC_JSON_DESERIALIZER["class"])
-        deserializer_init_kwargs: dict[str, Any] = settings.MODERNRPC_JSON_DESERIALIZER.get("kwargs", {})
+        deserializer_config = settings.MODERNRPC_JSON_DESERIALIZER
+        deserializer_klass: type[JsonRpcDeserializer] = import_string(deserializer_config["class"])
+        deserializer_init_kwargs: DictStrAny = deserializer_config.get("kwargs", {})
         self.deserializer: JsonRpcDeserializer = deserializer_klass(**deserializer_init_kwargs)
 
-        serializer_klass: type[JsonRpcSerializer] = import_string(settings.MODERNRPC_JSON_SERIALIZER["class"])
-        serializer_init_kwargs: dict[str, Any] = settings.MODERNRPC_JSON_SERIALIZER.get("kwargs", {})
+        serializer_config = settings.MODERNRPC_JSON_SERIALIZER
+        serializer_klass: type[JsonRpcSerializer] = import_string(serializer_config["class"])
+        serializer_init_kwargs: DictStrAny = serializer_config.get("kwargs", {})
         self.serializer: JsonRpcSerializer = serializer_klass(**serializer_init_kwargs)
 
     def process_request(self, request_body: str, context: RpcRequestContext) -> str | tuple[HTTPStatus, str]:

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from functools import cached_property
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from xml.etree.ElementTree import Element, SubElement
 
 import defusedxml
@@ -11,13 +11,14 @@ from modernrpc.exceptions import RPCInsecureRequest, RPCInvalidRequest, RPCMarsh
 from modernrpc.xmlrpc.backends.marshalling import EtreeElementMarshaller, EtreeElementUnmarshaller
 
 if TYPE_CHECKING:
+    from modernrpc.types import CustomKwargs
     from modernrpc.xmlrpc.handler import XmlRpcRequest, XmlRpcResult
 
 
 class EtreeBackend:
     """xml-rpc serializer and deserializer based on python builtin module xml.etree"""
 
-    def __init__(self, load_kwargs: dict[str, Any] | None = None, dump_kwargs: dict[str, Any] | None = None):
+    def __init__(self, load_kwargs: CustomKwargs = None, dump_kwargs: CustomKwargs = None):
         self.load_kwargs = load_kwargs or {}
         self.dump_kwargs = dump_kwargs or {}
 

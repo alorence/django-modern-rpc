@@ -7,7 +7,7 @@ from typing import Any, Callable, Generic, Iterable, Protocol, TypeVar
 
 from modernrpc.exceptions import RPCInvalidRequest
 from modernrpc.helpers import first
-from modernrpc.types import RpcErrorResult
+from modernrpc.types import DictStrAny, RpcErrorResult
 from modernrpc.xmlrpc.backends.constants import MAXINT, MININT
 from modernrpc.xmlrpc.handler import XmlRpcRequest, XmlRpcResult
 
@@ -128,7 +128,7 @@ class EtreeElementUnmarshaller(Generic[ElementType]):
     def load_array(self, elt: ElementType) -> list[Any]:
         return [self.dispatch(value_elt) for value_elt in elt.findall("./data/value")]
 
-    def load_struct(self, elt: ElementType) -> dict[str, Any]:
+    def load_struct(self, elt: ElementType) -> DictStrAny:
         member_names_and_values = [self.load_struct_member(member) for member in elt.findall("./member")]
         return dict(member_names_and_values)
 

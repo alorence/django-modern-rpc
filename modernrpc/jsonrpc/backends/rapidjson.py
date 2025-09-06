@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Iterable
+from typing import TYPE_CHECKING, Iterable
 
 import rapidjson
 from rapidjson import JSONDecodeError
@@ -13,12 +13,13 @@ from modernrpc.jsonrpc.backends.marshalling import Marshaller, Unmarshaller
 
 if TYPE_CHECKING:
     from modernrpc.jsonrpc.handler import JsonRpcRequest, JsonRpcResult
+    from modernrpc.types import CustomKwargs, DictStrAny
 
 
 class RapidJsonBackend:
     """json-rpc serializer and deserializer based on the third-party simplejson library"""
 
-    def __init__(self, load_kwargs: dict[str, Any] | None = None, dump_kwargs: dict[str, Any] | None = None):
+    def __init__(self, load_kwargs: CustomKwargs = None, dump_kwargs: CustomKwargs = None):
         self.load_kwargs = load_kwargs or {}
         self.dump_kwargs = dump_kwargs or {}
 
@@ -32,7 +33,7 @@ class RapidJsonBackend:
 
     def loads(self, data: str) -> JsonRpcRequest | list[JsonRpcRequest]:
         try:
-            structured_data: list[dict] | dict[str, Any] = rapidjson.loads(data, **self.load_kwargs)
+            structured_data: list[DictStrAny] | DictStrAny = rapidjson.loads(data, **self.load_kwargs)
         except JSONDecodeError as exc:
             raise RPCParseError(str(exc), data=exc) from exc
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Union
 
 from django.utils.module_loading import import_string
@@ -11,10 +12,10 @@ from modernrpc import Protocol
 from modernrpc.config import settings
 from modernrpc.exceptions import RPCException
 from modernrpc.handler import RpcHandler
-from modernrpc.types import RpcErrorResult, RpcRequest, RpcSuccessResult
+from modernrpc.types import DictStrAny, RpcErrorResult, RpcRequest, RpcSuccessResult
 
 if TYPE_CHECKING:
-    from typing import Any, ClassVar
+    from typing import ClassVar
 
     from modernrpc import RpcRequestContext
     from modernrpc.xmlrpc.backends import XmlRpcDeserializer, XmlRpcSerializer
@@ -22,6 +23,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+@dataclass
 class XmlRpcRequest(RpcRequest): ...
 
 
@@ -40,12 +42,14 @@ class XmlRpcHandler(RpcHandler[XmlRpcRequest]):
     error_result_type = XmlRpcErrorResult
 
     def __init__(self) -> None:
-        deserializer_klass: type[XmlRpcDeserializer] = import_string(settings.MODERNRPC_XML_DESERIALIZER["class"])
-        deserializer_init_kwargs: dict[str, Any] = settings.MODERNRPC_XML_DESERIALIZER.get("kwargs", {})
+        deserializer_config = settings.MODERNRPC_XML_DESERIALIZER
+        deserializer_klass: type[XmlRpcDeserializer] = import_string(deserializer_config["class"])
+        deserializer_init_kwargs: DictStrAny = deserializer_config.get("kwargs", {})
         self.deserializer: XmlRpcDeserializer = deserializer_klass(**deserializer_init_kwargs)
 
-        serializer_klass: type[XmlRpcSerializer] = import_string(settings.MODERNRPC_XML_SERIALIZER["class"])
-        serializer_init_kwargs: dict[str, Any] = settings.MODERNRPC_XML_SERIALIZER.get("kwargs", {})
+        serializer_config = settings.MODERNRPC_XML_SERIALIZER
+        serializer_klass: type[XmlRpcSerializer] = import_string(serializer_config["class"])
+        serializer_init_kwargs: DictStrAny = serializer_config.get("kwargs", {})
         self.serializer: XmlRpcSerializer = serializer_klass(**serializer_init_kwargs)
 
     def process_request(self, request_body: str, context: RpcRequestContext) -> str:

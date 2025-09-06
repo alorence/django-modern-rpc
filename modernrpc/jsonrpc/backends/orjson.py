@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import warnings
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Iterable
+from typing import TYPE_CHECKING, Iterable
 
 import orjson
 
@@ -13,12 +13,13 @@ from modernrpc.jsonrpc.backends.marshalling import Marshaller, Unmarshaller
 
 if TYPE_CHECKING:
     from modernrpc.jsonrpc.handler import JsonRpcRequest, JsonRpcResult
+    from modernrpc.types import CustomKwargs, DictStrAny
 
 
 class OrjsonBackend:
     """json-rpc serializer and deserializer based on the third-party orjson library"""
 
-    def __init__(self, load_kwargs: dict[str, Any] | None = None, dump_kwargs: dict[str, Any] | None = None):
+    def __init__(self, load_kwargs: CustomKwargs = None, dump_kwargs: CustomKwargs = None):
         if load_kwargs:
             warnings.warn(
                 message="OrJSON backend does not support 'load_kwargs' argument, it will be ignored.",
@@ -38,7 +39,7 @@ class OrjsonBackend:
 
     def loads(self, data: str) -> JsonRpcRequest | list[JsonRpcRequest]:
         try:
-            structured_data: list[dict] | dict[str, Any] = orjson.loads(data)
+            structured_data: list[DictStrAny] | DictStrAny = orjson.loads(data)
         except orjson.JSONDecodeError as exc:
             raise RPCParseError(exc.msg, data=exc) from exc
 

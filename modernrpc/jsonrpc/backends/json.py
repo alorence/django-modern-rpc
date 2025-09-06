@@ -5,19 +5,20 @@ from __future__ import annotations
 import json
 from functools import cached_property
 from json import JSONDecodeError
-from typing import TYPE_CHECKING, Any, Iterable
+from typing import TYPE_CHECKING, Iterable
 
 from modernrpc.exceptions import RPCMarshallingError, RPCParseError
 from modernrpc.jsonrpc.backends.marshalling import Marshaller, Unmarshaller
 
 if TYPE_CHECKING:
     from modernrpc.jsonrpc.handler import JsonRpcRequest, JsonRpcResult
+    from modernrpc.types import CustomKwargs, DictStrAny
 
 
 class PythonJsonBackend:
     """json-rpc serializer and deserializer based on python builtin json module"""
 
-    def __init__(self, load_kwargs: dict[str, Any] | None = None, dump_kwargs: dict[str, Any] | None = None):
+    def __init__(self, load_kwargs: CustomKwargs = None, dump_kwargs: CustomKwargs = None):
         self.load_kwargs = load_kwargs or {}
         self.dump_kwargs = dump_kwargs or {}
 
@@ -31,7 +32,7 @@ class PythonJsonBackend:
 
     def loads(self, data: str) -> JsonRpcRequest | list[JsonRpcRequest]:
         try:
-            structured_data: list[dict] | dict[str, Any] = json.loads(data, **self.load_kwargs)
+            structured_data: list[DictStrAny] | DictStrAny = json.loads(data, **self.load_kwargs)
         except JSONDecodeError as exc:
             raise RPCParseError(exc.msg, data=exc) from exc
 

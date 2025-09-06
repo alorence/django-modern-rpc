@@ -25,6 +25,8 @@ from modernrpc.xmlrpc.backends.xmltodict import XmlToDictBackend
 if TYPE_CHECKING:
     from django.http import HttpResponse
 
+    from modernrpc.types import DictStrAny
+
 ALL_PROTOCOLS = [Protocol.XML_RPC, Protocol.JSON_RPC]
 # List all backends supported in tests for deserialization (data to request object) and
 # serialization (result to response data). These constants will be used to define some parametrized fixtures
@@ -39,7 +41,7 @@ def build_xml_rpc_request_data(method="dummy", params=()) -> str:
     return xmlrpc.client.dumps(methodname=method, params=tuple(params))
 
 
-def build_json_rpc_request_data(method="dummy", params=(), is_notification=False, req_id=None) -> dict[str, Any]:
+def build_json_rpc_request_data(method="dummy", params=(), is_notification=False, req_id=None) -> DictStrAny:
     if params:
         params = ensure_sequence(params)
     if is_notification:

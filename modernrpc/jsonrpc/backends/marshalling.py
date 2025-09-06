@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Iterable, overload
 
 from modernrpc.exceptions import RPCInvalidRequest
 from modernrpc.jsonrpc.handler import JsonRpcRequest
-from modernrpc.types import RpcErrorResult
+from modernrpc.types import DictStrAny, RpcErrorResult
 
 try:
     # types.NoneType is available only with Python 3.10+
@@ -15,14 +15,12 @@ except ImportError:
     NoneType = type(None)  # type: ignore[misc]
 
 if TYPE_CHECKING:
-    from typing import Any
-
     from modernrpc.jsonrpc.handler import JsonRpcResult
 
 
 class Unmarshaller:
     @staticmethod
-    def validate_dict_request(request_data: dict[str, Any]) -> None:
+    def validate_dict_request(request_data: DictStrAny) -> None:
         if "method" not in request_data:
             raise RPCInvalidRequest("Unable to find method name", data=request_data)
 
@@ -44,14 +42,12 @@ class Unmarshaller:
             )
 
     @overload
-    def dict_to_request(self, structured_data: dict[str, Any]) -> JsonRpcRequest: ...
+    def dict_to_request(self, structured_data: DictStrAny) -> JsonRpcRequest: ...
 
     @overload
-    def dict_to_request(self, structured_data: list[dict[str, Any]]) -> list[JsonRpcRequest]: ...
+    def dict_to_request(self, structured_data: list[DictStrAny]) -> list[JsonRpcRequest]: ...
 
-    def dict_to_request(
-        self, structured_data: dict[str, Any] | list[dict[str, Any]]
-    ) -> JsonRpcRequest | list[JsonRpcRequest]:
+    def dict_to_request(self, structured_data: DictStrAny | list[DictStrAny]) -> JsonRpcRequest | list[JsonRpcRequest]:
         if isinstance(structured_data, list):
             return [self.dict_to_request(data) for data in structured_data]
 
@@ -81,14 +77,14 @@ class Unmarshaller:
 
 class Marshaller:
     @overload
-    def result_to_dict(self, result: JsonRpcResult) -> dict[str, Any] | None: ...
+    def result_to_dict(self, result: JsonRpcResult) -> DictStrAny | None: ...
 
     @overload
-    def result_to_dict(self, result: Iterable[JsonRpcResult]) -> list[dict[str, Any] | None]: ...
+    def result_to_dict(self, result: Iterable[JsonRpcResult]) -> list[DictStrAny | None]: ...
 
     def result_to_dict(
         self, result: JsonRpcResult | Iterable[JsonRpcResult]
-    ) -> dict[str, Any] | None | list[dict[str, Any] | None]:
+    ) -> DictStrAny | None | list[DictStrAny | None]:
         if isinstance(result, Iterable):
             return [self.result_to_dict(r) for r in result]
 
@@ -101,7 +97,7 @@ class Marshaller:
         }
 
         if isinstance(result, RpcErrorResult):
-            response_payload: dict[str, Any] = {
+            response_payload: DictStrAny = {
                 **base_result,
                 "error": {
                     "code": result.code,

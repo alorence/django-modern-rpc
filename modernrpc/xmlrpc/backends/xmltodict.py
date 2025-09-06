@@ -7,6 +7,7 @@ import xml.parsers.expat
 from collections import OrderedDict
 from datetime import datetime
 from functools import cached_property
+from io import StringIO
 from typing import TYPE_CHECKING, Any, Callable, Literal, Sequence
 
 import defusedxml.ElementTree
@@ -14,7 +15,7 @@ import xmltodict
 
 from modernrpc.exceptions import RPCInsecureRequest, RPCInvalidRequest, RPCMarshallingError, RPCParseError
 from modernrpc.helpers import ensure_sequence, first
-from modernrpc.types import RpcErrorResult
+from modernrpc.types import CustomKwargs, DictStrAny, RpcErrorResult
 from modernrpc.xmlrpc.backends.constants import MAXINT, MININT
 from modernrpc.xmlrpc.handler import XmlRpcRequest
 
@@ -61,7 +62,7 @@ class Unmarshaller:
             raise RPCInvalidRequest("missing methodCall.methodName tag", data=data) from exc
 
         params = method_call.get("params") or {}
-        param_list: Sequence[dict[str, Any]] = params.get("param", [])
+        param_list: Sequence[DictStrAny] = params.get("param", [])
 
         args: list[Any] = []
         if len(param_list) == 0:
@@ -117,7 +118,7 @@ class Unmarshaller:
     def load_base64(data: str) -> bytes:
         return base64.b64decode(data)
 
-    def load_array(self, data: dict[str, dict[str, list[dict[str, Any]]]]):
+    def load_array(self, data: dict[str, dict[str, list[DictStrAny]]]):
         entries = []
         for element in ensure_sequence(data["data"]["value"]):
             _type, value = first(element.items())
@@ -153,7 +154,7 @@ class Marshaller:
             OrderedDict: self.dump_dict,
         }
 
-    def result_to_dict(self, result: XmlRpcResult) -> dict[str, Any]:
+    def result_to_dict(self, result: XmlRpcResult) -> DictStrAny:
         if isinstance(result, RpcErrorResult):
             return {
                 "methodResponse": {
@@ -176,7 +177,7 @@ class Marshaller:
             }
         }
 
-    def dispatch(self, value: Any) -> dict[str, Any]:
+    def dispatch(self, value: Any) -> DictStrAny:
         try:
             dump_func = self.dump_funcs[type(value)]
         except KeyError as e:
@@ -214,7 +215,7 @@ class Marshaller:
     def dump_bytearray(value: bytes | bytearray) -> dict[str, str]:
         return {"base64": base64.b64encode(value).decode()}
 
-    def dump_dict(self, value: dict) -> dict[str, dict[str, list[dict[str, Any]]]]:
+    def dump_dict(self, value: dict) -> dict[str, dict[str, list[DictStrAny]]]:
         return {
             "struct": {
                 "member": [
@@ -240,7 +241,7 @@ class Marshaller:
 class XmlToDictBackend:
     """xml-rpc serializer and deserializer based on the third-party xmltodict library"""
 
-    def __init__(self, load_kwargs: dict[str, Any] | None = None, dump_kwargs: dict[str, Any] | None = None):
+    def __init__(self, load_kwargs: CustomKwargs = None, dump_kwargs: CustomKwargs = None):
         self.load_kwargs = load_kwargs or {}
         self.dump_kwargs = dump_kwargs or {}
 
@@ -282,4 +283,6 @@ class XmlToDictBackend:
         except Exception as e:
             raise RPCMarshallingError(result.data, e) from e
 
-        return xmltodict.unparse(structured_data, **self.dump_kwargs)
+        output_stream = StringIO()
+        xmltodict.unparse(structured_data, output=output_stream, **self.dump_kwargs)
+        return output_stream.getvalue()

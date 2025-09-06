@@ -4,20 +4,19 @@ from __future__ import annotations
 
 import xml.parsers.expat
 import xmlrpc.client
-from typing import Any
 from xmlrpc.client import Fault, ResponseError
 
 import defusedxml.xmlrpc
 
 from modernrpc.exceptions import RPCInsecureRequest, RPCInvalidRequest, RPCMarshallingError, RPCParseError
-from modernrpc.types import RpcErrorResult
+from modernrpc.types import CustomKwargs, RpcErrorResult
 from modernrpc.xmlrpc.handler import XmlRpcRequest, XmlRpcResult
 
 
 class PythonXmlRpcBackend:
     """xml-rpc serializer and deserializer based on python builtin xmlrpc module"""
 
-    def __init__(self, load_kwargs: dict[str, Any] | None = None, dump_kwargs: dict[str, Any] | None = None):
+    def __init__(self, load_kwargs: CustomKwargs = None, dump_kwargs: CustomKwargs = None):
         defusedxml.xmlrpc.monkey_patch()
 
         self.load_kwargs = load_kwargs or {}
