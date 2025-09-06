@@ -23,21 +23,24 @@ In Django-modern-rpc v2, you first create an RPC server instance, then use its `
    def add(a, b):
        return a + b
 
-This new approach gives you more control over your RPC procedures and eliminates the need for global registration through settings.
+Alternatively, a procedure can be registered into a namespace. See :ref:`Namespace` for more info.
 
 Customize registration
 ----------------------
 
-By default, the ``@server.register_procedure`` decorator will register the procedure to be available to both XML-RPC
-and JSON-RPC calls. The "methodName" of the procedure will be the function name.
+.. note:: All the arguments documented here can be used similarly in server or namespace registration.
+
+By default, the ``@server_or_namespace.register_procedure`` decorator will register the procedure to be
+available to both XML-RPC and JSON-RPC calls. The "methodName" of the procedure will be the function name.
 
 You can customize this behavior by adding arguments to the decorator:
 
 Procedure name
 ^^^^^^^^^^^^^^
 
-Use ``name`` to override the exposed procedure's "methodName". This is useful to set up a dotted
-name and workaround the Python syntax restrictions.
+Use ``name`` to override the exposed procedure's "methodName". This is useful to configure a camelCase procedure
+while keeping the function with a snake_case name.
+When no namespace is used, this can also be used to declare procedures with a dotted methodName.
 
 Default: ``name = None``
 
@@ -45,8 +48,8 @@ Default: ``name = None``
 
    from myapp.rpc import server
 
-   @server.register_procedure(name='math.add')
-   def add(a, b):
+   @server.register_procedure(name='addNumbers')
+   def add_numbers(a, b):
        return a + b
 
 Protocol availability

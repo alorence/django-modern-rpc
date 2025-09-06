@@ -148,8 +148,8 @@ To create a namespace, instantiate the ``RpcNamespace`` class:
     # Create a namespace for math procedures
     math = RpcNamespace()
 
-Registering procedures to a namespace
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Registering procedures
+^^^^^^^^^^^^^^^^^^^^^^
 
 You can register procedures to a namespace using the ``register_procedure`` method, similar to how you
 would with an ``RpcServer``:
@@ -164,6 +164,8 @@ would with an ``RpcServer``:
     @math.register_procedure
     def subtract(a, b):
         return a - b
+
+See :ref:`Customize registration` for a list of available customization options.
 
 Registering a namespace to a server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -246,7 +248,56 @@ functions performing the same task under the same name, but from a different pat
 If needed, a procedure can be registered into multiple servers. This can be used to avoid code duplication when a
 specific procedure should run the same code for different paths.
 
-Async view
-----------
+Sync and async views
+--------------------
 
-By default, a server ...
+RpcServer exposes two HTTP entry points:
+
+- view: a regular (synchronous) Django view callable
+- async_view: an asynchronous Django view (a coroutine function)
+
+They are feature-equivalent. Routing, serializers/deserializers selection, authentication/authorization, error handling,
+introspection methods and namespaces all behave exactly the same in both cases. The only difference is the execution
+model of the view itself.
+
+When should you use async_view?
+
+- If your deployment stack is ASGI-based (e.g., Daphne, Uvicorn, Hypercorn) and your RPC procedures contain async code
+  async_view lets Django run the request handler as a coroutine. Multiple in-flight RPC calls can then await
+  I/O concurrently, which can improve throughput and tail latency under I/O-bound workloads.
+- If your procedures are all synchronous or you run under a purely WSGI stack, using view is perfectly fine;
+  async_view will not provide benefits in that scenario.
+
+Behavior details
+
+- **Async procedures**: Procedures declared with async def will run concurrently within the same event loop when invoked
+  through async_view, allowing overlapping awaits on I/O operations. Each individual request still executes one
+  procedure at a time, but the server can progress multiple requests concurrently.
+- **Sync procedures**: Synchronous procedures are still supported by async_view. Django will execute them in a threadpool
+  (just like calling a sync view from an async context), so they work transparently, though without the concurrency
+  advantages of native async code.
+- API parity: Configuration and registration are identical; there is nothing special to do when registering procedures
+  or namespaces for async_view.
+
+
+.. code-block:: python
+   :caption: urls.py
+
+    from django.urls import path
+    from modernrpc.server import RpcServer
+
+    rpc = RpcServer()
+    # register procedures, namespaces, auth, etc. on rpc as usual
+
+    urlpatterns = [
+        # Sync endpoint
+        path("/rpc", rpc.view),
+        # Async endpoint (same API, coroutine-based view)
+        path("/async_rpc", rpc.async_view),
+    ]
+
+Notes
+
+- Django has supported asynchronous views since 3.1; modernrpc supports Django 3.2 to 5.2. async_view will work on all
+  supported Django versions when running under an ASGI server.
+- You can expose both endpoints simultaneously (as shown above). Clients can choose either; functionality is identical.
