@@ -14,7 +14,7 @@ class TestJsonRpcDeserializer:
     """
     This class will test the JsonRpcDeserializer classes.
     It will ensure that a given request payload is parsed correctly and the extracted data
-    have correct type and value
+    have the correct type and value
     """
 
     def test_method_name_no_params(self, json_deserializer):

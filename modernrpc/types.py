@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Callable, Generic, Optional, Sequence, TypeVar, Union
+from typing import Any, Callable, Dict, Generic, Optional, Sequence, TypeVar, Union
 
 
 @dataclass
@@ -36,7 +36,7 @@ class RpcErrorResult(RpcResult[RequestType]):
 # Type aliases.
 # Each one may be typed with typing.TypeAlias as soon as Python 3.10 will be the minimal requirement
 # New syntax `type X = list[str]` will be available from Python 3.12
-DictStrAny = dict[str, Any]
+DictStrAny = Dict[str, Any]  # Not sure why, but using dict instead of typing.Dict here will cause Python 3.8 to crash
 CustomKwargs = Optional[DictStrAny]
 
 NotSetType = object

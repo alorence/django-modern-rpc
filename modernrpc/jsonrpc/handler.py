@@ -59,13 +59,13 @@ class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
     def __init__(self) -> None:
         deserializer_config = settings.MODERNRPC_JSON_DESERIALIZER
         deserializer_klass: type[JsonRpcDeserializer] = import_string(deserializer_config["class"])
-        deserializer_init_kwargs: DictStrAny = deserializer_config.get("kwargs", {})
-        self.deserializer: JsonRpcDeserializer = deserializer_klass(**deserializer_init_kwargs)
+        deserializer_kwargs: DictStrAny = deserializer_config.get("kwargs", {})
+        self.deserializer: JsonRpcDeserializer = deserializer_klass(**deserializer_kwargs)
 
         serializer_config = settings.MODERNRPC_JSON_SERIALIZER
         serializer_klass: type[JsonRpcSerializer] = import_string(serializer_config["class"])
-        serializer_init_kwargs: DictStrAny = serializer_config.get("kwargs", {})
-        self.serializer: JsonRpcSerializer = serializer_klass(**serializer_init_kwargs)
+        serializer_kwargs: DictStrAny = serializer_config.get("kwargs", {})
+        self.serializer: JsonRpcSerializer = serializer_klass(**serializer_kwargs)
 
     def process_request(self, request_body: str, context: RpcRequestContext) -> str | tuple[HTTPStatus, str]:
         """

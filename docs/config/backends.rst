@@ -24,15 +24,54 @@ deserialization and serialization of XML-RPC requests and responses.
 Pros / Cons
 ***********
 
-| :octicon:`thumbsup;1em;sd-mr-1` no additional dependency required (stdlib)
-| :octicon:`thumbsup;1em;sd-mr-1` secure parsing via defusedxml protections enabled by default
-| :octicon:`thumbsdown;1em;sd-mr-1` may be slower
+| :octicon:`thumbsup;1em;sd-mr-1` No additional dependency required (stdlib)
+| :octicon:`thumbsup;1em;sd-mr-1` Secure parsing via defusedxml protections enabled by default
+
+| :octicon:`thumbsdown;1em;sd-mr-1` Can fail to parse some requests, particularly when spaces are added around some
+  some specific values, like booleans, strings or dates
+| :octicon:`thumbsdown;1em;sd-mr-1` May be slower than other backends
+
+| :octicon:`thumbsup;1em;sd-mr-1`/:octicon:`thumbsdown;1em;sd-mr-1` Some important rules of the spec are not strictly
+  followed. For instance, when the root tag of an XML-RPC request is NOT ``methodCall``, the Unmarshaller parse it
+  without raising any exception.
+
 
 Configuration
 *************
 
-- **allow_none=True** can be used to enable or disable `nil` / `None` value in serializer / deserializer.
-- **foo=bar** lorem ipsum etc.
+Deserializer configuration must be set in ``load_kwargs`` key.
+
+- **use_datetime** and **use_builtin_types** are used to configure Unmarshaller to parse incoming request. See
+  `the Python documentation <https://docs.python.org/3/library/xmlrpc.client.html#xmlrpc.client.loads>`_ for complete
+  documentation. Both values are set to ``True`` by default.
+
+
+.. code-block:: python
+   :caption: myproject/settings.py
+
+    MODERNRPC_XML_DESERIALIZER = {
+        "class": "modernrpc.xmlrpc.backends.xmlrpc.PythonXmlRpcBackend",
+        "kwargs": {
+            "load_kwargs": {"use_datetime": False, "use_builtin_types": False}
+        }
+    }
+
+Serializer configuration must be set in ``dump_kwargs`` key.
+
+- **allow_none** can be used to enable or disable `nil` / `None` value in serialization. See
+  `the Python documentation <https://docs.python.org/3/library/xmlrpc.client.html#xmlrpc.client.dumps>`_ for complete
+  documentation. It is set to ``True`` by default
+
+.. code-block:: python
+   :caption: myproject/settings.py
+
+    MODERNRPC_XML_SERIALIZER = {
+        "class": "modernrpc.xmlrpc.backends.xmlrpc.PythonXmlRpcBackend",
+        "kwargs": {
+            "dump_kwargs": {"allow_none": False}
+        }
+    }
+
 
 etree (xml.etree.ElementTree)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
