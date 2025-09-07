@@ -33,7 +33,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@557e51de59eb14aaaba2ed9621916900a91d50c6 # v6.6.1, see https://github.com/astral-sh/setup-uv/releases
       with:
         version: ${{ env.UV_VERSION }}
     - name: Check lockfile
@@ -45,7 +45,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@557e51de59eb14aaaba2ed9621916900a91d50c6 # v6.6.1, see https://github.com/astral-sh/setup-uv/releases
       with:
         version: ${{ env.UV_VERSION }}
     - name: Ruff
@@ -58,7 +58,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@557e51de59eb14aaaba2ed9621916900a91d50c6 # v6.6.1, see https://github.com/astral-sh/setup-uv/releases
       with:
         version: ${{ env.UV_VERSION }}
     - name: Ruff Format
@@ -70,7 +70,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@557e51de59eb14aaaba2ed9621916900a91d50c6 # v6.6.1, see https://github.com/astral-sh/setup-uv/releases
       with:
         version: ${{ env.UV_VERSION }}
     - name: Mypy
@@ -85,7 +85,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Install nox
-      uses: wntrblm/nox@2254a1ee500bbf66c2a5e4ff5dad030b9f579dcd  # https://github.com/wntrblm/nox/tags
+      uses: wntrblm/nox@2254a1ee500bbf66c2a5e4ff5dad030b9f579dcd  # 2025.05.01 - https://github.com/wntrblm/nox/releases
     - name: Build GH Actions test matrix from nox sessions
       id: set-matrix
       shell: bash
@@ -103,10 +103,10 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Install nox
-      uses: wntrblm/nox@2254a1ee500bbf66c2a5e4ff5dad030b9f579dcd  # https://github.com/wntrblm/nox/tags
+      uses: wntrblm/nox@2254a1ee500bbf66c2a5e4ff5dad030b9f579dcd # https://github.com/wntrblm/nox/tags
 
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@557e51de59eb14aaaba2ed9621916900a91d50c6 # v6.6.1, see https://github.com/astral-sh/setup-uv/releases
       with:
         version: ${{ env.UV_VERSION }}
 
@@ -115,7 +115,7 @@ jobs:
 
     - name: Submit coverage report - Coveralls
       continue-on-error: true
-      uses: coverallsapp/github-action@v2
+      uses: coverallsapp/github-action@648a8eb78e6d50909eff900e4ec85cab4524a45b # v2.3.6 - https://github.com/coverallsapp/github-action/releases
 
     - name: Submit coverage report - Codacy
       continue-on-error: true
@@ -123,7 +123,7 @@ jobs:
         CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
       run: uvx --from codacy-coverage python-codacy-coverage -r coverage.xml
 
-    - uses: gacts/github-slug@v1
+    - uses: gacts/github-slug@ff88bad75209b5407ea9dbd3c9f7755634f55e29 # v1.3.3 - https://github.com/gacts/github-slug/releases
       id: test-session-slug
       with:
         to-slug: "${{ matrix.session }}"
@@ -149,7 +149,7 @@ jobs:
 
     - name: SonarQube Scan + Coverage upload
       continue-on-error: true
-      uses: SonarSource/sonarqube-scan-action@v5
+      uses: SonarSource/sonarqube-scan-action@1a6d90ebcb0e6a6b1d87e37ba693fe453195ae25 # v5.3.1 - https://github.com/SonarSource/sonarqube-scan-action/releases
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       with:
