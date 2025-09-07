@@ -113,16 +113,6 @@ jobs:
     - name: Test session
       run: nox -s "${{ matrix.session }}" -- --cov --cov-report=xml:coverage.xml
 
-    - name: Build a random name for coverage result upload
-      id: gen-uuid
-      run: echo uuid=$(uuidgen) >> $GITHUB_OUTPUT
-
-    - name: Archive coverage report
-      uses: actions/upload-artifact@v4
-      with:
-        name: "coverage-report-${{ steps.gen-uuid.outputs.uuid }}"
-        path: coverage.xml
-
     - name: Submit coverage report - Coveralls
       continue-on-error: true
       uses: coverallsapp/github-action@v2
@@ -132,6 +122,17 @@ jobs:
       env:
         CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
       run: uvx --from codacy-coverage python-codacy-coverage -r coverage.xml
+
+    - uses: gacts/github-slug@v1
+      id: test-session-slug
+      with:
+        to-slug: "${{ matrix.session }}"
+
+    - name: Archive coverage report
+      uses: actions/upload-artifact@v4
+      with:
+        name: report-${{ steps.test-session-slug.outputs.slug }}
+        path: coverage.xml
 
   sonar:
     runs-on: ubuntu-latest
@@ -144,12 +145,7 @@ jobs:
     - name: Collect coverage report files
       uses: actions/download-artifact@v4
       with:
-        pattern: coverage-report*
         path: ./artifacts
-
-    - name: Join artifacts paths
-      id: joined-cov-paths
-      run: echo paths=$(find ./artifacts -name 'coverage.xml' | tr '\n' ',') >> $GITHUB_OUTPUT
 
     - name: SonarQube Scan + Coverage upload
       continue-on-error: true
@@ -158,4 +154,4 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       with:
         args: >
-          --define sonar.python.coverage.reportPaths="${{ steps.joined-cov-paths.outputs.paths }}"
+          --define sonar.python.coverage.reportPaths="artifacts/report-*/coverage.xml"
