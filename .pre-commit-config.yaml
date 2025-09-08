@@ -11,12 +11,12 @@ repos:
       - id: check-added-large-files
   - repo: https://github.com/astral-sh/uv-pre-commit
     # uv version.
-    rev: 0.8.14
+    rev: 0.8.15
     hooks:
       - id: uv-lock
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # Ruff version.
-    rev: v0.12.11
+    rev: v0.12.12
     hooks:
       # Linter
       - id: ruff
