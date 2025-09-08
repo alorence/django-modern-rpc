@@ -2,14 +2,13 @@
 # PEP 604: use of typeA | typeB is available since Python 3.10, enable it for older versions
 from __future__ import annotations
 
-import warnings
 from functools import cached_property
 from typing import TYPE_CHECKING, Iterable
 
 import orjson
+from django.utils.module_loading import import_string
 
 from modernrpc.exceptions import RPCMarshallingError, RPCParseError
-from modernrpc.jsonrpc.backends.marshalling import Marshaller, Unmarshaller
 
 if TYPE_CHECKING:
     from modernrpc.jsonrpc.handler import JsonRpcRequest, JsonRpcResult
@@ -19,23 +18,30 @@ if TYPE_CHECKING:
 class OrjsonBackend:
     """json-rpc serializer and deserializer based on the third-party orjson library"""
 
-    def __init__(self, load_kwargs: CustomKwargs = None, dump_kwargs: CustomKwargs = None):
-        if load_kwargs:
-            warnings.warn(
-                message="OrJSON backend does not support 'load_kwargs' argument, it will be ignored.",
-                category=UserWarning,
-                stacklevel=3,
-            )
+    def __init__(
+        self,
+        unmarshaller_klass="modernrpc.jsonrpc.backends.marshalling.Unmarshaller",
+        unmarshaller_kwargs: CustomKwargs = None,
+        marshaller_klass="modernrpc.jsonrpc.backends.marshalling.Marshaller",
+        marshaller_kwargs: CustomKwargs = None,
+        load_kwargs: CustomKwargs = None,
+        dump_kwargs: CustomKwargs = None,
+    ):
+        self.unmarshaller_klass = import_string(unmarshaller_klass)
+        self.unmarshaller_kwargs = unmarshaller_kwargs or {}
+        self.marshaller_klass = import_string(marshaller_klass)
+        self.marshaller_kwargs = marshaller_kwargs or {}
 
+        # Info: orjson.loads() has not additional argument. Passing  load_kwargs to this class won't do anything
         self.dump_kwargs = dump_kwargs or {}
 
     @cached_property
     def unmarshaller(self):
-        return Unmarshaller()
+        return self.unmarshaller_klass(**self.unmarshaller_kwargs)
 
     @cached_property
     def marshaller(self):
-        return Marshaller()
+        return self.marshaller_klass(**self.marshaller_kwargs)
 
     def loads(self, data: str) -> JsonRpcRequest | list[JsonRpcRequest]:
         try:

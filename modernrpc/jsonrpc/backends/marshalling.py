@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Iterable, overload
 
+from modernrpc.constants import NOT_SET
 from modernrpc.exceptions import RPCInvalidRequest
 from modernrpc.jsonrpc.handler import JsonRpcRequest
 from modernrpc.types import DictStrAny, RpcErrorResult
@@ -19,15 +20,17 @@ if TYPE_CHECKING:
 
 
 class Unmarshaller:
-    @staticmethod
-    def validate_dict_request(request_data: DictStrAny) -> None:
+    def __init__(self, validate_version: bool = True, **kwargs):
+        self.validate_version = validate_version
+
+    def validate_dict_request(self, request_data: DictStrAny) -> None:
         if "method" not in request_data:
             raise RPCInvalidRequest("Unable to find method name", data=request_data)
 
         if "jsonrpc" not in request_data:
             raise RPCInvalidRequest("jsonrpc required")
 
-        if request_data["jsonrpc"] != "2.0":
+        if self.validate_version and request_data["jsonrpc"] != "2.0":
             raise RPCInvalidRequest(
                 f'Parameter "jsonrpc" has an unsupported value "{request_data["jsonrpc"]}". It must be set to "2.0"'
             )
@@ -58,17 +61,9 @@ class Unmarshaller:
         args = params if isinstance(params, (list, tuple)) else []
         kwargs = params if isinstance(params, dict) else {}
 
-        # Standard request (with the "id" field)
-        if "id" in structured_data:
-            return JsonRpcRequest(
-                request_id=structured_data["id"],
-                method_name=method_name,
-                args=args,
-                kwargs=kwargs,
-            )
-
-        # Notification request
+        # Build request object. If "id" not in data, it's a notification request: request_id == NOT_SET
         return JsonRpcRequest(
+            request_id=structured_data.get("id", NOT_SET),
             method_name=method_name,
             args=args,
             kwargs=kwargs,

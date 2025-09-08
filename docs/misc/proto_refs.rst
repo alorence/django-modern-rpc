@@ -129,15 +129,17 @@ JSON-RPC backends have no specific support of dates. The default behavior of bui
 
 - **Deserialization (RPC method argument)**
 
-  Dates are received as standard string. Unmarshaller will NOT try to recognize dates for high level conversion.
+  Dates are received as standard string. Unmarshaller will NOT try to recognize dates for high level conversion. You
+  can use :any:`modernrpc.helpers.get_builtin_date` to easily retrieve a proper `datetime` instance in such case.
 
 - **Serialization (RPC method return type)**
 
-  `datetime.datetime` or `datetime.date` objects will NOT be automatically converted to string (format ISO 8601).
-  By default, the backend will fail to serialize and raise an error, but some backends may be configured to support
-  serialization of `date` and/or `datetime` instances.
+  `datetime.datetime`, `datetime.date` and `datetime.time` objects will be automatically converted to string (format
+  ISO 8601). This is configured per backend, either using a custom JSONEncoder based on Django's
+  `DjangoJSONEncoder <https://docs.djangoproject.com/en/5.2/topics/serialization/#djangojsonencoder>`_ or by defining
+  a ``default`` callback used in serialization process.
 
-See :ref:`JSON-RPC backends` for detailed documentation of `date` / `datetime` support in each backend.
+See :ref:`JSON-RPC backends` for detailed documentation of `date` / `time` / `datetime` support in each backend.
 
 **(3) base64**
 

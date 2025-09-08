@@ -6,10 +6,10 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Iterable
 
 import rapidjson
+from django.utils.module_loading import import_string
 from rapidjson import JSONDecodeError
 
 from modernrpc.exceptions import RPCMarshallingError, RPCParseError
-from modernrpc.jsonrpc.backends.marshalling import Marshaller, Unmarshaller
 
 if TYPE_CHECKING:
     from modernrpc.jsonrpc.handler import JsonRpcRequest, JsonRpcResult
@@ -19,17 +19,32 @@ if TYPE_CHECKING:
 class RapidJsonBackend:
     """json-rpc serializer and deserializer based on the third-party simplejson library"""
 
-    def __init__(self, load_kwargs: CustomKwargs = None, dump_kwargs: CustomKwargs = None):
+    def __init__(
+        self,
+        unmarshaller_klass="modernrpc.jsonrpc.backends.marshalling.Unmarshaller",
+        unmarshaller_kwargs: CustomKwargs = None,
+        marshaller_klass="modernrpc.jsonrpc.backends.marshalling.Marshaller",
+        marshaller_kwargs: CustomKwargs = None,
+        load_kwargs: CustomKwargs = None,
+        dump_kwargs: CustomKwargs = None,
+    ):
+        self.unmarshaller_klass = import_string(unmarshaller_klass)
+        self.unmarshaller_kwargs = unmarshaller_kwargs or {}
+        self.marshaller_klass = import_string(marshaller_klass)
+        self.marshaller_kwargs = marshaller_kwargs or {}
+
         self.load_kwargs = load_kwargs or {}
+
         self.dump_kwargs = dump_kwargs or {}
+        self.dump_kwargs.setdefault("datetime_mode", rapidjson.DM_ISO8601)
 
     @cached_property
     def unmarshaller(self):
-        return Unmarshaller()
+        return self.unmarshaller_klass(**self.unmarshaller_kwargs)
 
     @cached_property
     def marshaller(self):
-        return Marshaller()
+        return self.marshaller_klass(**self.marshaller_kwargs)
 
     def loads(self, data: str) -> JsonRpcRequest | list[JsonRpcRequest]:
         try:

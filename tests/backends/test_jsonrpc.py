@@ -258,6 +258,7 @@ class TestJsonRpcSerializer:
             ("foo", '"foo"'),
             ("foo.bar\n  baz", '"foo.bar\\n  baz"'),
             ("💗💗💗-💗💗💗", '"💗💗💗-💗💗💗"'),
+            (datetime(2025, 1, 2, 4, 5, 6), '"2025-01-02T04:05:06"'),
             ([0], "[0]"),
             (["foo", "bar", 88, 99, 3.14], '["foo", "bar", 88, 99, 3.14]'),
             (("foo", "bar", 88, 99, 3.14), '["foo", "bar", 88, 99, 3.14]'),
@@ -320,17 +321,10 @@ class TestJsonRpcSerializer:
     @pytest.mark.parametrize(
         "value",
         [
-            datetime(2025, 1, 2, 4, 5, 6),
             b"foo\x98",
         ],
     )
     def test_result_unsupported_type(self, request, json_serializer, value):
-        is_orjson_backend = "orjson" in json_serializer.__class__.__name__.lower()
-        is_dt_value = isinstance(value, datetime)
-        if is_orjson_backend and is_dt_value:
-            marker = pytest.mark.xfail(reason="orjson backend is able to dumps from datetime objects", strict=True)
-            request.applymarker(marker)
-
         result = JsonRpcSuccessResult(request=self.req1, data=value)
         with pytest.raises(RPCMarshallingError) as exc:
             json_serializer.dumps(result)

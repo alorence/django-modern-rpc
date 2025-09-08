@@ -45,7 +45,6 @@ Deserializer configuration must be set in ``load_kwargs`` key.
   `the Python documentation <https://docs.python.org/3/library/xmlrpc.client.html#xmlrpc.client.loads>`_ for complete
   documentation. Both values are set to ``True`` by default.
 
-
 .. code-block:: python
    :caption: myproject/settings.py
 
@@ -172,7 +171,11 @@ JSON-RPC backends
 json (python builtin)
 ^^^^^^^^^^^^^^^^^^^^^
 This this the most basic backend that depends on Python builtin `json` module. It is used by default for both
-deserialization and serialization of JSON-RPC requests and responses. It have decent performances
+deserialization and serialization of JSON-RPC requests and responses.
+
+By default, this backend use common `Unmarshaller` and `Marshaller` classes. In addition, it is configured to use
+``DjangoJSONEncoder`` when serializing data, allowing ``date``, ``time`` and ``datetime`` instances to be serialized
+transparently.
 
 Pros / Cons
 ***********
@@ -183,7 +186,58 @@ Pros / Cons
 Configuration
 *************
 
-- **todo** ...
+Unmarshaller / Deserializer
+...........................
+
+Unmarshaller can be configured using ``unmarshaller_klass`` and ``unmarshaller_kwargs`` arguments. The former is the
+dotted path of the Unmarshaller class (default to `modernrpc.jsonrpc.backends.marshalling.Unmarshaller` and the latter is
+the `kwargs` dict used to initialize it.
+
+Valid kwargs are:
+
+- **validate_version** that can be set to False when validation of the ``jsonrpc`` key in request should be skipped. It
+  is set to ``True`` by default
+
+Deserializer can be configured with ``load_kwargs`` key. Any keyword argument supported by
+`json.loads() <https://docs.python.org/fr/3/library/json.html#json.loads>`_ can be used here.
+
+.. code-block:: python
+   :caption: myproject/settings.py
+
+    MODERNRPC_JSON_DESERIALIZER = {
+        "class": "modernrpc.jsonrpc.backends.json.PythonJsonBackend",
+        "kwargs": {
+            "load_kwargs": {},
+            "unmarshaller_klass": "modernrpc.jsonrpc.backends.marshalling.Unmarshaller",
+            "unmarshaller_kwargs": {"validate_version": False},
+        }
+    }
+
+Marshaller / Serializer
+.......................
+
+Marshaller can be configured using ``marshaller_klass`` and ``marshaller_kwargs`` arguments. The former is the
+dotted path of the Marshaller class (default to `modernrpc.jsonrpc.backends.marshalling.Marshaller` and the latter is
+the `kwargs` dict used to initialize it.
+
+Currently, default Marshaller does not support any kwargs.
+
+Serializer can be configured with ``dump_kwargs`` key. Any keyword argument supported by
+`json.dumps() <https://docs.python.org/fr/3/library/json.html#json.dumps>`_ can be used here. By default, encoder is
+overriden to use `DjangoJSONEncoder <https://docs.djangoproject.com/fr/5.2/topics/serialization/#djangojsonencoder>`_
+through the `cls` argument, primarily to allow serializing ``date``, ``time`` and ``datetime`` objects.
+
+.. code-block:: python
+   :caption: myproject/settings.py
+
+    MODERNRPC_JSON_SERIALIZER = {
+        "class": "modernrpc.jsonrpc.backends.json.PythonJsonBackend",
+        "kwargs": {
+            "marshaller_klass": "myproject.core.marshaller.CustomMarshaller",
+            "marshaller_kwargs": {"config1": "foo"},
+            "dump_kwargs": {"indent": 2, "sort_keys": False},
+        }
+    }
 
 simplejson
 ^^^^^^^^^^
@@ -222,24 +276,64 @@ Pros / Cons
 Configuration
 *************
 
-- **todo** ...
+Unmarshaller / Deserializer
+...........................
+
+Unmarshaller can be configured using ``unmarshaller_klass`` and ``unmarshaller_kwargs`` arguments. The former is the
+dotted path of the Unmarshaller class (default to `modernrpc.jsonrpc.backends.marshalling.Unmarshaller` and the latter is
+the `kwargs` dict used to initialize it.
+
+Valid kwargs are:
+
+- **validate_version** that can be set to False when validation of the ``jsonrpc`` key in request should be skipped. It
+  is set to ``True`` by default
+
+Deserializer can be configured with ``load_kwargs`` key. Any keyword argument supported by
+`simplejson.loads() <https://simplejson.readthedocs.io/en/latest/#simplejson.loads>`_ can be used here.
+
+.. code-block:: python
+   :caption: myproject/settings.py
+
+    MODERNRPC_JSON_DESERIALIZER = {
+        "class": "modernrpc.jsonrpc.backends.simplejson.SimpleJsonBackend",
+        "kwargs": {
+            "load_kwargs": {"use_decimal": False, "allow_nan": False},
+            "unmarshaller_klass": "modernrpc.jsonrpc.backends.marshalling.Unmarshaller",
+            "unmarshaller_kwargs": {"validate_version": False},
+        }
+    }
+
+Marshaller / Serializer
+.......................
+
+Marshaller can be configured using ``marshaller_klass`` and ``marshaller_kwargs`` arguments. The former is the
+dotted path of the Marshaller class (default to `modernrpc.jsonrpc.backends.marshalling.Marshaller` and the latter is
+the `kwargs` dict used to initialize it.
+
+Currently, default Marshaller does not support any kwargs.
+
+Serializer can be configured with ``dump_kwargs`` key. Any keyword argument supported by
+`simplejson.dumps() <https://simplejson.readthedocs.io/en/latest/#simplejson.dumps>`_ can be used here. By default,
+a custom ``default`` function created from Django's
+`DjangoJSONEncoder <https://docs.djangoproject.com/en/5.2/topics/serialization/#djangojsonencoder>`_ ``default``
+method is configured, primarily to allow serializing ``date``, ``time`` and ``datetime`` objects.
+
+.. code-block:: python
+   :caption: myproject/settings.py
+
+    MODERNRPC_JSON_SERIALIZER = {
+        "class": "modernrpc.jsonrpc.backends.simplejson.SimpleJsonBackend",
+        "kwargs": {
+            "marshaller_klass": "myproject.core.marshaller.CustomMarshaller",
+            "marshaller_kwargs": {"config1": "foo"},
+            "dump_kwargs": {"indent": 2, "sort_keys": False},
+        }
+    }
 
 orjson
 ^^^^^^
 
 Uses third party `orjson <https://github.com/ijl/orjson>`_ library. Can be used as both serializer and deserializer.
-
-Pros / Cons
-***********
-
-| :octicon:`thumbsup;1em;sd-mr-1` Extremely fast
-| :octicon:`thumbsdown;1em;sd-mr-1` requires an additional dependency
-
-Configuration
-*************
-
-- **todo** ...
-
 
 To use this backend, `orjson` must be installed in the current environment. An extra dependency can be used for that:
 
@@ -260,6 +354,65 @@ To use this backend, `orjson` must be installed in the current environment. An e
    .. code-block:: bash
 
        uv add django-modern-rpc[orjson]
+
+Pros / Cons
+***********
+
+| :octicon:`thumbsup;1em;sd-mr-1` Extremely fast
+| :octicon:`thumbsdown;1em;sd-mr-1` requires an additional dependency
+
+Configuration
+*************
+
+Unmarshaller / Deserializer
+...........................
+
+Unmarshaller can be configured using ``unmarshaller_klass`` and ``unmarshaller_kwargs`` arguments. The former is the
+dotted path of the Unmarshaller class (default to `modernrpc.jsonrpc.backends.marshalling.Unmarshaller` and the latter
+is the `kwargs` dict used to initialize it.
+
+Valid kwargs are:
+
+- **validate_version** that can be set to False when validation of the ``jsonrpc`` key in request should be skipped. It
+  is set to ``True`` by default
+
+Note about deserialization: ``orjson.loads`` does not accept any additional keyword arguments. As a result, the
+``load_kwargs`` setting is ignored by this backend.
+
+.. code-block:: python
+   :caption: myproject/settings.py
+
+    MODERNRPC_JSON_DESERIALIZER = {
+        "class": "modernrpc.jsonrpc.backends.orjson.OrjsonBackend",
+        "kwargs": {
+            "unmarshaller_klass": "modernrpc.jsonrpc.backends.marshalling.Unmarshaller",
+            "unmarshaller_kwargs": {"validate_version": False},
+        }
+    }
+
+Marshaller / Serializer
+.......................
+
+Marshaller can be configured using ``marshaller_klass`` and ``marshaller_kwargs`` arguments. The former is the
+dotted path of the Marshaller class (default to `modernrpc.jsonrpc.backends.marshalling.Marshaller` and the latter is
+the `kwargs` dict used to initialize it.
+
+Currently, default Marshaller does not support any kwargs.
+
+Serializer can be configured with ``dump_kwargs`` key. Any keyword argument supported by
+`orjson.dumps() <https://github.com/ijl/orjson?tab=readme-ov-file#serialize>`_ can be used here (including ``option``
+flags and ``default`` function). By default, since orjson is already able to serialize ``date`` and ``time`` objects,
+no encoder customization is set by django-modern-rpc.
+
+.. code-block:: python
+   :caption: myproject/settings.py
+
+    MODERNRPC_JSON_SERIALIZER = {
+        "class": "modernrpc.jsonrpc.backends.orjson.OrjsonBackend",
+        "kwargs": {
+            "dump_kwargs": {},
+        }
+    }
 
 rapidjson
 ^^^^^^^^^
@@ -297,7 +450,56 @@ Pros / Cons
 Configuration
 *************
 
-- **todo** ...
+Unmarshaller / Deserializer
+...........................
+
+Unmarshaller can be configured using ``unmarshaller_klass`` and ``unmarshaller_kwargs`` arguments. The former is the
+dotted path of the Unmarshaller class (default to `modernrpc.jsonrpc.backends.marshalling.Unmarshaller` and the latter is
+the `kwargs` dict used to initialize it.
+
+Valid kwargs are:
+
+- **validate_version** that can be set to False when validation of the ``jsonrpc`` key in request should be skipped. It
+  is set to ``True`` by default
+
+Deserializer can be configured with ``load_kwargs`` key. Any keyword argument supported by
+`rapidjson.loads() <https://python-rapidjson.readthedocs.io/en/latest/loads.html>`_ can be used here.
+
+.. code-block:: python
+   :caption: myproject/settings.py
+
+    MODERNRPC_JSON_DESERIALIZER = {
+        "class": "modernrpc.jsonrpc.backends.rapidjson.RapidJsonBackend",
+        "kwargs": {
+            "load_kwargs": {},
+            "unmarshaller_klass": "modernrpc.jsonrpc.backends.marshalling.Unmarshaller",
+            "unmarshaller_kwargs": {"validate_version": False},
+        }
+    }
+
+Marshaller / Serializer
+.......................
+
+Marshaller can be configured using ``marshaller_klass`` and ``marshaller_kwargs`` arguments. The former is the
+dotted path of the Marshaller class (default to `modernrpc.jsonrpc.backends.marshalling.Marshaller` and the latter is
+the `kwargs` dict used to initialize it.
+
+Currently, default Marshaller does not support any kwargs.
+
+Serializer can be configured with ``dump_kwargs`` key. Any keyword argument supported by
+`rapidjson.dumps() <https://python-rapidjson.readthedocs.io/en/latest/dumps.html>`_ can be used here. By default,
+datetime handling is set to ISO-8601 via the ``datetime_mode`` argument (``rapidjson.DM_ISO8601``) to help
+serializing ``date``, ``time`` and ``datetime`` objects.
+
+.. code-block:: python
+   :caption: myproject/settings.py
+
+    MODERNRPC_JSON_SERIALIZER = {
+        "class": "modernrpc.jsonrpc.backends.rapidjson.RapidJsonBackend",
+        "kwargs": {
+            "dump_kwargs": {"indent": 2, "sort_keys": True},
+        }
+    }
 
 Helper functions
 ----------------
