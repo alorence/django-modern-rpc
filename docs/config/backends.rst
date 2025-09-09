@@ -39,6 +39,9 @@ Pros / Cons
 Configuration
 *************
 
+Unmarshaller / Deserializer
+...........................
+
 Deserializer configuration must be set in ``load_kwargs`` key.
 
 - **use_datetime** and **use_builtin_types** are used to configure Unmarshaller to parse incoming request. See
@@ -54,6 +57,11 @@ Deserializer configuration must be set in ``load_kwargs`` key.
             "load_kwargs": {"use_datetime": False, "use_builtin_types": False}
         }
     }
+
+Unmarshaller class cannot be changed at the moment.
+
+Marshaller / Serializer
+.......................
 
 Serializer configuration must be set in ``dump_kwargs`` key.
 
@@ -71,6 +79,7 @@ Serializer configuration must be set in ``dump_kwargs`` key.
         }
     }
 
+Marshaller class cannot be changed at the moment.
 
 etree (xml.etree.ElementTree)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -280,8 +289,8 @@ Unmarshaller / Deserializer
 ...........................
 
 Unmarshaller can be configured using ``unmarshaller_klass`` and ``unmarshaller_kwargs`` arguments. The former is the
-dotted path of the Unmarshaller class (default to `modernrpc.jsonrpc.backends.marshalling.Unmarshaller` and the latter is
-the `kwargs` dict used to initialize it.
+dotted path of the Unmarshaller class (default to `modernrpc.jsonrpc.backends.marshalling.Unmarshaller` and the latter
+is the `kwargs` dict used to initialize it.
 
 Valid kwargs are:
 

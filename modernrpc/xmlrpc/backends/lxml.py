@@ -4,12 +4,13 @@ from functools import cached_property
 from typing import TYPE_CHECKING
 
 import lxml.etree
-from lxml.etree import Element, SubElement, _Element
+from django.utils.module_loading import import_string
 
 from modernrpc.exceptions import RPCInvalidRequest, RPCMarshallingError, RPCParseError
-from modernrpc.xmlrpc.backends.marshalling import EtreeElementMarshaller, EtreeElementUnmarshaller
 
 if TYPE_CHECKING:
+    from lxml.etree import _Element
+
     from modernrpc.types import CustomKwargs
     from modernrpc.xmlrpc.handler import XmlRpcRequest, XmlRpcResult
 
@@ -17,30 +18,54 @@ if TYPE_CHECKING:
 class LxmlBackend:
     """xml-rpc serializer and deserializer based on the third-party lxml library"""
 
-    def __init__(self, load_kwargs: CustomKwargs = None, dump_kwargs: CustomKwargs = None):
+    def __init__(
+        self,
+        unmarshaller_klass="modernrpc.xmlrpc.backends.marshalling.EtreeElementUnmarshaller",
+        unmarshaller_kwargs: CustomKwargs = None,
+        marshaller_klass="modernrpc.xmlrpc.backends.marshalling.EtreeElementMarshaller",
+        marshaller_kwargs: CustomKwargs = None,
+        element_type_klass="lxml.etree._Element",
+        load_parser_kwargs: CustomKwargs = None,
+        load_kwargs: CustomKwargs = None,
+        dump_kwargs: CustomKwargs = None,
+    ):
+        self.unmarshaller_klass = import_string(unmarshaller_klass)
+        self.unmarshaller_kwargs = unmarshaller_kwargs or {}
+
+        self.marshaller_klass = import_string(marshaller_klass)
+        self.marshaller_kwargs = marshaller_kwargs or {}
+        self.marshaller_kwargs.setdefault("element_factory", "lxml.etree.Element")
+        self.marshaller_kwargs.setdefault("sub_element_factory", "lxml.etree.SubElement")
+
+        self.element_type_klass = import_string(element_type_klass)
+
+        self.load_parser_kwargs = load_parser_kwargs or {}
+        self.load_parser_kwargs.setdefault("resolve_entities", False)  # Prevent entity expansion
+        self.load_parser_kwargs.setdefault("no_network", True)  # Prevent network access
+        self.load_parser_kwargs.setdefault("dtd_validation", False)  # Disable DTD validation
+        self.load_parser_kwargs.setdefault("load_dtd", False)  # Disable DTD loading
+        self.load_parser_kwargs.setdefault("huge_tree", False)  # Prevent the billion-laugh attack
+
         self.load_kwargs = load_kwargs or {}
         self.dump_kwargs = dump_kwargs or {}
 
     @cached_property
     def unmarshaller(self):
-        return EtreeElementUnmarshaller[_Element]()
+        return self.unmarshaller_klass[self.element_type_klass](**self.unmarshaller_kwargs)
 
     @cached_property
     def marshaller(self):
-        return EtreeElementMarshaller[_Element](Element, SubElement)
+        elt_factory = import_string(self.marshaller_kwargs.pop("element_factory"))
+        sub_elt_factory = import_string(self.marshaller_kwargs.pop("sub_element_factory"))
+        return self.marshaller_klass[self.element_type_klass](elt_factory, sub_elt_factory, **self.marshaller_kwargs)
 
     def loads(self, data: str) -> XmlRpcRequest:
-        # Create a secure parser that disables DTDs, external entities, and entity expansion
-        parser = lxml.etree.XMLParser(
-            resolve_entities=False,  # Prevent entity expansion
-            no_network=True,  # Prevent network access
-            dtd_validation=False,  # Disable DTD validation
-            load_dtd=False,  # Disable DTD loading
-            huge_tree=False,  # Prevent the billion-laugh attack
-        )
+        # Create a custom parser, with default secure params, configurable from settings
+        parser = lxml.etree.XMLParser(**self.load_parser_kwargs)
+        self.load_kwargs.setdefault("parser", parser)
 
         try:
-            root_obj: _Element = lxml.etree.fromstring(data, parser)
+            root_obj: _Element = lxml.etree.fromstring(data, **self.load_kwargs)
         except lxml.etree.XMLSyntaxError as exc:
             raise RPCParseError(str(exc)) from exc
 
@@ -56,4 +81,4 @@ class LxmlBackend:
         except Exception as exc:
             raise RPCMarshallingError(result.data, exc) from exc
 
-        return lxml.etree.tostring(root, encoding="utf-8", xml_declaration=True).decode("utf-8")
+        return lxml.etree.tostring(root, encoding="unicode", **self.dump_kwargs)

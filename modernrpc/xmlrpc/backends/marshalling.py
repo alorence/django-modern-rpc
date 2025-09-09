@@ -46,7 +46,9 @@ DumpFuncType = Callable[[Any], ElementType]
 
 
 class EtreeElementUnmarshaller(Generic[ElementType]):
-    def __init__(self) -> None:
+    def __init__(self, allow_none=True) -> None:
+        self.allow_none = allow_none
+
         self.load_funcs: dict[str, LoadFuncType] = {
             "value": self.load_value,
             "nil": self.load_nil,
@@ -100,9 +102,10 @@ class EtreeElementUnmarshaller(Generic[ElementType]):
     def load_value(self, element: ElementType) -> Any:
         return self.dispatch(self.first_child(element))
 
-    @staticmethod
-    def load_nil(_: ElementType) -> None:
-        return None
+    def load_nil(self, _: ElementType) -> None:
+        if self.allow_none:
+            return
+        raise ValueError("cannot marshal None unless allow_none is enabled")
 
     def load_int(self, elt: ElementType) -> int:
         return int(self.stripped_text(elt))
@@ -148,9 +151,13 @@ class EtreeElementMarshaller(Generic[ElementType]):
         self,
         element_factory: Callable[[str], ElementType],
         sub_element_factory: Callable[[ElementType, str], ElementType],
+        allow_none=True,
     ) -> None:
         self.element_factory = element_factory
         self.sub_element_factory = sub_element_factory
+
+        self.allow_none = allow_none
+
         self.dump_funcs: dict[type, DumpFuncType] = {
             NoneType: self.dump_nil,
             bool: self.dump_bool,
@@ -211,7 +218,9 @@ class EtreeElementMarshaller(Generic[ElementType]):
         return dump_func(value)
 
     def dump_nil(self, _: None) -> ElementType:
-        return self.element_factory("nil")
+        if self.allow_none:
+            return self.element_factory("nil")
+        raise ValueError("cannot marshal None unless allow_none is enabled")
 
     def dump_bool(self, value: bool) -> ElementType:
         boolean = self.element_factory("boolean")

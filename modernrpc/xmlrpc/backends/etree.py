@@ -2,15 +2,16 @@ from __future__ import annotations
 
 from functools import cached_property
 from typing import TYPE_CHECKING
-from xml.etree.ElementTree import Element, SubElement
 
 import defusedxml
 import defusedxml.ElementTree as DefusedElementTree
+from django.utils.module_loading import import_string
 
 from modernrpc.exceptions import RPCInsecureRequest, RPCInvalidRequest, RPCMarshallingError, RPCParseError
-from modernrpc.xmlrpc.backends.marshalling import EtreeElementMarshaller, EtreeElementUnmarshaller
 
 if TYPE_CHECKING:
+    from xml.etree.ElementTree import Element
+
     from modernrpc.types import CustomKwargs
     from modernrpc.xmlrpc.handler import XmlRpcRequest, XmlRpcResult
 
@@ -18,21 +19,43 @@ if TYPE_CHECKING:
 class EtreeBackend:
     """xml-rpc serializer and deserializer based on python builtin module xml.etree"""
 
-    def __init__(self, load_kwargs: CustomKwargs = None, dump_kwargs: CustomKwargs = None):
+    def __init__(
+        self,
+        unmarshaller_klass="modernrpc.xmlrpc.backends.marshalling.EtreeElementUnmarshaller",
+        unmarshaller_kwargs: CustomKwargs = None,
+        marshaller_klass="modernrpc.xmlrpc.backends.marshalling.EtreeElementMarshaller",
+        marshaller_kwargs: CustomKwargs = None,
+        element_type_klass="xml.etree.ElementTree.Element",
+        load_kwargs: CustomKwargs = None,
+        dump_kwargs: CustomKwargs = None,
+    ):
+        self.unmarshaller_klass = import_string(unmarshaller_klass)
+        self.unmarshaller_kwargs = unmarshaller_kwargs or {}
+
+        self.marshaller_klass = import_string(marshaller_klass)
+        self.marshaller_kwargs = marshaller_kwargs or {}
+        self.marshaller_kwargs.setdefault("element_factory", "xml.etree.ElementTree.Element")
+        self.marshaller_kwargs.setdefault("sub_element_factory", "xml.etree.ElementTree.SubElement")
+
+        self.element_type_klass = import_string(element_type_klass)
+
         self.load_kwargs = load_kwargs or {}
+        self.load_kwargs.setdefault("forbid_dtd", True)
         self.dump_kwargs = dump_kwargs or {}
 
     @cached_property
     def unmarshaller(self):
-        return EtreeElementUnmarshaller[Element]()
+        return self.unmarshaller_klass[self.element_type_klass](**self.unmarshaller_kwargs)
 
     @cached_property
     def marshaller(self):
-        return EtreeElementMarshaller[Element](Element, SubElement)
+        elt_factory = import_string(self.marshaller_kwargs.pop("element_factory"))
+        sub_elt_factory = import_string(self.marshaller_kwargs.pop("sub_element_factory"))
+        return self.marshaller_klass[self.element_type_klass](elt_factory, sub_elt_factory, **self.marshaller_kwargs)
 
     def loads(self, data: str) -> XmlRpcRequest:
         try:
-            root_obj: Element = DefusedElementTree.XML(data)
+            root_obj: Element = DefusedElementTree.XML(data, **self.load_kwargs)
         except DefusedElementTree.ParseError as exc:
             raise RPCParseError(str(exc)) from exc
         except (defusedxml.DTDForbidden, defusedxml.EntitiesForbidden, defusedxml.ExternalReferenceForbidden) as exc:
@@ -50,4 +73,4 @@ class EtreeBackend:
         except Exception as exc:
             raise RPCMarshallingError(result.data, exc) from exc
 
-        return DefusedElementTree.tostring(root, encoding="utf-8", xml_declaration=True).decode("utf-8")
+        return DefusedElementTree.tostring(root, encoding="unicode", **self.dump_kwargs)

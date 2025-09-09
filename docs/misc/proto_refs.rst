@@ -108,7 +108,8 @@ Most of the time, django-modern-rpc will serialize and deserialize all common sc
 Specific cases
 ^^^^^^^^^^^^^^
 
-**(1) null and NoneType**
+null and NoneType (1)
+*********************
 
 In the original XML-RPC specification, there is no support for `null` values.
 An `extension <https://web.archive.org/web/20050911054235/http://ontosys.com/xml-rpc/extensions.php>`_ has been
@@ -118,9 +119,10 @@ See :ref:`XML-RPC backends` for detailed documentation of `null` support in each
 
 JSON-RPC backends will transparently convert `null` value to Python `None` and vice versa.
 
-**(2) Date / Datetime**
+Date / Datetime (2)
+*******************
 
-XML-RPC transport defines the type `dateTime.iso8601` to handle dates and datetimes. The default behavior depends on
+XML-RPC spec defines the type `dateTime.iso8601` to handle dates and datetimes. The default behavior depends on
 the configured backend.
 
 See :ref:`XML-RPC backends` for detailed documentation of `dateTime.iso8601` support in each backend.
@@ -141,7 +143,8 @@ JSON-RPC backends have no specific support of dates. The default behavior of bui
 
 See :ref:`JSON-RPC backends` for detailed documentation of `date` / `time` / `datetime` support in each backend.
 
-**(3) base64**
+base64 (3)
+**********
 
 .. todo:: Explain how base64 type is used to serialize and deserialize bytes data
 
