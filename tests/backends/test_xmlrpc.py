@@ -104,14 +104,14 @@ class TestXmlRpcDeserializer:
 
         request: used to dynamically mark the test as XFail when some conditions are met
         """
-        is_builtin_backend = "PythonXmlRpcBackend" in xml_deserializer.__class__.__name__
+        is_builtin_backend = "PythonXmlRpc" in xml_deserializer.__class__.__name__
         have_space_around = "\n" in inner_template or " " in inner_template
         type_have_parsing_issues = typ in ("boolean", "string", "dateTime.iso8601")
         if is_builtin_backend and have_space_around and type_have_parsing_issues:
             # When spaces are parsed around the text value of a node, builtin PythonXmlRpcBackend fail to
             # extract the correct value. Mark this test as XFail in this case
             marker = pytest.mark.xfail(
-                reason="PythonXmlRpcBackend incorrectly parse tags surrounded with spaces", strict=True
+                reason="PythonXmlRpcDeserializer incorrectly parse tags surrounded with spaces", strict=True
             )
             request.applymarker(marker)
 
@@ -278,9 +278,9 @@ class TestXmlRpcDeserializer:
             xml_deserializer.loads(dedent(payload).strip())
 
     def test_missing_root_tag(self, request, xml_deserializer):
-        if "PythonXmlRpcBackend" in xml_deserializer.__class__.__name__:
+        if "PythonXmlRpc" in xml_deserializer.__class__.__name__:
             marker = pytest.mark.xfail(
-                reason='PythonXmlRpcBackend allows requests without any "methodCall" root tag', strict=True
+                reason='PythonXmlRpcDeserializer allows requests without any "methodCall" root tag', strict=True
             )
             request.applymarker(marker)
 
@@ -340,7 +340,7 @@ class TestXmlRpcDeserializerKwargs:
     def test_builtin_xmlrpc_use_datetime(self, settings):
         # use_datetime is set to True by default, allowing ...
         settings.MODERNRPC_XML_DESERIALIZER = {
-            "class": "modernrpc.xmlrpc.backends.xmlrpc.PythonXmlRpcBackend",
+            "class": "modernrpc.xmlrpc.backends.xmlrpc.PythonXmlRpcDeserializer",
             "kwargs": {"load_kwargs": {"use_datetime": False, "use_builtin_types": False}},
         }
         deserializer = XmlRpcHandler().deserializer
@@ -504,8 +504,8 @@ class TestXmlRpcSerializer:
         ],
     )
     def test_result_dict_multiple_values(self, request, xml_serializer, struct_value):
-        if "PythonXmlRpcBackend" in xml_serializer.__class__.__name__ and isinstance(struct_value, OrderedDict):
-            marker = pytest.mark.xfail(reason="PythonXmlRpcBackend does not support OrderedDict", strict=True)
+        if "PythonXmlRpc" in xml_serializer.__class__.__name__ and isinstance(struct_value, OrderedDict):
+            marker = pytest.mark.xfail(reason="PythonXmlRpcSerializer does not support OrderedDict", strict=True)
             request.applymarker(marker)
 
         result = xml_serializer.dumps(XmlRpcSuccessResult(request=dummy_xmlrpc_request, data=struct_value))
@@ -587,7 +587,7 @@ class TestXmlRpcSerializerKwargs:
         # allow_none is set to True by default, allowing None values to be serialized
         # ensure that the correct exception is raised when the option is set to False
         settings.MODERNRPC_XML_SERIALIZER = {
-            "class": "modernrpc.xmlrpc.backends.xmlrpc.PythonXmlRpcBackend",
+            "class": "modernrpc.xmlrpc.backends.xmlrpc.PythonXmlRpcSerializer",
             "kwargs": {"dump_kwargs": {"allow_none": False}},
         }
         serializer = XmlRpcHandler().serializer

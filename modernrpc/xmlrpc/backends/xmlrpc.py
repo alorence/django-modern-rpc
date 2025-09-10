@@ -13,18 +13,15 @@ from modernrpc.types import CustomKwargs, RpcErrorResult
 from modernrpc.xmlrpc.handler import XmlRpcRequest, XmlRpcResult
 
 
-class PythonXmlRpcBackend:
-    """xml-rpc serializer and deserializer based on python builtin xmlrpc module"""
+class PythonXmlRpcDeserializer:
+    """xml-rpc deserializer based on python builtin xmlrpc module"""
 
-    def __init__(self, load_kwargs: CustomKwargs = None, dump_kwargs: CustomKwargs = None):
+    def __init__(self, load_kwargs: CustomKwargs = None):
         defusedxml.xmlrpc.monkey_patch()
 
         self.load_kwargs = load_kwargs or {}
         self.load_kwargs.setdefault("use_datetime", True)
         self.load_kwargs.setdefault("use_builtin_types", True)
-
-        self.dump_kwargs = dump_kwargs or {}
-        self.dump_kwargs.setdefault("allow_none", True)
 
     def loads(self, data: str) -> XmlRpcRequest:
         try:
@@ -40,6 +37,16 @@ class PythonXmlRpcBackend:
             raise RPCInvalidRequest("Unable to find method name", data=data)
 
         return XmlRpcRequest(method_name.strip(), list(params))
+
+
+class PythonXmlRpcSerializer:
+    """xml-rpc serializer and deserializer based on python builtin xmlrpc module"""
+
+    def __init__(self, dump_kwargs: CustomKwargs = None):
+        defusedxml.xmlrpc.monkey_patch()
+
+        self.dump_kwargs = dump_kwargs or {}
+        self.dump_kwargs.setdefault("allow_none", True)
 
     def dumps(self, result: XmlRpcResult) -> str:
         result_data = Fault(result.code, result.message) if isinstance(result, RpcErrorResult) else (result.data,)

@@ -15,27 +15,19 @@ if TYPE_CHECKING:
     from modernrpc.xmlrpc.handler import XmlRpcRequest, XmlRpcResult
 
 
-class LxmlBackend:
-    """xml-rpc serializer and deserializer based on the third-party lxml library"""
+class LxmlDeserializer:
+    """xml-rpc deserializer based on the third-party lxml library"""
 
     def __init__(
         self,
         unmarshaller_klass="modernrpc.xmlrpc.backends.marshalling.EtreeElementUnmarshaller",
         unmarshaller_kwargs: CustomKwargs = None,
-        marshaller_klass="modernrpc.xmlrpc.backends.marshalling.EtreeElementMarshaller",
-        marshaller_kwargs: CustomKwargs = None,
         element_type_klass="lxml.etree._Element",
         load_parser_kwargs: CustomKwargs = None,
         load_kwargs: CustomKwargs = None,
-        dump_kwargs: CustomKwargs = None,
     ):
         self.unmarshaller_klass = import_string(unmarshaller_klass)
         self.unmarshaller_kwargs = unmarshaller_kwargs or {}
-
-        self.marshaller_klass = import_string(marshaller_klass)
-        self.marshaller_kwargs = marshaller_kwargs or {}
-        self.marshaller_kwargs.setdefault("element_factory", "lxml.etree.Element")
-        self.marshaller_kwargs.setdefault("sub_element_factory", "lxml.etree.SubElement")
 
         self.element_type_klass = import_string(element_type_klass)
 
@@ -47,17 +39,10 @@ class LxmlBackend:
         self.load_parser_kwargs.setdefault("huge_tree", False)  # Prevent the billion-laugh attack
 
         self.load_kwargs = load_kwargs or {}
-        self.dump_kwargs = dump_kwargs or {}
 
     @cached_property
     def unmarshaller(self):
         return self.unmarshaller_klass[self.element_type_klass](**self.unmarshaller_kwargs)
-
-    @cached_property
-    def marshaller(self):
-        elt_factory = import_string(self.marshaller_kwargs.pop("element_factory"))
-        sub_elt_factory = import_string(self.marshaller_kwargs.pop("sub_element_factory"))
-        return self.marshaller_klass[self.element_type_klass](elt_factory, sub_elt_factory, **self.marshaller_kwargs)
 
     def loads(self, data: str) -> XmlRpcRequest:
         # Create a custom parser, with default secure params, configurable from settings
@@ -73,6 +58,32 @@ class LxmlBackend:
             return self.unmarshaller.element_to_request(root_obj)
         except Exception as exc:
             raise RPCInvalidRequest(str(exc)) from exc
+
+
+class LxmlSerializer:
+    """xml-rpc serializer based on the third-party lxml library"""
+
+    def __init__(
+        self,
+        marshaller_klass="modernrpc.xmlrpc.backends.marshalling.EtreeElementMarshaller",
+        marshaller_kwargs: CustomKwargs = None,
+        element_type_klass="lxml.etree._Element",
+        dump_kwargs: CustomKwargs = None,
+    ):
+        self.marshaller_klass = import_string(marshaller_klass)
+        self.marshaller_kwargs = marshaller_kwargs or {}
+        self.marshaller_kwargs.setdefault("element_factory", "lxml.etree.Element")
+        self.marshaller_kwargs.setdefault("sub_element_factory", "lxml.etree.SubElement")
+
+        self.element_type_klass = import_string(element_type_klass)
+
+        self.dump_kwargs = dump_kwargs or {}
+
+    @cached_property
+    def marshaller(self):
+        elt_factory = import_string(self.marshaller_kwargs.pop("element_factory"))
+        sub_elt_factory = import_string(self.marshaller_kwargs.pop("sub_element_factory"))
+        return self.marshaller_klass[self.element_type_klass](elt_factory, sub_elt_factory, **self.marshaller_kwargs)
 
     def dumps(self, result: XmlRpcResult) -> str:
         """Serialize an XmlRpcResult to an XML string."""

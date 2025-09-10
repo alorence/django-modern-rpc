@@ -13,14 +13,14 @@ from lxml.doctestcompare import PARSE_XML, LXMLOutputChecker
 
 from modernrpc import Protocol
 from modernrpc.helpers import ensure_sequence
-from modernrpc.jsonrpc.backends.json import PythonJsonBackend
-from modernrpc.jsonrpc.backends.orjson import OrjsonBackend
-from modernrpc.jsonrpc.backends.rapidjson import RapidJsonBackend
-from modernrpc.jsonrpc.backends.simplejson import SimpleJsonBackend
-from modernrpc.xmlrpc.backends.etree import EtreeBackend
-from modernrpc.xmlrpc.backends.lxml import LxmlBackend
-from modernrpc.xmlrpc.backends.xmlrpc import PythonXmlRpcBackend
-from modernrpc.xmlrpc.backends.xmltodict import XmlToDictBackend
+from modernrpc.jsonrpc.backends.json import PythonJsonDeserializer, PythonJsonSerializer
+from modernrpc.jsonrpc.backends.orjson import OrjsonDeserializer, OrjsonSerializer
+from modernrpc.jsonrpc.backends.rapidjson import RapidjsonDeserializer, RapidjsonSerializer
+from modernrpc.jsonrpc.backends.simplejson import SimplejsonDeserializer, SimplejsonSerializer
+from modernrpc.xmlrpc.backends.etree import EtreeDeserializer, EtreeSerializer
+from modernrpc.xmlrpc.backends.lxml import LxmlDeserializer, LxmlSerializer
+from modernrpc.xmlrpc.backends.xmlrpc import PythonXmlRpcDeserializer, PythonXmlRpcSerializer
+from modernrpc.xmlrpc.backends.xmltodict import XmlToDictDeserializer, XmlToDictSerializer
 
 if TYPE_CHECKING:
     from django.http import HttpResponse
@@ -31,10 +31,10 @@ ALL_PROTOCOLS = [Protocol.XML_RPC, Protocol.JSON_RPC]
 # List all backends supported in tests for deserialization (data to request object) and
 # serialization (result to response data). These constants will be used to define some parametrized fixtures
 # to ensure every test is run with all backend combinations
-XML_DESERIALIZERS_CLASSES = [PythonXmlRpcBackend, XmlToDictBackend, EtreeBackend, LxmlBackend]
-XML_SERIALIZERS_CLASSES = [PythonXmlRpcBackend, XmlToDictBackend, EtreeBackend, LxmlBackend]
-JSON_DESERIALIZERS_CLASSES = [PythonJsonBackend, SimpleJsonBackend, OrjsonBackend, RapidJsonBackend]
-JSON_SERIALIZERS_CLASSES = [PythonJsonBackend, SimpleJsonBackend, OrjsonBackend, RapidJsonBackend]
+XML_DESERIALIZERS_CLASSES = [PythonXmlRpcDeserializer, XmlToDictDeserializer, EtreeDeserializer, LxmlDeserializer]
+XML_SERIALIZERS_CLASSES = [PythonXmlRpcSerializer, XmlToDictSerializer, EtreeSerializer, LxmlSerializer]
+JSON_DESERIALIZERS_CLASSES = [PythonJsonDeserializer, SimplejsonDeserializer, OrjsonDeserializer, RapidjsonDeserializer]
+JSON_SERIALIZERS_CLASSES = [PythonJsonSerializer, SimplejsonSerializer, OrjsonSerializer, RapidjsonSerializer]
 
 
 def build_xml_rpc_request_data(method="dummy", params=()) -> str:

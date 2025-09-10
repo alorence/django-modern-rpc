@@ -238,16 +238,11 @@ class Marshaller:
         }
 
 
-class XmlToDictBackend:
-    """xml-rpc serializer and deserializer based on the third-party xmltodict library"""
+class XmlToDictDeserializer:
+    """xml-rpc deserializer based on the third-party xmltodict library"""
 
-    def __init__(self, load_kwargs: CustomKwargs = None, dump_kwargs: CustomKwargs = None):
+    def __init__(self, load_kwargs: CustomKwargs = None):
         self.load_kwargs = load_kwargs or {}
-        self.dump_kwargs = dump_kwargs or {}
-
-    @cached_property
-    def marshaller(self):
-        return Marshaller()
 
     @cached_property
     def unmarshaller(self):
@@ -276,6 +271,17 @@ class XmlToDictBackend:
             return self.unmarshaller.dict_to_request(structured_data)
         except TypeError as exc:
             raise RPCInvalidRequest(str(exc)) from exc
+
+
+class XmlToDictSerializer:
+    """xml-rpc serializer based on the third-party xmltodict library"""
+
+    def __init__(self, load_kwargs: CustomKwargs = None, dump_kwargs: CustomKwargs = None):
+        self.dump_kwargs = dump_kwargs or {}
+
+    @cached_property
+    def marshaller(self):
+        return Marshaller()
 
     def dumps(self, result: XmlRpcResult) -> str:
         try:

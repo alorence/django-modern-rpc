@@ -12,7 +12,7 @@ MODERNRPC_HANDLERS = [
     "modernrpc.xmlrpc.handler.XmlRpcHandler",
 ]
 
-MODERNRPC_XML_DESERIALIZER = {"class": "modernrpc.xmlrpc.backends.xmlrpc.PythonXmlRpcBackend", "kwargs": {}}
-MODERNRPC_XML_SERIALIZER = {"class": "modernrpc.xmlrpc.backends.xmlrpc.PythonXmlRpcBackend", "kwargs": {}}
-MODERNRPC_JSON_DESERIALIZER = {"class": "modernrpc.jsonrpc.backends.json.PythonJsonBackend", "kwargs": {}}
-MODERNRPC_JSON_SERIALIZER = {"class": "modernrpc.jsonrpc.backends.json.PythonJsonBackend", "kwargs": {}}
+MODERNRPC_XML_DESERIALIZER = {"class": "modernrpc.xmlrpc.backends.xmlrpc.PythonXmlRpcDeserializer", "kwargs": {}}
+MODERNRPC_XML_SERIALIZER = {"class": "modernrpc.xmlrpc.backends.xmlrpc.PythonXmlRpcSerializer", "kwargs": {}}
+MODERNRPC_JSON_DESERIALIZER = {"class": "modernrpc.jsonrpc.backends.json.PythonJsonDeserializer", "kwargs": {}}
+MODERNRPC_JSON_SERIALIZER = {"class": "modernrpc.jsonrpc.backends.json.PythonJsonSerializer", "kwargs": {}}
