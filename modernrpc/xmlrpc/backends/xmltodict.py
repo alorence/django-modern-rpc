@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, Any, Callable, Literal, Sequence
 
 import defusedxml.ElementTree
 import xmltodict
+from django.utils.module_loading import import_string
 
 from modernrpc.exceptions import RPCInsecureRequest, RPCInvalidRequest, RPCMarshallingError, RPCParseError
 from modernrpc.helpers import ensure_sequence, first
@@ -138,7 +139,9 @@ class Unmarshaller:
 
 
 class Marshaller:
-    def __init__(self) -> None:
+    def __init__(self, allow_none=True) -> None:
+        self.allow_none = allow_none
+
         self.dump_funcs: dict[type, DumpFuncType] = {
             NoneType: self.dump_nil,
             bool: self.dump_bool,
@@ -184,38 +187,38 @@ class Marshaller:
             raise TypeError(f"Unsupported type: {type(value)}") from e
         return dump_func(value)
 
-    @staticmethod
-    def dump_nil(_):
-        # FIXME: allow_none config ?
-        return {"nil": None}
+    def dump_nil(self, _) -> dict[Literal["nil"], None]:
+        if self.allow_none:
+            return {"nil": None}
+        raise ValueError("cannot marshal None unless allow_none is enabled")
 
     @staticmethod
     def dump_bool(value: bool) -> dict[str, Literal[1, 0]]:
         return {"boolean": 1 if value else 0}
 
     @staticmethod
-    def dump_int(value: int) -> dict[str, int]:
+    def dump_int(value: int) -> dict[Literal["int"], int]:
         if value > MAXINT or value < MININT:
             raise OverflowError("int value exceeds XML-RPC limits")
         return {"int": value}
 
     @staticmethod
-    def dump_float(value: float) -> dict[str, float]:
+    def dump_float(value: float) -> dict[Literal["double"], float]:
         return {"double": value}
 
     @staticmethod
-    def dump_str(value: str) -> dict[str, str]:
+    def dump_str(value: str) -> dict[Literal["string"], str]:
         return {"string": value}
 
     @staticmethod
-    def dump_datetime(value: datetime) -> dict[str, str]:
+    def dump_datetime(value: datetime) -> dict[Literal["dateTime.iso8601"], str]:
         return {"dateTime.iso8601": value.strftime("%04Y%02m%02dT%H:%M:%S")}
 
     @staticmethod
-    def dump_bytearray(value: bytes | bytearray) -> dict[str, str]:
+    def dump_bytearray(value: bytes | bytearray) -> dict[Literal["base64"], str]:
         return {"base64": base64.b64encode(value).decode()}
 
-    def dump_dict(self, value: dict) -> dict[str, dict[str, list[DictStrAny]]]:
+    def dump_dict(self, value: dict) -> dict[Literal["struct"], dict[Literal["member"], list[DictStrAny]]]:
         return {
             "struct": {
                 "member": [
@@ -228,7 +231,9 @@ class Marshaller:
             },
         }
 
-    def dump_list(self, value: list | tuple) -> dict[str, dict[str, dict[str, list[Any]]]]:
+    def dump_list(
+        self, value: list | tuple
+    ) -> dict[Literal["array"], dict[Literal["data"], dict[Literal["value"], list[Any]]]]:
         return {
             "array": {
                 "data": {
@@ -241,12 +246,19 @@ class Marshaller:
 class XmlToDictDeserializer:
     """xml-rpc deserializer based on the third-party xmltodict library"""
 
-    def __init__(self, load_kwargs: CustomKwargs = None):
+    def __init__(
+        self,
+        unmarshaller_klass="modernrpc.xmlrpc.backends.xmltodict.Unmarshaller",
+        unmarshaller_kwargs: CustomKwargs = None,
+        load_kwargs: CustomKwargs = None,
+    ):
+        self.unmarshaller_klass = import_string(unmarshaller_klass)
+        self.unmarshaller_kwargs = unmarshaller_kwargs or {}
         self.load_kwargs = load_kwargs or {}
 
     @cached_property
     def unmarshaller(self):
-        return Unmarshaller()
+        return self.unmarshaller_klass(**self.unmarshaller_kwargs)
 
     def loads(self, data: str) -> XmlRpcRequest:
         try:
@@ -276,12 +288,19 @@ class XmlToDictDeserializer:
 class XmlToDictSerializer:
     """xml-rpc serializer based on the third-party xmltodict library"""
 
-    def __init__(self, load_kwargs: CustomKwargs = None, dump_kwargs: CustomKwargs = None):
+    def __init__(
+        self,
+        marshaller_klass="modernrpc.xmlrpc.backends.xmltodict.Marshaller",
+        marshaller_kwargs: CustomKwargs = None,
+        dump_kwargs: CustomKwargs = None,
+    ):
+        self.marshaller_klass = import_string(marshaller_klass)
+        self.marshaller_kwargs = marshaller_kwargs or {}
         self.dump_kwargs = dump_kwargs or {}
 
     @cached_property
     def marshaller(self):
-        return Marshaller()
+        return self.marshaller_klass(**self.marshaller_kwargs)
 
     def dumps(self, result: XmlRpcResult) -> str:
         try:

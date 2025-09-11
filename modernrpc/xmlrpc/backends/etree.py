@@ -16,6 +16,9 @@ if TYPE_CHECKING:
     from modernrpc.xmlrpc.handler import XmlRpcRequest, XmlRpcResult
 
 
+ETREE_DEFAULT_ELEMENT_TYPE = "xml.etree.ElementTree.Element"
+
+
 class EtreeDeserializer:
     """xml-rpc deserializer based on python builtin module xml.etree"""
 
@@ -23,7 +26,7 @@ class EtreeDeserializer:
         self,
         unmarshaller_klass="modernrpc.xmlrpc.backends.marshalling.EtreeElementUnmarshaller",
         unmarshaller_kwargs: CustomKwargs = None,
-        element_type_klass="xml.etree.ElementTree.Element",
+        element_type_klass=ETREE_DEFAULT_ELEMENT_TYPE,
         load_kwargs: CustomKwargs = None,
     ):
         self.unmarshaller_klass = import_string(unmarshaller_klass)
@@ -59,7 +62,7 @@ class EtreeSerializer:
         self,
         marshaller_klass="modernrpc.xmlrpc.backends.marshalling.EtreeElementMarshaller",
         marshaller_kwargs: CustomKwargs = None,
-        element_type_klass="xml.etree.ElementTree.Element",
+        element_type_klass=ETREE_DEFAULT_ELEMENT_TYPE,
         dump_kwargs: CustomKwargs = None,
     ):
         self.marshaller_klass = import_string(marshaller_klass)

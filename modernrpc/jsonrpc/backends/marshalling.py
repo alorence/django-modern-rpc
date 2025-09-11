@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 
 class Unmarshaller:
-    def __init__(self, validate_version: bool = True, **kwargs):
+    def __init__(self, validate_version: bool = True):
         self.validate_version = validate_version
 
     def validate_dict_request(self, request_data: DictStrAny) -> None:

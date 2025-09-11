@@ -43,8 +43,6 @@ class PythonXmlRpcSerializer:
     """xml-rpc serializer and deserializer based on python builtin xmlrpc module"""
 
     def __init__(self, dump_kwargs: CustomKwargs = None):
-        defusedxml.xmlrpc.monkey_patch()
-
         self.dump_kwargs = dump_kwargs or {}
         self.dump_kwargs.setdefault("allow_none", True)
 
