@@ -48,9 +48,10 @@ class LxmlDeserializer:
         return self.unmarshaller_klass[self.element_type_klass](**self.unmarshaller_kwargs)
 
     def loads(self, data: str) -> XmlRpcRequest:
-        # Create a custom parser, with default secure params, configurable from settings
-        parser = lxml.etree.XMLParser(**self.load_parser_kwargs)
-        self.load_kwargs.setdefault("parser", parser)
+        if "parser" not in self.load_kwargs:
+            # Create a custom parser, with default secure params, configurable from settings
+            parser = lxml.etree.XMLParser(**self.load_parser_kwargs)
+            self.load_kwargs["parser"] = parser
 
         try:
             root_obj: _Element = lxml.etree.fromstring(data, **self.load_kwargs)
