@@ -160,27 +160,27 @@ Here is a basic example of such a configuration:
 .. code-block:: python
    :caption: settings.py
 
-    LOGGING = {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'formatters': {
-            # Your formatters configuration...
-        },
-        'handlers': {
-            'console': {
-                'level': 'DEBUG',
-                'class': 'logging.StreamHandler',
-            },
-        },
-        'loggers': {
-            # your other loggers configuration
-            'modernrpc': {
-                'handlers': ['console'],
-                'level': 'DEBUG',
-                'propagate': True,
-            },
-        }
-    }
+   LOGGING = {
+       'version': 1,
+       'disable_existing_loggers': False,
+       'formatters': {
+           # Your formatters configuration...
+       },
+       'handlers': {
+           'console': {
+               'level': 'DEBUG',
+               'class': 'logging.StreamHandler',
+           },
+       },
+       'loggers': {
+           # your other loggers configuration
+           'modernrpc': {
+               'handlers': ['console'],
+               'level': 'DEBUG',
+               'propagate': True,
+           },
+       }
+   }
 
 All information about logging configuration can be found in `official Django docs`_.
 

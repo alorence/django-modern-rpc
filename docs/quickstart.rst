@@ -32,20 +32,19 @@ Create an ``RpcServer`` instance and register your first procedure
 .. code-block:: python
    :caption: myproject/myapp/rpc.py
 
-    from modernrpc.server import RpcServer
+   from modernrpc.server import RpcServer
 
-    server = RpcServer()
+   server = RpcServer()
 
+   @server.register_procedure
+   def add(a: int, b: int) -> int:
+       """Add two numbers and return the result.
+       :param a: First number
+       :param b: Second number
+       :return: Sum of a and b
+       """
+       return a + b
 
-    @server.register_procedure
-    def add(a: int, b: int) -> int:
-        """Add two numbers and return the result.
-
-        :param a: First number
-        :param b: Second number
-        :return: Sum of a and b
-        """
-        return a + b
 
 Remote procedures are Python functions decorated with the server's ``register_procedure`` decorator.
 Both server and procedure registration can be customized. See :ref:`Procedures registration`
@@ -59,13 +58,13 @@ to this view in your project's ``urls.py``
 .. code-block:: python
    :caption: myproject/myproject/urls.py
 
-    from django.urls import path
-    from myapp.rpc import server
+   from django.urls import path
+   from myapp.rpc import server
 
-    urlpatterns = [
-        # ... other url patterns
-        path('rpc/', server.view),  # Synchronous view
-    ]
+   urlpatterns = [
+       # ... other url patterns
+       path('rpc/', server.view),  # Synchronous view
+   ]
 
 The server's view is already configured with CSRF exemption and POST-only restrictions.
 
@@ -77,13 +76,13 @@ For Django projects using ASGI and async views, you can use the async version of
 .. code-block:: python
    :caption: myproject/myproject/urls.py (with async support)
 
-    from django.urls import path
-    from myapp.rpc import server
+   from django.urls import path
+   from myapp.rpc import server
 
-    urlpatterns = [
-        # ... other url patterns
-        path('rpc/', server.async_view),  # Asynchronous view
-    ]
+   urlpatterns = [
+       # ... other url patterns
+       path('rpc/', server.async_view),  # Asynchronous view
+   ]
 
 The async view provides the same functionality as the synchronous view but can be used in an async context,
 allowing your Django application to handle other requests while waiting for RPC operations to complete.
@@ -100,11 +99,11 @@ directly with your favourite HTTP client
 .. code-block:: bash
    :caption: JSON-RPC example
 
-    ~$ curl -X POST localhost:8000/rpc -H "Content-Type: application/json" -d '{"id": 1, "method": "system.listMethods", "jsonrpc": "2.0"}'
-    {"id": 1, "jsonrpc": "2.0", "result": ["add", "system.listMethods", "system.methodHelp", "system.methodSignature"]}
+   ~$ curl -X POST localhost:8000/rpc -H "Content-Type: application/json" -d '{"id": 1, "method": "system.listMethods", "jsonrpc": "2.0"}'
+   {"id": 1, "jsonrpc": "2.0", "result": ["add", "system.listMethods", "system.methodHelp", "system.methodSignature"]}
 
-    ~$ curl -X POST localhost:8000/rpc -H "Content-Type: application/json" -d '{"id": 2, "method": "add", "params": [5, 9], "jsonrpc": "2.0"}'
-    {"id": 2, "jsonrpc": "2.0", "result": 14}
+   ~$ curl -X POST localhost:8000/rpc -H "Content-Type: application/json" -d '{"id": 2, "method": "add", "params": [5, 9], "jsonrpc": "2.0"}'
+   {"id": 2, "jsonrpc": "2.0", "result": 14}
 
 .. code-block:: python
    :caption: XML-RPC example
