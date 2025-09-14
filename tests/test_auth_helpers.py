@@ -67,7 +67,7 @@ class TestExtractGenericToken:
         request = rf.get("/")
         request.headers = {"Authorization": "Basic dXNlcjpwYXNzd29yZA=="}
 
-        with pytest.raises(ValueError, match='Invalid authentication type. Expected "Bearer", found "Basic"'):
+        with pytest.raises(ValueError, match=r'Invalid authentication type. Expected "Bearer", found "Basic"'):
             extract_generic_token(request, "Authorization", "Bearer")
 
 
@@ -112,7 +112,7 @@ class TestExtractHttpBasicAuth:
         request = rf.get("/")
         request.headers = {"Authorization": "Bearer token"}
 
-        with pytest.raises(ValueError, match='Invalid authentication type. Expected "Basic", found "Bearer"'):
+        with pytest.raises(ValueError, match=r'Invalid authentication type. Expected "Basic", found "Bearer"'):
             extract_http_basic_auth(request)
 
     def test_invalid_credentials_format(self, rf):
@@ -160,5 +160,5 @@ class TestExtractBearerToken:
         request = rf.get("/")
         request.headers = {"Authorization": "Basic dXNlcjpwYXNzd29yZA=="}
 
-        with pytest.raises(ValueError, match='Invalid authentication type. Expected "Bearer", found "Basic"'):
+        with pytest.raises(ValueError, match=r'Invalid authentication type. Expected "Bearer", found "Basic"'):
             extract_bearer_token(request)

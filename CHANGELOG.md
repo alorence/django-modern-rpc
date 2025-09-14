@@ -6,7 +6,7 @@
 
 ### Improvements
 
-- The new API, heavily inspired from tools like FastAPI or django-ninja, encapsulate procedures registration in a
+- The new API, heavily inspired from tools like FastAPI or django-ninja, encapsulate the procedures registration in a
   dedicated `RpcServer` instance. This removes the need to lookup modules based on `settings.MODERNRPC_METHODS_MODULES`
   value, so `modernrpc` does not need to be added to INSTALLED_APPS anymore.
 - `RpcNamespace` were added to provide a better organization of procedures. Each one can be registered in a

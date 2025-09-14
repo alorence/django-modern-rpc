@@ -78,13 +78,14 @@ default-groups = ["dev", "tests"]
 
 [dependency-groups]
 dev = [
-    "ruff ~= 0.12",
+    "ruff ~= 0.13",
     "jsonrpcclient ~= 4.0.3",
     "requests",
     "docutils >= 0.19",
     "markdown >= 3.5",
     "simplejson >= 3.19",
-    "xmltodict >= 0.14.1",
+    "xmltodict < 1.0; python_version <= '3.8'",
+    "xmltodict >= 1.0; python_version > '3.8'",
     "lxml >= 5.3",
     "orjson >= 3.10",
     "python-rapidjson >= 1.20",
