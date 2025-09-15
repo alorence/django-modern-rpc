@@ -58,16 +58,16 @@ MODERNRPC_XML_DESERIALIZER
 :Default:   ``{"class": "modernrpc.xmlrpc.backends.xmlrpc.PythonXmlRpcBackend", "kwargs": {}}``
 
 MODERNRPC_XML_SERIALIZER
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 :Default:   ``{"class": "modernrpc.xmlrpc.backends.xmlrpc.PythonXmlRpcBackend", "kwargs": {}}``
 
 MODERNRPC_JSON_DESERIALIZER
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 :Default:   ``{"class": "modernrpc.jsonrpc.backends.json.PythonJsonBackend", "kwargs": {}}``
 
 MODERNRPC_JSON_SERIALIZER
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 :Default:   ``{"class": "modernrpc.jsonrpc.backends.json.PythonJsonBackend", "kwargs": {}}``

@@ -52,6 +52,7 @@ your project, follow other topics in the menu.
    config/authentication.rst
    config/error_handling.rst
    config/backends.rst
+   config/generated_doc.rst
    config/settings
 
 .. toctree::
