@@ -92,6 +92,13 @@ and declare it in decorator: ``register_procedure(context_target="<arg_name>")``
         # Return the Content-Type of the current request
         return ctx.request.content_type
 
+The ``RpcRequestContext`` instance gives you access to:
+
+- ctx.request: the Django HttpRequest
+- ctx.server: the RpcServer currently handling the call
+- ctx.handler: the protocol handler (JSON‑RPC or XML‑RPC)
+- ctx.protocol: the active Protocol value
+- ctx.auth_result: the value returned by the first authentication predicate that allowed request to be executed
 
 .. _multi-servers-registration:
 

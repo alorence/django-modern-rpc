@@ -8,24 +8,29 @@
 
 - The new API, heavily inspired from tools like FastAPI or django-ninja, encapsulate the procedures registration in a
   dedicated `RpcServer` instance. This removes the need to lookup modules based on `settings.MODERNRPC_METHODS_MODULES`
-  value, so `modernrpc` does not need to be added to INSTALLED_APPS anymore.
+  value, so `modernrpc` does not need to be added to *settings.INSTALLED_APPS* anymore.
 - `RpcNamespace` were added to provide a better organization of procedures. Each one can be registered in a
   previously defined `RpcServer`.
-- Error handling has been improved, allowing to execute a callback function when an exception is caught and before an
+- It is now possible to register `async` procedures
+- RPC entrypoints can now be exposed through a synchronous or an asynchronous view. Both views can serve sync and
+  async procedures.
+- Error handling has been improved, allowing executing a callback function when an exception is caught and before an
   RPC error response is built.
-- It is now possible to configure different backends to deserialize XML-RPC and JSON-RPC requests or to serialize
+- The authentication process has been improved. Multiple callbacks can be configured at server-level, namespace-level
+  or directly on a specific remote procedure.
+- It is now possible to configure different backends to deserialize XML-RPC and JSON-RPC requests and to serialize
   XML-RPC and JSON-RPC responses. Alternative backends may provide more features, configuration options, specific types
   support or better performances.
 
 ### Breaking Changes
 
 - Complete architecture redesign: The library now uses a server-based approach instead of entry points
-- Removed the `RPCEntryPoint` class-based view in favor of the new `RpcServer` class
+- Removed the `RPCEntryPoint` class-based view in favor of the new function based views provided by `RpcServer` class
 - Removed automatic procedure registration via `MODERNRPC_METHODS_MODULES` setting
 - Removed HTML documentation generation through entry points
 - Changed the way procedures access request context, now using the `context_target` parameter
 - Some settings were removed:
-  - MODERNRPC_METHODS_MODULES is now useless
+  - MODERNRPC_METHODS_MODULES
   - MODERNRPC_LOG_EXCEPTIONS
   - MODERNRPC_DEFAULT_ENTRYPOINT_NAME
   - MODERNRPC_JSON_DECODER

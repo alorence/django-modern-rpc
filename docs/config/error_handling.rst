@@ -1,61 +1,38 @@
 Error handling
 ==============
 
-.. note:: TODO
-
-   This section needs to be reworked for v2
-
-
 Introduction
 ------------
 
-Error handling in RPC protocols is a challenging topic. Since errors must be returned as standard response,
-it must always be caught and returned properly with the right format.
+Error handling in RPC protocols is a challenging topic. ANy error in remote procedure call processing must be returned
+to the sender in a valid response with a code and a message. In addition, such a response must be returned with an HTTP
+status 200.
 
-Status code
------------
+To implement this behavior, django-modern-rpc use Python exception mechanism to:
 
-`XML-RPC spec <https://xmlrpc.com/spec.md#response-format>`_ about response status code
-
-    Unless there's a lower-level error, always return 200 OK.
-
-When remote procedures are executed, errors can be caused by almost anything: invalid request payload, arguments
-deserialization or result serialization error, exception in method execution, etc. All errors must be
-handled properly for 2 reasons :
-
-1. An error response must be returned to RPC client (with an error code and a textual message)
-2. Developers should be able to detect such errors (using logs, error reporting tool like Sentry, etc.)
-
-For that reasons, django-modern-rpc handle all errors with Python builtin exception system. This allows for very
-flexible error handling and allows to define custom exceptions with fixed error code and message.
+- Raise a pre-defined exception when processing request or serializing response to provide information about the actual
+  error to the sender
+- Catch any exception raised from procedures and convert it to a standardized error response.
 
 Builtin exceptions
 ------------------
 
-Hopefully, error codes for both JSON-RPC_ and XML-RPC_ are pretty similar. The following errors are fully supported
-in django-modern-rpc.
+Here is a list of exceptions raised by django-modern-rpc
 
-.. _JSON-RPC: https://www.jsonrpc.org/specification#error_object
-.. _XML-RPC: http://xmlrpc-epi.sourceforge.net/specs/rfc.fault_codes.php
+.. table::
+   :widths: auto
 
-.. list-table::
-   :widths: 40 60
-   :header-rows: 1
-
-   * - Code
-     - Message
-   * - -32700
-     - parse error. not well formed
-   * - -32600
-     - Invalid request
-   * - -32601
-     - Method not found
-   * - -32602
-     - Invalid params
-   * - -32603
-     - Internal error
-
-Additional errors from XML-RPC specs are less relevant in modern web application, and have not been implemented.
+   ======================  ========  ===============
+    Exception                Code      Message
+   ======================  ========  ===============
+    RPCParseError           -32700    Parse error, unable to read the request: [...]
+    RPCInsecureRequest      -32700    Security error: [...]
+    RPCInvalidRequest       -32600    Invalid request: [...]
+    RPCMethodNotFound       -32601    Method not found: [...]
+    RPCInvalidParams        -32602    Invalid parameters: [...]
+    RPCInternalError        -32603    Internal error: [...]
+    RPCMarshallingError     -32603    Unable to serialize result data: [...]. Original exception: [...]
+   ======================  ========  ===============
 
 Custom exceptions
 -----------------
@@ -78,58 +55,66 @@ Here is an example:
 
 Such exceptions raised from your remote procedure will be properly returned to client.
 
-Customize Error Handling
+Customize error handling
 ------------------------
 
-When an exception occurs during the execution of an RPC method, django-modern-rpc converts it to an appropriate RPC error response. By default, any exception that is not an instance of ``RPCException`` is wrapped in an ``RPCInternalError`` with the exception message.
+Overview
+^^^^^^^^
 
-Custom Error Handlers
-^^^^^^^^^^^^^^^^^^^^^
+In addition to the built‑in exceptions described above, django‑modern‑rpc lets you plug an error handler at the
+server level. The handler is invoked as soon as any exception is raised from the library or your procedure and before
+the error response is built and returned to the sender.
 
-You can customize how specific exceptions are handled by registering custom error handlers with the ``error_handler`` method. This allows you to:
-
-- Convert specific exceptions to custom RPC errors
-- Add additional information to error responses
-- Handle exceptions in a way that makes sense for your application
-
-Here's an example of how to register and use a custom error handler:
+The handler receives the original Python exception and a ``RpcRequestContext`` object. It must have the following
+signature:
 
 .. code-block:: python
 
-   from modernrpc.exceptions import RPCException
+   from modernrpc import RpcRequestContext
+
+   def my_error_handler(exc: BaseException, ctx: RpcRequestContext) -> None:
+       ...
+
+See :ref:`Accessing the context` for detailed documentation about ``RpcRequestContext`` object.
+
+To register the handler in your server, uses the ``error_handler`` argument:
+
+.. code-block:: python
+   :caption: urls.py
+
+   from django.urls import path
    from modernrpc.server import RpcServer
 
-   server = RpcServer()
+   server = RpcServer(error_handler=my_error_handler)
 
-   # Define a handler function for ValueError
-   def handle_value_error(exc):
-       # Convert ValueError to a custom RPC error
-       return RPCException(code=12345, message=f"Invalid value: {exc}")
+Use cases
+^^^^^^^^^
 
-   # Register the handler for ValueError
-   server.error_handler(ValueError, handle_value_error)
+Below are a few practical examples.
 
-   # For a custom exception
-   class MyCustomException(Exception):
-       pass
+.. code-block:: python
+   :caption: Send any caught execption to Sentry
 
-   def handle_custom_exception(exc):
-       # You can return any RPCException or subclass
-       return RPCException(code=54321, message="A custom error occurred")
+   import sentry_sdk
 
-   server.error_handler(MyCustomException, handle_custom_exception)
+   def logging_handler(exc: BaseException, ctx: RpcRequestContext) -> None:
+       sentry_sdk.capture_exception(exc)
 
-When an exception occurs, the server will:
 
-1. Check if the exception matches any registered error handler
-2. If a match is found, call the handler with the exception
-3. If the handler returns an RPCException, use it as the error response
-4. If the handler returns None, fall back to the default error handling
-5. If no handler matches, use the default error handling
+.. code-block:: python
+   :caption: Log any exception as warning using python logging module
 
-The default error handling:
+   import logging
 
-- Returns the exception as-is if it's an RPCException
-- Wraps the exception in an RPCInternalError otherwise
+   err_logger = logging.getLogger("myproject.errors")
 
-This mechanism allows you to provide more meaningful error responses to your RPC clients while keeping your RPC methods focused on their core functionality.
+   def logging_handler(exc: BaseException, ctx: RpcRequestContext) -> None:
+       err_logger.warning("RPC error on %s: %s", ctx.request.path, exc, exc_info=True)
+
+
+.. code-block:: python
+   :caption: Transform a specific exception into another one
+
+   def logging_handler(exc: BaseException, ctx: RpcRequestContext) -> None:
+       if isinstance(exc, ZeroDivisionError):
+           raise RPCInvalidParams("You cannot divide by Zero") from exc

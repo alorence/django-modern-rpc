@@ -48,6 +48,32 @@ at once using batch request.
 .. _well defined: https://mirrors.talideon.com/articles/multicall.html
 .. _Python's ServerProxy: https://docs.python.org/3/library/xmlrpc.client.html#multicall-objects
 
+Fault codes
+^^^^^^^^^^^
+
+XML-RPC initial specification does not define a list of common errors and related `faultCode`. In 2001, Dan Libby
+tried to specify such fault codes as an extension of the standard. The original document is now only available from
+Wayback Machine :
+https://web.archive.org/web/20240416231938/https://xmlrpc-epi.sourceforge.net/specs/rfc.fault_codes.php
+
+Here is a list of defined codes and corresponding error description
+
+.. table:: Dan Libby's proposal for standardized error codes
+   :widths: auto
+
+   ======== ==============================
+    -32700   parse error. not well formed
+    -32701   parse error. unsupported encoding
+    -32702   parse error. invalid character for encoding
+    -32600   server error. invalid xml-rpc. not conforming to spec.
+    -32601   server error. requested method not found
+    -32602   server error. invalid method parameters
+    -32603   server error. internal xml-rpc error
+    -32500   application error
+    -32400   system error
+    -32300   transport error
+   ======== ==============================
+
 
 Other useful links
 ^^^^^^^^^^^^^^^^^^
@@ -79,6 +105,28 @@ Batch requests
 django-modern-rpc fully support batch requests as defined in the spec. When a server exposes its async view, a batch
 request will execute procedures concurently using ``asyncio.gather()``. When a server expose the sync view,
 procedures are executed sequentially.
+
+Error codes
+^^^^^^^^^^^
+
+JSON-RPC original specification define a list of officiel error codes based on the list created by Dan Libby as an
+XMML-RPC extension. See https://www.jsonrpc.org/specification#error_object
+
+.. table:: JSON-RPC standardized error codes
+   :widths: 18 20 62
+
+   =================  ===================  ==================================================================
+    code               message              meaning
+   =================  ===================  ==================================================================
+    -32700             Parse error          Invalid JSON was received by the server. An error occurred on the
+                                            server while parsing the JSON text.
+    -32600             Invalid Request      The JSON sent is not a valid Request object.
+    -32601             Method not found     The method does not exist / is not available.
+    -32602             Invalid params       Invalid method parameter(s).
+    -32603             Internal error       Internal JSON-RPC error.
+    -32000 to -32099   Server error         Reserved for implementation-defined server-errors.
+   =================  ===================  ==================================================================
+
 
 Types support
 -------------

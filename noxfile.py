@@ -110,7 +110,7 @@ def coverage(session):
     cov_type = "term"
     if session.posargs:
         cov_type = session.posargs.pop(0)
-        allowed_cov_types = ("term", "term-missing", "annotate", "html", "xml", "json", "lcov")
+        allowed_cov_types = ("term", "term-missing", "annotate", "html", "xml", "json", "markdown", "lcov")
         if cov_type not in allowed_cov_types:
             raise ValueError(f"Invalid coverage report type {cov_type}, possible values are {allowed_cov_types}")
     session.run("uv", "run", "pytest", "-n", "auto", "--cov", f"--cov-report={cov_type}", *session.posargs)

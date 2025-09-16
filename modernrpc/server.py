@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import functools
 import logging
-from typing import TYPE_CHECKING, Callable, Union
+from typing import TYPE_CHECKING, Callable
 
 from django.utils.module_loading import import_string
 from django.views.decorators.csrf import csrf_exempt
@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-RpcErrorHandler = Callable[[BaseException, RpcRequestContext], Union[RPCException, None]]
+RpcErrorHandler = Callable[[BaseException, RpcRequestContext], None]
 
 
 class RegistryMixin:

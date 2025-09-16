@@ -69,6 +69,7 @@ class XmlRpcHandler(RpcHandler[XmlRpcRequest]):
 
         try:
             return self.serializer.dumps(result)
+
         except RPCException as exc:
             exc = context.server.on_error(exc, context)
             return self.serializer.dumps(self.build_error_result(request, exc.code, exc.message))
@@ -90,6 +91,7 @@ class XmlRpcHandler(RpcHandler[XmlRpcRequest]):
 
         try:
             return self.serializer.dumps(result)
+
         except RPCException as exc:
             exc = context.server.on_error(exc, context)
             return self.serializer.dumps(self.build_error_result(request, exc.code, exc.message))
