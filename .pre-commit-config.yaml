@@ -11,19 +11,19 @@ repos:
       - id: check-added-large-files
   - repo: https://github.com/astral-sh/uv-pre-commit
     # uv version.
-    rev: 0.8.17
+    rev: 0.8.23
     hooks:
       - id: uv-lock
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # Ruff version.
-    rev: v0.13.0
+    rev: v0.13.3
     hooks:
       # Linter
       - id: ruff
       # Formatter
       - id: ruff-format
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.18.1
+    rev: v1.18.2
     hooks:
       - id: mypy
         files: ^modernrpc

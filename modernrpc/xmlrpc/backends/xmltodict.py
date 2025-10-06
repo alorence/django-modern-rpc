@@ -51,7 +51,7 @@ class Unmarshaller:
             "struct": self.load_struct,
         }
 
-    def dict_to_request(self, data: OrderedDict[str, Any]) -> XmlRpcRequest:
+    def dict_to_request(self, data: dict[str, Any]) -> XmlRpcRequest:
         try:
             method_call = data["methodCall"]
         except KeyError as exc:
@@ -275,7 +275,7 @@ class XmlToDictDeserializer:
             raise RPCInsecureRequest(str(exc)) from exc
 
         try:
-            structured_data: OrderedDict[str, Any] = xmltodict.parse(data, **self.load_kwargs)
+            structured_data: dict[str, Any] = xmltodict.parse(data, **self.load_kwargs)
         except xml.parsers.expat.ExpatError as exc:
             raise RPCParseError(str(exc)) from exc
 
