@@ -13,7 +13,7 @@ system = RpcNamespace()
 
 @system.register_procedure(name="listMethods", context_target="_ctx")
 def __system_list_methods(_ctx: RpcRequestContext):
-    """Returns a list of all methods available in the current entry point"""
+    """Returns a list of all procedures exposed by the server"""
     server = _ctx.server
     return list(server.procedures.keys())
 
@@ -21,13 +21,14 @@ def __system_list_methods(_ctx: RpcRequestContext):
 @system.register_procedure(name="methodSignature", context_target="_ctx")
 def __system_method_signature(method_name: str, _ctx: RpcRequestContext):
     """
-    Returns an array describing the signature of the given method name.
+    Returns an array describing the signature of the given procedure.
 
-    The result is an array with:
-     - Return type as first elements
-     - Types of method arguments from element 1 to N
+    The result is a list with:
 
-    :param method_name: Name of a method available for current entry point (and protocol)
+     - Return type as first element
+     - Types of arguments from element 1 to N
+
+    :param method_name: Name of the procedure
     :param _ctx: Request context for this call
     :return: An array of arrays describing types of return values and method arguments
     """
@@ -44,11 +45,11 @@ def __system_method_signature(method_name: str, _ctx: RpcRequestContext):
 @system.register_procedure(name="methodHelp", context_target="_ctx")
 def __system_method_help(method_name: str, _ctx: RpcRequestContext):
     """
-    Returns the documentation of the given method name.
+    Returns the documentation of the given procedure.
 
-    :param method_name: Name of a method available for the current entry point (and protocol)
+    :param method_name: Name of the procedure
     :param _ctx: Request context for this call
-    :return: Documentation text for the RPC method
+    :return: Documentation text for the procedure
     """
     server = _ctx.server
     method = server.get_procedure_wrapper(method_name, _ctx.protocol)
@@ -60,9 +61,9 @@ if settings.MODERNRPC_XMLRPC_ASYNC_MULTICALL:
     @system.register_procedure(name="multicall", protocol=Protocol.XML_RPC, context_target="_ctx")
     async def __system_multicall(calls: list, _ctx: RpcRequestContext):
         """
-        Call multiple RPC methods at once, using asyncio.gather().
+        Call multiple procedure at once, using asyncio.gather().
 
-        :param calls: An array of struct like {"methodName": string, "params": array }
+        :param calls: An array of struct like {"methodName": string, "params": [..., ...]}
         :param _ctx: Request context for this call
         :return: An array containing the result of each procedure call
         """
@@ -83,9 +84,9 @@ else:
     @system.register_procedure(name="multicall", protocol=Protocol.XML_RPC, context_target="_ctx")
     def __system_multicall(calls: list, _ctx: RpcRequestContext):
         """
-        Call multiple RPC methods at once.
+        Call multiple procedure at once.
 
-        :param calls: An array of struct like {"methodName": string, "params": array }
+        :param calls: An array of struct like {"methodName": string, "params": [..., ...]}
         :param _ctx: Request context for this call
         :return: An array containing the result of each procedure call
         """
