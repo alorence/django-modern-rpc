@@ -36,8 +36,8 @@ def __system_method_signature(method_name: str, _ctx: RpcRequestContext):
     wrapper = server.get_procedure_wrapper(method_name, _ctx.protocol)
     # See http://xmlrpc-c.sourceforge.net/introspection.html
     undefined = "undef"
-    return_type = wrapper.return_doc.get("type") or undefined
-    args_types = [arg_doc.get("type") or undefined for arg_doc in wrapper.args_doc.values()]
+    return_type = ", ".join(wrapper.returns.expected_types) if wrapper.returns.expected_types else undefined
+    args_types = [arg.expected_types or undefined for arg in wrapper.arguments.values()]
 
     return [[return_type, *args_types]]
 
@@ -53,7 +53,7 @@ def __system_method_help(method_name: str, _ctx: RpcRequestContext):
     """
     server = _ctx.server
     method = server.get_procedure_wrapper(method_name, _ctx.protocol)
-    return method.raw_docstring
+    return method.text_doc
 
 
 if settings.MODERNRPC_XMLRPC_ASYNC_MULTICALL:

@@ -5,27 +5,23 @@
 
 from __future__ import annotations
 
-import importlib
 import inspect
 import re
+import sys
+import types
+import typing
 from typing import Callable
 
 from django.utils.functional import cached_property
 
-from modernrpc.config import settings
-
-# Define regular expressions used to parse docstring
-PARAM_REXP = re.compile(r"^[:@]param (\w+): ?(.*(?:\n[^:@].+)?)$", flags=re.MULTILINE)
-RETURN_REXP = re.compile(r"^[:@]return: ?(.*(?:\n[^:@].+)?)$", flags=re.MULTILINE)
-
-PARAM_TYPE_REXP = re.compile(r"^[:@]type (\w+): ?(.*)$", flags=re.MULTILINE)
-RETURN_TYPE_REXP = re.compile(r"^[:@]rtype ?: ?(.*)$", flags=re.MULTILINE)
-
-MULTI_SPACES = re.compile(r"\s+")
+if sys.version_info >= (3, 10):
+    _UNION_TYPES = {typing.Union, types.UnionType}
+else:
+    _UNION_TYPES = {typing.Union}
 
 
 class Introspector:
-    """Helper to extract the signature and type hint for the given function"""
+    """Helper class to extract the signature of a callable and type hints of its arguments & returns"""
 
     def __init__(self, function: Callable):
         self.func = function
@@ -35,90 +31,63 @@ class Introspector:
         return inspect.signature(self.func)
 
     @cached_property
-    def accept_kwargs(self) -> bool:
-        """Determine if function signature contains **kwargs special argument"""
-        if self.signature.parameters:
-            last_param = next(reversed(list(self.signature.parameters.values())))
-            return last_param.kind == inspect.Parameter.VAR_KEYWORD
-        return False
+    def _func_type_hints(self) -> dict[str, type]:
+        return typing.get_type_hints(self.func)
 
-    @cached_property
-    def args(self) -> list[str]:
-        """List all function arguments"""
-        args = list(self.signature.parameters.keys())
-        if self.accept_kwargs:
-            return args[:-1]
-        return args
+    @staticmethod
+    def resolve_type_hint(_type: type) -> tuple[type, ...]:
+        """Build a tuple containing the given type. If it is a Union, returns a tuple with all its sub-types."""
 
-    @cached_property
-    def return_type(self) -> str:
-        """Return the return type as defined from the signature typehint"""
-        return (
-            ""
-            if self.signature.return_annotation == self.signature.empty
-            else getattr(
-                self.signature.return_annotation,
-                "__name__",
-                str(self.signature.return_annotation),
-            )
-        )
+        if typing.get_origin(_type) in _UNION_TYPES:
+            return typing.get_args(_type)
 
-    @cached_property
-    def args_types(self) -> dict[str, str]:
-        if not self.signature.parameters:
-            return {}
-        return {
-            name: getattr(param.annotation, "__name__", str(param.annotation))
-            for name, param in self.signature.parameters.items()
-            if param.annotation != param.empty
-        }
+        return (_type,)
+
+    def get_arg_type_hint(self, arg: str) -> tuple[type, ...]:
+        if arg in self._func_type_hints:
+            return self.resolve_type_hint(self._func_type_hints[arg])
+        return ()
+
+    def get_return_type_hint(self) -> tuple[type, ...]:
+        if "return" in self._func_type_hints:
+            return self.resolve_type_hint(self._func_type_hints["return"])
+        return ()
 
 
 class DocstringParser:
-    """Parse docstring to extract documentation (type and text) for parameters and return. It also converts
-    the docstring text part to an HTML representation using Markdown or Restructured parser (depending on settings)
-    """
+    """Helper class to parse the docstring of a callable and extract documentation parts from it."""
+
+    MULTIPLE_SPACES = re.compile(r"\s+")
+
+    PARAM_REXP = re.compile(r"^[:@]param (\w+): ?(.*(?:\n[^:@].+)?)$", flags=re.MULTILINE)
+    RETURN_REXP = re.compile(r"^[:@]return: ?(.*(?:\n[^:@].+)?)$", flags=re.MULTILINE)
+
+    PARAM_TYPE_REXP = re.compile(r"^[:@]type (\w+): ?(.*)$", flags=re.MULTILINE)
+    RETURN_TYPE_REXP = re.compile(r"^[:@]rtype ?: ?(.*)$", flags=re.MULTILINE)
 
     def __init__(self, function: Callable):
         self.func = function
 
+    @staticmethod
+    def _cleanup_spaces(subject: str) -> str:
+        """Basically, replaces any number of consecutive space chars (space, newline, tab, etc.) to a single space"""
+        return DocstringParser.MULTIPLE_SPACES.sub(" ", subject)
+
     @cached_property
-    def raw_docstring(self) -> str:
+    def _full_docstring(self) -> str:
         """Return full content of function docstring, as extracted by inspect.getdoc()"""
         return inspect.getdoc(self.func) or ""
 
-    @staticmethod
-    def cleanup_spaces(subject: str) -> str:
-        """Basically, replaces any number of consecutive space chars (space, newline, tab, etc.) to a single space"""
-        return MULTI_SPACES.sub(" ", subject)
-
     @cached_property
-    def text_documentation(self) -> str:
+    def docstring(self) -> str:
         """Return the text part of the docstring block, excluding legacy typehints, parameters and return docs"""
-        content = self.raw_docstring
-        for pattern in [PARAM_REXP, PARAM_TYPE_REXP, RETURN_REXP, RETURN_TYPE_REXP]:
+        content = self._full_docstring
+        for pattern in [self.PARAM_REXP, self.PARAM_TYPE_REXP, self.RETURN_REXP, self.RETURN_TYPE_REXP]:
             content = pattern.sub("", content)
         return content.strip()
 
     @cached_property
-    def html_documentation(self) -> str:
-        """Convert the text part of the docstring to an HTML representation, using the parser set in settings"""
-        if not self.text_documentation:
-            return ""
-
-        if settings.MODERNRPC_DOC_FORMAT.lower() in ("rst", "restructured", "restructuredtext"):
-            docutils = importlib.import_module("docutils.core")
-            return docutils.publish_parts(self.text_documentation, writer_name="html")["body"]
-
-        if settings.MODERNRPC_DOC_FORMAT.lower() in ("md", "markdown"):
-            markdown_module = importlib.import_module("markdown")
-            return markdown_module.markdown(self.text_documentation)
-
-        html_content = self.text_documentation.replace("\n\n", "</p><p>").replace("\n", " ")
-        return f"<p>{html_content}</p>"
-
-    @cached_property
-    def args_doc(self) -> dict[str, str]:
+    def args_docstrings(self) -> dict[str, str]:
         """Return a dict with, for each argument, its name as key and documentation text as value. The dict
         will contain only documented arguments.
         Basically this method parses and extracts reST documented arguments:
@@ -129,7 +98,7 @@ class DocstringParser:
 
             @param <argname>: Documentation for <argname>
         """
-        return {param: self.cleanup_spaces(text) for param, text in PARAM_REXP.findall(self.raw_docstring)}
+        return {param: self._cleanup_spaces(text) for param, text in self.PARAM_REXP.findall(self._full_docstring)}
 
     @cached_property
     def args_types(self) -> dict[str, str]:
@@ -143,7 +112,7 @@ class DocstringParser:
 
             @type <argname>: int or str
         """
-        return dict(PARAM_TYPE_REXP.findall(self.raw_docstring))
+        return dict(self.PARAM_TYPE_REXP.findall(self._full_docstring))
 
     @cached_property
     def return_doc(self) -> str:
@@ -157,8 +126,8 @@ class DocstringParser:
 
         Return an empty string if return documentation is not found
         """
-        res = RETURN_REXP.search(self.raw_docstring)
-        return self.cleanup_spaces(res.group(1)) if res else ""
+        res = self.RETURN_REXP.search(self._full_docstring)
+        return self._cleanup_spaces(res.group(1)) if res else ""
 
     @cached_property
     def return_type(self) -> str:
@@ -172,5 +141,5 @@ class DocstringParser:
 
         Return an empty string if return type information is not found
         """
-        res = RETURN_TYPE_REXP.search(self.raw_docstring)
+        res = self.RETURN_TYPE_REXP.search(self._full_docstring)
         return res.group(1) if res else ""

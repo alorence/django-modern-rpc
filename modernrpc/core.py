@@ -1,14 +1,16 @@
 from __future__ import annotations
 
+import importlib
 import logging
-from collections import OrderedDict
-from dataclasses import dataclass
+from collections import OrderedDict, defaultdict
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Callable, Iterable
 
 from asgiref.sync import async_to_sync, iscoroutinefunction, sync_to_async
 from django.utils.functional import cached_property
 
 from modernrpc import Protocol
+from modernrpc.config import settings
 from modernrpc.constants import NOT_SET
 from modernrpc.exceptions import (
     AuthenticationError,
@@ -39,6 +41,18 @@ class RpcRequestContext:
     auth_result: Any = None
 
 
+@dataclass
+class ProcedureArgDocs:
+    docstring: str = ""
+    doc_types: list[str] = field(default_factory=list)
+    annotations: tuple[type, ...] = ()
+
+    @property
+    def expected_types(self) -> str:
+        str_annotations = [t.__name__ for t in self.annotations]
+        return ", ".join(str_annotations or self.doc_types)
+
+
 class ProcedureWrapper:
     """
     Wraps a python global function to be used to extract information and call the concrete procedure.
@@ -63,18 +77,18 @@ class ProcedureWrapper:
         self.auth = auth
 
     @cached_property
-    def doc_parser(self) -> DocstringParser:
-        return DocstringParser(self.func_or_coro)
-
-    @cached_property
     def introspector(self) -> Introspector:
         return Introspector(self.func_or_coro)
+
+    @cached_property
+    def docstring_parser(self) -> DocstringParser:
+        return DocstringParser(self.func_or_coro)
 
     def __repr__(self) -> str:
         return f'ModernRPC Procedure "{self.name}"'
 
     def __str__(self) -> str:
-        return f"{self.name}({', '.join(self.args)})"
+        return f"{self.name}({', '.join(self.arguments.keys())})"
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, ProcedureWrapper):
@@ -163,47 +177,62 @@ class ProcedureWrapper:
             raise RPCInvalidParams(str(exc)) from None
 
     @cached_property
-    def args(self) -> list[str]:
-        """Method arguments"""
-        return [arg for arg in self.introspector.args if arg != self.context_target]
-
-    @cached_property
-    def raw_docstring(self) -> str:
-        """Method docstring, as raw text"""
-        return self.doc_parser.text_documentation
-
-    @cached_property
-    def html_doc(self) -> str:
-        """Methods docstring, as HTML"""
-        return self.doc_parser.html_documentation
-
-    @cached_property
-    def args_doc(self) -> OrderedDict[str, dict[str, str]]:
-        """Build an OrderedDict mapping each method argument with its
-        corresponding type (from typehint or doctype) and documentation."""
-        return OrderedDict(
-            {
-                arg: {
-                    "type": self.introspector.args_types.get(arg, "") or self.doc_parser.args_types.get(arg, ""),
-                    "text": self.doc_parser.args_doc.get(arg, ""),
-                }
-                for arg in self.introspector.args
-                if arg != self.context_target
-            }
-        )
-
-    @cached_property
-    def return_doc(self) -> dict[str, str]:
-        """Build a dict for the method's return type and documentation"""
-        return {
-            "type": self.introspector.return_type or self.doc_parser.return_type,
-            "text": self.doc_parser.return_doc,
-        }
-
-    @cached_property
     def is_available_in_xml_rpc(self):
         return check_flags_compatibility(self.protocol, Protocol.XML_RPC)
 
     @cached_property
     def is_available_in_json_rpc(self):
         return check_flags_compatibility(self.protocol, Protocol.JSON_RPC)
+
+    @cached_property
+    def text_doc(self) -> str:
+        """Method docstring, as raw text"""
+        return self.docstring_parser.docstring
+
+    @cached_property
+    def html_doc(self) -> str:
+        """Convert the text part of the docstring to an HTML representation, using the parser set in settings"""
+        if not self.text_doc:
+            return ""
+
+        if settings.MODERNRPC_DOC_FORMAT.lower() in ("rst", "restructured", "restructuredtext"):
+            docutils = importlib.import_module("docutils.core")
+            return docutils.publish_parts(self.text_doc, writer_name="html")["body"]
+
+        if settings.MODERNRPC_DOC_FORMAT.lower() in ("md", "markdown"):
+            markdown_module = importlib.import_module("markdown")
+            return markdown_module.markdown(self.text_doc)
+
+        html_content = self.text_doc.replace("\n\n", "</p><p>").replace("\n", " ")
+        return f"<p>{html_content}</p>"
+
+    @cached_property
+    def arguments_names(self) -> list[str]:
+        """
+        List of arguments of the wrapped function.
+
+        If you need to access the documentation for each argument, use the `arguments` property instead.
+        """
+        return [arg for arg in self.introspector.signature.parameters if arg != self.context_target]
+
+    @cached_property
+    def arguments(self) -> OrderedDict[str, ProcedureArgDocs]:
+        result: defaultdict[str, ProcedureArgDocs] = defaultdict(ProcedureArgDocs)
+        for param in self.arguments_names:
+            doc_types = self.docstring_parser.args_types.get(param, "")
+            if doc_types:
+                result[param].doc_types = doc_types.split("|")
+
+            result[param].docstring = self.docstring_parser.args_docstrings.get(param, "")
+            result[param].annotations = self.introspector.get_arg_type_hint(param)
+
+        return OrderedDict(result)
+
+    @cached_property
+    def returns(self) -> ProcedureArgDocs:
+        return_type = self.docstring_parser.return_type
+        return ProcedureArgDocs(
+            docstring=self.docstring_parser.return_doc,
+            doc_types=return_type.split("|") if return_type else [],
+            annotations=self.introspector.get_return_type_hint(),
+        )
