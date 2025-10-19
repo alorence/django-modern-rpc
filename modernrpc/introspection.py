@@ -14,7 +14,7 @@ from django.utils.functional import cached_property
 
 
 class Introspector:
-    """Helper class to extract the signature of a callable and type hints of its arguments & returns"""
+    """Helper class to extract the signature of a callable and the type hint of its arguments & returns"""
 
     def __init__(self, function: Callable):
         self.func = function
@@ -35,12 +35,12 @@ class Introspector:
 
 
 class DocstringParser:
-    """Helper class to parse the docstring of a callable and extract documentation parts from it."""
+    """Helper class to parse the docstring of a callable and extract arguments and return docs & types."""
 
     MULTIPLE_SPACES = re.compile(r"\s+")
 
-    PARAM_REXP = re.compile(r"^[:@]param (\w+): ?(.*(?:\n[^:@].+)?)$", flags=re.MULTILINE)
-    RETURN_REXP = re.compile(r"^[:@]return: ?(.*(?:\n[^:@].+)?)$", flags=re.MULTILINE)
+    PARAM_REXP = re.compile(r"^[:@]param (\w+): ?(.*(?:\n[^:@].+)*)$", flags=re.MULTILINE)
+    RETURN_REXP = re.compile(r"^[:@]return: ?(.*(?:\n[^:@].+)*)$", flags=re.MULTILINE)
 
     PARAM_TYPE_REXP = re.compile(r"^[:@]type (\w+): ?(.*)$", flags=re.MULTILINE)
     RETURN_TYPE_REXP = re.compile(r"^[:@]rtype ?: ?(.*)$", flags=re.MULTILINE)

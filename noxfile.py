@@ -39,7 +39,7 @@ class Django(StrEnum):
 
     @property
     def tag(self):
-        return f"py{self.value.replace('.', '')}"
+        return f"dj{self.value.replace('.', '')}"
 
 
 def is_combination_supported(py: Python, dj: Django) -> bool:
