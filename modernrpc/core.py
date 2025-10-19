@@ -3,7 +3,7 @@ from __future__ import annotations
 import importlib
 import logging
 from collections import OrderedDict, defaultdict
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Callable, Iterable
 
 from asgiref.sync import async_to_sync, iscoroutinefunction, sync_to_async
@@ -31,8 +31,19 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class RpcRequestContext:
-    """Wraps all information needed to call a procedure. Instances of this class are created before call
-    and may be used to populate kwargs dict in rpc method."""
+    """
+    Represents the context of an RPC request.
+
+    This class serves as a container for the components involved in the processing of an RPC request.
+    It holds references to the original http request, server, handler, protocol, and optionally, the authentication
+    result, providing access to contextual information needed during the RPC's lifecycle.
+
+    :ivar request: The HTTP request associated with the RPC context.
+    :ivar server: The RPC server handling the request.
+    :ivar handler: The handler responsible for processing the RPC request.
+    :ivar protocol: The protocol used for the RPC.
+    :ivar auth_result: The result of authentication for this RPC context, if applicable.
+    """
 
     request: HttpRequest
     server: RpcServer
@@ -44,13 +55,16 @@ class RpcRequestContext:
 @dataclass
 class ProcedureArgDocs:
     docstring: str = ""
-    doc_types: list[str] = field(default_factory=list)
-    annotations: tuple[type, ...] = ()
+    doc_type: str = ""
+    type_hint: type | None = None
 
     @property
-    def expected_types(self) -> str:
-        str_annotations = [t.__name__ for t in self.annotations]
-        return ", ".join(str_annotations or self.doc_types)
+    def type_hint_as_str(self) -> str:
+        return self.type_hint.__name__ if self.type_hint else ""
+
+    @property
+    def documented_type(self) -> str:
+        return self.type_hint_as_str or self.doc_type
 
 
 class ProcedureWrapper:
@@ -219,20 +233,16 @@ class ProcedureWrapper:
     def arguments(self) -> OrderedDict[str, ProcedureArgDocs]:
         result: defaultdict[str, ProcedureArgDocs] = defaultdict(ProcedureArgDocs)
         for param in self.arguments_names:
-            doc_types = self.docstring_parser.args_types.get(param, "")
-            if doc_types:
-                result[param].doc_types = doc_types.split("|")
-
+            result[param].doc_type = self.docstring_parser.args_types.get(param, "")
             result[param].docstring = self.docstring_parser.args_docstrings.get(param, "")
-            result[param].annotations = self.introspector.get_arg_type_hint(param)
+            result[param].type_hint = self.introspector.get_arg_type_hint(param)
 
         return OrderedDict(result)
 
     @cached_property
     def returns(self) -> ProcedureArgDocs:
-        return_type = self.docstring_parser.return_type
         return ProcedureArgDocs(
             docstring=self.docstring_parser.return_doc,
-            doc_types=return_type.split("|") if return_type else [],
-            annotations=self.introspector.get_return_type_hint(),
+            doc_type=self.docstring_parser.return_type,
+            type_hint=self.introspector.get_return_type_hint(),
         )

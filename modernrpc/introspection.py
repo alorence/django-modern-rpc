@@ -7,17 +7,10 @@ from __future__ import annotations
 
 import inspect
 import re
-import sys
-import types
 import typing
 from typing import Callable
 
 from django.utils.functional import cached_property
-
-if sys.version_info >= (3, 10):
-    _UNION_TYPES = {typing.Union, types.UnionType}
-else:
-    _UNION_TYPES = {typing.Union}
 
 
 class Introspector:
@@ -34,24 +27,11 @@ class Introspector:
     def _func_type_hints(self) -> dict[str, type]:
         return typing.get_type_hints(self.func)
 
-    @staticmethod
-    def resolve_type_hint(_type: type) -> tuple[type, ...]:
-        """Build a tuple containing the given type. If it is a Union, returns a tuple with all its sub-types."""
+    def get_arg_type_hint(self, arg: str) -> type | None:
+        return self._func_type_hints.get(arg)
 
-        if typing.get_origin(_type) in _UNION_TYPES:
-            return typing.get_args(_type)
-
-        return (_type,)
-
-    def get_arg_type_hint(self, arg: str) -> tuple[type, ...]:
-        if arg in self._func_type_hints:
-            return self.resolve_type_hint(self._func_type_hints[arg])
-        return ()
-
-    def get_return_type_hint(self) -> tuple[type, ...]:
-        if "return" in self._func_type_hints:
-            return self.resolve_type_hint(self._func_type_hints["return"])
-        return ()
+    def get_return_type_hint(self) -> type | None:
+        return self._func_type_hints.get("return")
 
 
 class DocstringParser:

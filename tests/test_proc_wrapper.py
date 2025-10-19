@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+from typing import Union
 
 import pytest
 
@@ -50,7 +51,7 @@ class TestNoDocNoArgs:
 
     def test_returns(self):
         wrapper = ProcedureWrapper(dummy_procedure)
-        assert wrapper.returns == ProcedureArgDocs(docstring="", doc_types=[], annotations=())
+        assert wrapper.returns == ProcedureArgDocs(docstring="", doc_type="", type_hint=None)
 
 
 def single_line_doc():
@@ -71,7 +72,7 @@ class TestSingleLineDocNoArgs:
 
     def test_returns(self):
         wrapper = ProcedureWrapper(single_line_doc)
-        assert wrapper.returns == ProcedureArgDocs(docstring="", doc_types=[], annotations=())
+        assert wrapper.returns == ProcedureArgDocs(docstring="", doc_type="", type_hint=None)
 
     def test_docstring(self):
         wrapper = ProcedureWrapper(single_line_doc)
@@ -113,7 +114,7 @@ class TestMultiLinesDocstringSimple:
 
     def test_returns(self):
         wrapper = ProcedureWrapper(multilines_docstring)
-        assert wrapper.returns == ProcedureArgDocs(docstring="", doc_types=[], annotations=())
+        assert wrapper.returns == ProcedureArgDocs(docstring="", doc_type="", type_hint=None)
 
     def test_docstring(self):
         wrapper = ProcedureWrapper(multilines_docstring)
@@ -175,7 +176,7 @@ class TestMultiLinesDocstringWithBlock:
 
     def test_returns(self):
         wrapper = ProcedureWrapper(multilines_docstring_with_block)
-        assert wrapper.returns == ProcedureArgDocs(docstring="", doc_types=[], annotations=())
+        assert wrapper.returns == ProcedureArgDocs(docstring="", doc_type="", type_hint=None)
 
     def test_docstring(self):
         wrapper = ProcedureWrapper(multilines_docstring_with_block)
@@ -233,18 +234,18 @@ class TestMultilinesDocstringWithArgs:
         assert wrapper.arguments_names == ["one", "two", "three", "four", "five"]
 
         assert wrapper.arguments == {
-            "one": ProcedureArgDocs(docstring="single line description", doc_types=[], annotations=()),
-            "two": ProcedureArgDocs(docstring="", doc_types=[], annotations=()),
+            "one": ProcedureArgDocs(docstring="single line description", doc_type="", type_hint=None),
+            "two": ProcedureArgDocs(docstring="", doc_type="", type_hint=None),
             "three": ProcedureArgDocs(
-                docstring="description with long value on multiple lines", doc_types=[], annotations=()
+                docstring="description with long value on multiple lines", doc_type="", type_hint=None
             ),
-            "four": ProcedureArgDocs(docstring="", doc_types=[], annotations=()),
-            "five": ProcedureArgDocs(docstring="last param", doc_types=[], annotations=()),
+            "four": ProcedureArgDocs(docstring="", doc_type="", type_hint=None),
+            "five": ProcedureArgDocs(docstring="last param", doc_type="", type_hint=None),
         }
 
     def test_returns(self):
         wrapper = ProcedureWrapper(multilines_docstring_with_args_and_doc)
-        assert wrapper.returns == ProcedureArgDocs(docstring="bar", doc_types=[], annotations=())
+        assert wrapper.returns == ProcedureArgDocs(docstring="bar", doc_type="", type_hint=None)
 
     def test_docstring(self):
         wrapper = ProcedureWrapper(multilines_docstring_with_args_and_doc)
@@ -271,14 +272,14 @@ class TestNoDocstringWithArgs:
         wrapper = ProcedureWrapper(untyped_and_undocumented_args)
         assert wrapper.arguments_names == ["a", "b", "c"]
         assert wrapper.arguments == {
-            "a": ProcedureArgDocs(docstring="", doc_types=[], annotations=()),
-            "b": ProcedureArgDocs(docstring="", doc_types=[], annotations=()),
-            "c": ProcedureArgDocs(docstring="", doc_types=[], annotations=()),
+            "a": ProcedureArgDocs(docstring="", doc_type="", type_hint=None),
+            "b": ProcedureArgDocs(docstring="", doc_type="", type_hint=None),
+            "c": ProcedureArgDocs(docstring="", doc_type="", type_hint=None),
         }
 
     def test_returns(self):
         wrapper = ProcedureWrapper(untyped_and_undocumented_args)
-        assert wrapper.returns == ProcedureArgDocs(docstring="", doc_types=[], annotations=())
+        assert wrapper.returns == ProcedureArgDocs(docstring="", doc_type="", type_hint=None)
 
     def test_docstring(self):
         wrapper = ProcedureWrapper(untyped_and_undocumented_args)
@@ -309,9 +310,9 @@ class TestArgsTypeHint:
         wrapper = ProcedureWrapper(typed_args)
         assert wrapper.arguments_names == ["a", "b", "c"]
         assert wrapper.arguments == {
-            "a": ProcedureArgDocs(docstring="", doc_types=[], annotations=(int,)),
-            "b": ProcedureArgDocs(docstring="", doc_types=[], annotations=(str,)),
-            "c": ProcedureArgDocs(docstring="", doc_types=[], annotations=(list, float)),
+            "a": ProcedureArgDocs(docstring="", doc_type="", type_hint=int),
+            "b": ProcedureArgDocs(docstring="", doc_type="", type_hint=str),
+            "c": ProcedureArgDocs(docstring="", doc_type="", type_hint=Union[list, float]),
         }
 
     @pytest.mark.xfail(
@@ -320,7 +321,7 @@ class TestArgsTypeHint:
     )
     def test_returns(self):
         wrapper = ProcedureWrapper(typed_args)
-        assert wrapper.returns == ProcedureArgDocs(docstring="", doc_types=[], annotations=(dict, list))
+        assert wrapper.returns == ProcedureArgDocs(docstring="", doc_type="", type_hint=Union[dict, list])
 
     def test_docstring(self):
         wrapper = ProcedureWrapper(typed_args)
@@ -349,14 +350,14 @@ class TestWithTypeHintAndDocstring:
         wrapper = ProcedureWrapper(typehints_and_standard_docstring)
         assert wrapper.arguments_names == ["a", "b", "c"]
         assert wrapper.arguments == {
-            "a": ProcedureArgDocs(docstring="param A", doc_types=[], annotations=(str,)),
-            "b": ProcedureArgDocs(docstring="param B", doc_types=[], annotations=()),
-            "c": ProcedureArgDocs(docstring="param C", doc_types=[], annotations=(float,)),
+            "a": ProcedureArgDocs(docstring="param A", doc_type="", type_hint=str),
+            "b": ProcedureArgDocs(docstring="param B", doc_type="", type_hint=None),
+            "c": ProcedureArgDocs(docstring="param C", doc_type="", type_hint=float),
         }
 
     def test_returns(self):
         wrapper = ProcedureWrapper(typehints_and_standard_docstring)
-        assert wrapper.returns == ProcedureArgDocs(docstring="A decimal value", doc_types=[], annotations=(float,))
+        assert wrapper.returns == ProcedureArgDocs(docstring="A decimal value", doc_type="", type_hint=float)
 
     def test_docstring(self):
         wrapper = ProcedureWrapper(typehints_and_standard_docstring)
@@ -388,15 +389,15 @@ class TestWithDocstringOnlyFunction:
         wrapper = ProcedureWrapper(args_and_types_docstring)
         assert wrapper.arguments_names == ["name", "birthdate", "sex"]
         assert wrapper.arguments == {
-            "name": ProcedureArgDocs(docstring="A name", doc_types=["str"], annotations=()),
-            "birthdate": ProcedureArgDocs(docstring="A birthdate", doc_types=["datetime.datetime"], annotations=()),
-            "sex": ProcedureArgDocs(docstring="Male or Female", doc_types=["str"], annotations=()),
+            "name": ProcedureArgDocs(docstring="A name", doc_type="str", type_hint=None),
+            "birthdate": ProcedureArgDocs(docstring="A birthdate", doc_type="datetime.datetime", type_hint=None),
+            "sex": ProcedureArgDocs(docstring="Male or Female", doc_type="str", type_hint=None),
         }
 
     def test_returns(self):
         wrapper = ProcedureWrapper(args_and_types_docstring)
         assert wrapper.returns == ProcedureArgDocs(
-            docstring="A string representation of given arguments", doc_types=[], annotations=()
+            docstring="A string representation of given arguments", doc_type="", type_hint=None
         )
 
     def test_default_html_doc_doc(self):
@@ -429,13 +430,13 @@ class TestWithTypeHintAndDocstringTypes:
         wrapper = ProcedureWrapper(typehints_and_types_docstring)
         assert wrapper.arguments_names == ["x", "y"]
         assert wrapper.arguments == {
-            "x": ProcedureArgDocs(docstring="abcd", doc_types=["float"], annotations=(list,)),
-            "y": ProcedureArgDocs(docstring="xyz", doc_types=["int"], annotations=(str,)),
+            "x": ProcedureArgDocs(docstring="abcd", doc_type="float", type_hint=list),
+            "y": ProcedureArgDocs(docstring="xyz", doc_type="int", type_hint=str),
         }
 
     def test_returns(self):
         wrapper = ProcedureWrapper(typehints_and_types_docstring)
-        assert wrapper.returns == ProcedureArgDocs(docstring="efgh", doc_types=["str"], annotations=(dict,))
+        assert wrapper.returns == ProcedureArgDocs(docstring="efgh", doc_type="str", type_hint=dict)
 
     def test_default_html_doc(self):
         wrapper = ProcedureWrapper(typehints_and_types_docstring)
@@ -463,14 +464,14 @@ class TestWithTypeHintAndKwargs:
         wrapper = ProcedureWrapper(with_kwargs)
         assert wrapper.arguments_names == ["x", "y", "kwargs"]
         assert wrapper.arguments == {
-            "x": ProcedureArgDocs(docstring="", doc_types=[], annotations=(list,)),
-            "y": ProcedureArgDocs(docstring="", doc_types=[], annotations=(str,)),
-            "kwargs": ProcedureArgDocs(docstring="", doc_types=[], annotations=()),
+            "x": ProcedureArgDocs(docstring="", doc_type="", type_hint=list),
+            "y": ProcedureArgDocs(docstring="", doc_type="", type_hint=str),
+            "kwargs": ProcedureArgDocs(docstring="", doc_type="", type_hint=None),
         }
 
     def test_returns(self):
         wrapper = ProcedureWrapper(with_kwargs)
-        assert wrapper.returns == ProcedureArgDocs(docstring="", doc_types=[], annotations=(dict,))
+        assert wrapper.returns == ProcedureArgDocs(docstring="", doc_type="", type_hint=dict)
 
     def test_default_html_doc(self):
         wrapper = ProcedureWrapper(with_kwargs)
@@ -491,6 +492,6 @@ class TestContextTarget:
         wrapper = ProcedureWrapper(dummy_with_ctx_target, context_target="context")
         assert wrapper.arguments_names == ["a", "b"]
         assert wrapper.arguments == {
-            "a": ProcedureArgDocs(docstring="", doc_types=[], annotations=(int,)),
-            "b": ProcedureArgDocs(docstring="", doc_types=[], annotations=(str,)),
+            "a": ProcedureArgDocs(docstring="", doc_type="", type_hint=int),
+            "b": ProcedureArgDocs(docstring="", doc_type="", type_hint=str),
         }

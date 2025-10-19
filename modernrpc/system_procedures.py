@@ -36,8 +36,8 @@ def __system_method_signature(method_name: str, _ctx: RpcRequestContext):
     wrapper = server.get_procedure_wrapper(method_name, _ctx.protocol)
     # See http://xmlrpc-c.sourceforge.net/introspection.html
     undefined = "undef"
-    return_type = ", ".join(wrapper.returns.expected_types) if wrapper.returns.expected_types else undefined
-    args_types = [arg.expected_types or undefined for arg in wrapper.arguments.values()]
+    return_type = ", ".join(wrapper.returns.documented_type) if wrapper.returns.documented_type else undefined
+    args_types = [arg.documented_type or undefined for arg in wrapper.arguments.values()]
 
     return [[return_type, *args_types]]
 
