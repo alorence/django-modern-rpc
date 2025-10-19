@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------
 [project]
 name = "django-modern-rpc"
-version = "2.0.a2"
+version = "2.0.a3"
 description = "Simple and powerful RPC server for your Django project"
 license = "MIT"
 license-files = ["LICENSE.txt"]
@@ -37,6 +37,7 @@ classifiers = [
     "Framework :: Django :: 5.0",
     "Framework :: Django :: 5.1",
     "Framework :: Django :: 5.2",
+    "Framework :: Django :: 6.0",
     "Intended Audience :: Developers",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Internet :: WWW/HTTP :: HTTP Servers",

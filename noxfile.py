@@ -29,6 +29,7 @@ class Python(StrEnum):
 
 
 class Django(StrEnum):
+    v6_0 = "6.0"
     v5_2 = "5.2"
     v5_1 = "5.1"
     v5_0 = "5.0"
@@ -46,7 +47,8 @@ def is_combination_supported(py: Python, dj: Django) -> bool:
     """Determines if the given Python / Django versions combination is supported.
 
     This is a direct implementation of the table provided in Django FAQ:
-     - https://docs.djangoproject.com/en/5.1/faq/install/#what-python-version-can-i-use-with-django
+     - https://docs.djangoproject.com/en/4.2/faq/install/#what-python-version-can-i-use-with-django
+     - https://docs.djangoproject.com/en/5.2/faq/install/#what-python-version-can-i-use-with-django
     """
     if dj <= Django.v4_0:
         return Version(py) <= Version("3.10")
@@ -60,8 +62,14 @@ def is_combination_supported(py: Python, dj: Django) -> bool:
     if dj == Django.v5_0:
         return Version("3.10") <= Version(py) <= Version("3.12")
 
-    if dj >= Django.v5_1:
+    if dj == Django.v5_1:
+        return Version("3.10") <= Version(py) <= Version("3.13")
+
+    if dj == Django.v5_2:
         return Version("3.10") <= Version(py)
+
+    if dj >= Django.v6_0:
+        return Version("3.12") <= Version(py)
 
     return False
 
