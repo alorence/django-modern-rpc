@@ -64,19 +64,16 @@ class RegistryMixin:
                     "and must not be used. See https://www.jsonrpc.org/specification#extensions for more information."
                 )
 
+            auth_predicate = self.auth if auth == NOT_SET else auth
             wrapper = ProcedureWrapper(
-                func,
-                name,
-                protocol=protocol,
-                auth=self.auth if auth == NOT_SET else auth,
-                context_target=context_target,
+                func, name, protocol=protocol, auth=auth_predicate, context_target=context_target
             )
 
             if wrapper.name in self._registry and wrapper != self._registry[wrapper.name]:
                 raise ValueError(f"Procedure {wrapper.name} is already registered")
 
             self._registry[wrapper.name] = wrapper
-            logger.debug(f"Registered procedure {wrapper.name}")
+            logger.debug(f"Registered procedure {wrapper.name} into {self.__class__.__name__} instance")
             return func
 
         # If @server.register_procedure() is used with parenthesis (with or without argument)
@@ -117,8 +114,18 @@ class RpcServer(RegistryMixin):
         self.error_handler = error_handler
 
     def register_namespace(self, namespace: RpcNamespace, name: str | None = None) -> None:
-        prefix = f"{name}." if name else ""
-        logger.debug(f"About to register {len(namespace.procedures)} procedures into namespace '{prefix}'")
+        if name:
+            prefix = name + "."
+            logger.debug(
+                f"About to register {len(namespace.procedures)} procedure(s) "
+                f"from namespace '{name}' into the top-level server"
+            )
+        else:
+            prefix = ""
+            logger.debug(
+                f"About to register {len(namespace.procedures)} procedure(s) "
+                f"from unnamed namespace into the top-level server"
+            )
 
         for procedure_name, wrapper in namespace.procedures.items():
             self.register_procedure(

@@ -60,7 +60,7 @@ class ProcedureArgDocs:
 
     @property
     def type_hint_as_str(self) -> str:
-        return self.type_hint.__name__ if self.type_hint else ""
+        return str(self.type_hint) if self.type_hint else ""
 
     @property
     def documented_type(self) -> str:
