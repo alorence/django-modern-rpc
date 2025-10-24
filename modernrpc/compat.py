@@ -1,4 +1,7 @@
 import functools
+import sys
+import types
+import typing
 
 import django
 from django.http import HttpResponseNotAllowed
@@ -36,3 +39,30 @@ else:
             return await func(request, *args, **kwargs)
 
         return inner
+
+
+if sys.version_info >= (3, 14):
+
+    def is_union_type(_type: type):
+        return isinstance(_type, typing.Union)
+
+elif sys.version_info >= (3, 10):
+
+    def is_union_type(_type: type):
+        return typing.get_origin(_type) in (types.UnionType, typing.Union)
+
+else:
+
+    def is_union_type(_type: type):
+        return typing.get_origin(_type) is typing.Union
+
+
+if sys.version_info >= (3, 14):
+
+    def union_str_repr(obj):
+        return str(obj)
+
+else:
+
+    def union_str_repr(obj: type):
+        return " | ".join(t.__name__ for t in typing.get_args(obj))

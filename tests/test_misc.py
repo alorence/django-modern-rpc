@@ -1,9 +1,12 @@
 import datetime
+import sys
 import xmlrpc.client
+from typing import Union
 
 import pytest
 
 from modernrpc import Protocol
+from modernrpc.compat import is_union_type, union_str_repr
 from modernrpc.helpers import check_flags_compatibility, ensure_sequence, first, get_builtin_date
 
 
@@ -99,3 +102,18 @@ def test_get_builtin_date_invalid(date_str):
 )
 def test_flags_compatibility(a, b, expected):
     assert check_flags_compatibility(a, b) == expected
+
+
+def test_union_type():
+    assert is_union_type(Union[int, str]) is True
+    assert is_union_type(int) is False
+    assert is_union_type(type(None)) is False
+
+
+def test_union_str_repr():
+    assert union_str_repr(Union[int, str]) == "int | str"
+
+
+@pytest.mark.skipif(sys.version_info < (3, 10), reason="New union type syntax is fully supported with Python 3.10+")
+def test_modern_union_type():
+    assert is_union_type(int | str) is True

@@ -10,6 +10,7 @@ from asgiref.sync import async_to_sync, iscoroutinefunction, sync_to_async
 from django.utils.functional import cached_property
 
 from modernrpc import Protocol
+from modernrpc.compat import is_union_type, union_str_repr
 from modernrpc.config import settings
 from modernrpc.constants import NOT_SET
 from modernrpc.exceptions import (
@@ -60,7 +61,11 @@ class ProcedureArgDocs:
 
     @property
     def type_hint_as_str(self) -> str:
-        return str(self.type_hint) if self.type_hint else ""
+        if not self.type_hint:
+            return ""
+        if is_union_type(self.type_hint):
+            return union_str_repr(self.type_hint)
+        return self.type_hint.__name__
 
     @property
     def documented_type(self) -> str:

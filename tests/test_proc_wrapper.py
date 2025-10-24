@@ -9,6 +9,19 @@ from modernrpc import Protocol, RpcRequestContext
 from modernrpc.core import ProcedureArgDocs, ProcedureWrapper
 
 
+class TestProcedureArgDocs:
+    def test_type_hint_as_str(self):
+        argz = ProcedureArgDocs(docstring="", doc_type="", type_hint=str)
+        assert argz.type_hint_as_str == "str"
+
+    @pytest.mark.skipif(
+        sys.version_info < (3, 10), reason="repr of Union type is currently unsupported for Python < 3.10"
+    )
+    def test_union_type_hint_as_str(self):
+        argz = ProcedureArgDocs(docstring="", doc_type="", type_hint=Union[str, int])
+        assert argz.type_hint_as_str == "str | int"
+
+
 class TestProtocolsAvailability:
     @pytest.fixture
     def dummy_procedure(self):
