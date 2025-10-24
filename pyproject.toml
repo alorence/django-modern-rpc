@@ -61,10 +61,10 @@ lxml = ["lxml"]
 
 [project.urls]
 "Bug Tracker" = "https://github.com/alorence/django-modern-rpc/issues"
-"Demo" = "https://modernrpc.onrender.com"
+"Demo" = "https://modernrpc.fly.dev"
 
 [build-system]
-requires = ["uv_build>=0.8.12,<0.9.0"]
+requires = ["uv_build>=0.9.5,<0.10.0"]
 build-backend = "uv_build"
 
 [tool.uv.build-backend]
