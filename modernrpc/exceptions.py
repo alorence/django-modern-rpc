@@ -15,7 +15,7 @@ RPC_CUSTOM_ERROR_MAX = -32000
 
 class RPCException(Exception):
     """
-    This is the base class of all RPC exception. Custom exceptions raised by your RPC methods
+    Base class for all RPC exceptions. Custom exceptions raised by your remote procedures
     should inherit from RPCException.
     """
 
@@ -51,7 +51,7 @@ class RPCInvalidRequest(RPCException):
 
 
 class RPCMethodNotFound(RPCException):
-    """Raised by handlers when no procedure were found with the given name in the server (for the current protocol)"""
+    """Raised by handlers when no procedure was found with the given name on the server (for the current protocol)."""
 
     def __init__(self, name: str, data: Any = None):
         err_msg = f'Method not found: "{name}"'
@@ -59,7 +59,7 @@ class RPCMethodNotFound(RPCException):
 
 
 class RPCInvalidParams(RPCException):
-    """Raised by handlers if the request params does not match the procedure's expected ones"""
+    """Raised by handlers if the request parameters do not match the procedure's expected ones."""
 
     def __init__(self, message: str, data: Any = None):
         err_msg = f"Invalid parameters: {message}"
@@ -83,7 +83,7 @@ class RPCMarshallingError(RPCException):
 
 
 class AuthenticationError(RPCException):
-    """Raised when authentication system forbade execution of a RPC Method"""
+    """Raised when the authentication system forbids execution of a remote procedure."""
 
     def __init__(self, method_name: str):
         super().__init__(

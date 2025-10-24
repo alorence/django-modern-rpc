@@ -50,7 +50,7 @@ class RpcHandler(ABC, Generic[RequestType]):
     def process_single_request(
         self, rpc_request: RequestType, context: RpcRequestContext
     ) -> RpcSuccessResult[RequestType] | RpcErrorResult[RequestType]:
-        """Check and call the RPC method, based on the given request dict."""
+        """Check and call the remote procedure, based on the given request dict."""
 
         try:
             wrapper = context.server.get_procedure_wrapper(rpc_request.method_name, self.protocol)
@@ -76,7 +76,7 @@ class RpcHandler(ABC, Generic[RequestType]):
     ) -> RpcSuccessResult[RequestType] | RpcErrorResult[RequestType]:
         """
         Asynchronous version of process_single_request().
-        Check and call the RPC method, based on the given request dict.
+        Check and call the remote procedure, based on the given request dict.
         """
 
         try:

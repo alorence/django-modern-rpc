@@ -1,4 +1,4 @@
-"""Handle all introspection-related features on rpc_methods:
+"""Handle introspection features for remote procedures and other callables:
 - Help text
 - Signature
 """
@@ -55,7 +55,7 @@ class DocstringParser:
 
     @cached_property
     def _full_docstring(self) -> str:
-        """Return full content of function docstring, as extracted by inspect.getdoc()"""
+        """Return the function docstring content returned by inspect.getdoc()"""
         return inspect.getdoc(self.func) or ""
 
     @cached_property
@@ -96,7 +96,7 @@ class DocstringParser:
 
     @cached_property
     def return_doc(self) -> str:
-        """Return the documentation for method return value, as found in docstring:
+        """Return the documentation for the return value, as found in the docstring:
 
             :return: Documentation on return value
 
@@ -111,7 +111,7 @@ class DocstringParser:
 
     @cached_property
     def return_type(self) -> str:
-        """Return the documentation for the method return type, as found in docstring:
+        """Return the documentation for the return type, as found in the docstring:
 
             :rtype: list
 
