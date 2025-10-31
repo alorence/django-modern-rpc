@@ -29,13 +29,9 @@ def handle_rpc_request(
     :param default_encoding: The default encoding to use for request body
     :return: An HTTP response object
     """
-    if not request.content_type:
-        return HttpResponse(
-            "Unable to handle your request, the Content-Type header is mandatory to allow server "
-            "to determine which handler can interpret your request.",
-            status=HTTPStatus.BAD_REQUEST,
-            content_type="text/plain",
-        )
+    response = server.request_pre_check(request)
+    if response:
+        return response
 
     handler = server.get_request_handler(request)
     if not handler:
@@ -68,16 +64,11 @@ async def handle_rpc_request_async(
     :param default_encoding: The default encoding to use for request body
     :return: An HTTP response object
     """
-    if not request.content_type:
-        return HttpResponse(
-            "Unable to handle your request, the Content-Type header is mandatory to allow server "
-            "to determine which handler can interpret your request.",
-            status=HTTPStatus.BAD_REQUEST,
-            content_type="text/plain",
-        )
+    response = server.request_pre_check(request)
+    if response:
+        return response
 
     handler = server.get_request_handler(request)
-
     if not handler:
         return HttpResponse(
             f"Unable to handle your request, unsupported Content-Type {request.content_type}.",

@@ -2,14 +2,17 @@ from __future__ import annotations
 
 import functools
 import logging
+from http import HTTPStatus
 from typing import TYPE_CHECKING, Callable
 
+from django.http import HttpResponse, HttpResponseNotAllowed
+from django.shortcuts import redirect
+from django.utils.log import log_response
 from django.utils.module_loading import import_string
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
 
 from modernrpc import Protocol, RpcRequestContext
-from modernrpc.compat import async_csrf_exempt, async_require_post
+from modernrpc.compat import async_csrf_exempt
 from modernrpc.config import settings
 from modernrpc.constants import NOT_SET, SYSTEM_NAMESPACE_DOTTED_PATH
 from modernrpc.core import ProcedureWrapper
@@ -18,6 +21,7 @@ from modernrpc.helpers import check_flags_compatibility, first_true
 from modernrpc.views import handle_rpc_request, handle_rpc_request_async
 
 if TYPE_CHECKING:
+    from django.db import models
     from django.http import HttpRequest
 
     from modernrpc.handler import RpcHandler
@@ -98,6 +102,7 @@ class RpcServer(RegistryMixin):
         supported_protocol: Protocol = Protocol.ALL,
         auth: AuthPredicateType = NOT_SET,
         error_handler: RpcErrorHandler | None = None,
+        get_method_redirect_to: models.Model | str | None = None,
     ) -> None:
         super().__init__(auth)
         self.request_handlers_classes = list(
@@ -112,6 +117,7 @@ class RpcServer(RegistryMixin):
             self.register_namespace(system_namespace, "system")
 
         self.error_handler = error_handler
+        self.get_method_redirect_to = get_method_redirect_to
 
     def register_namespace(self, namespace: RpcNamespace, name: str | None = None) -> None:
         if name:
@@ -171,6 +177,33 @@ class RpcServer(RegistryMixin):
             return exception
         return RPCInternalError(message=str(exception))
 
+    def build_method_not_allowed_reponse(self, request: HttpRequest) -> HttpResponseNotAllowed:
+        allowed_methods = ["POST"]
+        if self.get_method_redirect_to:
+            allowed_methods.append("GET")
+        response = HttpResponseNotAllowed(allowed_methods)
+        log_response(f"Method Not Allowed ({request.method}): {request.path}", response=response, request=request)
+        return response
+
+    def request_pre_check(self, request: HttpRequest) -> HttpResponse | None:
+        if request.method == "GET":
+            if self.get_method_redirect_to:
+                return redirect(to=self.get_method_redirect_to, permanent=True)
+
+            return self.build_method_not_allowed_reponse(request)
+
+        if request.method != "POST":
+            return self.build_method_not_allowed_reponse(request)
+
+        if not request.content_type:
+            return HttpResponse(
+                "Unable to handle your request, the Content-Type header is mandatory to allow server "
+                "to determine which handler can interpret your request.",
+                status=HTTPStatus.BAD_REQUEST,
+                content_type="text/plain",
+            )
+        return None
+
     @property
     def view(self) -> Callable:
         """
@@ -180,7 +213,7 @@ class RpcServer(RegistryMixin):
         :return: A callable view function
         """
         view_func = functools.partial(handle_rpc_request, server=self)
-        return csrf_exempt(require_POST(view_func))
+        return csrf_exempt(view_func)
 
     @property
     def async_view(self) -> Callable:
@@ -191,4 +224,4 @@ class RpcServer(RegistryMixin):
         :return: An awaitable async view function
         """
         view_func = functools.partial(handle_rpc_request_async, server=self)
-        return async_csrf_exempt(async_require_post(view_func))
+        return async_csrf_exempt(view_func)
