@@ -3,7 +3,7 @@ from __future__ import annotations
 import functools
 import logging
 from http import HTTPStatus
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
 from django.http import HttpResponse, HttpResponseNotAllowed
 from django.shortcuts import redirect
@@ -21,8 +21,8 @@ from modernrpc.helpers import check_flags_compatibility, first_true
 from modernrpc.views import handle_rpc_request, handle_rpc_request_async
 
 if TYPE_CHECKING:
-    from django.db import models
     from django.http import HttpRequest
+    from django.shortcuts import SupportsGetAbsoluteUrl
 
     from modernrpc.handler import RpcHandler
     from modernrpc.types import AuthPredicateType
@@ -102,10 +102,11 @@ class RpcServer(RegistryMixin):
         supported_protocol: Protocol = Protocol.ALL,
         auth: AuthPredicateType = NOT_SET,
         error_handler: RpcErrorHandler | None = None,
-        get_method_redirect_to: models.Model | str | None = None,
+        allow_get_method: str | Callable[..., Any] | SupportsGetAbsoluteUrl | None = None,
+        default_encoding: str = settings.MODERNRPC_DEFAULT_ENCODING,
     ) -> None:
         super().__init__(auth)
-        self.request_handlers_classes = list(
+        self.handler_klasses = list(
             filter(
                 lambda cls: check_flags_compatibility(cls.protocol, supported_protocol),
                 (import_string(klass) for klass in settings.MODERNRPC_HANDLERS),
@@ -117,7 +118,8 @@ class RpcServer(RegistryMixin):
             self.register_namespace(system_namespace, "system")
 
         self.error_handler = error_handler
-        self.get_method_redirect_to = get_method_redirect_to
+        self.redirect_to = allow_get_method
+        self.default_encoding = default_encoding
 
     def register_namespace(self, namespace: RpcNamespace, name: str | None = None) -> None:
         if name:
@@ -155,10 +157,11 @@ class RpcServer(RegistryMixin):
         raise RPCMethodNotFound(name) from None
 
     def get_request_handler(self, request: HttpRequest) -> RpcHandler | None:
-        klass = first_true(self.request_handlers_classes, pred=lambda cls: cls.can_handle(request))
+        handler_klass = first_true(self.handler_klasses, pred=lambda cls: cls.can_handle(request))
         try:
-            return klass()
+            return handler_klass()
         except TypeError:
+            # first_true() returned None -> TypeError: 'NoneType' object is not callable
             return None
 
     def on_error(self, exception: BaseException, context: RpcRequestContext) -> RPCException:
@@ -178,17 +181,25 @@ class RpcServer(RegistryMixin):
         return RPCInternalError(message=str(exception))
 
     def build_method_not_allowed_reponse(self, request: HttpRequest) -> HttpResponseNotAllowed:
-        allowed_methods = ["POST"]
-        if self.get_method_redirect_to:
-            allowed_methods.append("GET")
+        """
+        Build an HttpResponseNotAllowed instance with the correct list of allowed methods.
+        """
+        allowed_methods = ["GET", "POST"] if self.redirect_to else ["POST"]
         response = HttpResponseNotAllowed(allowed_methods)
         log_response(f"Method Not Allowed ({request.method}): {request.path}", response=response, request=request)
         return response
 
-    def request_pre_check(self, request: HttpRequest) -> HttpResponse | None:
+    def check_request(self, request: HttpRequest) -> HttpResponse | None:
+        """
+        Check incoming request for common issues. When everything is fine, return None. Else, return the appropriate
+        HttpResponse instance.
+
+        :param request: Request instance as received by Django
+        :return: A response instance (HttpResponsePermanentRedirect, HttpResponseNotAllowed, HttpResponse) or None
+        """
         if request.method == "GET":
-            if self.get_method_redirect_to:
-                return redirect(to=self.get_method_redirect_to, permanent=True)
+            if self.redirect_to:
+                return redirect(to=self.redirect_to, permanent=True)
 
             return self.build_method_not_allowed_reponse(request)
 
@@ -203,6 +214,15 @@ class RpcServer(RegistryMixin):
                 content_type="text/plain",
             )
         return None
+
+    @staticmethod
+    def build_response(handler: RpcHandler, result_data: str | tuple[int, str]) -> HttpResponse:
+        if isinstance(result_data, tuple) and len(result_data) == 2:
+            status, result_data = result_data
+        else:
+            status = HTTPStatus.OK
+
+        return HttpResponse(result_data, status=status, content_type=handler.response_content_type)
 
     @property
     def view(self) -> Callable:

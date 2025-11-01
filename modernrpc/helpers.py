@@ -72,6 +72,7 @@ def first(seq: Iterable, default=NOT_SET) -> Any:
 def first_true(iterable: Iterable[Any], default: Any = None, pred: Callable[[Any], bool] | None = None) -> Any:
     """
     Same as more_itertools.first_true(), but avoid dependency to a new lib
+
     Doc: https://more-itertools.readthedocs.io/en/stable/api.html#more_itertools.first_true
     """
     return next(filter(pred, iterable), default)

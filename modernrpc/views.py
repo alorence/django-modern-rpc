@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 
 from django.http.response import HttpResponse
 
-from modernrpc.config import settings
 from modernrpc.core import RpcRequestContext
 
 if TYPE_CHECKING:
@@ -18,18 +17,15 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def handle_rpc_request(
-    request: HttpRequest, server: RpcServer, default_encoding: str = settings.MODERNRPC_DEFAULT_ENCODING
-) -> HttpResponse:
+def handle_rpc_request(request: HttpRequest, server: RpcServer) -> HttpResponse:
     """
     Synchronous view function to handle RPC requests.
 
     :param request: The HTTP request object
     :param server: The RPC server instance
-    :param default_encoding: The default encoding to use for request body
     :return: An HTTP response object
     """
-    response = server.request_pre_check(request)
+    response = server.check_request(request)
     if response:
         return response
 
@@ -41,30 +37,23 @@ def handle_rpc_request(
             content_type=request.content_type,
         )
 
-    context = RpcRequestContext(request, server, handler, handler.protocol)
-    request_body = request.body.decode(request.encoding or default_encoding)
-    result_data = handler.process_request(request_body, context)
+    result_data = handler.process_request(
+        request.body.decode(request.encoding or server.default_encoding),
+        RpcRequestContext(request, server, handler, handler.protocol),
+    )
 
-    if isinstance(result_data, tuple) and len(result_data) == 2:
-        status, result_data = result_data
-    else:
-        status = HTTPStatus.OK
-
-    return HttpResponse(result_data, status=status, content_type=handler.response_content_type)
+    return server.build_response(handler, result_data)
 
 
-async def handle_rpc_request_async(
-    request: HttpRequest, server: RpcServer, default_encoding: str = settings.MODERNRPC_DEFAULT_ENCODING
-) -> HttpResponse:
+async def handle_rpc_request_async(request: HttpRequest, server: RpcServer) -> HttpResponse:
     """
     Asynchronous view function to handle RPC requests.
 
     :param request: The HTTP request object
     :param server: The RPC server instance
-    :param default_encoding: The default encoding to use for request body
     :return: An HTTP response object
     """
-    response = server.request_pre_check(request)
+    response = server.check_request(request)
     if response:
         return response
 
@@ -76,13 +65,9 @@ async def handle_rpc_request_async(
             content_type=request.content_type,
         )
 
-    context = RpcRequestContext(request, server, handler, handler.protocol)
-    request_body = request.body.decode(request.encoding or default_encoding)
-    result_data = await handler.aprocess_request(request_body, context)
+    result_data = await handler.aprocess_request(
+        request.body.decode(request.encoding or server.default_encoding),
+        RpcRequestContext(request, server, handler, handler.protocol),
+    )
 
-    if isinstance(result_data, tuple) and len(result_data) == 2:
-        status, result_data = result_data
-    else:
-        status = HTTPStatus.OK
-
-    return HttpResponse(result_data, status=status, content_type=handler.response_content_type)
+    return server.build_response(handler, result_data)

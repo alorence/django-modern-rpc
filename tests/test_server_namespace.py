@@ -32,10 +32,10 @@ class TestInitialRpcServer:
 
     def test_supported_handlers(self):
         """Check that a fresh RPCServer 'supported_handlers' is correct with its initialization"""
-        assert list(RpcServer().request_handlers_classes) == [JsonRpcHandler, XmlRpcHandler]
+        assert list(RpcServer().handler_klasses) == [JsonRpcHandler, XmlRpcHandler]
 
-        assert list(RpcServer(supported_protocol=Protocol.JSON_RPC).request_handlers_classes) == [JsonRpcHandler]
-        assert list(RpcServer(supported_protocol=Protocol.XML_RPC).request_handlers_classes) == [XmlRpcHandler]
+        assert list(RpcServer(supported_protocol=Protocol.JSON_RPC).handler_klasses) == [JsonRpcHandler]
+        assert list(RpcServer(supported_protocol=Protocol.XML_RPC).handler_klasses) == [XmlRpcHandler]
 
     def test_get_jsonrpc_handler(self, rf, jsonrpc_content_type):
         """Check that correct handler is retrieved from request's Content-Type header"""
