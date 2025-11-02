@@ -14,7 +14,7 @@ on:
     - cron: '55 2 */7 * *'
 
 env:
-  UV_VERSION: 0.9.5
+  UV_VERSION: 0.9.7
 
 jobs:
   debug:
