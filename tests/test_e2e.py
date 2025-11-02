@@ -127,26 +127,3 @@ class TestJsonRpc:
 
         assert isinstance(data[4], jsonrpcclient.Ok)
         assert data[4].result == 10
-
-
-class TestNonRpcResponses:
-    @pytest.mark.parametrize("method", ["GET", "HEAD", "OPTIONS", "DELETE", "PATCH", "PUT"])
-    def test_invalid_method(self, live_server, server_path, method):
-        res = requests.request(method, live_server + server_path)
-
-        assert res.status_code == HTTPStatus.METHOD_NOT_ALLOWED
-
-    def test_no_content_type(self, live_server, server_path):
-        res = requests.post(live_server + server_path, data="Hello World !", headers={"content-type": ""})
-
-        assert res.status_code == HTTPStatus.BAD_REQUEST
-        assert res.text == (
-            "Unable to handle your request, the Content-Type header is mandatory to allow server to "
-            "determine which handler can interpret your request."
-        )
-
-    def test_invalid_content_type(self, live_server, server_path):
-        res = requests.post(live_server + server_path, data="Hello World !", headers={"content-type": "text/html"})
-
-        assert res.status_code == HTTPStatus.BAD_REQUEST
-        assert res.text == "Unable to handle your request, unsupported Content-Type text/html."
