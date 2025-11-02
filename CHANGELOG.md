@@ -11,9 +11,10 @@
   value, so `modernrpc` does not need to be added to *settings.INSTALLED_APPS* anymore.
 - `RpcNamespace` were added to provide a better organization of procedures. Each one can be registered in a
   previously defined `RpcServer`.
-- It is now possible to register `async` procedures
-- RPC entrypoints can now be exposed through a synchronous or an asynchronous view. Both views can serve sync and
-  async procedures.
+- It is now possible to register `async` procedures. Both sync (legacy) and async procedures are served by the default
+  view (synchronous)
+- For improved performances with `async` procedures, an `async` view has been added and can be used as a replacement to
+  expose procedures. The `async_view` can serve both sync and async procedures.
 - Error handling has been improved, allowing executing a callback function when an exception is caught and before an
   RPC error response is built.
 - The authentication process has been improved. Multiple callbacks can be configured at server-level, namespace-level
