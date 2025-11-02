@@ -102,7 +102,7 @@ class RpcServer(RegistryMixin):
         supported_protocol: Protocol = Protocol.ALL,
         auth: AuthPredicateType = NOT_SET,
         error_handler: RpcErrorHandler | None = None,
-        allow_get_method: str | Callable[..., Any] | SupportsGetAbsoluteUrl | None = None,
+        redirect_get_request_to: str | Callable[..., Any] | SupportsGetAbsoluteUrl | None = None,
         default_encoding: str = settings.MODERNRPC_DEFAULT_ENCODING,
     ) -> None:
         super().__init__(auth)
@@ -118,7 +118,7 @@ class RpcServer(RegistryMixin):
             self.register_namespace(system_namespace, "system")
 
         self.error_handler = error_handler
-        self.redirect_to = allow_get_method
+        self.redirect_get_request_target = redirect_get_request_to
         self.default_encoding = default_encoding
 
     def register_namespace(self, namespace: RpcNamespace, name: str | None = None) -> None:
@@ -184,7 +184,7 @@ class RpcServer(RegistryMixin):
         """
         Build an HttpResponseNotAllowed instance with the correct list of allowed methods.
         """
-        allowed_methods = ["GET", "POST"] if self.redirect_to else ["POST"]
+        allowed_methods = ["GET", "POST"] if self.redirect_get_request_target else ["POST"]
         response = HttpResponseNotAllowed(allowed_methods)
         log_response(f"Method Not Allowed ({request.method}): {request.path}", response=response, request=request)
         return response
@@ -198,8 +198,8 @@ class RpcServer(RegistryMixin):
         :return: A response instance (HttpResponsePermanentRedirect, HttpResponseNotAllowed, HttpResponse) or None
         """
         if request.method == "GET":
-            if self.redirect_to:
-                return redirect(to=self.redirect_to, permanent=True)
+            if self.redirect_get_request_target:
+                return redirect(to=self.redirect_get_request_target, permanent=True)
 
             return self.build_method_not_allowed_reponse(request)
 

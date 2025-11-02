@@ -486,7 +486,7 @@ Marshaller / Serializer
   `json.dumps() <https://docs.python.org/fr/3/library/json.html#json.dumps>`_ documentation
   for the list of valid keywords arguments.
 
-Note: By default, ``json.dumps`` encoder is overriden to use
+Note: By default, ``json.dumps`` encoder is overridden to use
 `DjangoJSONEncoder <https://docs.djangoproject.com/fr/5.2/topics/serialization/#djangojsonencoder>`_
 through the `cls` argument, primarily to allow serializing ``date``, ``time`` and ``datetime`` objects.
 

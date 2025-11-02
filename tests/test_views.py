@@ -17,7 +17,7 @@ class TestNonRpcResponses:
         assert response.status_code == HTTPStatus.METHOD_NOT_ALLOWED
 
     def test_redirection(self, rf, server):
-        server.redirect_to = "/foo"
+        server.redirect_get_request_target = "/foo"
 
         response = server.view(rf.get("/rpc"))
 
@@ -52,7 +52,7 @@ class TestNonRpcResponsesAsync:
         assert response.status_code == HTTPStatus.METHOD_NOT_ALLOWED
 
     async def test_redirection(self, async_rf, server):
-        server.redirect_to = "/foo"
+        server.redirect_get_request_target = "/foo"
 
         response = await server.async_view(async_rf.get("/rpc"))
 

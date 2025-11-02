@@ -232,4 +232,4 @@ Here is a basic example of such a configuration:
 
 All information about logging configuration can be found in `official Django docs`_.
 
-.. _official Django docs: https://docs.djangoproject.com/en/dev/topics/logging/#configuring-logging
+.. _official Django docs: https://docs.djangoproject.com/en/5.2/topics/logging/#configuring-logging

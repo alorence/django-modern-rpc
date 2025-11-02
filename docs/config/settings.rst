@@ -36,7 +36,7 @@ Default encoding used to parse incoming requests when no charset is set in reque
 MODERNRPC_HANDLERS
 ^^^^^^^^^^^^^^^^^^
 
-List of handler classes used by default in ``RpcServer`` instances. If you overriden a handler class, you may need
+List of handler classes used by default in ``RpcServer`` instances. If you overridden a handler class, you may need
 to specify its dotted path here to use it automatically.
 
 :Default:   ``["modernrpc.jsonrpc.handler.JsonRpcHandler", "modernrpc.handlers.XMLRPCHandler"]``

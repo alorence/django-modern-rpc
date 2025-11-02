@@ -125,6 +125,18 @@ All procedures registered in the server will use the auth callback configured in
 
 For more information about authentication, see :ref:`Authentication`.
 
+GET requests redirection
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+By default, when the server receive a request on a non-POST method, a "Method Not Allowed (405)" response is returned.
+Sometimes, you may need to allow GET requests to really return a page, for example to display some documentation
+about the RPC server.
+
+For that use case, server can be configured with ``redirect_get_request_to`` argument. It allows any value accepted
+by ``django.shortcuts.redirect`` function (see `official redirect() docs`_). When configured, a permanent redirection
+to the corresponding location will be returned on GET requests.
+
+.. _official redirect() docs: https://docs.djangoproject.com/en/5.2/topics/http/shortcuts/#redirect
 
 Namespace
 ---------
