@@ -21,9 +21,11 @@ def __system_list_methods(_ctx: RpcRequestContext):
 @system.register_procedure(name="methodSignature", context_target="_ctx")
 def __system_method_signature(method_name: str, _ctx: RpcRequestContext):
     """
-    Returns an array describing the signature of the given procedure.
+    Returns an array describing the possible signatures for the given procedure.
 
-    The result is a list with:
+    Currently, this procedure only returns one possible signature, so the result is a list of 1 list.
+
+    The inner list contains:
 
      - Return type as first element
      - Types of arguments from element 1 to N
@@ -36,9 +38,8 @@ def __system_method_signature(method_name: str, _ctx: RpcRequestContext):
     wrapper = server.get_procedure_wrapper(method_name, _ctx.protocol)
     # See http://xmlrpc-c.sourceforge.net/introspection.html
     undefined = "undef"
-    return_type = ", ".join(wrapper.returns.documented_type) if wrapper.returns.documented_type else undefined
+    return_type = wrapper.returns.documented_type or undefined
     args_types = [arg.documented_type or undefined for arg in wrapper.arguments.values()]
-
     return [[return_type, *args_types]]
 
 
