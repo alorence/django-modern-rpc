@@ -94,7 +94,7 @@ html_theme_options = {
     },
     "announcement": (
         "⚠️ This documentation is only applicable to the upcoming v2, currently in "
-        "alpha. If you installed a stable version of django-modern-rpc, please refer "
+        "beta. If you installed a stable version of django-modern-rpc, please refer "
         'to <a href="https://django-modern-rpc.readthedocs.io/v1.1.0/">this page.</a>.'
     ),
     "icon_links": [],
