@@ -2,7 +2,7 @@
 
 ## v2.0.0
 
-**Release date: unknown**
+**Release date: 2025-11-10**
 
 ### Improvements
 

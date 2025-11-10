@@ -93,9 +93,10 @@ html_theme_options = {
         "google_analytics_id": "G-7KF8EXTF4W",
     },
     "announcement": (
-        "⚠️ This documentation is only applicable to the upcoming v2, currently in "
-        "beta. If you installed a stable version of django-modern-rpc, please refer "
-        'to <a href="https://django-modern-rpc.readthedocs.io/v1.1.0/">this page.</a>.'
+        "⚠️ This documentation is applicable only to the v2 release, published on 2025-11-10. If you installed a "
+        "previous release, please refer to the corresponding documentation: "
+        '<a href="https://django-modern-rpc.readthedocs.io/v1.1.0/">v1.1.0</a> or '
+        '<a href="https://django-modern-rpc.readthedocs.io/v1.0.3/">v1.0.3</a>.'
     ),
     "icon_links": [],
 }

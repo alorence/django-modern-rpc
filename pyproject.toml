@@ -157,19 +157,19 @@ source = [
     "modernrpc/",
 ]
 omit = [
-  "modernrpc/apps.py",
+    "modernrpc/apps.py",
 ]
 
 [tool.coverage.report]
 # Regexes for lines to exclude from consideration
 exclude_also = [
-  # Don't complain about missing debug-only code:
-  "def __repr__",
-  # Don't complain if tests don't hit defensive assertion code:
-  "raise AssertionError",
-  "raise NotImplementedError",
-  # Such block is used only when mypy is ran
-  "if TYPE_CHECKING:",
+    # Don't complain about missing debug-only code:
+    "def __repr__",
+    # Don't complain if tests don't hit defensive assertion code:
+    "raise AssertionError",
+    "raise NotImplementedError",
+    # Such block is used only when mypy is ran
+    "if TYPE_CHECKING:",
 ]
 
 
