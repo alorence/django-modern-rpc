@@ -17,7 +17,7 @@ on:
         - test.pypi.org
 
 env:
-  UV_VERSION: 0.9.7
+  UV_VERSION: 0.9.11
 
 jobs:
   publish:
@@ -27,11 +27,13 @@ jobs:
       pypi_target: ${{ github.event.inputs.target_repo || 'pypi.org' }}
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
+
     - name: Install uv
-      uses: astral-sh/setup-uv@557e51de59eb14aaaba2ed9621916900a91d50c6 # v6.6.1, see https://github.com/astral-sh/setup-uv/releases
+      uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4, see https://github.com/astral-sh/setup-uv/releases
       with:
         version: ${{ env.UV_VERSION }}
+
     - name: Build
       run: uv build
 

@@ -16,7 +16,7 @@ on:
   workflow_dispatch:
 
 env:
-  UV_VERSION: 0.9.7
+  UV_VERSION: 0.9.11
 
 jobs:
   generate-jobs:
@@ -24,9 +24,11 @@ jobs:
     outputs:
       session: ${{ steps.set-matrix.outputs.session }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
+
     - name: Install nox
-      uses: wntrblm/nox@2254a1ee500bbf66c2a5e4ff5dad030b9f579dcd  # 2025.05.01 - https://github.com/wntrblm/nox/releases
+      uses: wntrblm/nox@0eee2e45758dbd06d48ebb23476439f0f00e5cbd  # 2025.11.12 - https://github.com/wntrblm/nox/releases
+
     - name: Build GH Actions test matrix from nox sessions
       id: set-matrix
       shell: bash
@@ -41,12 +43,15 @@ jobs:
       matrix:
         session: ${{ fromJson(needs.generate-jobs.outputs.session) }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
+
     - name: Install nox
-      uses: wntrblm/nox@2254a1ee500bbf66c2a5e4ff5dad030b9f579dcd  # 2025.05.01 - https://github.com/wntrblm/nox/releases
+      uses: wntrblm/nox@0eee2e45758dbd06d48ebb23476439f0f00e5cbd  # 2025.11.12 - https://github.com/wntrblm/nox/releases
+
     - name: Install uv
-      uses: astral-sh/setup-uv@557e51de59eb14aaaba2ed9621916900a91d50c6 # v6.6.1, see https://github.com/astral-sh/setup-uv/releases
+      uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4, see https://github.com/astral-sh/setup-uv/releases
       with:
         version: ${{ env.UV_VERSION }}
+
     - name: Run benchmarks
       run: nox -s "${{ matrix.session }}"
