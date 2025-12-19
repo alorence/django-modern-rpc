@@ -17,7 +17,7 @@ on:
         - test.pypi.org
 
 env:
-  UV_VERSION: 0.9.13
+  UV_VERSION: 0.9.18
 
 jobs:
   publish:
