@@ -22,7 +22,7 @@ else:
 if sys.version_info >= (3, 14):
 
     def is_union_type(_type: type):
-        return isinstance(_type, typing.Union)
+        return isinstance(_type, types.UnionType)
 
 elif sys.version_info >= (3, 10):
 

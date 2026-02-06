@@ -76,7 +76,7 @@ def jsonrpc_rf(rf) -> Callable[..., HttpRequest]:
 
 @pytest.fixture
 def jsonrpc_batch_rf(rf) -> Callable[..., HttpRequest]:
-    def factory(path="/rpc", content_type="application/json", requests: list[str, tuple, bool] | None = None):
+    def factory(path="/rpc", content_type="application/json", requests: list[tuple[str, tuple, bool]] | None = None):
         data = [
             build_json_rpc_request_data(method=method_name, params=params, is_notification=is_notification)
             for method_name, params, is_notification in requests or []

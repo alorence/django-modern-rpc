@@ -297,7 +297,7 @@ class TestArgsTypeHint:
     @pytest.fixture
     def wrapper(self):
         def typed_args(a: int, b: str, c: list | float) -> dict | list:
-            pass
+            return []
 
         return ProcedureWrapper(typed_args)
 
@@ -345,6 +345,7 @@ class TestWithTypeHintAndDocstring:
             :param c: param C
             :return: A decimal value
             """
+            return 1.33
 
         return ProcedureWrapper(typehints_and_standard_docstring)
 
@@ -423,6 +424,7 @@ class TestWithTypeHintAndDocstringTypes:
             :type y: int
             :rtype: str
             """
+            return {}
 
         return ProcedureWrapper(typehints_and_types_docstring)
 
@@ -453,8 +455,9 @@ class TestWithTypeHintAndKwargs:
 
     @pytest.fixture
     def wrapper(self):
-        def with_kwargs(x: list, y: str, **kwargs) -> dict:
+        def with_kwargs(x: list, y: str, **kwargs) -> str:
             """This is the docstring part of the function"""
+            return "abcdefgh"
 
         return ProcedureWrapper(with_kwargs)
 
@@ -470,7 +473,7 @@ class TestWithTypeHintAndKwargs:
         }
 
     def test_returns(self, wrapper):
-        assert wrapper.returns == ProcedureArgDocs(docstring="", doc_type="", type_hint=dict)
+        assert wrapper.returns == ProcedureArgDocs(docstring="", doc_type="", type_hint=str)
 
     def test_default_html_doc(self, wrapper):
         assert wrapper.text_doc == "This is the docstring part of the function"

@@ -24,7 +24,7 @@ except ImportError:
     NoneType = type(None)  # type: ignore[misc]
 
 
-class ElementTypeProtocol(Protocol, Iterable):
+class ElementTypeProtocol(Iterable, Protocol):
     """
     Base protocol for XML element types. This reflects the API of both the xml.etree and the lxml library.
     Unfortunately, since both libraries share the same interface without inheriting a common base class, we
