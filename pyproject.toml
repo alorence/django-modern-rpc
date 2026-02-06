@@ -110,6 +110,7 @@ type-checking = [
     "types-requests",
     "types-simplejson",
     "types-xmltodict",
+    "ty",
 ]
 docs = [
     "sphinx >= 6.2; python_version < '3.11'",
@@ -172,7 +173,6 @@ exclude_also = [
     "if TYPE_CHECKING:",
 ]
 
-
 # ------------------------------------------------------------------
 # |                        Mypy settings
 # ------------------------------------------------------------------
@@ -182,6 +182,14 @@ exclude = [
     '^tests/.+$',
     '^docs/.+$',
 ]
+
+# ------------------------------------------------------------------
+# |                         Ty settings
+# ------------------------------------------------------------------
+[tool.ty.src]
+exclude = ["docs", "tests", "noxfile.py"]
+[tool.ty.environment]
+python-version = "3.10"
 
 # ------------------------------------------------------------------
 # |                        Ruff settings
