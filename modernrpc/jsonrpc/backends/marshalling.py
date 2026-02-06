@@ -2,7 +2,7 @@
 # PEP 604: use of typeA | typeB is available since Python 3.10, enable it for older versions
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Iterable, overload
+from typing import TYPE_CHECKING, cast, overload
 
 from modernrpc.constants import NOT_SET
 from modernrpc.exceptions import RPCInvalidRequest
@@ -75,13 +75,13 @@ class Marshaller:
     def result_to_dict(self, result: JsonRpcResult) -> DictStrAny | None: ...
 
     @overload
-    def result_to_dict(self, result: Iterable[JsonRpcResult]) -> list[DictStrAny | None]: ...
+    def result_to_dict(self, result: list[JsonRpcResult]) -> list[DictStrAny | None]: ...
 
     def result_to_dict(
-        self, result: JsonRpcResult | Iterable[JsonRpcResult]
+        self, result: JsonRpcResult | list[JsonRpcResult]
     ) -> DictStrAny | None | list[DictStrAny | None]:
-        if isinstance(result, Iterable):
-            return [self.result_to_dict(r) for r in result]
+        if isinstance(result, list):
+            return [self.result_to_dict(cast("JsonRpcResult", r)) for r in result]
 
         if result.request.is_notification:
             return None

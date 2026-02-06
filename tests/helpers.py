@@ -84,10 +84,14 @@ def extract_xmlrpc_fault_data(response: HttpResponse) -> tuple[int, str]:
         pytest.fail("No faultString found!")
 
     try:
-        fault_code_value = int(fault_code.text)
+        fault_code_value = int(fault_code.text)  # type: ignore[arg-type]
     except ValueError:
         pytest.fail(f'Unable to parse faultCode "{fault_code.text}" as int')
         raise
+
+    if fault_string.text is None:
+        pytest.fail("faultString text is None")
+        raise ValueError("faultString text is None")
 
     return fault_code_value, fault_string.text
 

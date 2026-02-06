@@ -42,3 +42,5 @@ CustomKwargs = Optional[DictStrAny]
 NotSetType = object
 AuthPredicate = Callable[[RpcRequest], bool]
 AuthPredicateType = Union[NotSetType, AuthPredicate, Sequence[AuthPredicate]]
+
+FuncOrCoro = Callable[..., Any]
