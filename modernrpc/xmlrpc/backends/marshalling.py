@@ -3,24 +3,14 @@ from __future__ import annotations
 import base64
 from collections import OrderedDict
 from datetime import datetime
-from typing import Any, Callable, Generic, Iterable, Protocol, TypeVar
+from typing import Any, Callable, Generic, Iterable, Protocol, Self, TypeVar
 
-try:
-    from typing import Self
-except ImportError:
-    from typing_extensions import Self
-
+from modernrpc.compat import NoneType
 from modernrpc.exceptions import RPCInvalidRequest
 from modernrpc.helpers import first
 from modernrpc.types import DictStrAny, RpcErrorResult
 from modernrpc.xmlrpc.backends.constants import MAXINT, MININT
 from modernrpc.xmlrpc.handler import XmlRpcRequest, XmlRpcResult
-
-try:
-    # types.NoneType is available only with Python 3.10+
-    from types import NoneType
-except ImportError:
-    NoneType = type(None)  # type: ignore[misc]
 
 
 class ElementTypeProtocol(Iterable, Protocol):
@@ -34,7 +24,9 @@ class ElementTypeProtocol(Iterable, Protocol):
     text: str
 
     def find(self, path: str, namespaces=None) -> Self | None: ...
+
     def findall(self, path: str, namespaces=None) -> list[Self]: ...
+
     def append(self, sub_element: Self) -> None: ...
 
 

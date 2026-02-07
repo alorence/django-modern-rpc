@@ -8,15 +8,18 @@ from __future__ import annotations
 import inspect
 import re
 import typing
-from typing import Callable
+from typing import TYPE_CHECKING
 
 from django.utils.functional import cached_property
+
+if TYPE_CHECKING:
+    from modernrpc.types import FuncOrCoro
 
 
 class Introspector:
     """Helper class to extract the signature of a callable and the type hint of its arguments & returns"""
 
-    def __init__(self, function: Callable):
+    def __init__(self, function: FuncOrCoro):
         self.func = function
 
     @cached_property
@@ -45,7 +48,7 @@ class DocstringParser:
     PARAM_TYPE_REXP = re.compile(r"^[:@]type (\w+): ?(.*)$", flags=re.MULTILINE)
     RETURN_TYPE_REXP = re.compile(r"^[:@]rtype ?: ?(.*)$", flags=re.MULTILINE)
 
-    def __init__(self, function: Callable):
+    def __init__(self, function: FuncOrCoro):
         self.func = function
 
     @staticmethod

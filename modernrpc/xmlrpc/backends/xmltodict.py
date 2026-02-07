@@ -14,18 +14,12 @@ import defusedxml.ElementTree
 import xmltodict
 from django.utils.module_loading import import_string
 
+from modernrpc.compat import NoneType
 from modernrpc.exceptions import RPCInsecureRequest, RPCInvalidRequest, RPCMarshallingError, RPCParseError
 from modernrpc.helpers import ensure_sequence, first
 from modernrpc.types import CustomKwargs, DictStrAny, RpcErrorResult
 from modernrpc.xmlrpc.backends.constants import MAXINT, MININT
 from modernrpc.xmlrpc.handler import XmlRpcRequest
-
-try:
-    # types.NoneType is available only with Python 3.10+
-    from types import NoneType
-except ImportError:
-    NoneType = type(None)  # type: ignore[misc]
-
 
 if TYPE_CHECKING:
     from modernrpc.xmlrpc.handler import XmlRpcResult

@@ -5,6 +5,13 @@ import typing
 import django
 from django.views.decorators.csrf import csrf_exempt
 
+try:
+    # types.NoneType is available only with Python 3.10+
+    from types import NoneType
+except ImportError:
+    NoneType = type(None)  # type: ignore[misc]  # ty: ignore[unused-type-ignore-comment
+
+
 if django.VERSION >= (5, 0):
     # Django updated its decorators to support wrapping asynchronous method in release 5.0
     # REF: https://docs.djangoproject.com/en/5.2/releases/5.0/#decorators

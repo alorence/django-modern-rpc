@@ -4,16 +4,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, cast, overload
 
+from modernrpc.compat import NoneType
 from modernrpc.constants import NOT_SET
 from modernrpc.exceptions import RPCInvalidRequest
 from modernrpc.jsonrpc.handler import JsonRpcRequest
 from modernrpc.types import DictStrAny, RpcErrorResult
-
-try:
-    # types.NoneType is available only with Python 3.10+
-    from types import NoneType
-except ImportError:
-    NoneType = type(None)  # type: ignore[misc]
 
 if TYPE_CHECKING:
     from modernrpc.jsonrpc.handler import JsonRpcResult

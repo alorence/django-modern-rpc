@@ -189,10 +189,7 @@ exclude = [
 [tool.ty.src]
 exclude = ["docs", "noxfile.py", "tests"]
 [tool.ty.environment]
-python-version = "3.10"
-[tool.ty.rules]
-# Ignore warnings about unused type: ignore comments (needed for mypy compatibility)
-unused-type-ignore-comment = "ignore"
+python-version = "3.11"
 
 # ------------------------------------------------------------------
 # |                        Ruff settings
