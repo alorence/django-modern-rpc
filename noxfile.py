@@ -174,6 +174,14 @@ def format_check(session):
 
 
 @nox.session(venv_backend="uv", tags=["checks"])
+def ty(session):
+    """Verify type hints"""
+    env_vars = {"UV_PROJECT_ENVIRONMENT": session.virtualenv.location}
+    session.run_install("uv", "sync", "--group", "type-checking", env=env_vars)
+    session.run("ty", "check", env=env_vars)
+
+
+@nox.session(venv_backend="uv", tags=["checks"])
 def mypy(session):
     """Verify type hints"""
     env_vars = {"UV_PROJECT_ENVIRONMENT": session.virtualenv.location}
