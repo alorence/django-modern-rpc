@@ -77,6 +77,20 @@ jobs:
       run: |
         uv run --group=type-checking mypy .
 
+  ty:
+    runs-on: ubuntu-latest
+    needs: debug
+    steps:
+    - uses: actions/checkout@v6
+    - name: Install uv
+      uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4, see https://github.com/astral-sh/setup-uv/releases
+      with:
+        version: ${{ env.UV_VERSION }}
+    - name: Ty
+      continue-on-error: true
+      run: |
+        uv run --group=type-checking ty check .
+
   generate-jobs:
     runs-on: ubuntu-latest
     needs: debug
