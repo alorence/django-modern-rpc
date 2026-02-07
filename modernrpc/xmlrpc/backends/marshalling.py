@@ -5,9 +5,10 @@ from collections import OrderedDict
 from datetime import datetime
 from typing import Any, Callable, Generic, Iterable, Protocol, TypeVar
 
-# Self is available in typing base module only from Python 3.11
-# Use typing_extensions for compatibility with Python < 3.11
-from typing_extensions import Self
+try:
+    from typing import Self
+except ImportError:
+    from typing_extensions import Self
 
 from modernrpc.exceptions import RPCInvalidRequest
 from modernrpc.helpers import first
