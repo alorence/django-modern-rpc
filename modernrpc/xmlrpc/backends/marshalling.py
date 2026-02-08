@@ -3,7 +3,7 @@ from __future__ import annotations
 import base64
 from collections import OrderedDict
 from datetime import datetime
-from typing import Any, Callable, Generic, Iterable, Protocol, Self, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, Generic, Iterable, Protocol, TypeVar
 
 from modernrpc.compat import NoneType
 from modernrpc.exceptions import RPCInvalidRequest
@@ -11,6 +11,9 @@ from modernrpc.helpers import first
 from modernrpc.types import DictStrAny, RpcErrorResult
 from modernrpc.xmlrpc.backends.constants import MAXINT, MININT
 from modernrpc.xmlrpc.handler import XmlRpcRequest, XmlRpcResult
+
+if TYPE_CHECKING:
+    from typing import Self
 
 
 class ElementTypeProtocol(Iterable, Protocol):
