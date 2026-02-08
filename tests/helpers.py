@@ -9,7 +9,8 @@ from xml.etree import ElementTree as ET
 
 import jsonrpcclient.sentinels
 import pytest
-from lxml.doctestcompare import PARSE_XML, LXMLOutputChecker
+from _pytest.main import Failed
+from lxml.usedoctest import PARSE_XML, LXMLOutputChecker
 
 from modernrpc import Protocol
 from modernrpc.helpers import ensure_sequence
@@ -71,27 +72,24 @@ def extract_xmlrpc_fault_data(response: HttpResponse) -> tuple[int, str]:
     # TODO : use xmlrpc.client.loads()?
     try:
         root = ET.fromstring(response.content)
-    except ET.ParseError:
-        pytest.fail(f"Unable to parse XML payload:\n{response.content}")
-        raise
+    except ET.ParseError as e:
+        raise Failed(f"Unable to parse XML payload:\n{response.content}") from e
 
     fault_code = root.find("./fault/value/struct/member/name[.='faultCode']/../value/int")
     fault_string = root.find("./fault/value/struct/member/name[.='faultString']/../value/string")
 
     if fault_code is None:
-        pytest.fail("No faultCode found!")
+        raise Failed("No faultCode found!")
     if fault_string is None:
-        pytest.fail("No faultString found!")
+        raise Failed("No faultString found!")
 
     try:
         fault_code_value = int(fault_code.text)  # type: ignore[arg-type]
-    except ValueError:
-        pytest.fail(f'Unable to parse faultCode "{fault_code.text}" as int')
-        raise
+    except ValueError as e:
+        raise Failed(f'Unable to parse faultCode "{fault_code}" as int') from e
 
     if fault_string.text is None:
-        pytest.fail("faultString text is None")
-        raise ValueError("faultString text is None")
+        raise Failed("faultString text is None")
 
     return fault_code_value, fault_string.text
 
