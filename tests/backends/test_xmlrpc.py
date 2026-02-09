@@ -204,7 +204,7 @@ class TestXmlRpcDeserializer:
         assert request.method_name == "foo.bar.baz"
         assert request.args == [[5, 9, "abc"], [0.0]]
 
-    def test_param_struc_single_value(self, xml_deserializer):
+    def test_param_struct_single_value(self, xml_deserializer):
         payload = """
             <?xml version="1.0"?>
             <methodCall>
@@ -227,7 +227,7 @@ class TestXmlRpcDeserializer:
         assert request.method_name == "foo.bar.baz"
         assert request.args == [{"pi": 3.14}]
 
-    def test_param_struc_multiple_values(self, xml_deserializer):
+    def test_param_struct_multiple_values(self, xml_deserializer):
         payload = """
             <?xml version="1.0"?>
             <methodCall>

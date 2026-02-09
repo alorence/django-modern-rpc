@@ -8,14 +8,14 @@ from collections import OrderedDict
 from datetime import datetime
 from functools import cached_property
 from io import StringIO
-from typing import TYPE_CHECKING, Any, Callable, Literal, Sequence
+from typing import TYPE_CHECKING, Any, Callable, Literal
 
 import defusedxml.ElementTree
 import xmltodict
 from django.utils.module_loading import import_string
 
 from modernrpc.exceptions import RPCInsecureRequest, RPCInvalidRequest, RPCMarshallingError, RPCParseError
-from modernrpc.helpers import ensure_sequence, first
+from modernrpc.helpers import first
 from modernrpc.types import CustomKwargs, DictStrAny, RpcErrorResult
 from modernrpc.xmlrpc.backends.constants import MAXINT, MININT
 from modernrpc.xmlrpc.handler import XmlRpcRequest
@@ -51,6 +51,24 @@ class Unmarshaller:
             "struct": self.load_struct,
         }
 
+    @classmethod
+    def do_force_list(cls, path, key, value):
+        """Indicate to xmltodict parser when a specific tag MUST return a list even for a single element"""
+        if path:
+            # <param> is expected only as child of <params>
+            # <member> is expected as child of <struct>
+            # These tags does not appear elsewhere
+            if key in ("param", "member"):
+                return True
+
+            upper_tag, _ = path[-1]
+            # <value> tag may appear in various places.
+            # Consider it as a list of values only when direct child of <array> or <data> (struct)
+            if key == "value" and upper_tag in ("array", "data"):
+                return True
+
+        return False
+
     def dict_to_request(self, data: dict[str, Any]) -> XmlRpcRequest:
         try:
             method_call = data["methodCall"]
@@ -62,16 +80,13 @@ class Unmarshaller:
         except KeyError as exc:
             raise RPCInvalidRequest("missing methodCall.methodName tag", data=data) from exc
 
-        params = method_call.get("params") or {}
-        param_list: Sequence[DictStrAny] = params.get("param", [])
+        # We don't use method_call.get("params", default={}) here because if <params> tag is present but empty,
+        # the default won't be used and the function will actually return None
+        params_root = method_call.get("params") or {}
+        params = params_root.get("param", [])
 
         args: list[Any] = []
-        if len(param_list) == 0:
-            args = []
-        elif len(param_list) == 1:
-            param_list = ensure_sequence(param_list)
-
-        for param in param_list:
+        for param in params:
             _type, v = first(param.items())
             args.append(self.dispatch(_type, v))
 
@@ -86,8 +101,8 @@ class Unmarshaller:
         return load_func(value)
 
     def load_value(self, data: dict) -> Any:
-        _type, v = first(data.items())
-        return self.dispatch(_type, v)
+        _type, value = first(data.items())
+        return self.dispatch(_type, value)
 
     @staticmethod
     def load_nil(_) -> None:
@@ -120,16 +135,15 @@ class Unmarshaller:
         return base64.b64decode(data)
 
     def load_array(self, data: dict[str, dict[str, list[DictStrAny]]]):
-        entries = []
-        for element in ensure_sequence(data["data"]["value"]):
+        values = []
+        for element in data["data"].get("value", []):
             _type, value = first(element.items())
-            entries.append(self.dispatch(_type, value))
-        return entries
+            values.append(self.dispatch(_type, value))
+        return values
 
     def load_struct(self, data: dict):
-        members = ensure_sequence(data["member"])
         res = {}
-        for member in members:
+        for member in data["member"]:
             value = member["value"]
             if len(value) > 1:
                 raise ValueError
@@ -255,6 +269,7 @@ class XmlToDictDeserializer:
         self.unmarshaller_klass = import_string(unmarshaller_klass)
         self.unmarshaller_kwargs = unmarshaller_kwargs or {}
         self.load_kwargs = load_kwargs or {}
+        self.load_kwargs["force_list"] = Unmarshaller.do_force_list
 
     @cached_property
     def unmarshaller(self):
