@@ -167,11 +167,7 @@ class RpcServer(RegistryMixin):
     def get_request_handler(self, request: HttpRequest) -> RpcHandler | None:
         """Return the first handler that can handle the given request, or None if no handler can handle it."""
         handler_klass = first_true(self.handler_klasses, pred=lambda cls: cls.can_handle(request))
-        try:
-            return handler_klass()
-        except TypeError:
-            # first_true() returned None -> TypeError: 'NoneType' object is not callable
-            return None
+        return handler_klass() if handler_klass else None
 
     def on_error(self, exception: BaseException, context: RpcRequestContext) -> RPCException:
         """

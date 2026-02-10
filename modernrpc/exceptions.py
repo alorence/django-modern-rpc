@@ -39,7 +39,7 @@ class RPCInsecureRequest(RPCParseError):
 
     def __init__(self, message: str, data: Any = None):
         err_msg = f"Security error: {message}"
-        super().__init__(err_msg, data)
+        RPCException.__init__(self, RPC_PARSE_ERROR, err_msg, data)
 
 
 class RPCInvalidRequest(RPCException):

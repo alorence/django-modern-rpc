@@ -34,7 +34,7 @@ def handle_rpc_request(request: HttpRequest, server: RpcServer) -> HttpResponse:
         return HttpResponse(
             f"Unable to handle your request, unsupported Content-Type {request.content_type}.",
             status=HTTPStatus.BAD_REQUEST,
-            content_type=request.content_type,
+            content_type="text/plain",
         )
 
     result_data = handler.process_request(
@@ -62,7 +62,7 @@ async def handle_rpc_request_async(request: HttpRequest, server: RpcServer) -> H
         return HttpResponse(
             f"Unable to handle your request, unsupported Content-Type {request.content_type}.",
             status=HTTPStatus.BAD_REQUEST,
-            content_type=request.content_type,
+            content_type="text/plain",
         )
 
     result_data = await handler.aprocess_request(

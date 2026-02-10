@@ -177,13 +177,12 @@ class ProcedureWrapper:
         kwargs = kwargs or {}
 
         try:
-            auth_result = self.check_permissions(context.request)
+            context.auth_result = self.check_permissions(context.request)
         except Exception as exc:
             raise AuthenticationError(self.name) from exc
 
         # If the remote procedure requested access to context data, provide it into proper kwargs key
         if self.context_target:
-            context.auth_result = auth_result
             kwargs[self.context_target] = context
 
         logger.debug("Params: args = %s - kwargs = %s", args, kwargs)

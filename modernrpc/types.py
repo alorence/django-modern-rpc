@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Callable, Dict, Generic, Optional, Sequence, TypeVar, Union
 
+from django.http import HttpRequest
+
 if TYPE_CHECKING:
     from modernrpc.compat import TypeAlias
 
@@ -12,7 +14,7 @@ class RpcRequest:
     """Basic information about RPC request"""
 
     method_name: str
-    args: list[Any] | tuple[Any] = field(default_factory=list)
+    args: list[Any] | tuple[Any, ...] = field(default_factory=list)
 
 
 RequestType = TypeVar("RequestType", bound=RpcRequest)
@@ -43,7 +45,7 @@ DictStrAny: TypeAlias = Dict[str, Any]  # Python 3.8 requires use of "Dict" inst
 CustomKwargs: TypeAlias = Optional[DictStrAny]
 
 NotSetType = object
-AuthPredicate: TypeAlias = Callable[[RpcRequest], bool]
+AuthPredicate: TypeAlias = Callable[[HttpRequest], Any]
 AuthPredicateType: TypeAlias = Union[NotSetType, AuthPredicate, Sequence[AuthPredicate]]
 
 FuncOrCoro: TypeAlias = Callable[..., Any]

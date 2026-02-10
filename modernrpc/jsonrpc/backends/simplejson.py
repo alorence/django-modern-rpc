@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 class SimplejsonDeserializer:
-    """json-rpc serializer based on the third-party simplejson library"""
+    """json-rpc deserializer based on the third-party simplejson library"""
 
     def __init__(
         self,
@@ -45,7 +45,7 @@ class SimplejsonDeserializer:
 
 
 class SimplejsonSerializer:
-    """json-rpc deserializer based on the third-party simplejson library"""
+    """json-rpc serializer based on the third-party simplejson library"""
 
     def __init__(
         self,

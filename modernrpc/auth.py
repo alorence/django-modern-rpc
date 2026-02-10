@@ -27,7 +27,7 @@ def extract_generic_token(request: HttpRequest, header_name: str, auth_type: str
     :return: Authentication data
     """
     auth_header = extract_header(request, header_name)
-    current_auth_type, credentials = auth_header.split()
+    current_auth_type, credentials = auth_header.split(maxsplit=1)
 
     if current_auth_type.lower() != auth_type.lower():
         raise ValueError(f'Invalid authentication type. Expected "{auth_type}", found "{current_auth_type}"')
@@ -39,7 +39,7 @@ def extract_http_basic_auth(request: HttpRequest) -> tuple[str, str]:
     """Extract HTTP Basic Auth credentials from a request object. Return a tuple with username and password"""
     credentials = extract_generic_token(request, "Authorization", "Basic")
 
-    uname, passwd = base64.b64decode(credentials).decode("utf-8").split(":")
+    uname, passwd = base64.b64decode(credentials).decode("utf-8").split(":", maxsplit=1)
     return unquote(uname), unquote(passwd)
 
 
