@@ -14,7 +14,7 @@ on:
     - cron: '55 2 */7 * *'
 
 env:
-  UV_VERSION: 0.9.18
+  UV_VERSION: 0.10.2
 
 jobs:
   debug:
@@ -33,7 +33,7 @@ jobs:
     steps:
     - uses: actions/checkout@v6
     - name: Install uv
-      uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4, see https://github.com/astral-sh/setup-uv/releases
+      uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0, see https://github.com/astral-sh/setup-uv/releases
       with:
         version: ${{ env.UV_VERSION }}
     - name: Check lockfile
@@ -45,7 +45,7 @@ jobs:
     steps:
     - uses: actions/checkout@v6
     - name: Install uv
-      uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4, see https://github.com/astral-sh/setup-uv/releases
+      uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0, see https://github.com/astral-sh/setup-uv/releases
       with:
         version: ${{ env.UV_VERSION }}
     - name: Ruff
@@ -58,7 +58,7 @@ jobs:
     steps:
     - uses: actions/checkout@v6
     - name: Install uv
-      uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4, see https://github.com/astral-sh/setup-uv/releases
+      uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0, see https://github.com/astral-sh/setup-uv/releases
       with:
         version: ${{ env.UV_VERSION }}
     - name: Ruff Format
@@ -70,7 +70,7 @@ jobs:
     steps:
     - uses: actions/checkout@v6
     - name: Install uv
-      uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4, see https://github.com/astral-sh/setup-uv/releases
+      uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0, see https://github.com/astral-sh/setup-uv/releases
       with:
         version: ${{ env.UV_VERSION }}
     - name: Mypy
@@ -83,7 +83,7 @@ jobs:
     steps:
     - uses: actions/checkout@v6
     - name: Install uv
-      uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4, see https://github.com/astral-sh/setup-uv/releases
+      uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0, see https://github.com/astral-sh/setup-uv/releases
       with:
         version: ${{ env.UV_VERSION }}
     - name: Ty
@@ -99,7 +99,7 @@ jobs:
     steps:
     - uses: actions/checkout@v6
     - name: Install nox
-      uses: wntrblm/nox@0eee2e45758dbd06d48ebb23476439f0f00e5cbd  # 2025.11.12 - https://github.com/wntrblm/nox/releases
+      uses: wntrblm/nox@5a277b752f6094150e25237d47c34168e2b7526e  # 2026.02.09 - https://github.com/wntrblm/nox/releases
     - name: Build GH Actions test matrix from nox sessions
       id: set-matrix
       shell: bash
@@ -117,10 +117,10 @@ jobs:
     - uses: actions/checkout@v6
 
     - name: Install nox
-      uses: wntrblm/nox@0eee2e45758dbd06d48ebb23476439f0f00e5cbd  # 2025.11.12 - https://github.com/wntrblm/nox/releases
+      uses: wntrblm/nox@5a277b752f6094150e25237d47c34168e2b7526e  # 2026.02.09 - https://github.com/wntrblm/nox/releases
 
     - name: Install uv
-      uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4, see https://github.com/astral-sh/setup-uv/releases
+      uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0, see https://github.com/astral-sh/setup-uv/releases
       with:
         version: ${{ env.UV_VERSION }}
 
@@ -163,7 +163,7 @@ jobs:
 
     - name: SonarQube Scan + Coverage upload
       continue-on-error: true
-      uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602 # v6.0.0 - https://github.com/SonarSource/sonarqube-scan-action/releases
+      uses: SonarSource/sonarqube-scan-action@a31c9398be7ace6bbfaf30c0bd5d415f843d45e9 # v7.0.0 - https://github.com/SonarSource/sonarqube-scan-action/releases
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       with:
