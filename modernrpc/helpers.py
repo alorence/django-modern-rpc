@@ -64,9 +64,9 @@ def first(seq: Iterable, default=NOT_SET) -> Any:
     try:
         return next(iter(seq))
     except StopIteration:
-        if default is not NOT_SET:
-            return default
-        raise IndexError("No element found in iterable") from None
+        if default is NOT_SET:
+            raise IndexError("No element found in iterable") from None
+        return default
 
 
 def first_true(iterable: Iterable[Any], default: Any = None, pred: Callable[[Any], bool] | None = None) -> Any:

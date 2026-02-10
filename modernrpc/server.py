@@ -34,6 +34,11 @@ RpcErrorHandler = Callable[[BaseException, RpcRequestContext], None]
 
 
 class RegistryMixin:
+    """
+    Common logic for both RpcNamespace and RpcServer classes.
+    Provide methods to register RPC procedures into an internal registry.
+    """
+
     def __init__(self, auth: AuthPredicateType = NOT_SET) -> None:
         self._registry: dict[str, ProcedureWrapper] = {}
         self.auth = auth
@@ -92,10 +97,13 @@ class RegistryMixin:
         return self._registry
 
 
-class RpcNamespace(RegistryMixin): ...
+class RpcNamespace(RegistryMixin):
+    """Registry for RPC procedures belonging to a given namespace."""
 
 
 class RpcServer(RegistryMixin):
+    """Base class to store all remote procedures for a given entry point"""
+
     def __init__(
         self,
         register_system_procedures: bool = True,
@@ -122,6 +130,7 @@ class RpcServer(RegistryMixin):
         self.default_encoding = default_encoding
 
     def register_namespace(self, namespace: RpcNamespace, name: str | None = None) -> None:
+        """Register all procedures from given namespace into the top-level server."""
         if name:
             prefix = name + "."
             logger.debug(
@@ -157,6 +166,7 @@ class RpcServer(RegistryMixin):
         raise RPCMethodNotFound(name) from None
 
     def get_request_handler(self, request: HttpRequest) -> RpcHandler | None:
+        """Return the first handler that can handle the given request, or None if no handler can handle it."""
         handler_klass = first_true(self.handler_klasses, pred=lambda cls: cls.can_handle(request))
         try:
             return handler_klass()
@@ -217,6 +227,7 @@ class RpcServer(RegistryMixin):
 
     @staticmethod
     def build_response(handler: RpcHandler, result_data: str | tuple[int, str]) -> HttpResponse:
+        """Build an HttpResponse instance from the given handler and result data."""
         if isinstance(result_data, tuple) and len(result_data) == 2:
             status, result_data = result_data
         else:

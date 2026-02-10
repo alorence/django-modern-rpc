@@ -35,7 +35,9 @@ class ElementTypeProtocol(Iterable, Protocol):
     text: str
 
     def find(self, path: str, namespaces=None) -> Self | None: ...
+
     def findall(self, path: str, namespaces=None) -> list[Self]: ...
+
     def append(self, sub_element: Self) -> None: ...
 
 
