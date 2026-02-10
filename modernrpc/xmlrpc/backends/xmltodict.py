@@ -14,18 +14,12 @@ import defusedxml.ElementTree
 import xmltodict
 from django.utils.module_loading import import_string
 
+from modernrpc.compat import NoneType
 from modernrpc.exceptions import RPCInsecureRequest, RPCInvalidRequest, RPCMarshallingError, RPCParseError
 from modernrpc.helpers import first
 from modernrpc.types import CustomKwargs, DictStrAny, RpcErrorResult
 from modernrpc.xmlrpc.backends.constants import MAXINT, MININT
 from modernrpc.xmlrpc.handler import XmlRpcRequest
-
-try:
-    # types.NoneType is available only with Python 3.10+
-    from types import NoneType
-except ImportError:
-    NoneType = type(None)  # type: ignore[misc]
-
 
 if TYPE_CHECKING:
     from modernrpc.xmlrpc.handler import XmlRpcResult
@@ -69,7 +63,7 @@ class Unmarshaller:
 
         return False
 
-    def dict_to_request(self, data: dict[str, Any]) -> XmlRpcRequest:
+    def dict_to_request(self, data: DictStrAny) -> XmlRpcRequest:
         try:
             method_call = data["methodCall"]
         except KeyError as exc:
@@ -290,7 +284,7 @@ class XmlToDictDeserializer:
             raise RPCInsecureRequest(str(exc)) from exc
 
         try:
-            structured_data: dict[str, Any] = xmltodict.parse(data, **self.load_kwargs)
+            structured_data: DictStrAny = xmltodict.parse(data, **self.load_kwargs)
         except xml.parsers.expat.ExpatError as exc:
             raise RPCParseError(str(exc)) from exc
 

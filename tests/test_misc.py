@@ -116,4 +116,4 @@ def test_union_str_repr():
 
 @pytest.mark.skipif(sys.version_info < (3, 10), reason="New union type syntax is fully supported with Python 3.10+")
 def test_modern_union_type():
-    assert is_union_type(int | str) is True
+    assert is_union_type(int | str) is True  # ty: ignore[unsupported-operator]

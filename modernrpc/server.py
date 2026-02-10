@@ -25,8 +25,7 @@ if TYPE_CHECKING:
     from django.shortcuts import SupportsGetAbsoluteUrl
 
     from modernrpc.handler import RpcHandler
-    from modernrpc.types import AuthPredicateType
-
+    from modernrpc.types import AuthPredicateType, FuncOrCoro
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +44,7 @@ class RegistryMixin:
 
     def register_procedure(
         self,
-        procedure: Callable | None = None,
+        procedure: FuncOrCoro | None = None,
         name: str | None = None,
         protocol: Protocol = Protocol.ALL,
         auth: AuthPredicateType = NOT_SET,
@@ -66,7 +65,7 @@ class RegistryMixin:
         :raises ValueError: If a procedure can't be registered
         """
 
-        def decorated(func: Callable) -> Callable:
+        def decorated(func: FuncOrCoro) -> FuncOrCoro:
             if name and name.startswith("rpc."):
                 raise ValueError(
                     'According to JSON-RPC specs, method names starting with "rpc." are reserved for system extensions '

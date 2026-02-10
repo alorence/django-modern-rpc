@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, Generic, Optional, Sequence, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, Generic, Optional, Sequence, TypeVar, Union
+
+if TYPE_CHECKING:
+    from modernrpc.compat import TypeAlias
 
 
 @dataclass
@@ -36,9 +39,11 @@ class RpcErrorResult(RpcResult[RequestType]):
 # Type aliases.
 # Each one may be typed with typing.TypeAlias as soon as Python 3.10 will be the minimal requirement
 # New syntax `type X = list[str]` will be available from Python 3.12
-DictStrAny = Dict[str, Any]  # Not sure why, but using dict instead of typing.Dict here will cause Python 3.8 to crash
-CustomKwargs = Optional[DictStrAny]
+DictStrAny: TypeAlias = Dict[str, Any]  # Python 3.8 requires use of "Dict" instead of "dict" here
+CustomKwargs: TypeAlias = Optional[DictStrAny]
 
 NotSetType = object
-AuthPredicate = Callable[[RpcRequest], bool]
-AuthPredicateType = Union[NotSetType, AuthPredicate, Sequence[AuthPredicate]]
+AuthPredicate: TypeAlias = Callable[[RpcRequest], bool]
+AuthPredicateType: TypeAlias = Union[NotSetType, AuthPredicate, Sequence[AuthPredicate]]
+
+FuncOrCoro: TypeAlias = Callable[..., Any]

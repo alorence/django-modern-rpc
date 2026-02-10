@@ -2,18 +2,12 @@
 # PEP 604: use of typeA | typeB is available since Python 3.10, enable it for older versions
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Iterable, overload
+from typing import TYPE_CHECKING, cast, overload
 
 from modernrpc.constants import NOT_SET
 from modernrpc.exceptions import RPCInvalidRequest
 from modernrpc.jsonrpc.handler import JsonRpcRequest
 from modernrpc.types import DictStrAny, RpcErrorResult
-
-try:
-    # types.NoneType is available only with Python 3.10+
-    from types import NoneType
-except ImportError:
-    NoneType = type(None)  # type: ignore[misc]
 
 if TYPE_CHECKING:
     from modernrpc.jsonrpc.handler import JsonRpcResult
@@ -38,7 +32,7 @@ class Unmarshaller:
         # Notification request won't have "id" field
         # None is also an allowed value. Both cases are valid
         request_id = request_data.get("id")
-        if type(request_id) not in (NoneType, int, float, str):
+        if request_id is not None and type(request_id) not in (int, float, str):
             raise RPCInvalidRequest(
                 'Parameter "id" has an unsupported value. According to JSON-RPC 2.0 standard, it must '
                 f"be a String, a Number or a Null value. Found: {type(request_id)}"
@@ -75,13 +69,13 @@ class Marshaller:
     def result_to_dict(self, result: JsonRpcResult) -> DictStrAny | None: ...
 
     @overload
-    def result_to_dict(self, result: Iterable[JsonRpcResult]) -> list[DictStrAny | None]: ...
+    def result_to_dict(self, result: list[JsonRpcResult]) -> list[DictStrAny | None]: ...
 
     def result_to_dict(
-        self, result: JsonRpcResult | Iterable[JsonRpcResult]
+        self, result: JsonRpcResult | list[JsonRpcResult]
     ) -> DictStrAny | None | list[DictStrAny | None]:
-        if isinstance(result, Iterable):
-            return [self.result_to_dict(r) for r in result]
+        if isinstance(result, list):
+            return [self.result_to_dict(cast("JsonRpcResult", r)) for r in result]
 
         if result.request.is_notification:
             return None

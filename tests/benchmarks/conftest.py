@@ -1,14 +1,20 @@
+from __future__ import annotations
+
 import json
 from textwrap import dedent
+from typing import TYPE_CHECKING
 
 import pytest
 
 from modernrpc.jsonrpc.handler import JsonRpcRequest, JsonRpcSuccessResult
 from modernrpc.xmlrpc.handler import XmlRpcRequest, XmlRpcSuccessResult
 
+if TYPE_CHECKING:
+    from modernrpc.types import DictStrAny
+
 
 @pytest.fixture
-def xmlrpc_request():
+def xmlrpc_request() -> str:
     req = """
         <?xml version="1.0"?>
         <methodCall>
@@ -1766,7 +1772,7 @@ def xmlrpc_request():
 
 
 @pytest.fixture(scope="session")
-def random_data():
+def random_data() -> DictStrAny:
     return {
         "users": [
             {
@@ -2018,7 +2024,7 @@ def random_data():
 
 
 @pytest.fixture
-def jsonrpc_request(random_data):
+def jsonrpc_request(random_data) -> str:
     req = """
         {
           "id": 255,
@@ -2031,10 +2037,10 @@ def jsonrpc_request(random_data):
 
 
 @pytest.fixture
-def jsonrpc_result(random_data):
+def jsonrpc_result(random_data) -> JsonRpcSuccessResult:
     return JsonRpcSuccessResult(request=JsonRpcRequest(request_id=500, method_name=""), data=random_data)
 
 
 @pytest.fixture
-def xmlrpc_result(random_data):
+def xmlrpc_result(random_data) -> XmlRpcSuccessResult:
     return XmlRpcSuccessResult(request=XmlRpcRequest(method_name=""), data=random_data)

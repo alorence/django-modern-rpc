@@ -4,7 +4,7 @@ import importlib
 import logging
 from collections import OrderedDict, defaultdict
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Callable, Iterable
+from typing import TYPE_CHECKING, Any, Iterable
 
 from asgiref.sync import async_to_sync, iscoroutinefunction, sync_to_async
 from django.utils.functional import cached_property
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
     from modernrpc.handler import RpcHandler
     from modernrpc.server import RpcServer
-    from modernrpc.types import AuthPredicateType
+    from modernrpc.types import AuthPredicateType, FuncOrCoro
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +57,7 @@ class RpcRequestContext:
 class ProcedureArgDocs:
     docstring: str = ""
     doc_type: str = ""
-    type_hint: type | None = None
+    type_hint: Any = None
 
     @property
     def type_hint_as_str(self) -> str:
@@ -79,7 +79,7 @@ class ProcedureWrapper:
 
     def __init__(
         self,
-        func_or_coro: Callable,
+        func_or_coro: FuncOrCoro,
         name: str | None = None,
         protocol: Protocol = Protocol.ALL,
         auth: AuthPredicateType = NOT_SET,
@@ -89,7 +89,8 @@ class ProcedureWrapper:
         self.func_or_coro = func_or_coro
 
         # @decorator parameters
-        self.name = name or func_or_coro.__name__
+        func_name: str = getattr(func_or_coro, "__name__", None) or str(func_or_coro)
+        self.name: str = name or func_name
         self.protocol = protocol
         self.context_target = context_target
 

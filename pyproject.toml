@@ -187,9 +187,8 @@ exclude = [
 # |                         Ty settings
 # ------------------------------------------------------------------
 [tool.ty.src]
-exclude = ["docs", "tests", "noxfile.py"]
+exclude = ["noxfile.py"]
 [tool.ty.environment]
-python-version = "3.10"
 
 # ------------------------------------------------------------------
 # |                        Ruff settings

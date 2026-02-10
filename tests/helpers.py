@@ -9,10 +9,10 @@ from xml.etree import ElementTree as ET
 
 import jsonrpcclient.sentinels
 import pytest
-from lxml.doctestcompare import PARSE_XML, LXMLOutputChecker
+from _pytest.main import Failed
+from lxml.doctestcompare import PARSE_XML, LXMLOutputChecker  # ty: ignore[unresolved-import]
 
 from modernrpc import Protocol
-from modernrpc.helpers import ensure_sequence
 from modernrpc.jsonrpc.backends.json import PythonJsonDeserializer, PythonJsonSerializer
 from modernrpc.jsonrpc.backends.orjson import OrjsonDeserializer, OrjsonSerializer
 from modernrpc.jsonrpc.backends.rapidjson import RapidjsonDeserializer, RapidjsonSerializer
@@ -25,6 +25,7 @@ from modernrpc.xmlrpc.backends.xmltodict import XmlToDictDeserializer, XmlToDict
 if TYPE_CHECKING:
     from django.http import HttpResponse
 
+    from modernrpc.jsonrpc.handler import RequestIdType
     from modernrpc.types import DictStrAny
 
 ALL_PROTOCOLS = [Protocol.XML_RPC, Protocol.JSON_RPC]
@@ -41,9 +42,9 @@ def build_xml_rpc_request_data(method="dummy", params=()) -> str:
     return xmlrpc.client.dumps(methodname=method, params=tuple(params))
 
 
-def build_json_rpc_request_data(method="dummy", params=(), is_notification=False, req_id=None) -> DictStrAny:
-    if params:
-        params = ensure_sequence(params)
+def build_json_rpc_request_data(
+    method="dummy", params: tuple = (), is_notification=False, req_id: RequestIdType = None
+) -> DictStrAny:
     if is_notification:
         return jsonrpcclient.notification(method=method, params=params)
     return jsonrpcclient.request(method=method, params=params, id=req_id or jsonrpcclient.sentinels.NOID)
@@ -71,23 +72,24 @@ def extract_xmlrpc_fault_data(response: HttpResponse) -> tuple[int, str]:
     # TODO : use xmlrpc.client.loads()?
     try:
         root = ET.fromstring(response.content)
-    except ET.ParseError:
-        pytest.fail(f"Unable to parse XML payload:\n{response.content}")
-        raise
+    except ET.ParseError as e:
+        raise Failed(f"Unable to parse XML payload:\n{response.content}") from e
 
     fault_code = root.find("./fault/value/struct/member/name[.='faultCode']/../value/int")
     fault_string = root.find("./fault/value/struct/member/name[.='faultString']/../value/string")
 
     if fault_code is None:
-        pytest.fail("No faultCode found!")
+        raise Failed("No faultCode found!")
     if fault_string is None:
-        pytest.fail("No faultString found!")
+        raise Failed("No faultString found!")
 
     try:
-        fault_code_value = int(fault_code.text)
-    except ValueError:
-        pytest.fail(f'Unable to parse faultCode "{fault_code.text}" as int')
-        raise
+        fault_code_value = int(fault_code.text)  # type: ignore[arg-type]
+    except ValueError as e:
+        raise Failed(f'Unable to parse faultCode "{fault_code}" as int') from e
+
+    if fault_string.text is None:
+        raise Failed("faultString text is None")
 
     return fault_code_value, fault_string.text
 

@@ -503,7 +503,7 @@ class TestXmlRpcSerializer:
             OrderedDict(a=12, b=["1", "2", "3"], final=None),
         ],
     )
-    def test_result_dict_multiple_values(self, request, xml_serializer, struct_value):
+    def test_result_dict_multiple_values(self, request, xml_serializer, dummy_xmlrpc_request, struct_value):
         if "PythonXmlRpc" in xml_serializer.__class__.__name__ and isinstance(struct_value, OrderedDict):
             marker = pytest.mark.xfail(reason="PythonXmlRpcSerializer does not support OrderedDict", strict=True)
             request.applymarker(marker)

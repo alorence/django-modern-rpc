@@ -5,6 +5,25 @@ import typing
 import django
 from django.views.decorators.csrf import csrf_exempt
 
+if sys.version_info >= (3, 10):
+    from types import NoneType
+else:
+    NoneType = type(None)
+
+if typing.TYPE_CHECKING:
+    if sys.version_info >= (3, 10):
+        from typing import TypeAlias
+
+    else:
+        from typing_extensions import TypeAlias  # noqa: F401
+
+    if sys.version_info >= (3, 11):
+        from typing import Self
+
+    else:
+        from typing_extensions import Self  # noqa: F401
+
+
 if django.VERSION >= (5, 0):
     # Django updated its decorators to support wrapping asynchronous method in release 5.0
     # REF: https://docs.djangoproject.com/en/5.2/releases/5.0/#decorators
@@ -21,26 +40,26 @@ else:
 
 if sys.version_info >= (3, 14):
 
-    def is_union_type(_type: type):
+    def is_union_type(_type: typing.Any) -> bool:
         return isinstance(_type, types.UnionType)
 
 elif sys.version_info >= (3, 10):
 
-    def is_union_type(_type: type):
+    def is_union_type(_type: typing.Any) -> bool:
         return typing.get_origin(_type) in (types.UnionType, typing.Union)
 
 else:
 
-    def is_union_type(_type: type):
+    def is_union_type(_type: typing.Any) -> bool:
         return typing.get_origin(_type) is typing.Union
 
 
 if sys.version_info >= (3, 14):
 
-    def union_str_repr(obj):
+    def union_str_repr(obj: typing.Any) -> str:
         return str(obj)
 
 else:
 
-    def union_str_repr(obj: type):
+    def union_str_repr(obj: typing.Any) -> str:
         return " | ".join(t.__name__ for t in typing.get_args(obj))
