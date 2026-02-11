@@ -22,7 +22,7 @@ repos:
     rev: v0.15.0
     hooks:
       # Linter
-      - id: ruff
+      - id: ruff-check
       # Formatter
       - id: ruff-format
   - repo: https://github.com/pre-commit/mirrors-mypy
