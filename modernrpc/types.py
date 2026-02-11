@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Callable, Generic, Sequence, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 from django.http import HttpRequest
 
 if TYPE_CHECKING:
-    from modernrpc.compat import TypeAlias
+    from typing import TypeAlias
 
 
 @dataclass
@@ -38,8 +39,7 @@ class RpcErrorResult(RpcResult[RequestType]):
     data: Any = None
 
 
-# Type aliases.
-# New syntax `type X = list[str]` will be available from Python 3.12
+# Type aliases. New syntax `type X = list[str]` will be available from Python 3.12
 DictStrAny: TypeAlias = dict[str, Any]
 CustomKwargs: TypeAlias = DictStrAny | None
 

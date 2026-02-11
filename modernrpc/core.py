@@ -4,7 +4,7 @@ import importlib
 import logging
 from collections import OrderedDict, defaultdict
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Iterable
+from typing import TYPE_CHECKING, Any
 
 from asgiref.sync import async_to_sync, iscoroutinefunction, sync_to_async
 from django.utils.functional import cached_property
@@ -21,6 +21,8 @@ from modernrpc.helpers import check_flags_compatibility, ensure_sequence
 from modernrpc.introspection import DocstringParser, Introspector
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from django.http import HttpRequest
 
     from modernrpc.handler import RpcHandler

@@ -30,7 +30,7 @@ reworked authentication system, improved type annotations, and more flexible con
 Getting started
 ---------------
 
-.. important:: django-modern-rpc requires Python 3.10+ and Django 3.2+. If you need to install it in environment with
+.. important:: django-modern-rpc requires Python 3.10+ and Django 4.2+. If you need to install it in environment with
    older Python / Django versions, you must install a previous release. See :ref:`Changelog` for more information.
 
 Installing the library and configuring a Django project to use it can be achieved in a few minutes. Follow

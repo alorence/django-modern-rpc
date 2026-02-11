@@ -16,7 +16,8 @@ from modernrpc.handler import RpcHandler
 from modernrpc.types import DictStrAny, RpcErrorResult, RpcRequest, RpcSuccessResult
 
 if TYPE_CHECKING:
-    from typing import ClassVar, Generator
+    from collections.abc import Generator
+    from typing import ClassVar
 
     from modernrpc import RpcRequestContext
     from modernrpc.jsonrpc.backends import JsonRpcDeserializer, JsonRpcSerializer

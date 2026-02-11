@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from functools import cached_property, partial
-from typing import TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING
 
 import simplejson
 from django.core.serializers.json import DjangoJSONEncoder
@@ -11,6 +11,8 @@ from simplejson import JSONDecodeError
 from modernrpc.exceptions import RPCMarshallingError, RPCParseError
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from modernrpc.jsonrpc.handler import JsonRpcRequest, JsonRpcResult
     from modernrpc.types import CustomKwargs, DictStrAny
 

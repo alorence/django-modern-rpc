@@ -1,14 +1,11 @@
 import sys
 import types
 import typing
-from types import NoneType  # noqa: F401
 
 import django
 from django.views.decorators.csrf import csrf_exempt
 
 if typing.TYPE_CHECKING:
-    from typing import TypeAlias  # noqa: F401
-
     if sys.version_info >= (3, 11):
         from typing import Self
     else:

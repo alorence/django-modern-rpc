@@ -3,16 +3,17 @@ from __future__ import annotations
 import base64
 import xml.parsers.expat
 from collections import OrderedDict
+from collections.abc import Callable
 from datetime import datetime
 from functools import cached_property
 from io import StringIO
-from typing import TYPE_CHECKING, Any, Callable, Literal
+from types import NoneType
+from typing import TYPE_CHECKING, Any, Literal
 
 import defusedxml.ElementTree
 import xmltodict
 from django.utils.module_loading import import_string
 
-from modernrpc.compat import NoneType
 from modernrpc.exceptions import RPCInsecureRequest, RPCInvalidRequest, RPCMarshallingError, RPCParseError
 from modernrpc.helpers import first
 from modernrpc.types import CustomKwargs, DictStrAny, RpcErrorResult

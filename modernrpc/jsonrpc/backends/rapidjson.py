@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from functools import cached_property
-from typing import TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING
 
 import rapidjson
 from django.utils.module_loading import import_string
@@ -10,6 +10,8 @@ from rapidjson import JSONDecodeError
 from modernrpc.exceptions import RPCMarshallingError, RPCParseError
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from modernrpc.jsonrpc.handler import JsonRpcRequest, JsonRpcResult
     from modernrpc.types import CustomKwargs, DictStrAny
 

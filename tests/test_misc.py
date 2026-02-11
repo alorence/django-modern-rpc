@@ -1,6 +1,5 @@
 import datetime
 import xmlrpc.client
-from typing import Union
 
 import pytest
 
@@ -104,14 +103,10 @@ def test_flags_compatibility(a, b, expected):
 
 
 def test_union_type():
-    assert is_union_type(Union[int, str]) is True
+    assert is_union_type(int | str) is True
     assert is_union_type(int) is False
     assert is_union_type(type(None)) is False
 
 
 def test_union_str_repr():
-    assert union_str_repr(Union[int, str]) == "int | str"
-
-
-def test_modern_union_type():
-    assert is_union_type(int | str) is True  # ty: ignore[unsupported-operator]
+    assert union_str_repr(int | str) == "int | str"

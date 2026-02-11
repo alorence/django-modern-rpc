@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Union
-
 import pytest
 
 from modernrpc import Protocol, RpcRequestContext
@@ -14,8 +12,8 @@ class TestProcedureArgDocs:
         assert argz.type_hint_as_str == "str"
 
     def test_union_type_hint_as_str(self):
-        argz = ProcedureArgDocs(docstring="", doc_type="", type_hint=Union[str, int])
-        assert argz.type_hint_as_str == "str | int"
+        argz = ProcedureArgDocs(docstring="", doc_type="", type_hint=int | str)
+        assert argz.type_hint_as_str == "int | str"
 
 
 class TestProtocolsAvailability:
@@ -305,11 +303,11 @@ class TestArgsTypeHint:
         assert wrapper.arguments == {
             "a": ProcedureArgDocs(docstring="", doc_type="", type_hint=int),
             "b": ProcedureArgDocs(docstring="", doc_type="", type_hint=str),
-            "c": ProcedureArgDocs(docstring="", doc_type="", type_hint=Union[list, float]),
+            "c": ProcedureArgDocs(docstring="", doc_type="", type_hint=list | float),
         }
 
     def test_returns(self, wrapper):
-        assert wrapper.returns == ProcedureArgDocs(docstring="", doc_type="", type_hint=Union[dict, list])
+        assert wrapper.returns == ProcedureArgDocs(docstring="", doc_type="", type_hint=dict | list)
 
     def test_docstring(self, wrapper):
         assert wrapper.text_doc == ""

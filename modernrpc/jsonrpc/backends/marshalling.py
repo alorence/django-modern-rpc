@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from types import NoneType
 from typing import TYPE_CHECKING, cast, overload
 
 from modernrpc.constants import NOT_SET
@@ -30,7 +31,7 @@ class Unmarshaller:
         # Notification request won't have "id" field
         # None is also an allowed value. Both cases are valid
         request_id = request_data.get("id")
-        if request_id is not None and type(request_id) not in (int, float, str):
+        if type(request_id) not in (NoneType, int, float, str):
             raise RPCInvalidRequest(
                 'Parameter "id" has an unsupported value. According to JSON-RPC 2.0 standard, it must '
                 f"be a String, a Number or a Null value. Found: {type(request_id)}"

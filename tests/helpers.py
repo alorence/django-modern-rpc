@@ -4,7 +4,7 @@ import json
 import xmlrpc.client
 from doctest import Example
 from json import JSONDecodeError
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 from xml.etree import ElementTree as ET
 
 import jsonrpcclient.sentinels
@@ -23,6 +23,8 @@ from modernrpc.xmlrpc.backends.xmlrpc import PythonXmlRpcDeserializer, PythonXml
 from modernrpc.xmlrpc.backends.xmltodict import XmlToDictDeserializer, XmlToDictSerializer
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from django.http import HttpResponse
 
     from modernrpc.jsonrpc.handler import RequestIdType

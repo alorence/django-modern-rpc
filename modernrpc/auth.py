@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import base64
 import functools
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 from urllib.parse import unquote
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from django.http import HttpRequest
 
 

@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import base64
 from collections import OrderedDict
+from collections.abc import Callable, Iterable
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Callable, Generic, Iterable, Protocol, TypeVar
+from types import NoneType
+from typing import TYPE_CHECKING, Any, Generic, Protocol, TypeVar
 
-from modernrpc.compat import NoneType
 from modernrpc.exceptions import RPCInvalidRequest
 from modernrpc.helpers import first
 from modernrpc.types import DictStrAny, RpcErrorResult
