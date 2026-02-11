@@ -1,5 +1,5 @@
+import inspect
 import json
-from textwrap import dedent
 
 import pytest
 
@@ -1763,7 +1763,7 @@ def xmlrpc_request() -> str:
           </params>
         </methodCall>
     """  # noqa: E501 (long lines are acceptable here)
-    return dedent(req).lstrip()
+    return inspect.cleandoc(req)
 
 
 @pytest.fixture(scope="session")
@@ -2028,7 +2028,7 @@ def jsonrpc_request(random_data) -> str:
           "params": %s
         }
     """ % json.dumps(random_data, indent=2)  # noqa: UP031 (str formatting is better when building a json payload)
-    return dedent(req)
+    return inspect.cleandoc(req)
 
 
 @pytest.fixture

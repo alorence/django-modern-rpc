@@ -27,12 +27,12 @@ else:
 
 if sys.version_info >= (3, 14):
 
-    def is_union_type(_type: typing.Any) -> bool:
+    def is_union_type(_type) -> bool:
         return isinstance(_type, types.UnionType)
 
 else:
 
-    def is_union_type(_type: typing.Any) -> bool:
+    def is_union_type(_type) -> bool:
         return typing.get_origin(_type) in (types.UnionType, typing.Union)
 
 

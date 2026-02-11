@@ -89,7 +89,7 @@ def tests(session, python, django):
     session.run("pytest", "-n", "auto", *post_args)
 
 
-@nox.session(name="tests:current-venv", venv_backend="none", default=False)
+@nox.session(name="tests:current-venv", venv_backend="none", default=False, tags=["tests"])
 def tests_current_venv(session):
     """Run tests in the current virtualenv only"""
     post_args = session.posargs or []

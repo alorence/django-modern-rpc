@@ -1,8 +1,8 @@
 import base64
+import inspect
 import xmlrpc.client
 from collections import OrderedDict
 from datetime import datetime
-from textwrap import dedent
 
 import pytest
 from helpers import assert_xml_data_are_equal
@@ -33,7 +33,7 @@ class TestXmlRpcDeserializer:
               </methodName>
             </methodCall>
         """
-        request = xml_deserializer.loads(dedent(payload).strip())
+        request = xml_deserializer.loads(inspect.cleandoc(payload))
         assert request.method_name == "foo.bar"
         assert request.args == []
 
@@ -48,7 +48,7 @@ class TestXmlRpcDeserializer:
               </params>
             </methodCall>
         """
-        request = xml_deserializer.loads(dedent(payload).strip())
+        request = xml_deserializer.loads(inspect.cleandoc(payload))
         assert request.method_name == "foo.bar"
         assert request.args == []
 
@@ -56,7 +56,7 @@ class TestXmlRpcDeserializer:
         "inner_template",
         [
             "<{type}>{value}</{type}>",
-            "<{type}>\n    {value}\n    </{type}>",
+            "<{type}>        {value}    </{type}>",
         ],
     )
     @pytest.mark.parametrize(
@@ -64,8 +64,8 @@ class TestXmlRpcDeserializer:
         [
             "{inner}",
             "<value>{inner}</value>",
-            "\n  {inner}  \n",
-            "<value>\n        {inner}\n        </value>",
+            "\n    {inner}\n    ",
+            "<value>        {inner}    </value>",
         ],
     )
     @pytest.mark.parametrize(
@@ -118,15 +118,15 @@ class TestXmlRpcDeserializer:
         inner = inner_template.format(type=typ, value=value)
         outer = outer_template.format(inner=inner)
         payload = f"""
-          <?xml version="1.0"?>
-          <methodCall>
+            <?xml version="1.0"?>
+            <methodCall>
             <methodName>foo</methodName>
             <params>
-              <param>{outer}</param>
+                <param>{outer}</param>
             </params>
-          </methodCall>
-        """
-        request = xml_deserializer.loads(dedent(payload).strip())
+            </methodCall>
+        """.lstrip()
+        request = xml_deserializer.loads(inspect.cleandoc(payload))
         assert request.args == [expected_value]
 
     def test_param_binary(self, xml_deserializer):
@@ -145,7 +145,7 @@ class TestXmlRpcDeserializer:
               </params>
             </methodCall>
         """
-        request = xml_deserializer.loads(dedent(payload).strip())
+        request = xml_deserializer.loads(inspect.cleandoc(payload))
         assert request.method_name == "foo.bar.baz"
         assert request.args == [initial_data]
 
@@ -167,7 +167,7 @@ class TestXmlRpcDeserializer:
               </params>
             </methodCall>
         """
-        request = xml_deserializer.loads(dedent(payload).strip())
+        request = xml_deserializer.loads(inspect.cleandoc(payload))
         assert request.method_name == "foo.bar.baz"
         assert request.args == [[8]]
 
@@ -200,7 +200,7 @@ class TestXmlRpcDeserializer:
               </params>
             </methodCall>
         """
-        request = xml_deserializer.loads(dedent(payload).strip())
+        request = xml_deserializer.loads(inspect.cleandoc(payload))
         assert request.method_name == "foo.bar.baz"
         assert request.args == [[5, 9, "abc"], [0.0]]
 
@@ -223,7 +223,7 @@ class TestXmlRpcDeserializer:
               </params>
             </methodCall>
         """
-        request = xml_deserializer.loads(dedent(payload).strip())
+        request = xml_deserializer.loads(inspect.cleandoc(payload))
         assert request.method_name == "foo.bar.baz"
         assert request.args == [{"pi": 3.14}]
 
@@ -260,7 +260,7 @@ class TestXmlRpcDeserializer:
               </params>
             </methodCall>
         """
-        request = xml_deserializer.loads(dedent(payload).strip())
+        request = xml_deserializer.loads(inspect.cleandoc(payload))
         assert request.method_name == "foo.bar.baz"
         assert request.args == [{"foo": 9}, {"bar": 9.0, "baz": "9"}]
 
@@ -275,7 +275,7 @@ class TestXmlRpcDeserializer:
             </methodCall>
         """
         with pytest.raises(RPCParseError):
-            xml_deserializer.loads(dedent(payload).strip())
+            xml_deserializer.loads(inspect.cleandoc(payload))
 
     def test_missing_root_tag(self, request, xml_deserializer):
         if "PythonXmlRpc" in xml_deserializer.__class__.__name__:
@@ -294,7 +294,7 @@ class TestXmlRpcDeserializer:
             </foo>
         """
         with pytest.raises(RPCInvalidRequest):
-            xml_deserializer.loads(dedent(payload).strip())
+            xml_deserializer.loads(inspect.cleandoc(payload))
 
     def test_missing_method_name(self, xml_deserializer):
         payload = """
@@ -306,7 +306,7 @@ class TestXmlRpcDeserializer:
             </methodCall>
         """
         with pytest.raises(RPCInvalidRequest):
-            xml_deserializer.loads(dedent(payload).strip())
+            xml_deserializer.loads(inspect.cleandoc(payload))
 
     def test_invalid_type(self, xml_deserializer):
         payload = """
@@ -319,7 +319,7 @@ class TestXmlRpcDeserializer:
             </methodCall>
         """
         with pytest.raises(RPCInvalidRequest):
-            xml_deserializer.loads(dedent(payload).strip())
+            xml_deserializer.loads(inspect.cleandoc(payload))
 
     @pytest.mark.parametrize("val", [5, True, False, -3, -1, "null", "true", "false"])
     def test_invalid_bool_value(self, xml_deserializer, val):
@@ -333,7 +333,7 @@ class TestXmlRpcDeserializer:
             </methodCall>
         """
         with pytest.raises(RPCInvalidRequest):
-            xml_deserializer.loads(dedent(payload).strip())
+            xml_deserializer.loads(inspect.cleandoc(payload))
 
 
 class TestXmlRpcDeserializerKwargs:
@@ -356,7 +356,7 @@ class TestXmlRpcDeserializerKwargs:
             </methodCall>
         """
 
-        request = deserializer.loads(dedent(payload).strip())
+        request = deserializer.loads(inspect.cleandoc(payload))
 
         assert isinstance(request.args[0], xmlrpc.client.DateTime)
         assert request.args[0] == datetime(2026, 1, 1, 0, 0, 0)
