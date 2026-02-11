@@ -1,7 +1,7 @@
 Settings
 ========
 
-This page list all settings that can be used to customize django-modern-rpc's behavior. Set it inside you
+This page lists all settings that can be used to customize django-modern-rpc's behavior. Set them inside your
 project's ``settings.py``.
 
 Global settings
@@ -29,7 +29,9 @@ Possible values are: ``""`` (empty string), ``rst`` or ``markdown``.
 MODERNRPC_XMLRPC_ASYNC_MULTICALL
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Default encoding used to parse incoming requests when no charset is set in request headers.
+When set to ``True``, the ``system.multicall`` XML-RPC method will use an asynchronous implementation that
+executes procedures concurrently using ``asyncio.gather()``. When ``False`` (default), procedures in a multicall
+are executed sequentially.
 
 :Default:   ``False``
 
@@ -39,7 +41,7 @@ MODERNRPC_HANDLERS
 List of handler classes used by default in ``RpcServer`` instances. If you overridden a handler class, you may need
 to specify its dotted path here to use it automatically.
 
-:Default:   ``["modernrpc.jsonrpc.handler.JsonRpcHandler", "modernrpc.handlers.XMLRPCHandler"]``
+:Default:   ``["modernrpc.jsonrpc.handler.JsonRpcHandler", "modernrpc.xmlrpc.handler.XmlRpcHandler"]``
 
 
 Backends customization
@@ -55,19 +57,19 @@ Refer to :ref:`Backends` to get a list of all valid arguments for each backend.
 MODERNRPC_XML_DESERIALIZER
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:Default:   ``{"class": "modernrpc.xmlrpc.backends.xmlrpc.PythonXmlRpcBackend", "kwargs": {}}``
+:Default:   ``{"class": "modernrpc.xmlrpc.backends.xmlrpc.PythonXmlRpcDeserializer", "kwargs": {}}``
 
 MODERNRPC_XML_SERIALIZER
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-:Default:   ``{"class": "modernrpc.xmlrpc.backends.xmlrpc.PythonXmlRpcBackend", "kwargs": {}}``
+:Default:   ``{"class": "modernrpc.xmlrpc.backends.xmlrpc.PythonXmlRpcSerializer", "kwargs": {}}``
 
 MODERNRPC_JSON_DESERIALIZER
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:Default:   ``{"class": "modernrpc.jsonrpc.backends.json.PythonJsonBackend", "kwargs": {}}``
+:Default:   ``{"class": "modernrpc.jsonrpc.backends.json.PythonJsonDeserializer", "kwargs": {}}``
 
 MODERNRPC_JSON_SERIALIZER
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:Default:   ``{"class": "modernrpc.jsonrpc.backends.json.PythonJsonBackend", "kwargs": {}}``
+:Default:   ``{"class": "modernrpc.jsonrpc.backends.json.PythonJsonSerializer", "kwargs": {}}``

@@ -15,8 +15,8 @@ open a pull request: https://github.com/alorence/django-modern-rpc/pulls
 
 Before submitting, ensure:
 
-- Tests pass locally (at least with your prefered python version, preferably with all supported version.
-  See :ref:`Matrix testing`).
+- Tests pass locally (at least with your preferred python version, preferably with all supported versions).
+  See :ref:`Matrix testing`.
 - Linting and formatting are applied (Ruff), and mypy passes for supported code paths. See :ref:`Linting, formatting`
   and :ref:`Type checking`
 - Documentation is updated according to your changes. See :ref:`Documentation`

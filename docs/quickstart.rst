@@ -93,9 +93,6 @@ Test the server
 Start your project using ``python manage.py runserver`` and call your procedure using JSON-RPC or XML-RPC client, or
 directly with your favourite HTTP client
 
-.. TODO
-   Add more code example, with curl for XML-RPC and with jsonrpcclient for JSON-RPC
-
 .. code-block:: bash
    :caption: JSON-RPC example
 

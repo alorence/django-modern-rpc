@@ -4,7 +4,7 @@ Protocols references
 XML-RPC
 -------
 
-XML-RPC protocol were first elaborated by `Dave Winer`_ (`ref <https://en.wikipedia.org/wiki/XML-RPC>`_ in 1998. The
+XML-RPC protocol was first elaborated by `Dave Winer`_ (`ref <https://en.wikipedia.org/wiki/XML-RPC>`_ in 1998. The
 most recent XML-RPC specification page used as reference by django-modern-rpc is http://xmlrpc.com/spec.md.
 
 The original website describing and specifying the protocol (xmlrpc.scripting.com) now redirects to https://xmlrpc.com.
@@ -36,7 +36,7 @@ References
 .. _Eric Kidd: https://github.com/emk
 
 Like 3 others, this system method is not part of the standard. But its behavior has been `well defined`_
-by `Eric Kidd`_. It is now implemented most of the XML-RPC servers and supported by number of
+by `Eric Kidd`_. It is now implemented in most XML-RPC servers and supported by a number of
 clients (including `Python's ServerProxy`_).
 
 This method can be used to make many RPC calls at once, by sending an array of RPC payload. The result is a list of
@@ -102,15 +102,15 @@ request, the builtin `system.multicall` is disabled when a server is called thro
 Batch requests
 ^^^^^^^^^^^^^^
 
-django-modern-rpc fully support batch requests as defined in the spec. When a server exposes its async view, a batch
-request will execute procedures concurently using ``asyncio.gather()``. When a server expose the sync view,
+django-modern-rpc fully supports batch requests as defined in the spec. When a server exposes its async view, a batch
+request will execute procedures concurrently using ``asyncio.gather()``. When a server exposes the sync view,
 procedures are executed sequentially.
 
 Error codes
 ^^^^^^^^^^^
 
-JSON-RPC original specification define a list of officiel error codes based on the list created by Dan Libby as an
-XMML-RPC extension. See https://www.jsonrpc.org/specification#error_object
+JSON-RPC original specification defines a list of official error codes based on the list created by Dan Libby as an
+XML-RPC extension. See https://www.jsonrpc.org/specification#error_object
 
 .. table:: JSON-RPC standardized error codes
    :widths: 18 20 62
@@ -199,7 +199,7 @@ base64 (3)
 Logging
 -------
 
-Internally, django-modern-rpc use Python logging system. While messages are usually hidden by default Django logging
+Internally, django-modern-rpc uses Python logging system. While messages are usually hidden by default Django logging
 configuration, you can easily show them if needed.
 
 You only have to configure ``settings.LOGGING`` to handle log messages from ``modernrpc`` module.

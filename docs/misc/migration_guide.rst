@@ -12,18 +12,22 @@ Update settings
 MODERNRPC_METHODS_MODULES
 *************************
 
-In v2, the new Server / Namespace system will automatically import your decorated proecdures. This setting is now
+In v2, the new Server / Namespace system will automatically import your decorated procedures. This setting is now
 useless, you can simply delete it from your settings.
 
 MODERNRPC_LOG_EXCEPTIONS
 ************************
 
-TBD
+This setting has been removed. In v2, exception logging can be handled through the ``error_handler`` callback
+on ``RpcServer``. See :ref:`Customize error handling` for details. You can simply delete this setting from your
+configuration.
 
 MODERNRPC_DOC_FORMAT
 ********************
 
-TBD
+This setting still exists in v2. Accepted values are ``""`` (empty string, default), ``"rst"`` or ``"md"``
+(also accepts ``"markdown"``). No migration action is needed, but note that automatic HTML documentation through
+entry points has been removed. Docstrings are still processed for introspection (``system.methodHelp``).
 
 MODERNRPC_DEFAULT_ENTRYPOINT_NAME
 *********************************
@@ -163,7 +167,7 @@ was declared in `settings.MODERNRPC_METHODS_MODULES`.
 After
 *****
 
-With v2, an ``RpcServer`` instance must be created, and then used to register procedures0
+With v2, an ``RpcServer`` instance must be created, and then used to register procedures.
 
 .. code-block:: python
    :caption: myproject/myapp/rpc.py
@@ -246,7 +250,7 @@ Before
            'facebot',  # Facebook
        ]
 
-       if request.headers["User-Agent"].lower() in [ua.lower() for ua in forbidden_bots]
+       if request.headers["User-Agent"].lower() in [ua.lower() for ua in forbidden_bots]:
            # ... forbid access
            return False
 
@@ -265,8 +269,8 @@ Before
    @rpc_method
    @http_basic_auth_permissions_required(permissions='auth.view_user')
    def my_rpc_method_with_builtin_predicate(username):
-       user = User.objects.get(username=username).
-       return f"{u.first_name} {u.last_name}"
+       user = User.objects.get(username=username)
+       return f"{user.first_name} {user.last_name}"
 
    @rpc_method
    @set_authentication_predicate(forbid_bots_access)
@@ -300,7 +304,7 @@ After
            'facebot',  # Facebook
        ]
 
-       if request.headers["User-Agent"].lower() in [ua.lower() for ua in forbidden_bots]
+       if request.headers["User-Agent"].lower() in [ua.lower() for ua in forbidden_bots]:
            # ... forbid access
            return False
 
@@ -331,8 +335,8 @@ After
 
    @server.register_procedure(auth=check_view_permissions("auth.view_user"))
    def my_rpc_method_with_builtin_predicate(username: str):
-       user = User.objects.get(username=username).
-       return f"{u.first_name} {u.last_name}"
+       user = User.objects.get(username=username)
+       return f"{user.first_name} {user.last_name}"
 
    @server.register_procedure(auth=forbid_bots_access)
    def my_rpc_method_with_custom_authentication(a, b):

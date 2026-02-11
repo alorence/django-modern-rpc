@@ -15,7 +15,7 @@ At least one instance must be created.
 
     server = RpcServer()
 
-A server instance expose a view that must be added to the Django routing system
+A server instance exposes a view that must be added to the Django routing system
 
 .. code-block:: python
    :caption: myproject/myproject/urls.py
@@ -31,12 +31,12 @@ A server instance expose a view that must be added to the Django routing system
 Then, all requests to ``http://yourwebsite/rpc/`` will be routed to the server's view. They will be inspected and
 parsed to be interpreted as RPC calls.
 
-If a `POST` request have a correct `Content-Type` header and a well formed body, it will be handled by the right
+If a `POST` request has a correct `Content-Type` header and a well formed body, it will be handled by the right
 XML-RPC or JSON-RPC backend. The result of procedure calls will be encapsulated into a well-formed response, according
 to the request protocol (XML or JSON-RPC)
 
 .. note:: You are free to choose the path that will be used to handle your remote procedure calls, but ``/rpc`` or
-   ``/RPC2`` are the moste commonly used paths (example in `xmlrpc.server docs`_)
+   ``/RPC2`` are the most commonly used paths (example in `xmlrpc.server docs`_)
 
 .. _xmlrpc.server docs: https://docs.python.org/fr/3/library/xmlrpc.server.html#simplexmlrpcserver-example
 
@@ -81,7 +81,7 @@ well as :ref:`Introspection procedures & multicall` for JSON-RPC specific implem
 
 .. note:: `system.multicall` builtin method is registered as synchronous version by default. In this version, each
    procedure is executed sequentially. If you want to opt-in for the asynchronous version (procedures executed
-   concurently using ``asyncio.gather()``, set ``settings.MODERNRPC_XMLRPC_ASYNC_MULTICALL = True``.
+   concurrently using ``asyncio.gather()``, set ``settings.MODERNRPC_XMLRPC_ASYNC_MULTICALL = True``.
 
 
 Using the ``register_system_procedures`` argument, you can completely disable their automatic registration.
@@ -232,7 +232,7 @@ For more information about authentication, see :ref:`Authentication <auth-ref>`.
 Multiple servers definition
 ---------------------------
 
-You can create multiple server.
+You can create multiple servers.
 
 .. code-block:: python
    :caption: myapp/rpc.py
@@ -281,6 +281,7 @@ When should you use async_view?
   async_view will not provide benefits in that scenario.
 
 Behavior details
+^^^^^^^^^^^^^^^^
 
 - **Async procedures**: Procedures declared with async def will run concurrently within the same event loop when invoked
   through async_view, allowing overlapping awaits on I/O operations. Each individual request still executes one
@@ -309,7 +310,8 @@ Behavior details
     ]
 
 Notes
+^^^^^
 
-- Django has supported asynchronous views since 3.1; modernrpc supports Django 3.2 to 5.2. async_view will work on all
+- Django has supported asynchronous views since 3.1; modernrpc supports Django 4.2+. async_view will work on all
   supported Django versions when running under an ASGI server.
 - You can expose both endpoints simultaneously (as shown above). Clients can choose either; functionality is identical.

@@ -6,7 +6,7 @@ MODERNRPC_DOC_FORMAT = ""
 
 MODERNRPC_XMLRPC_ASYNC_MULTICALL = False
 
-# List of handler classes used by default in any ``RPCEntryPoint`` instance
+# List of handler classes used by default in any ``RpcServer`` instance
 MODERNRPC_HANDLERS = [
     "modernrpc.jsonrpc.handler.JsonRpcHandler",
     "modernrpc.xmlrpc.handler.XmlRpcHandler",

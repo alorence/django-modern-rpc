@@ -6,7 +6,7 @@ through HTTP POST requests. It has been around for decades and is one of the pre
 (REST, GraphQL, etc.).
 
 While newer alternatives exist, there are still use-cases where XML-RPC or JSON-RPC servers are needed.
-**Django-modern-rpc** helps you set up such a server as part of your Django project. It provide a simple and pythonic
+**Django-modern-rpc** helps you set up such a server as part of your Django project. It provides a simple and pythonic
 API to expose global functions to be called from other websites or programs.
 
 Version 2.0 brings significant improvements to the library, including a more intuitive API, better error handling,
@@ -53,7 +53,7 @@ your project, follow other topics in the menu.
    config/error_handling.rst
    config/backends.rst
    config/generated_doc.rst
-   config/settings
+   config/settings.rst
 
 .. toctree::
    :caption: Miscellaneous

@@ -12,10 +12,10 @@ still processes docstrings to provide rich information about your procedures, wh
 
 Each ``ProcedureWrapper`` instance has properties to access documentation:
 
-- ``raw_docstring``: The raw docstring text
+- ``text_doc``: The raw docstring text
 - ``html_doc``: The docstring converted to HTML
-- ``args_doc``: Documentation for each argument
-- ``return_doc``: Documentation for the return value
+- ``arguments``: An ``OrderedDict`` mapping argument names to their documentation
+- ``returns``: Documentation for the return value
 
 You can use these properties to build your own documentation views or integrate with other documentation systems.
 
@@ -30,8 +30,8 @@ You can use these properties to build your own documentation views or integrate 
     add_procedure = procedures.get('add')
     if add_procedure:
         html_documentation = add_procedure.html_doc
-        args_documentation = add_procedure.args_doc
-        return_documentation = add_procedure.return_doc
+        args_documentation = add_procedure.arguments
+        return_documentation = add_procedure.returns
 
 Write documentation
 -------------------
@@ -58,7 +58,7 @@ The documentation is generated directly from RPC methods' docstrings. In version
         return request.content_type
 
 If you want to use `Markdown` or `reStructuredText` syntax in your RPC method documentation, you have to install the
-corresponding package in you environment.
+corresponding package in your environment.
 
 .. code-block:: bash
 
@@ -85,6 +85,6 @@ or
     MODERNRPC_DOC_FORMAT = 'rst'
 
 
-.. versionadded:: 1.0.0
+.. versionadded:: 2.0.0
 
-   Typehints are now supported to generate arguments and return type in documentation
+   Type hints are now supported to generate arguments and return type in documentation

@@ -4,11 +4,11 @@ Error handling
 Introduction
 ------------
 
-Error handling in RPC protocols is a challenging topic. ANy error in remote procedure call processing must be returned
+Error handling in RPC protocols is a challenging topic. Any error in remote procedure call processing must be returned
 to the sender in a valid response with a code and a message. In addition, such a response must be returned with an HTTP
 status 200.
 
-To implement this behavior, django-modern-rpc use Python exception mechanism to:
+To implement this behavior, django-modern-rpc uses Python exception mechanism to:
 
 - Raise a pre-defined exception when processing request or serializing response to provide information about the actual
   error to the sender
@@ -93,7 +93,7 @@ Use cases
 Below are a few practical examples.
 
 .. code-block:: python
-   :caption: Send any caught execption to Sentry
+   :caption: Send any caught exception to Sentry
 
    import sentry_sdk
 
