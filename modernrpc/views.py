@@ -1,23 +1,19 @@
-from __future__ import annotations
-
 import logging
 from http import HTTPStatus
 from typing import TYPE_CHECKING
 
+from django.http import HttpRequest
 from django.http.response import HttpResponse
 
 from modernrpc.core import RpcRequestContext
 
 if TYPE_CHECKING:
-    from django.http import HttpRequest
-
     from modernrpc.server import RpcServer
-
 
 logger = logging.getLogger(__name__)
 
 
-def handle_rpc_request(request: HttpRequest, server: RpcServer) -> HttpResponse:
+def handle_rpc_request(request: HttpRequest, server: "RpcServer") -> HttpResponse:
     """
     Synchronous view function to handle RPC requests.
 
@@ -45,7 +41,7 @@ def handle_rpc_request(request: HttpRequest, server: RpcServer) -> HttpResponse:
     return server.build_response(handler, result_data)
 
 
-async def handle_rpc_request_async(request: HttpRequest, server: RpcServer) -> HttpResponse:
+async def handle_rpc_request_async(request: HttpRequest, server: "RpcServer") -> HttpResponse:
     """
     Asynchronous view function to handle RPC requests.
 

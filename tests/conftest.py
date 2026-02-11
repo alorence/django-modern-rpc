@@ -1,10 +1,11 @@
-from __future__ import annotations
-
-from typing import TYPE_CHECKING
+from collections.abc import Callable
 
 import pytest
+from django.http import HttpRequest
 
 from modernrpc import RpcServer
+from modernrpc.jsonrpc.backends import JsonRpcDeserializer, JsonRpcSerializer
+from modernrpc.xmlrpc.backends import XmlRpcDeserializer, XmlRpcSerializer
 from tests.helpers import (
     JSON_DESERIALIZERS_CLASSES,
     JSON_SERIALIZERS_CLASSES,
@@ -13,14 +14,6 @@ from tests.helpers import (
     build_json_rpc_request_data,
     build_xml_rpc_request_data,
 )
-
-if TYPE_CHECKING:
-    from collections.abc import Callable
-
-    from django.http import HttpRequest
-
-    from modernrpc.jsonrpc.backends import JsonRpcDeserializer, JsonRpcSerializer
-    from modernrpc.xmlrpc.backends import XmlRpcDeserializer, XmlRpcSerializer
 
 
 @pytest.fixture

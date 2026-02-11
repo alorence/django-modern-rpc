@@ -1,20 +1,18 @@
-# PEP 585: use of list[Any] instead of List[Any] is available since Python 3.9, enable it for older versions
-# PEP 604: use of typeA | typeB is available since Python 3.10, enable it for older versions
-from __future__ import annotations
-
 import json
+from collections.abc import Iterable
 from functools import cached_property
 from json import JSONDecodeError
-from typing import TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING
 
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.module_loading import import_string
 
 from modernrpc.exceptions import RPCMarshallingError, RPCParseError
+from modernrpc.jsonrpc.handler import JsonRpcRequest, JsonRpcResult
+from modernrpc.types import CustomKwargs
 
 if TYPE_CHECKING:
-    from modernrpc.jsonrpc.handler import JsonRpcRequest, JsonRpcResult
-    from modernrpc.types import CustomKwargs, DictStrAny
+    from modernrpc.types import DictStrAny
 
 
 class PythonJsonDeserializer:

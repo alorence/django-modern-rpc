@@ -1,12 +1,8 @@
-from __future__ import annotations
-
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Callable, Dict, Generic, Optional, Sequence, TypeVar, Union
+from typing import Any, Generic, TypeAlias, TypeVar
 
 from django.http import HttpRequest
-
-if TYPE_CHECKING:
-    from modernrpc.compat import TypeAlias
 
 
 @dataclass
@@ -38,14 +34,12 @@ class RpcErrorResult(RpcResult[RequestType]):
     data: Any = None
 
 
-# Type aliases.
-# Each one may be typed with typing.TypeAlias as soon as Python 3.10 will be the minimal requirement
-# New syntax `type X = list[str]` will be available from Python 3.12
-DictStrAny: TypeAlias = Dict[str, Any]  # Python 3.8 requires use of "Dict" instead of "dict" here
-CustomKwargs: TypeAlias = Optional[DictStrAny]
+# Type aliases. New syntax `type X = list[str]` will be available from Python 3.12
+DictStrAny: TypeAlias = dict[str, Any]
+CustomKwargs: TypeAlias = DictStrAny | None
 
 NotSetType = object
 AuthPredicate: TypeAlias = Callable[[HttpRequest], Any]
-AuthPredicateType: TypeAlias = Union[NotSetType, AuthPredicate, Sequence[AuthPredicate]]
+AuthPredicateType: TypeAlias = NotSetType | AuthPredicate | Sequence[AuthPredicate]
 
 FuncOrCoro: TypeAlias = Callable[..., Any]

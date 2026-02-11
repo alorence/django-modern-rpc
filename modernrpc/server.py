@@ -1,31 +1,24 @@
-from __future__ import annotations
-
 import functools
 import logging
+from collections.abc import Callable
 from http import HTTPStatus
-from typing import TYPE_CHECKING, Any, Callable
+from typing import Any
 
-from django.http import HttpResponse, HttpResponseNotAllowed
+from django.http import HttpRequest, HttpResponse, HttpResponseNotAllowed
 from django.shortcuts import redirect
 from django.utils.log import log_response
 from django.utils.module_loading import import_string
 from django.views.decorators.csrf import csrf_exempt
 
-from modernrpc import Protocol, RpcRequestContext
 from modernrpc.compat import async_csrf_exempt
 from modernrpc.config import settings
-from modernrpc.constants import NOT_SET, SYSTEM_NAMESPACE_DOTTED_PATH
-from modernrpc.core import ProcedureWrapper
+from modernrpc.constants import NOT_SET, SYSTEM_NAMESPACE_DOTTED_PATH, Protocol
+from modernrpc.core import ProcedureWrapper, RpcRequestContext
 from modernrpc.exceptions import RPCException, RPCInternalError, RPCMethodNotFound
+from modernrpc.handler import RpcHandler
 from modernrpc.helpers import check_flags_compatibility, first_true
+from modernrpc.types import AuthPredicateType, FuncOrCoro
 from modernrpc.views import handle_rpc_request, handle_rpc_request_async
-
-if TYPE_CHECKING:
-    from django.http import HttpRequest
-    from django.shortcuts import SupportsGetAbsoluteUrl
-
-    from modernrpc.handler import RpcHandler
-    from modernrpc.types import AuthPredicateType, FuncOrCoro
 
 logger = logging.getLogger(__name__)
 
@@ -109,7 +102,7 @@ class RpcServer(RegistryMixin):
         supported_protocol: Protocol = Protocol.ALL,
         auth: AuthPredicateType = NOT_SET,
         error_handler: RpcErrorHandler | None = None,
-        redirect_get_request_to: str | Callable[..., Any] | SupportsGetAbsoluteUrl | None = None,
+        redirect_get_request_to: str | Callable[..., Any] | None = None,
         default_encoding: str = settings.MODERNRPC_DEFAULT_ENCODING,
     ) -> None:
         super().__init__(auth)

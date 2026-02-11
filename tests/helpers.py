@@ -1,15 +1,15 @@
-from __future__ import annotations
-
 import json
 import xmlrpc.client
+from collections.abc import Callable
 from doctest import Example
 from json import JSONDecodeError
-from typing import TYPE_CHECKING, Any, Callable
+from typing import Any
 from xml.etree import ElementTree as ET
 
 import jsonrpcclient.sentinels
 import pytest
 from _pytest.main import Failed
+from django.http import HttpResponse
 from lxml.doctestcompare import PARSE_XML, LXMLOutputChecker  # ty: ignore[unresolved-import]
 
 from modernrpc import Protocol
@@ -17,16 +17,12 @@ from modernrpc.jsonrpc.backends.json import PythonJsonDeserializer, PythonJsonSe
 from modernrpc.jsonrpc.backends.orjson import OrjsonDeserializer, OrjsonSerializer
 from modernrpc.jsonrpc.backends.rapidjson import RapidjsonDeserializer, RapidjsonSerializer
 from modernrpc.jsonrpc.backends.simplejson import SimplejsonDeserializer, SimplejsonSerializer
+from modernrpc.jsonrpc.handler import RequestIdType
+from modernrpc.types import DictStrAny
 from modernrpc.xmlrpc.backends.etree import EtreeDeserializer, EtreeSerializer
 from modernrpc.xmlrpc.backends.lxml import LxmlDeserializer, LxmlSerializer
 from modernrpc.xmlrpc.backends.xmlrpc import PythonXmlRpcDeserializer, PythonXmlRpcSerializer
 from modernrpc.xmlrpc.backends.xmltodict import XmlToDictDeserializer, XmlToDictSerializer
-
-if TYPE_CHECKING:
-    from django.http import HttpResponse
-
-    from modernrpc.jsonrpc.handler import RequestIdType
-    from modernrpc.types import DictStrAny
 
 ALL_PROTOCOLS = [Protocol.XML_RPC, Protocol.JSON_RPC]
 # List all backends supported in tests for deserialization (data to request object) and

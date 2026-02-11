@@ -1,16 +1,12 @@
-# PEP 585: use of list[Any] instead of List[Any] is available since Python 3.9, enable it for older versions
-# PEP 604: use of typeA | typeB is available since Python 3.10, enable it for older versions
-from __future__ import annotations
-
 import asyncio
 import logging
 from dataclasses import dataclass, field
 from http import HTTPStatus
-from typing import TYPE_CHECKING, Union, cast
+from typing import TYPE_CHECKING, ClassVar, TypeAlias, cast
 
 from django.utils.module_loading import import_string
 
-from modernrpc import Protocol
+from modernrpc import Protocol, RpcRequestContext
 from modernrpc.config import settings
 from modernrpc.constants import NOT_SET
 from modernrpc.exceptions import RPCException
@@ -18,12 +14,14 @@ from modernrpc.handler import RpcHandler
 from modernrpc.types import DictStrAny, RpcErrorResult, RpcRequest, RpcSuccessResult
 
 if TYPE_CHECKING:
-    from typing import ClassVar, Generator
+    from collections.abc import Generator
 
-    from modernrpc import RpcRequestContext
     from modernrpc.jsonrpc.backends import JsonRpcDeserializer, JsonRpcSerializer
 
 logger = logging.getLogger(__name__)
+
+
+RequestIdType: TypeAlias = str | int | float | None
 
 
 @dataclass
@@ -41,10 +39,9 @@ class JsonRpcRequest(RpcRequest):
         return self.request_id is NOT_SET
 
 
-RequestIdType = Union[str, int, float, None]
-JsonRpcSuccessResult = RpcSuccessResult[JsonRpcRequest]
-JsonRpcErrorResult = RpcErrorResult[JsonRpcRequest]
-JsonRpcResult = Union[JsonRpcSuccessResult, JsonRpcErrorResult]
+JsonRpcSuccessResult: TypeAlias = RpcSuccessResult[JsonRpcRequest]
+JsonRpcErrorResult: TypeAlias = RpcErrorResult[JsonRpcRequest]
+JsonRpcResult: TypeAlias = JsonRpcSuccessResult | JsonRpcErrorResult
 
 
 class JsonRpcHandler(RpcHandler[JsonRpcRequest]):

@@ -1,9 +1,7 @@
-from __future__ import annotations
+from collections.abc import Iterable
+from typing import Protocol
 
-from typing import TYPE_CHECKING, Iterable, Protocol
-
-if TYPE_CHECKING:
-    from modernrpc.jsonrpc.handler import JsonRpcRequest, JsonRpcResult
+from modernrpc.jsonrpc.handler import JsonRpcRequest, JsonRpcResult
 
 
 class JsonRpcDeserializer(Protocol):

@@ -1,12 +1,9 @@
-from __future__ import annotations
-
 import base64
 import functools
-from typing import TYPE_CHECKING, Callable
+from collections.abc import Callable
 from urllib.parse import unquote
 
-if TYPE_CHECKING:
-    from django.http import HttpRequest
+from django.http import HttpRequest
 
 
 def extract_header(request: HttpRequest, header_name: str) -> str:
