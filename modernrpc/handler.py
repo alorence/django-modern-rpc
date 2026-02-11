@@ -1,20 +1,13 @@
-from __future__ import annotations
-
 import logging
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Generic
+from http import HTTPStatus
+from typing import Any, ClassVar, Generic
 
+from django.http import HttpRequest
+
+from modernrpc import Protocol, RpcRequestContext
 from modernrpc.exceptions import RPCMethodNotFound
 from modernrpc.types import RequestType, RpcErrorResult, RpcSuccessResult
-
-if TYPE_CHECKING:
-    from http import HTTPStatus
-    from typing import Any, ClassVar
-
-    from django.http import HttpRequest
-
-    from modernrpc import Protocol, RpcRequestContext
-
 
 logger = logging.getLogger(__name__)
 

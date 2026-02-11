@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import asyncio
 
 from modernrpc import Protocol, RpcNamespace, RpcRequestContext

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from enum import Flag, auto
 
 SYSTEM_NAMESPACE_DOTTED_PATH = "modernrpc.system_procedures.system"

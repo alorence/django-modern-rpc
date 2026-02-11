@@ -1,14 +1,10 @@
-from __future__ import annotations
-
 import datetime
 import xmlrpc.client
-from typing import TYPE_CHECKING, Any
+from collections.abc import Callable, Iterable, Sequence
+from enum import Flag
+from typing import Any
 
 from modernrpc.constants import NOT_SET
-
-if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Sequence
-    from enum import Flag
 
 
 def check_flags_compatibility(a: Flag, b: Flag) -> bool:

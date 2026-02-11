@@ -1,33 +1,28 @@
-from __future__ import annotations
-
 import importlib
 import logging
 from collections import OrderedDict, defaultdict
+from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 from asgiref.sync import async_to_sync, iscoroutinefunction, sync_to_async
+from django.http import HttpRequest
 from django.utils.functional import cached_property
 
-from modernrpc import Protocol
 from modernrpc.compat import is_union_type, union_str_repr
 from modernrpc.config import settings
-from modernrpc.constants import NOT_SET
+from modernrpc.constants import NOT_SET, Protocol
 from modernrpc.exceptions import (
     AuthenticationError,
     RPCInvalidParams,
 )
 from modernrpc.helpers import check_flags_compatibility, ensure_sequence
 from modernrpc.introspection import DocstringParser, Introspector
+from modernrpc.types import AuthPredicateType, FuncOrCoro
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-
-    from django.http import HttpRequest
-
     from modernrpc.handler import RpcHandler
     from modernrpc.server import RpcServer
-    from modernrpc.types import AuthPredicateType, FuncOrCoro
 
 logger = logging.getLogger(__name__)
 
@@ -48,10 +43,10 @@ class RpcRequestContext:
     :ivar auth_result: The result of authentication for this RPC context, if applicable.
     """
 
-    request: HttpRequest
-    server: RpcServer
-    handler: RpcHandler
-    protocol: Protocol
+    request: "HttpRequest"
+    server: "RpcServer"
+    handler: "RpcHandler"
+    protocol: "Protocol"
     auth_result: Any = None
 
 

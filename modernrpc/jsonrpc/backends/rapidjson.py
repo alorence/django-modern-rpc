@@ -1,5 +1,4 @@
-from __future__ import annotations
-
+from collections.abc import Iterable
 from functools import cached_property
 from typing import TYPE_CHECKING
 
@@ -8,12 +7,11 @@ from django.utils.module_loading import import_string
 from rapidjson import JSONDecodeError
 
 from modernrpc.exceptions import RPCMarshallingError, RPCParseError
+from modernrpc.jsonrpc.handler import JsonRpcRequest, JsonRpcResult
+from modernrpc.types import CustomKwargs
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-
-    from modernrpc.jsonrpc.handler import JsonRpcRequest, JsonRpcResult
-    from modernrpc.types import CustomKwargs, DictStrAny
+    from modernrpc.types import DictStrAny
 
 
 class RapidjsonDeserializer:

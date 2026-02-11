@@ -1,21 +1,16 @@
-from __future__ import annotations
-
 import logging
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 from django.utils.module_loading import import_string
 
-from modernrpc import Protocol
+from modernrpc import Protocol, RpcRequestContext
 from modernrpc.config import settings
 from modernrpc.exceptions import RPCException
 from modernrpc.handler import RpcHandler
 from modernrpc.types import DictStrAny, RpcErrorResult, RpcRequest, RpcSuccessResult
 
 if TYPE_CHECKING:
-    from typing import ClassVar
-
-    from modernrpc import RpcRequestContext
     from modernrpc.xmlrpc.backends import XmlRpcDeserializer, XmlRpcSerializer
 
 logger = logging.getLogger(__name__)

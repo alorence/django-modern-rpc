@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import shutil
 from enum import StrEnum
 from pathlib import Path

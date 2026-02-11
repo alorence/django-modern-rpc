@@ -1,13 +1,8 @@
-from __future__ import annotations
-
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Generic, TypeVar
+from typing import Any, Generic, TypeAlias, TypeVar
 
 from django.http import HttpRequest
-
-if TYPE_CHECKING:
-    from typing import TypeAlias
 
 
 @dataclass

@@ -1,15 +1,10 @@
-from __future__ import annotations
-
 from types import NoneType
-from typing import TYPE_CHECKING, cast, overload
+from typing import cast, overload
 
 from modernrpc.constants import NOT_SET
 from modernrpc.exceptions import RPCInvalidRequest
-from modernrpc.jsonrpc.handler import JsonRpcRequest
+from modernrpc.jsonrpc.handler import JsonRpcRequest, JsonRpcResult
 from modernrpc.types import DictStrAny, RpcErrorResult
-
-if TYPE_CHECKING:
-    from modernrpc.jsonrpc.handler import JsonRpcResult
 
 
 class Unmarshaller:

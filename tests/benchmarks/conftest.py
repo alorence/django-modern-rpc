@@ -1,16 +1,11 @@
-from __future__ import annotations
-
 import json
 from textwrap import dedent
-from typing import TYPE_CHECKING
 
 import pytest
 
 from modernrpc.jsonrpc.handler import JsonRpcRequest, JsonRpcSuccessResult
+from modernrpc.types import DictStrAny
 from modernrpc.xmlrpc.handler import XmlRpcRequest, XmlRpcSuccessResult
-
-if TYPE_CHECKING:
-    from modernrpc.types import DictStrAny
 
 
 @pytest.fixture

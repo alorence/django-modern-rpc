@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from functools import cached_property
 from typing import TYPE_CHECKING
 
@@ -7,12 +5,11 @@ import lxml.etree
 from django.utils.module_loading import import_string
 
 from modernrpc.exceptions import RPCInvalidRequest, RPCMarshallingError, RPCParseError
+from modernrpc.types import CustomKwargs
+from modernrpc.xmlrpc.handler import XmlRpcRequest, XmlRpcResult
 
 if TYPE_CHECKING:
     from lxml.etree import _Element
-
-    from modernrpc.types import CustomKwargs
-    from modernrpc.xmlrpc.handler import XmlRpcRequest, XmlRpcResult
 
 
 LXML_DEFAULT_ELEMENT_TYPE = "lxml.etree._Element"

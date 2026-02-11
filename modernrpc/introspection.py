@@ -3,17 +3,13 @@
 - Signature
 """
 
-from __future__ import annotations
-
 import inspect
 import re
 import typing
-from typing import TYPE_CHECKING
 
 from django.utils.functional import cached_property
 
-if TYPE_CHECKING:
-    from modernrpc.types import FuncOrCoro
+from modernrpc.types import FuncOrCoro
 
 
 class Introspector:

@@ -1,14 +1,12 @@
-from __future__ import annotations
-
 import asyncio
 import logging
 from dataclasses import dataclass, field
 from http import HTTPStatus
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, ClassVar, TypeAlias, cast
 
 from django.utils.module_loading import import_string
 
-from modernrpc import Protocol
+from modernrpc import Protocol, RpcRequestContext
 from modernrpc.config import settings
 from modernrpc.constants import NOT_SET
 from modernrpc.exceptions import RPCException
@@ -17,12 +15,13 @@ from modernrpc.types import DictStrAny, RpcErrorResult, RpcRequest, RpcSuccessRe
 
 if TYPE_CHECKING:
     from collections.abc import Generator
-    from typing import ClassVar
 
-    from modernrpc import RpcRequestContext
     from modernrpc.jsonrpc.backends import JsonRpcDeserializer, JsonRpcSerializer
 
 logger = logging.getLogger(__name__)
+
+
+RequestIdType: TypeAlias = str | int | float | None
 
 
 @dataclass
@@ -40,10 +39,9 @@ class JsonRpcRequest(RpcRequest):
         return self.request_id is NOT_SET
 
 
-RequestIdType = str | int | float | None
-JsonRpcSuccessResult = RpcSuccessResult[JsonRpcRequest]
-JsonRpcErrorResult = RpcErrorResult[JsonRpcRequest]
-JsonRpcResult = JsonRpcSuccessResult | JsonRpcErrorResult
+JsonRpcSuccessResult: TypeAlias = RpcSuccessResult[JsonRpcRequest]
+JsonRpcErrorResult: TypeAlias = RpcErrorResult[JsonRpcRequest]
+JsonRpcResult: TypeAlias = JsonRpcSuccessResult | JsonRpcErrorResult
 
 
 class JsonRpcHandler(RpcHandler[JsonRpcRequest]):

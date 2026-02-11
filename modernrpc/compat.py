@@ -5,11 +5,10 @@ import typing
 import django
 from django.views.decorators.csrf import csrf_exempt
 
-if typing.TYPE_CHECKING:
-    if sys.version_info >= (3, 11):
-        from typing import Self
-    else:
-        from typing_extensions import Self  # noqa: F401
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self  # noqa: F401
 
 
 if django.VERSION >= (5, 0):

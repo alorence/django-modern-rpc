@@ -1,9 +1,6 @@
-from __future__ import annotations
+from typing import Protocol
 
-from typing import TYPE_CHECKING, Protocol
-
-if TYPE_CHECKING:
-    from modernrpc.xmlrpc.handler import XmlRpcRequest, XmlRpcResult
+from modernrpc.xmlrpc.handler import XmlRpcRequest, XmlRpcResult
 
 
 class XmlRpcDeserializer(Protocol):
