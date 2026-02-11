@@ -1,10 +1,8 @@
-# PEP 585: use of list[Any] instead of List[Any] is available since Python 3.9, enable it for older versions
-# PEP 604: use of typeA | typeB is available since Python 3.10, enable it for older versions
 from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
 from django.utils.module_loading import import_string
 
@@ -29,7 +27,7 @@ class XmlRpcRequest(RpcRequest): ...
 
 XmlRpcSuccessResult = RpcSuccessResult[XmlRpcRequest]
 XmlRpcErrorResult = RpcErrorResult[XmlRpcRequest]
-XmlRpcResult = Union[XmlRpcSuccessResult, XmlRpcErrorResult]
+XmlRpcResult = XmlRpcSuccessResult | XmlRpcErrorResult
 
 
 class XmlRpcHandler(RpcHandler[XmlRpcRequest]):

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import sys
 from typing import Union
 
 import pytest
@@ -14,9 +13,6 @@ class TestProcedureArgDocs:
         argz = ProcedureArgDocs(docstring="", doc_type="", type_hint=str)
         assert argz.type_hint_as_str == "str"
 
-    @pytest.mark.skipif(
-        sys.version_info < (3, 10), reason="repr of Union type is currently unsupported for Python < 3.10"
-    )
     def test_union_type_hint_as_str(self):
         argz = ProcedureArgDocs(docstring="", doc_type="", type_hint=Union[str, int])
         assert argz.type_hint_as_str == "str | int"
@@ -301,17 +297,9 @@ class TestArgsTypeHint:
 
         return ProcedureWrapper(typed_args)
 
-    @pytest.mark.xfail(
-        sys.version_info < (3, 10),
-        reason="New union type syntax is fully supported with Python 3.10+",
-    )
     def test_str_repr(self, wrapper):
         assert str(wrapper) == "typed_args(a, b, c)"
 
-    @pytest.mark.xfail(
-        sys.version_info < (3, 10),
-        reason="New union type syntax is fully supported with Python 3.10+",
-    )
     def test_arguments(self, wrapper):
         assert wrapper.arguments_names == ["a", "b", "c"]
         assert wrapper.arguments == {
@@ -320,10 +308,6 @@ class TestArgsTypeHint:
             "c": ProcedureArgDocs(docstring="", doc_type="", type_hint=Union[list, float]),
         }
 
-    @pytest.mark.xfail(
-        sys.version_info < (3, 10),
-        reason="New union type syntax is fully supported with Python 3.10+",
-    )
     def test_returns(self, wrapper):
         assert wrapper.returns == ProcedureArgDocs(docstring="", doc_type="", type_hint=Union[dict, list])
 

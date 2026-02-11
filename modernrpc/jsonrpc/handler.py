@@ -1,12 +1,10 @@
-# PEP 585: use of list[Any] instead of List[Any] is available since Python 3.9, enable it for older versions
-# PEP 604: use of typeA | typeB is available since Python 3.10, enable it for older versions
 from __future__ import annotations
 
 import asyncio
 import logging
 from dataclasses import dataclass, field
 from http import HTTPStatus
-from typing import TYPE_CHECKING, Union, cast
+from typing import TYPE_CHECKING, cast
 
 from django.utils.module_loading import import_string
 
@@ -41,10 +39,10 @@ class JsonRpcRequest(RpcRequest):
         return self.request_id is NOT_SET
 
 
-RequestIdType = Union[str, int, float, None]
+RequestIdType = str | int | float | None
 JsonRpcSuccessResult = RpcSuccessResult[JsonRpcRequest]
 JsonRpcErrorResult = RpcErrorResult[JsonRpcRequest]
-JsonRpcResult = Union[JsonRpcSuccessResult, JsonRpcErrorResult]
+JsonRpcResult = JsonRpcSuccessResult | JsonRpcErrorResult
 
 
 class JsonRpcHandler(RpcHandler[JsonRpcRequest]):

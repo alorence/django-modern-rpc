@@ -1,5 +1,4 @@
 import datetime
-import sys
 import xmlrpc.client
 from typing import Union
 
@@ -114,6 +113,5 @@ def test_union_str_repr():
     assert union_str_repr(Union[int, str]) == "int | str"
 
 
-@pytest.mark.skipif(sys.version_info < (3, 10), reason="New union type syntax is fully supported with Python 3.10+")
 def test_modern_union_type():
     assert is_union_type(int | str) is True  # ty: ignore[unsupported-operator]
