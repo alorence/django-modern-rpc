@@ -52,6 +52,9 @@ def is_combination_supported(py: Python, dj: Django) -> bool:
     if dj == Django.v5_1:
         return Version(py) <= Version("3.13")
 
+    if dj == Django.v5_2:
+        return True
+
     if dj >= Django.v6_0:
         return Version("3.12") <= Version(py)
 
