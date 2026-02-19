@@ -1,4 +1,4 @@
-from collections.abc import Callable, Sequence
+from collections.abc import Awaitable, Callable, Sequence
 from dataclasses import dataclass, field
 from typing import Any, Generic, TypeAlias, TypeVar
 
@@ -42,4 +42,4 @@ NotSetType = object
 AuthPredicate: TypeAlias = Callable[[HttpRequest], Any]
 AuthPredicateType: TypeAlias = NotSetType | AuthPredicate | Sequence[AuthPredicate]
 
-FuncOrCoro: TypeAlias = Callable[..., Any]
+FuncOrCoro: TypeAlias = Callable[..., Any] | Callable[..., Awaitable[Any]]
