@@ -49,18 +49,19 @@ class RpcHandler(ABC, Generic[RequestType]):
             wrapper = context.server.get_procedure_wrapper(rpc_request.method_name, self.protocol)
 
         except RPCMethodNotFound as exc:
-            # exc variable cannot be reused here without triggering an error with static type checker
-            # In this particular case, an error handler may decide to convert the given RPCMethodNotFound to a more
-            # generic RPCException (or one of its subclasses).
-            excp = context.server.on_error(exc, context)
-            return self.build_error_result(request=rpc_request, code=excp.code, message=excp.message, data=excp.data)
+            rpc_exc = context.server.on_error(exc, context)
+            return self.build_error_result(
+                request=rpc_request, code=rpc_exc.code, message=rpc_exc.message, data=rpc_exc.data
+            )
 
         try:
             result_data = wrapper.execute(context, rpc_request.args, getattr(rpc_request, "kwargs", None))
 
         except Exception as exc:
-            exc = context.server.on_error(exc, context)
-            return self.build_error_result(request=rpc_request, code=exc.code, message=exc.message, data=exc.data)
+            rpc_exc = context.server.on_error(exc, context)
+            return self.build_error_result(
+                request=rpc_request, code=rpc_exc.code, message=rpc_exc.message, data=rpc_exc.data
+            )
 
         return self.build_success_result(rpc_request, result_data)
 
@@ -76,18 +77,19 @@ class RpcHandler(ABC, Generic[RequestType]):
             wrapper = context.server.get_procedure_wrapper(rpc_request.method_name, self.protocol)
 
         except RPCMethodNotFound as exc:
-            # exc variable cannot be reused here without triggering an error with static type checker
-            # In this particular case, an error handler may decide to convert the given RPCMethodNotFound to a more
-            # generic RPCException (or one of its subclasses).
-            excp = context.server.on_error(exc, context)
-            return self.build_error_result(request=rpc_request, code=excp.code, message=excp.message, data=excp.data)
+            rpc_exc = context.server.on_error(exc, context)
+            return self.build_error_result(
+                request=rpc_request, code=rpc_exc.code, message=rpc_exc.message, data=rpc_exc.data
+            )
 
         try:
             result_data = await wrapper.aexecute(context, rpc_request.args, getattr(rpc_request, "kwargs", None))
 
         except Exception as exc:
-            exc = context.server.on_error(exc, context)
-            return self.build_error_result(request=rpc_request, code=exc.code, message=exc.message, data=exc.data)
+            rpc_exc = context.server.on_error(exc, context)
+            return self.build_error_result(
+                request=rpc_request, code=rpc_exc.code, message=rpc_exc.message, data=rpc_exc.data
+            )
 
         return self.build_success_result(rpc_request, result_data)
 

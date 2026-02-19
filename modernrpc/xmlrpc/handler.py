@@ -55,8 +55,10 @@ class XmlRpcHandler(RpcHandler[XmlRpcRequest]):
             request = self.deserializer.loads(request_body)
 
         except RPCException as exc:
-            exc = context.server.on_error(exc, context)
-            return self.serializer.dumps(self.build_error_result(XmlRpcRequest(method_name=""), exc.code, exc.message))
+            rpc_exc = context.server.on_error(exc, context)
+            return self.serializer.dumps(
+                self.build_error_result(XmlRpcRequest(method_name=""), rpc_exc.code, rpc_exc.message)
+            )
 
         result = self.process_single_request(request, context)
 
@@ -64,8 +66,8 @@ class XmlRpcHandler(RpcHandler[XmlRpcRequest]):
             return self.serializer.dumps(result)
 
         except RPCException as exc:
-            exc = context.server.on_error(exc, context)
-            return self.serializer.dumps(self.build_error_result(request, exc.code, exc.message))
+            rpc_exc = context.server.on_error(exc, context)
+            return self.serializer.dumps(self.build_error_result(request, rpc_exc.code, rpc_exc.message))
 
     async def aprocess_request(self, request_body: str, context: RpcRequestContext) -> str:
         """
@@ -77,8 +79,10 @@ class XmlRpcHandler(RpcHandler[XmlRpcRequest]):
             request = self.deserializer.loads(request_body)
 
         except RPCException as exc:
-            exc = context.server.on_error(exc, context)
-            return self.serializer.dumps(self.build_error_result(XmlRpcRequest(method_name=""), exc.code, exc.message))
+            rpc_exc = context.server.on_error(exc, context)
+            return self.serializer.dumps(
+                self.build_error_result(XmlRpcRequest(method_name=""), rpc_exc.code, rpc_exc.message)
+            )
 
         result = await self.aprocess_single_request(request, context)
 
@@ -86,5 +90,5 @@ class XmlRpcHandler(RpcHandler[XmlRpcRequest]):
             return self.serializer.dumps(result)
 
         except RPCException as exc:
-            exc = context.server.on_error(exc, context)
-            return self.serializer.dumps(self.build_error_result(request, exc.code, exc.message))
+            rpc_exc = context.server.on_error(exc, context)
+            return self.serializer.dumps(self.build_error_result(request, rpc_exc.code, rpc_exc.message))
