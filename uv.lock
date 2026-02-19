@@ -453,7 +453,7 @@ type-checking = [
 [package.metadata]
 requires-dist = [
     { name = "defusedxml", specifier = ">=0.7.1" },
-    { name = "django", specifier = ">=3.2" },
+    { name = "django", specifier = ">=4.2" },
     { name = "docutils", marker = "extra == 'docutils'" },
     { name = "lxml", marker = "extra == 'lxml'" },
     { name = "markdown", marker = "extra == 'markdown'" },
