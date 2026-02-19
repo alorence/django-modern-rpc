@@ -6,6 +6,8 @@
 
 ### Improvements
 
+- It is now possible to call a procedure without the "params" argument in a multicall request.
+
 ### Misc
 
 - Dropped support for Django < 4.2

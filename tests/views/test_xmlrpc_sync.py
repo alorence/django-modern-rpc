@@ -159,6 +159,24 @@ class TestXmlRpcSyncMulticall:
         ]
         assert server_using_sync_or_async_multicall.on_error.call_count == 2
 
+    def test_multicall_missing_params(self, xmlrpc_rf, server_using_sync_or_async_multicall):
+        """Ensure multicall works when a call entry has no 'params' key."""
+        mc_params = [
+            [
+                {"methodName": "simple_procedure", "params": ("xxx", 20)},
+                {"methodName": "system.listMethods"},
+            ]
+        ]
+        request = xmlrpc_rf(method_name="system.multicall", params=mc_params)
+
+        response = server_using_sync_or_async_multicall.view(request)
+
+        assert response.status_code == HTTPStatus.OK
+        result = extract_xmlrpc_success_result(response)
+        assert result[0] == ["foo='xxx' bar=20"]
+        assert isinstance(result[1], list)  # listMethods returns a list
+        server_using_sync_or_async_multicall.on_error.assert_not_called()
+
     def test_multicall_invalid_params_1(self, xmlrpc_rf, server_using_sync_or_async_multicall):
         mc_params = ["foo.bar"]
         request = xmlrpc_rf(method_name="system.multicall", params=mc_params)

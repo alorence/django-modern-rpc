@@ -69,7 +69,7 @@ if settings.MODERNRPC_XMLRPC_ASYNC_MULTICALL:
         if not isinstance(calls, list):
             raise RPCInvalidParams(f"system.multicall first argument should be a list, {type(calls).__name__} given.")
 
-        requests = (XmlRpcRequest(call.get("methodName"), call.get("params")) for call in calls)
+        requests = (XmlRpcRequest(call.get("methodName"), call.get("params") or []) for call in calls)
         results = await asyncio.gather(*(_ctx.handler.aprocess_single_request(request, _ctx) for request in requests))
 
         return [
@@ -92,7 +92,7 @@ else:
         if not isinstance(calls, list):
             raise RPCInvalidParams(f"system.multicall first argument should be a list, {type(calls).__name__} given.")
 
-        requests = (XmlRpcRequest(call.get("methodName"), call.get("params")) for call in calls)
+        requests = (XmlRpcRequest(call.get("methodName"), call.get("params") or []) for call in calls)
         results = (_ctx.handler.process_single_request(request, _ctx) for request in requests)
 
         return [
