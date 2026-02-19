@@ -8,12 +8,14 @@ from modernrpc.exceptions import RPCInsecureRequest, RPCInvalidRequest, RPCMarsh
 from modernrpc.types import CustomKwargs, RpcErrorResult
 from modernrpc.xmlrpc.handler import XmlRpcRequest, XmlRpcResult
 
+# Apply defusedxml monkey-patch once at import time to secure xmlrpc.client globally
+defusedxml.xmlrpc.monkey_patch()
+
 
 class PythonXmlRpcDeserializer:
     """xml-rpc deserializer based on python builtin xmlrpc module"""
 
     def __init__(self, load_kwargs: CustomKwargs = None):
-        defusedxml.xmlrpc.monkey_patch()
 
         self.load_kwargs = load_kwargs or {}
         self.load_kwargs.setdefault("use_datetime", True)
