@@ -117,8 +117,8 @@ class ProcedureWrapper:
             and self.auth == other.auth
         )
 
-    def __hash__(self):
-        return hash(self.func_or_coro)
+    def __hash__(self) -> int:
+        return hash((self.func_or_coro, self.name, self.protocol))
 
     def check_permissions(self, request: HttpRequest) -> Any:
         """
