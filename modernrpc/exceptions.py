@@ -12,6 +12,9 @@ RPC_CUSTOM_ERROR_BASE = -32099
 # Used as a maximal value for any custom error returned by the server
 RPC_CUSTOM_ERROR_MAX = -32000
 
+# Authentication error code (implementation-defined server error)
+RPC_AUTHENTICATION_ERROR = RPC_CUSTOM_ERROR_BASE + 1
+
 
 class RPCException(Exception):
     """
@@ -87,7 +90,7 @@ class AuthenticationError(RPCException):
 
     def __init__(self, method_name: str):
         super().__init__(
-            RPC_INTERNAL_ERROR,
+            RPC_AUTHENTICATION_ERROR,
             f'Authentication failed when calling "{method_name}"',
         )
 

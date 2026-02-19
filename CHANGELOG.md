@@ -8,6 +8,11 @@
 
 - It is now possible to call a procedure without the "params" argument in a multicall request.
 
+### Breaking Changes
+
+- `AuthenticationError` now uses a dedicated error code (`-32098`) instead of the generic internal error code (`-32603`).
+  Clients relying on the error code to detect authentication failures should update their checks accordingly.
+
 ### Misc
 
 - Dropped support for Django < 4.2
