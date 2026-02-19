@@ -32,13 +32,26 @@ class TestInitialRpcServer:
 
     def test_supported_handlers(self):
         """Check that a fresh RPCServer 'supported_handlers' is correct with its initialization"""
-        assert list(RpcServer().handler_klasses) == [JsonRpcHandler, XmlRpcHandler]
 
-        assert list(RpcServer(supported_protocol=Protocol.JSON_RPC).handler_klasses) == [JsonRpcHandler]
-        assert list(RpcServer(supported_protocol=Protocol.XML_RPC).handler_klasses) == [XmlRpcHandler]
+        handlers = RpcServer().handlers
+
+        assert len(handlers) == 2
+        assert isinstance(handlers[0], JsonRpcHandler)
+        assert isinstance(handlers[1], XmlRpcHandler)
+
+    @pytest.mark.parametrize(
+        ("proto", "handler_klass"),
+        [
+            (Protocol.JSON_RPC, JsonRpcHandler),
+            (Protocol.XML_RPC, XmlRpcHandler),
+        ],
+    )
+    def test_specific_protocol_handlers(self, proto, handler_klass):
+        assert len(RpcServer(supported_protocol=proto).handlers) == 1
+        assert isinstance(RpcServer(supported_protocol=proto).handlers[0], handler_klass)
 
     def test_get_jsonrpc_handler(self, rf, jsonrpc_content_type):
-        """Check that correct handler is retrieved from request's Content-Type header"""
+        """Check that the correct handler is retrieved from the request's Content-Type header"""
 
         # Build a dummy request. The only important thing is its "Content-Type"
         request = rf.post(path="dummy", content_type=jsonrpc_content_type)

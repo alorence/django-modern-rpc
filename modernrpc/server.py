@@ -106,12 +106,11 @@ class RpcServer(RegistryMixin):
         default_encoding: str = settings.MODERNRPC_DEFAULT_ENCODING,
     ) -> None:
         super().__init__(auth)
-        self.handler_klasses = list(
-            filter(
-                lambda cls: check_flags_compatibility(cls.protocol, supported_protocol),
-                (import_string(klass) for klass in settings.MODERNRPC_HANDLERS),
-            )
+        handler_classes = filter(
+            lambda cls: check_flags_compatibility(cls.protocol, supported_protocol),
+            (import_string(klass) for klass in settings.MODERNRPC_HANDLERS),
         )
+        self.handlers: list[RpcHandler] = [klass() for klass in handler_classes]
 
         if register_system_procedures:
             system_namespace = import_string(SYSTEM_NAMESPACE_DOTTED_PATH)
@@ -159,8 +158,7 @@ class RpcServer(RegistryMixin):
 
     def get_request_handler(self, request: HttpRequest) -> RpcHandler | None:
         """Return the first handler that can handle the given request, or None if no handler can handle it."""
-        handler_klass = first_true(self.handler_klasses, pred=lambda cls: cls.can_handle(request))
-        return handler_klass() if handler_klass else None
+        return first_true(self.handlers, pred=lambda handler: handler.can_handle(request), default=None)
 
     def on_error(self, exception: BaseException, context: RpcRequestContext) -> RPCException:
         """
