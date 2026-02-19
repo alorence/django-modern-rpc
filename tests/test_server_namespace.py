@@ -205,34 +205,35 @@ class TestRpcServerRegistration:
         server_auth_callback.assert_not_called()
 
 
-dummy_ns = RpcNamespace()
-
-
 class TestRpcNamespace:
-    def test_unregistered(self):
+    @pytest.fixture
+    def namespace(self):
+        return RpcNamespace()
+
+    def test_unregistered(self, namespace):
         server = RpcServer()
 
         assert "dummy_procedure" not in server.procedures
-        assert "dummy_procedure" not in dummy_ns.procedures
+        assert "dummy_procedure" not in namespace.procedures
 
-    def test_valid_namespace_registration(self):
-        dummy_ns.register_procedure(dummy_procedure, name="bar")
+    def test_valid_namespace_registration(self, namespace):
+        namespace.register_procedure(dummy_procedure, name="bar")
 
-        assert "dummy_procedure" not in dummy_ns.procedures
-        assert "bar" in dummy_ns.procedures
+        assert "dummy_procedure" not in namespace.procedures
+        assert "bar" in namespace.procedures
 
         server = RpcServer()
-        server.register_namespace(dummy_ns, "foo")
+        server.register_namespace(namespace, "foo")
 
         assert "dummy_procedure" not in server.procedures
         assert "foo.bar" in server.procedures
 
-    def test_forbidden_namespace_registration(self):
-        dummy_ns.register_procedure(dummy_procedure, name="bar")
+    def test_forbidden_namespace_registration(self, namespace):
+        namespace.register_procedure(dummy_procedure, name="bar")
         server = RpcServer()
 
         with pytest.raises(ValueError, match=r'method names starting with "rpc." are reserved for system extensions'):
-            server.register_namespace(dummy_ns, "rpc")
+            server.register_namespace(namespace, "rpc")
 
         assert "dummy_procedure" not in server.procedures
         assert "bar" not in server.procedures
