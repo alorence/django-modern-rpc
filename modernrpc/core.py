@@ -58,7 +58,7 @@ class ProcedureArgDocs:
 
     @property
     def type_hint_as_str(self) -> str:
-        if not self.type_hint:
+        if self.type_hint is None:
             return ""
         if is_union_type(self.type_hint):
             return union_str_repr(self.type_hint)

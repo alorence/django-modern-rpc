@@ -38,8 +38,8 @@ uv run ruff format . --check  # Check formatting
 
 ### Type checking
 ```bash
-uvx nox -s mypy    # mypy (excludes tests/ and docs/)
-uvx nox -s ty      # ty (faster alternative)
+uv run mypy       # mypy (excludes tests/ and docs/)
+uv run ty check   # ty (faster alternative)
 ```
 
 ### Benchmarks

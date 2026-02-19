@@ -1,4 +1,4 @@
-from enum import Flag, auto
+from enum import Enum, Flag, auto
 
 SYSTEM_NAMESPACE_DOTTED_PATH = "modernrpc.system_procedures.system"
 
@@ -12,12 +12,12 @@ class Protocol(Flag):
     ALL = JSON_RPC | XML_RPC
 
 
-class Id:
-    def __init__(self, name: str) -> None:
-        self.name = name
+# Python does not define a Sentinel class for now (maybe in 3.15+?)
+# typing_extensions providees a nice one, but it required only in Python < 3.11 environments
+# Let's define this using a builtin enum
+# Ref: https://github.com/python/typing/issues/236#issuecomment-227180301
+class Default(Enum):
+    NOT_SET = 0
 
-    def __repr__(self):
-        return self.name
 
-
-NOT_SET = Id("NOT_SET")
+NOT_SET = Default.NOT_SET

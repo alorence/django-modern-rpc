@@ -14,7 +14,7 @@ from modernrpc.handler import RpcHandler
 from modernrpc.types import DictStrAny, RpcErrorResult, RpcRequest, RpcSuccessResult
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Iterator
 
     from modernrpc.jsonrpc.backends import JsonRpcDeserializer, JsonRpcSerializer
 
@@ -134,7 +134,7 @@ class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
         self, requests: list[JsonRpcRequest], context: RpcRequestContext
     ) -> str | tuple[HTTPStatus, str]:
         # Process each request and store corresponding results (success or error)
-        results: Generator[JsonRpcResult] = (self.process_single_request(request, context) for request in requests)
+        results: Iterator[JsonRpcResult] = (self.process_single_request(request, context) for request in requests)
 
         # Filter out notification results
         filtered_results = [result for result in results if not result.request.is_notification]

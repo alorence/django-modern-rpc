@@ -1,8 +1,10 @@
 from collections.abc import Awaitable, Callable, Sequence
 from dataclasses import dataclass, field
-from typing import Any, Generic, TypeAlias, TypeVar
+from typing import Any, Generic, Literal, TypeAlias, TypeVar
 
 from django.http import HttpRequest
+
+from modernrpc.constants import Default
 
 
 @dataclass
@@ -38,8 +40,7 @@ class RpcErrorResult(RpcResult[RequestType]):
 DictStrAny: TypeAlias = dict[str, Any]
 CustomKwargs: TypeAlias = DictStrAny | None
 
-NotSetType = object
 AuthPredicate: TypeAlias = Callable[[HttpRequest], Any]
-AuthPredicateType: TypeAlias = NotSetType | AuthPredicate | Sequence[AuthPredicate]
+AuthPredicateType: TypeAlias = Literal[Default.NOT_SET] | AuthPredicate | Sequence[AuthPredicate] | None
 
 FuncOrCoro: TypeAlias = Callable[..., Any] | Callable[..., Awaitable[Any]]

@@ -1,6 +1,6 @@
 import functools
 import logging
-from collections.abc import Callable
+from collections.abc import Callable, Coroutine
 from http import HTTPStatus
 from typing import Any
 
@@ -10,7 +10,7 @@ from django.utils.log import log_response
 from django.utils.module_loading import import_string
 from django.views.decorators.csrf import csrf_exempt
 
-from modernrpc.compat import async_csrf_exempt
+from modernrpc.compat import Self, async_csrf_exempt
 from modernrpc.config import settings
 from modernrpc.constants import NOT_SET, SYSTEM_NAMESPACE_DOTTED_PATH, Protocol
 from modernrpc.core import ProcedureWrapper, RpcRequestContext
@@ -222,7 +222,7 @@ class RpcServer(RegistryMixin):
         return HttpResponse(result_data, status=status, content_type=handler.response_content_type)
 
     @property
-    def view(self) -> Callable:
+    def view(self) -> Callable[[HttpRequest, Self], HttpResponse]:
         """
         Returns a synchronous view function that can be used in Django URL patterns.
         The view is decorated with csrf_exempt and require_POST.
@@ -233,7 +233,7 @@ class RpcServer(RegistryMixin):
         return csrf_exempt(view_func)
 
     @property
-    def async_view(self) -> Callable:
+    def async_view(self) -> Callable[[HttpRequest, Self], Coroutine[None, None, HttpResponse]]:
         """
         Returns an asynchronous view function that can be used in Django URL patterns.
         The view is decorated with csrf_exempt and require_POST.
