@@ -65,7 +65,7 @@ class RegistryMixin:
                     "and must not be used. See https://www.jsonrpc.org/specification#extensions for more information."
                 )
 
-            auth_predicate = self.auth if auth == NOT_SET else auth
+            auth_predicate = self.auth if auth is NOT_SET else auth
             wrapper = ProcedureWrapper(
                 func, name, protocol=protocol, auth=auth_predicate, context_target=context_target
             )
@@ -178,7 +178,7 @@ class RpcServer(RegistryMixin):
             return exception
         return RPCInternalError(message=str(exception))
 
-    def build_method_not_allowed_reponse(self, request: HttpRequest) -> HttpResponseNotAllowed:
+    def build_method_not_allowed_response(self, request: HttpRequest) -> HttpResponseNotAllowed:
         """
         Build an HttpResponseNotAllowed instance with the correct list of allowed methods.
         """
@@ -199,10 +199,10 @@ class RpcServer(RegistryMixin):
             if self.redirect_get_request_target:
                 return redirect(to=self.redirect_get_request_target, permanent=True)
 
-            return self.build_method_not_allowed_reponse(request)
+            return self.build_method_not_allowed_response(request)
 
         if request.method != "POST":
-            return self.build_method_not_allowed_reponse(request)
+            return self.build_method_not_allowed_response(request)
 
         if not request.content_type:
             return HttpResponse(

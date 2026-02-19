@@ -1,6 +1,6 @@
 import importlib
 import logging
-from collections import OrderedDict, defaultdict
+from collections import defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
@@ -126,7 +126,7 @@ class ProcedureWrapper:
         If any of the predicate returns a truthy value, it is returned as result.
         In other cases, raise an AuthenticationFailed exception.
         """
-        if self.auth == NOT_SET or not self.auth:
+        if self.auth is NOT_SET or not self.auth:
             return True
 
         for callback in ensure_sequence(self.auth):
@@ -232,14 +232,14 @@ class ProcedureWrapper:
         return [arg for arg in self.introspector.signature.parameters if arg != self.context_target]
 
     @cached_property
-    def arguments(self) -> OrderedDict[str, ProcedureArgDocs]:
+    def arguments(self) -> dict[str, ProcedureArgDocs]:
         result: defaultdict[str, ProcedureArgDocs] = defaultdict(ProcedureArgDocs)
         for param in self.arguments_names:
             result[param].doc_type = self.docstring_parser.args_types.get(param, "")
             result[param].docstring = self.docstring_parser.args_docstrings.get(param, "")
             result[param].type_hint = self.introspector.get_arg_type_hint(param)
 
-        return OrderedDict(result)
+        return dict(result)
 
     @cached_property
     def returns(self) -> ProcedureArgDocs:

@@ -116,7 +116,7 @@ def extract_jsonrpc_fault_data(response: HttpResponse) -> tuple[int, str]:
     try:
         error_data = response_data["error"]
     except KeyError:
-        pytest.fail(f'Unable to extract error datat from payload "{response_data}"')
+        pytest.fail(f'Unable to extract error data from payload "{response_data}"')
         raise
 
     try:
