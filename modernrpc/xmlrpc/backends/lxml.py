@@ -82,9 +82,10 @@ class LxmlSerializer:
 
     @cached_property
     def marshaller(self):
-        elt_factory = import_string(self.marshaller_kwargs.pop("element_factory"))
-        sub_elt_factory = import_string(self.marshaller_kwargs.pop("sub_element_factory"))
-        return self.marshaller_klass[self.element_type_klass](elt_factory, sub_elt_factory, **self.marshaller_kwargs)
+        kwargs = dict(self.marshaller_kwargs)
+        elt_factory = import_string(kwargs.pop("element_factory"))
+        sub_elt_factory = import_string(kwargs.pop("sub_element_factory"))
+        return self.marshaller_klass[self.element_type_klass](elt_factory, sub_elt_factory, **kwargs)
 
     def dumps(self, result: XmlRpcResult) -> str:
         """Serialize an XmlRpcResult to an XML string."""
