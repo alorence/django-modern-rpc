@@ -143,7 +143,7 @@ jobs:
         to-slug: "${{ matrix.session }}"
 
     - name: Archive coverage report
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: report-${{ steps.test-session-slug.outputs.slug }}
         path: coverage.xml
