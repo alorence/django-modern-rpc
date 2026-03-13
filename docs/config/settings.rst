@@ -18,7 +18,7 @@ MODERNRPC_DOC_FORMAT
 ^^^^^^^^^^^^^^^^^^^^
 
 Configure the format of the docstring used to document your RPC methods.
-Possible values are: ``""`` (empty string), ``rst`` or ``markdown``.
+Possible values are: ``""`` (empty string), ``"rst"`` or ``"md"``.
 
 :Default:   ``""`` (Empty string)
 
@@ -38,7 +38,7 @@ are executed sequentially.
 MODERNRPC_HANDLERS
 ^^^^^^^^^^^^^^^^^^
 
-List of handler classes used by default in ``RpcServer`` instances. If you overridden a handler class, you may need
+List of handler classes used by default in ``RpcServer`` instances. If you have overridden a handler class, you may need
 to specify its dotted path here to use it automatically.
 
 :Default:   ``["modernrpc.jsonrpc.handler.JsonRpcHandler", "modernrpc.xmlrpc.handler.XmlRpcHandler"]``

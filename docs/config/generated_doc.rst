@@ -14,7 +14,7 @@ Each ``ProcedureWrapper`` instance has properties to access documentation:
 
 - ``text_doc``: The raw docstring text
 - ``html_doc``: The docstring converted to HTML
-- ``arguments``: An ``OrderedDict`` mapping argument names to their documentation
+- ``arguments``: A ``dict`` mapping argument names to their documentation
 - ``returns``: Documentation for the return value
 
 You can use these properties to build your own documentation views or integrate with other documentation systems.

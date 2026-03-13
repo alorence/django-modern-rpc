@@ -47,7 +47,7 @@ Create an ``RpcServer`` instance and register your first procedure
 
 
 Remote procedures are Python functions decorated with the server's ``register_procedure`` decorator.
-Both server and procedure registration can be customized. See :ref:`Procedures registration`
+Both server and procedure registration can be customized. See :ref:`Procedures registration`.
 
 Serve the procedures
 --------------------
@@ -111,5 +111,5 @@ directly with your favourite HTTP client
        proxy.system.listMethods()
        proxy.add(5, 9)
 
-    # ['add', 'system.listMethods', 'system.methodHelp', 'system.methodSignature', 'system.multicall']
-    # 14
+   # ['add', 'system.listMethods', 'system.methodHelp', 'system.methodSignature', 'system.multicall']
+   # 14

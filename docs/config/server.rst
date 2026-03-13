@@ -38,7 +38,7 @@ to the request protocol (XML or JSON-RPC)
 .. note:: You are free to choose the path that will be used to handle your remote procedure calls, but ``/rpc`` or
    ``/RPC2`` are the most commonly used paths (example in `xmlrpc.server docs`_)
 
-.. _xmlrpc.server docs: https://docs.python.org/fr/3/library/xmlrpc.server.html#simplexmlrpcserver-example
+.. _xmlrpc.server docs: https://docs.python.org/3/library/xmlrpc.server.html#simplexmlrpcserver-example
 
 Protocol restriction
 ^^^^^^^^^^^^^^^^^^^^
@@ -72,7 +72,7 @@ System procedures
 ^^^^^^^^^^^^^^^^^
 
 By default, 3 introspection procedures (+ 1 multicall procedure, only for XML-RPC requests) are registered by a server,
-under the namespace ``system``. See :ref:`Introspection procedures` for history and  protocol specific details, as
+under the namespace ``system``. See :ref:`Introspection procedures` for history and protocol specific details, as
 well as :ref:`Introspection procedures & multicall` for JSON-RPC specific implementation.
 
 
@@ -99,8 +99,8 @@ Default: ``register_system_procedures = True``
 
 .. warning::
 
-  Disabling the system procedure registration may prevent some clients (in particular, XML-RPC ones) to
-  send request to your server, use at your own risk.
+  Disabling the system procedure registration may prevent some clients (in particular, XML-RPC ones) from
+  sending requests to your server. Use at your own risk.
 
 Authentication
 ^^^^^^^^^^^^^^
@@ -128,11 +128,11 @@ For more information about authentication, see :ref:`Authentication`.
 GET requests redirection
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-By default, when the server receive a request on a non-POST method, a "Method Not Allowed (405)" response is returned.
-Sometimes, you may need to allow GET requests to really return a page, for example to display some documentation
+By default, when the server receives a request with a non-POST method, a "Method Not Allowed (405)" response is returned.
+Sometimes, you may need to allow GET requests to return a page, for example to display some documentation
 about the RPC server.
 
-For that use case, server can be configured with ``redirect_get_request_to`` argument. It allows any value accepted
+For that use case, the server can be configured with the ``redirect_get_request_to`` argument. It accepts any value accepted
 by ``django.shortcuts.redirect`` function (see `official redirect() docs`_). When configured, a permanent redirection
 to the corresponding location will be returned on GET requests.
 

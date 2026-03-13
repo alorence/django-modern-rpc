@@ -77,7 +77,7 @@ signature:
 
 See :ref:`Accessing the context` for detailed documentation about ``RpcRequestContext`` object.
 
-To register the handler in your server, uses the ``error_handler`` argument:
+To register the handler in your server, use the ``error_handler`` argument:
 
 .. code-block:: python
    :caption: urls.py

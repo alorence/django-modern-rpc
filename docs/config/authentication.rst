@@ -20,8 +20,8 @@ Key points:
 - The truthy value returned by the successful predicate is stored into RpcRequestContext.auth_result so it’s available
   to your procedure (see Accessing the authentication result below).
 
-.. versionchanged:: 2.0 In the previous versions, all predicates had to validate incoming request to allows a procedure
-   to be called
+.. versionchanged:: 2.0 In the previous versions, all predicates had to validate the incoming request to allow a
+   procedure to be called
 
 Configuration levels
 --------------------
@@ -142,8 +142,8 @@ Utilities
 Since authentication system has been rewritten from scratch in v2, the decorators previously available to retrieve
 Basic Auth information from request and control the permissions of the corresponding user have been removed.
 
-A new module `modernrpc.auth` contains some utility functions to help you reading authentication from
-request (Basic Auth, Bearer token, etc.).
+A new module `modernrpc.auth` contains some utility functions to help you read authentication data from
+the request (Basic Auth, Bearer token, etc.).
 
 
 .. automodule:: modernrpc.auth

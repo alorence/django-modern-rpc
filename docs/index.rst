@@ -34,8 +34,8 @@ Getting started
    older Python / Django versions, you must install a previous release. See :ref:`Changelog` for more information.
 
 Installing the library and configuring a Django project to use it can be achieved in a few minutes. Follow
-:doc:`quickstart` for very basic setup process. Later, when you will need to configure more precisely
-your project, follow other topics in the menu.
+:doc:`quickstart` for a very basic setup process. Later, when you need to configure your project more precisely,
+follow the other topics in the menu.
 
 .. toctree::
    :hidden:

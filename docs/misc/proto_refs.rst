@@ -4,7 +4,7 @@ Protocols references
 XML-RPC
 -------
 
-XML-RPC protocol was first elaborated by `Dave Winer`_ (`ref <https://en.wikipedia.org/wiki/XML-RPC>`_ in 1998. The
+XML-RPC protocol was first elaborated by `Dave Winer`_ (`ref <https://en.wikipedia.org/wiki/XML-RPC>`_) in 1998. The
 most recent XML-RPC specification page used as reference by django-modern-rpc is http://xmlrpc.com/spec.md.
 
 The original website describing and specifying the protocol (xmlrpc.scripting.com) now redirects to https://xmlrpc.com.
@@ -35,15 +35,15 @@ References
 
 .. _Eric Kidd: https://github.com/emk
 
-Like 3 others, this system method is not part of the standard. But its behavior has been `well defined`_
+Like the 3 other system methods, this one is not part of the spec. But its behavior has been `well defined`_
 by `Eric Kidd`_. It is now implemented in most XML-RPC servers and supported by a number of
 clients (including `Python's ServerProxy`_).
 
 This method can be used to make many RPC calls at once, by sending an array of RPC payload. The result is a list of
 responses, with the result for each individual request, or a corresponding fault result.
 
-It is available only to XML-RPC clients, since JSON-RPC protocol specify how to call multiple RPC methods
-at once using batch request.
+It is available only to XML-RPC clients, since the JSON-RPC protocol specifies how to call multiple RPC methods
+at once using batch requests.
 
 .. _well defined: https://mirrors.talideon.com/articles/multicall.html
 .. _Python's ServerProxy: https://docs.python.org/3/library/xmlrpc.client.html#multicall-objects
@@ -52,7 +52,7 @@ Fault codes
 ^^^^^^^^^^^
 
 XML-RPC initial specification does not define a list of common errors and related `faultCode`. In 2001, Dan Libby
-tried to specify such fault codes as an extension of the standard. The original document is now only available from
+tried to specify such fault codes as an extension of the spec. The original document is now only available from
 Wayback Machine :
 https://web.archive.org/web/20240416231938/https://xmlrpc-epi.sourceforge.net/specs/rfc.fault_codes.php
 

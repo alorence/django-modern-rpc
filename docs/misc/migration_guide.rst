@@ -108,8 +108,8 @@ After
 MODERNRPC_XMLRPC_DEFAULT_ENCODING
 *********************************
 
-In the previous versions, this setting was used to initialize an ``xmlrpc.client.Marshaller``. In the v2, this class is
-not directly instanciated but through the serialization process. Encoding can still be configured
+In the previous versions, this setting was used to initialize an ``xmlrpc.client.Marshaller``. In v2, this class is
+not directly instantiated but used through the serialization process. Encoding can still be configured.
 
 
 Before
@@ -222,7 +222,7 @@ servers, simply use the registration decorator multiple times.
        """
        return a + b
 
-This new process allow to easily customize registration per procedure and per server.
+This new process allows you to easily customize registration per procedure and per server.
 
 Update your authentication configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -415,7 +415,7 @@ Unlike XML-RPC backends, JSON-RPC ones are simpler. Basically, a JSON deserializ
 a structured python data (list, dict, etc.). Then, most of the work will be handled by the Unmarshaller class to build
 a valid ``JsonRpcRequest`` instance.
 
-On the other hand, the Unmarshaller will convert a ``JsonRpcResult`` (success or error) to a valid python dict and
+On the other hand, the Marshaller will convert a ``JsonRpcResult`` (success or error) to a valid python dict and
 pass the result to the serializer to build the corresponding JSON payload as a string.
 
 Currently, the default JSON-RPC Unmarshaller / Marshaller classes are shared by all backends.
@@ -461,7 +461,7 @@ Unmarshaller / Deserializer
   ``modernrpc.jsonrpc.backends.marshalling.Unmarshaller``.
 - ``unmarshaller_kwargs``: see :ref:`Unmarshaller configuration`
 - ``load_kwargs``: passed to ``json.loads``. See the
-  `json.loads() <https://docs.python.org/fr/3/library/json.html#json.loads>`_ documentation
+  `json.loads() <https://docs.python.org/3/library/json.html#json.loads>`_ documentation
   for the list of valid keyword arguments
 
 .. code-block:: python
@@ -483,11 +483,11 @@ Marshaller / Serializer
   ``modernrpc.jsonrpc.backends.marshalling.Marshaller``.
 - ``marshaller_kwargs``: see :ref:`Marshaller configuration`
 - ``dump_kwargs``: passed to ``json.dumps``. See the
-  `json.dumps() <https://docs.python.org/fr/3/library/json.html#json.dumps>`_ documentation
+  `json.dumps() <https://docs.python.org/3/library/json.html#json.dumps>`_ documentation
   for the list of valid keywords arguments.
 
 Note: By default, ``json.dumps`` encoder is overridden to use
-`DjangoJSONEncoder <https://docs.djangoproject.com/fr/5.2/topics/serialization/#djangojsonencoder>`_
+`DjangoJSONEncoder <https://docs.djangoproject.com/en/5.2/topics/serialization/#djangojsonencoder>`_
 through the `cls` argument, primarily to allow serializing ``date``, ``time`` and ``datetime`` objects.
 
 .. code-block:: python

@@ -21,17 +21,17 @@ Before submitting, ensure:
   and :ref:`Type checking`
 - Documentation is updated according to your changes. See :ref:`Documentation`
 
-This section explain everything you need to know to setup the project locally, run tests, linter, formatter, type
-checker and build documentation
+This section explains everything you need to know to set up the project locally, run tests, linter, formatter, type
+checker and build the documentation.
 
 Local environment
 ^^^^^^^^^^^^^^^^^
 
 .. _uv: https://docs.astral.sh/uv/
 
-This project and its dependencies is managed with uv_. This is the only tool needed to start hacking into the project.
-Uv can be used on any operating system to install a supported python version, create a virtual environment, install
-dependencies and run `nox` (see :ref:`Optional tool`)
+This project and its dependencies are managed with uv_. This is the only tool needed to start hacking on the project.
+Uv can be used on any operating system to install a supported Python version, create a virtual environment, install
+dependencies and run `nox` (see :ref:`Optional tool`).
 
 See https://docs.astral.sh/uv/getting-started/installation/ for detailed installation docs
 
@@ -70,7 +70,7 @@ Or, you can run it directly using uvx (installed with uv):
 
    uvx nox -l
 
-In this document, we will assume ``nox`` is installed globally, but it will work either when used through ``uvx``.
+In this document, we will assume ``nox`` is installed globally, but it will work just the same when used through ``uvx``.
 
 
 Running tests
@@ -223,7 +223,7 @@ Alternatively, use :command:`nox`:
 
 .. code-block:: bash
 
-   # Run benchmarks with all supported Python versions
+   # Run linting with all supported Python versions
    nox -s lint
 
    # Linting (apply basic fixes when possible)
@@ -279,4 +279,4 @@ is served through a minimal HTTP server from ``http://localhost:8001``
    nox -s docs:serve
 
 .. important:: The requirements to build docs are not installed by default. Make sure you
-   ran :command:`uv sync --group docs` if you want to use them directy with :command:`uv run`.
+   ran :command:`uv sync --group docs` if you want to use them directly with :command:`uv run`.
