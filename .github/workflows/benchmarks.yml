@@ -16,7 +16,7 @@ on:
   workflow_dispatch:
 
 env:
-  UV_VERSION: 0.10.9
+  UV_VERSION: 0.11.6
 
 jobs:
   generate-jobs:
