@@ -17,6 +17,7 @@ from modernrpc.jsonrpc.backends.json import PythonJsonDeserializer, PythonJsonSe
 from modernrpc.jsonrpc.backends.orjson import OrjsonDeserializer, OrjsonSerializer
 from modernrpc.jsonrpc.backends.rapidjson import RapidjsonDeserializer, RapidjsonSerializer
 from modernrpc.jsonrpc.backends.simplejson import SimplejsonDeserializer, SimplejsonSerializer
+from modernrpc.jsonrpc.backends.ujson import UjsonDeserializer, UjsonSerializer
 from modernrpc.jsonrpc.handler import RequestIdType
 from modernrpc.types import DictStrAny
 from modernrpc.xmlrpc.backends.etree import EtreeDeserializer, EtreeSerializer
@@ -30,8 +31,20 @@ ALL_PROTOCOLS = [Protocol.XML_RPC, Protocol.JSON_RPC]
 # to ensure every test is run with all backend combinations
 XML_DESERIALIZERS_CLASSES = [PythonXmlRpcDeserializer, XmlToDictDeserializer, EtreeDeserializer, LxmlDeserializer]
 XML_SERIALIZERS_CLASSES = [PythonXmlRpcSerializer, XmlToDictSerializer, EtreeSerializer, LxmlSerializer]
-JSON_DESERIALIZERS_CLASSES = [PythonJsonDeserializer, SimplejsonDeserializer, OrjsonDeserializer, RapidjsonDeserializer]
-JSON_SERIALIZERS_CLASSES = [PythonJsonSerializer, SimplejsonSerializer, OrjsonSerializer, RapidjsonSerializer]
+JSON_DESERIALIZERS_CLASSES = [
+    PythonJsonDeserializer,
+    SimplejsonDeserializer,
+    OrjsonDeserializer,
+    RapidjsonDeserializer,
+    UjsonDeserializer,
+]
+JSON_SERIALIZERS_CLASSES = [
+    PythonJsonSerializer,
+    SimplejsonSerializer,
+    OrjsonSerializer,
+    RapidjsonSerializer,
+    UjsonSerializer,
+]
 
 
 def build_xml_rpc_request_data(method="dummy", params=()) -> str:
