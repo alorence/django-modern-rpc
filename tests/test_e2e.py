@@ -17,49 +17,53 @@ def server_path(request):
 @pytest.mark.usefixtures("all_xml_deserializers", "all_xml_serializers")
 class TestXmlRpc:
     def test_xmlrpc_standard_call(self, live_server, server_path):
-        server = xmlrpc.client.ServerProxy(live_server + server_path, verbose=True)
-        result = server.math.add(5, 8, 10)
-        assert result == 23
+        with xmlrpc.client.ServerProxy(live_server + server_path, verbose=True) as server:
+            result = server.math.add(5, 8, 10)
+            assert result == 23
 
     def test_xmlrpc_procedure_exception(self, live_server, server_path):
-        server = xmlrpc.client.ServerProxy(live_server + server_path, verbose=True)
-
-        with pytest.raises(xmlrpc.client.Fault) as exc_info:
+        with (
+            xmlrpc.client.ServerProxy(live_server + server_path, verbose=True) as server,
+            pytest.raises(xmlrpc.client.Fault) as exc_info,
+        ):
             server.math.divide(9, 0)
 
         assert exc_info.value.faultCode == RPC_INTERNAL_ERROR
         assert exc_info.value.faultString == "Internal error: division by zero"
 
     def test_basic_xmlrpc_multicall(self, live_server, server_path):
-        server = xmlrpc.client.ServerProxy(live_server + server_path, verbose=True)
-        multicall = xmlrpc.client.MultiCall(server)
-        multicall.math.add(1, 3, 5)
-        multicall.math.add(98, -1)
+        with xmlrpc.client.ServerProxy(live_server + server_path, verbose=True) as server:
+            multicall = xmlrpc.client.MultiCall(server)
+            multicall.math.add(1, 3, 5)
+            multicall.math.add(98, -1)
 
-        result = multicall()
+            result = multicall()
+
         assert result[0] == 9
         assert result[1] == 97
 
     def test_xmlrpc_multicall_with_errors(self, live_server, server_path):
-        server = xmlrpc.client.ServerProxy(live_server + server_path, verbose=True)
-        multicall = xmlrpc.client.MultiCall(server)
-        multicall.math.add(1, 3, 5)
-        multicall.math.divide(98, 0)
+        with xmlrpc.client.ServerProxy(live_server + server_path, verbose=True) as server:
+            multicall = xmlrpc.client.MultiCall(server)
+            multicall.math.add(1, 3, 5)
+            multicall.math.divide(98, 0)
 
-        result = multicall()
+            result = multicall()
+
         assert result[0] == 9
         with pytest.raises(xmlrpc.client.Fault):
             assert result[1]
 
     def test_xmlrpc_multicall(self, live_server, server_path):
-        server = xmlrpc.client.ServerProxy(live_server + server_path, verbose=True)
-        multicall = xmlrpc.client.MultiCall(server)
-        multicall.math.add(1, 3, 5)
-        multicall.math.divide(13.0, 2)
-        multicall.math.add(99.1, 0.9)
-        multicall.math.divide(20, 0)
-        multicall.math.divide(20, 2)
-        result = multicall()
+        with xmlrpc.client.ServerProxy(live_server + server_path, verbose=True) as server:
+            multicall = xmlrpc.client.MultiCall(server)
+            multicall.math.add(1, 3, 5)
+            multicall.math.divide(13.0, 2)
+            multicall.math.add(99.1, 0.9)
+            multicall.math.divide(20, 0)
+            multicall.math.divide(20, 2)
+
+            result = multicall()
 
         assert result[0] == 9
         assert result[1] == 6.5
