@@ -6,6 +6,7 @@
 
 ### Improvements
 
+- A new JSON-RPC backend based on the third party library ujson has been added.
 - It is now possible to call a procedure without the "params" argument in a multicall request.
 
 ### Breaking Changes
