@@ -1,3 +1,4 @@
+import os
 import shutil
 from enum import StrEnum
 from pathlib import Path
@@ -9,7 +10,7 @@ PROJECT_DIR = Path(__file__).parent
 BENCHMARK_DIR = PROJECT_DIR / "tests" / "benchmarks"
 DOCS_SRC_DIR = PROJECT_DIR / "docs"
 DOCS_BUILD_DIR = PROJECT_DIR / "dist" / "docs"
-AUTODOC_PORT = 8001
+AUTODOC_PORT = os.environ.get("SPHINX_AUTODOC_PORT", "8001")
 
 
 class Python(StrEnum):
@@ -81,7 +82,7 @@ def build_test_matrix():
 @nox.session(name="tests", venv_backend="uv")
 @nox.parametrize(["python", "django"], build_test_matrix())
 def tests(session, python, django):
-    """Execute test suite using pytest"""
+    """Execute the test suite using pytest"""
     env = {"UV_PROJECT_ENVIRONMENT": session.virtualenv.location}
     session.run_install("uv", "sync", "-p", python, "--no-install-package", "django", env=env)
     session.install(f"django=={django}.*", "--prerelease=allow")
@@ -148,7 +149,7 @@ def lint_fix(session):
     session.run("uv", "run", "ruff", "check", ".", "--fix")
 
 
-@nox.session(name="format", venv_backend="none", default=False, tags=["ruff", "checks"])
+@nox.session(name="format", venv_backend="none", default=False, tags=["ruff"])
 def format_apply(session):
     """Apply formatting rules on all files"""
     session.run("uv", "run", "ruff", "format", ".")
@@ -194,7 +195,7 @@ def docs_serve(session):
         "-b",
         "html",
         "--port",
-        str(AUTODOC_PORT),
+        AUTODOC_PORT,
         DOCS_SRC_DIR,
         DOCS_BUILD_DIR,
         *session.posargs,
