@@ -137,7 +137,7 @@ Marshaller / Serializer
 
 - ``dump_kwargs``: passed to ``xmlrpc.client.dumps``. See the
   `xmlrpc.client.dumps() <https://docs.python.org/3/library/xmlrpc.client.html#xmlrpc.client.dumps>`_ documentation
-  for the list of valid keywords arguments.
+  for the list of valid keyword arguments.
 
 .. code-block:: python
    :caption: myproject/settings.py
@@ -269,7 +269,7 @@ Unmarshaller / Deserializer
 
   - ``allow_none`` (default: ``True``)
 - ``element_type_klass``: dotted path to the XML element class used to specialize the generic
-  marshaller/unmarshaller. Defaults to ``lxml.etree._Element``.
+  unmarshaller. Defaults to ``lxml.etree._Element``.
 - ``load_parser_kwargs``: keyword arguments passed to ``lxml.etree.XMLParser``. Secure defaults are applied:
   ``resolve_entities=False``, ``no_network=True``, ``dtd_validation=False``, ``load_dtd=False``, ``huge_tree=False``.
 - ``load_kwargs``: additional arguments forwarded to ``lxml.etree.fromstring`` (the constructed parser is injected by
@@ -295,7 +295,7 @@ Marshaller / Serializer
   ``modernrpc.xmlrpc.backends.marshalling.EtreeElementMarshaller``.
 - ``marshaller_kwargs``: keyword arguments passed to the Marshaller. Supported options:
 
-  - ``allow_none`` (default: ``True``): whether to allow parsing of ``<nil/>``/``None`` values.
+  - ``allow_none`` (default: ``True``): whether to allow serialization of ``None`` values.
   - ``element_factory`` (default: ``lxml.etree.Element``): the function used to build a new Element
   - ``sub_element_factory`` (default: ``lxml.etree.SubElement``): the function used to build a new SubElement
 - ``element_type_klass``: dotted path to the XML Element class used to specialize the generic
@@ -484,7 +484,7 @@ Marshaller / Serializer
 - ``marshaller_kwargs``: see :ref:`Marshaller configuration`
 - ``dump_kwargs``: passed to ``json.dumps``. See the
   `json.dumps() <https://docs.python.org/3/library/json.html#json.dumps>`_ documentation
-  for the list of valid keywords arguments.
+  for the list of valid keyword arguments.
 
 Note: By default, ``json.dumps`` encoder is overridden to use
 `DjangoJSONEncoder <https://docs.djangoproject.com/en/5.2/topics/serialization/#djangojsonencoder>`_
@@ -565,10 +565,10 @@ Marshaller / Serializer
 - ``marshaller_kwargs``: see :ref:`Marshaller configuration`
 - ``dump_kwargs``: passed to ``orjson.dumps``. See the
   `orjson.dumps() <https://github.com/ijl/orjson?tab=readme-ov-file#serialize>`_ documentation
-  for the list of valid keywords arguments.
+  for the list of valid keyword arguments.
 
-Note: By default, since orjson is already able to serialize ``date`` and ``time`` objects, no particular encoder
-customization is performed by django-modern-rpc.
+Note: By default, since orjson is already able to serialize ``date``, ``time`` and ``datetime`` objects natively, no
+particular encoder customization is performed by django-modern-rpc.
 
 .. code-block:: python
    :caption: myproject/settings.py
@@ -645,7 +645,7 @@ Marshaller / Serializer
   ``modernrpc.jsonrpc.backends.marshalling.Marshaller``.
 - ``marshaller_kwargs``: see :ref:`Marshaller configuration`
 - ``dump_kwargs``: passed to ``ujson.dumps``. See the
-  `ujson docs <https://github.com/ultrajson/ultrajson#encoder-options>`_ for the list of valid keywords arguments.
+  `ujson docs <https://github.com/ultrajson/ultrajson#encoder-options>`_ for the list of valid keyword arguments.
 
 Note: ``ujson.dumps`` does not support the ``cls`` argument. By default, a custom ``default`` function created from
 Django's `DjangoJSONEncoder <https://docs.djangoproject.com/en/5.2/topics/serialization/#djangojsonencoder>`_
@@ -733,7 +733,7 @@ Marshaller / Serializer
 - ``marshaller_kwargs``: see :ref:`Marshaller configuration`
 - ``dump_kwargs``: passed to ``simplejson.dumps``. See the
   `simplejson.dumps() <https://simplejson.readthedocs.io/en/latest/#simplejson.dumps>`_ documentation
-  for the list of valid keywords arguments.
+  for the list of valid keyword arguments.
 
 Note: By default, a custom ``default`` function created from Django's
 `DjangoJSONEncoder <https://docs.djangoproject.com/en/5.2/topics/serialization/#djangojsonencoder>`_ ``default``
@@ -820,7 +820,7 @@ Marshaller / Serializer
 - ``marshaller_kwargs``: see :ref:`Marshaller configuration`
 - ``dump_kwargs``: passed to ``rapidjson.dumps``. See the
   `rapidjson.dumps() <https://python-rapidjson.readthedocs.io/en/latest/dumps.html>`_ documentation
-  for the list of valid keywords arguments.
+  for the list of valid keyword arguments.
 
 Note: By default, date & time handling is set to `ISO-8601` via the ``datetime_mode`` argument
 (``rapidjson.DM_ISO8601``) to help serializing ``date``, ``time`` and ``datetime`` objects.

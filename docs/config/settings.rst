@@ -18,7 +18,14 @@ MODERNRPC_DOC_FORMAT
 ^^^^^^^^^^^^^^^^^^^^
 
 Configure the format of the docstring used to document your RPC methods.
-Possible values are: ``""`` (empty string), ``"rst"`` or ``"md"``.
+
+Possible values are:
+
+- ``""`` (empty string): no processing, the docstring is returned as-is (with newlines converted to HTML paragraphs)
+- ``"rst"`` (also ``"restructured"`` / ``"restructuredtext"``): parse docstrings as reStructuredText (requires ``docutils``)
+- ``"md"`` (also ``"markdown"``): parse docstrings as Markdown (requires ``markdown``)
+
+The value is case-insensitive.
 
 :Default:   ``""`` (Empty string)
 

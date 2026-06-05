@@ -45,6 +45,8 @@ Here is an example:
 
 .. code-block:: python
 
+   from modernrpc.exceptions import RPCException, RPC_CUSTOM_ERROR_BASE
+
    class MyException1(RPCException):
        def __init__(self, message):
            super().__init__(RPC_CUSTOM_ERROR_BASE + 1, message)
@@ -93,12 +95,14 @@ Use cases
 Below are a few practical examples.
 
 .. code-block:: python
-   :caption: Send any caught exception to Sentry
+   :caption: Send any caught exception to Sentry or similar monitoring tool
 
    import sentry_sdk
 
-   def logging_handler(exc: BaseException, ctx: RpcRequestContext) -> None:
+   def send_to_sentry(exc: BaseException, ctx: RpcRequestContext) -> None:
        sentry_sdk.capture_exception(exc)
+
+   server = RpcServer(error_handler=send_to_sentry)
 
 
 .. code-block:: python
@@ -111,10 +115,18 @@ Below are a few practical examples.
    def logging_handler(exc: BaseException, ctx: RpcRequestContext) -> None:
        err_logger.warning("RPC error on %s: %s", ctx.request.path, exc, exc_info=True)
 
+   server = RpcServer(error_handler=logging_handler)
+
 
 .. code-block:: python
    :caption: Transform a specific exception into another one
 
-   def logging_handler(exc: BaseException, ctx: RpcRequestContext) -> None:
+   from modernrpc.exceptions import RPCInvalidParams
+
+   def transform_handler(exc: BaseException, ctx: RpcRequestContext) -> None:
        if isinstance(exc, ZeroDivisionError):
+           # Change or update the exception used to build the returned error response
            raise RPCInvalidParams("You cannot divide by Zero") from exc
+       # Default case, does nothing. Original exception is kept as base for returned error response
+
+   server = RpcServer(error_handler=transform_handler)

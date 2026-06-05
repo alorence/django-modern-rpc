@@ -3,8 +3,9 @@ Frequently Asked Questions
 
 Is it possible to return model instances?
 -----------------------------------------
-No. RPC protocols only support primitive types (strings, integers, floats, booleans, None) and collections (lists,
-dicts). You have to convert model instances to serializable types yourself, for example by returning a dictionary:
+No. RPC protocols only support a limited set of types: scalars (strings, integers, floats, booleans, None), collections
+(lists, dicts) and a few special types such as dates and binary data. See :ref:`Types support` for the full list. You
+have to convert model instances to serializable types yourself, for example by returning a dictionary:
 
 .. code-block:: python
 
@@ -12,6 +13,8 @@ dicts). You have to convert model instances to serializable types yourself, for 
    def get_user(user_id: int) -> dict:
        user = User.objects.get(pk=user_id)
        return {"id": user.id, "username": user.username, "email": user.email}
+
+A third-party library like `Pydantic <https://pydantic.dev/>`_ may help to easily produce valid dict from high level data.
 
 Can I register a procedure in multiple servers?
 -----------------------------------------------

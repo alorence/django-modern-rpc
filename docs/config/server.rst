@@ -31,7 +31,7 @@ A server instance exposes a view that must be added to the Django routing system
 Then, all requests to ``http://yourwebsite/rpc/`` will be routed to the server's view. They will be inspected and
 parsed to be interpreted as RPC calls.
 
-If a `POST` request has a correct `Content-Type` header and a well formed body, it will be handled by the right
+If a `POST` request has a correct `Content-Type` header and a well-formed body, it will be handled by the right
 XML-RPC or JSON-RPC backend. The result of procedure calls will be encapsulated into a well-formed response, according
 to the request protocol (XML or JSON-RPC)
 
@@ -79,9 +79,9 @@ well as :ref:`Introspection procedures & multicall` for JSON-RPC specific implem
 .. automodule:: modernrpc.system_procedures
    :private-members: __system_list_methods, __system_method_signature, __system_method_help, __system_multicall
 
-.. note:: `system.multicall` builtin method is registered as synchronous version by default. In this version, each
-   procedure is executed sequentially. If you want to opt-in for the asynchronous version (procedures executed
-   concurrently using ``asyncio.gather()``, set ``settings.MODERNRPC_XMLRPC_ASYNC_MULTICALL = True``.
+.. note:: The `system.multicall` builtin method is registered as a synchronous version by default. In this version, each
+   procedure is executed sequentially. If you want to opt in for the asynchronous version (procedures executed
+   concurrently using ``asyncio.gather()``), set ``settings.MODERNRPC_XMLRPC_ASYNC_MULTICALL = True``.
 
 
 Using the ``register_system_procedures`` argument, you can completely disable their automatic registration.
@@ -274,7 +274,7 @@ model of the view itself.
 
 When should you use async_view?
 
-- If your deployment stack is ASGI-based (e.g., Daphne, Uvicorn, Hypercorn) and your RPC procedures contain async code
+- If your deployment stack is ASGI-based (e.g., Daphne, Uvicorn, Hypercorn) and your RPC procedures contain async code,
   async_view lets Django run the request handler as a coroutine. Multiple in-flight RPC calls can then await
   I/O concurrently, which can improve throughput and tail latency under I/O-bound workloads.
 - If your procedures are all synchronous or you run under a purely WSGI stack, using view is perfectly fine;
@@ -304,9 +304,9 @@ Behavior details
 
     urlpatterns = [
         # Sync endpoint
-        path("/rpc", rpc.view),
+        path("rpc/", rpc.view),
         # Async endpoint (same API, coroutine-based view)
-        path("/async_rpc", rpc.async_view),
+        path("async_rpc/", rpc.async_view),
     ]
 
 Notes

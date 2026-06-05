@@ -139,10 +139,10 @@ Notes and best practices
 Utilities
 ---------
 
-Since authentication system has been rewritten from scratch in v2, the decorators previously available to retrieve
-Basic Auth information from request and control the permissions of the corresponding user have been removed.
+Since the authentication system has been rewritten from scratch in v2, the decorators previously available to retrieve
+Basic Auth information from the request and control the permissions of the corresponding user have been removed.
 
-A new module `modernrpc.auth` contains some utility functions to help you read authentication data from
+A new module, ``modernrpc.auth``, contains some utility functions to help you read authentication data from
 the request (Basic Auth, Bearer token, etc.).
 
 

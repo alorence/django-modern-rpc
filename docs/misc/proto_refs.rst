@@ -21,7 +21,7 @@ XML-RPC initial specification does not provide anything to achieve introspection
 and related documentation), but this was proposed in an `unofficial addendum <http://xmlrpc-c.sourceforge.net/introspection.html>`_.
 
 System introspection procedures (`system.listMethods`, `system.methodHelp` and `system.methodSignature`) are now
-widely implemented in various XML-RPC servers libraries.
+widely implemented in various XML-RPC server libraries.
 
 Multicall
 ^^^^^^^^^
@@ -39,7 +39,7 @@ Like the 3 other system methods, this one is not part of the spec. But its behav
 by `Eric Kidd`_. It is now implemented in most XML-RPC servers and supported by a number of
 clients (including `Python's ServerProxy`_).
 
-This method can be used to make many RPC calls at once, by sending an array of RPC payload. The result is a list of
+This method can be used to make many RPC calls at once, by sending an array of RPC payloads. The result is a list of
 responses, with the result for each individual request, or a corresponding fault result.
 
 It is available only to XML-RPC clients, since the JSON-RPC protocol specifies how to call multiple RPC methods
@@ -93,10 +93,10 @@ Introspection procedures & multicall
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 XML-RPC introspection procedures (`system.listMethods`, `system.methodHelp` and `system.methodSignature`) are not
-included in official JSON-RPC specification. But since they are perfectly compatible with JSON-RPC protocol, builtin
-procedures defined in django-modern-rpc are automatically available through JSON-RPC calls.
+included in the official JSON-RPC specification. But since they are perfectly compatible with the JSON-RPC protocol, the
+builtin procedures defined in django-modern-rpc are automatically available through JSON-RPC calls.
 
-However, since JSON-RPC spec explicitly define `Batch requests` as a method to call multiple procedures from a single
+However, since the JSON-RPC spec explicitly defines `Batch requests` as a way to call multiple procedures from a single
 request, the builtin `system.multicall` is disabled when a server is called through JSON-RPC.
 
 Batch requests
@@ -194,7 +194,20 @@ See :ref:`JSON-RPC backends` for detailed documentation of `date` / `time` / `da
 base64 (3)
 **********
 
-.. todo:: Explain how base64 type is used to serialize and deserialize bytes data
+XML-RPC defines a ``<base64>`` type to transport arbitrary binary data. django-modern-rpc maps it to Python ``bytes``:
+
+- **Serialization (RPC method return type)**
+
+  When a procedure returns a ``bytes`` (or ``bytearray``) object, it is base64-encoded and wrapped in a ``<base64>``
+  element.
+
+- **Deserialization (RPC method argument)**
+
+  A ``<base64>`` value received in a request is decoded back into a ``bytes`` object before being passed to your
+  procedure.
+
+JSON-RPC has no equivalent binary type. If you need to exchange binary data over JSON-RPC, encode it yourself (for
+example as a base64 string) and decode it inside your procedure.
 
 Logging
 -------

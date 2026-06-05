@@ -349,6 +349,9 @@ After
    :caption: myproject/myapp/auth.py
 
    from django.contrib.auth import authenticate
+   from django.http.request import HttpRequest
+
+   from modernrpc.auth import extract_http_basic_auth
 
    # Predicate used to block some procedures to known bots
    def forbid_bots_access(request: HttpRequest):

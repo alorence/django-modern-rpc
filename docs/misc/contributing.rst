@@ -81,7 +81,7 @@ Current environment
 
 .. _pytest: https://docs.pytest.org/en/stable/
 
-Project's tests uses pytest_. In the local environment (default python version), run it with one of the following
+The project's tests use pytest_. In the local environment (default Python version), run them with one of the following
 commands:
 
 .. code-block:: bash
@@ -119,17 +119,17 @@ automatically install the right python version when missing.
 
 .. code-block:: bash
 
-   # Run all supported Python / Django versions combinations
+   # Run all supported Python / Django version combinations
    nox
 
-   # Run tests suits with Python 3.12 (using tag)
+   # Run test suites with Python 3.12 (using tag)
    nox -t py312
 
-   # Run tests suites with Django 5.2 (using tag)
+   # Run test suites with Django 5.2 (using tag)
    nox -t dj52
 
    # Run a specific test suite
-   nox -s 'tests(Python 3.14 × Django 5.1)'
+   nox -s 'tests(Python 3.13 × Django 5.1)'
 
    # Run a specific test in all supported test suites (a.k.a pass command arguments to pytest)
    nox -- -k jsonrpc
@@ -199,7 +199,7 @@ Alternatively, use :command:`nox`:
    # Display duration of 20 slowest tests
    nox -s tests:duration
 
-.. note:: Do not use xdist when running benchmarks (``-n auto``), pytest-benchmark don't support it
+.. note:: Do not use xdist when running benchmarks (``-n auto``); pytest-benchmark does not support it.
 
 Linting, formatting
 -------------------

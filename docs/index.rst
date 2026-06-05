@@ -31,7 +31,7 @@ Getting started
 ---------------
 
 .. important:: django-modern-rpc requires Python 3.10+ and Django 4.2+. If you need to install it in environment with
-   older Python / Django versions, you must install a previous release. See :ref:`Changelog` for more information.
+   older Python / Django versions, fallback to a previous release. See :ref:`Changelog` for more information.
 
 Installing the library and configuring a Django project to use it can be achieved in a few minutes. Follow
 :doc:`quickstart` for a very basic setup process. Later, when you need to configure your project more precisely,

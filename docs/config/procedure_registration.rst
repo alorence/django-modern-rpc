@@ -110,9 +110,9 @@ instances. You can create multiple RPC servers, each with its own set of procedu
 
 .. versionchanged:: 2.0.0
 
-   In previous versions, each 'RPCEntryPoint' could be defined with a name. Then, in procedure registration, it was
+   In previous versions, each ``RPCEntryPoint`` could be defined with a name. Then, at procedure registration, it was
    possible to specify one or more entry points to register with. Now, if multiple servers are defined, each procedure
-   will have to register to all servers. See :ref:`Replace multiple RPCEntryPoints`
+   must be registered explicitly on every server that should expose it. See :ref:`Replace multiple RPCEntryPoints`.
 
 .. code-block:: python
    :caption: myapp/rpc.py
