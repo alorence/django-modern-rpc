@@ -86,7 +86,7 @@ You can override auth at registration time for a given function. This takes prec
 Multiple predicates and evaluation order
 ----------------------------------------
 
-Auth can be a single callable or any iterable (list/tuple) of callables. They are called in the order you provide.
+Auth can be a single callable or any iterable (list/tuple) of callables. They are called in the order they are provided.
 The first truthy result short‑circuits evaluation and authorizes the request; if none return a truthy value, an
 ``AuthenticationError`` is raised.
 

@@ -198,9 +198,53 @@ With v2, an ``RpcServer`` instance must be created, and then used to register pr
        path('rpc/', server.view),
    ]
 
-Note: if you declared multiple `RPCEntryPoint` in your urls config, simply declare multiple ``RpcServer`` instances
-instead, then register each procedure directly to the right server. If a procedure must be registered in 2 different
-servers, simply use the registration decorator multiple times.
+Replace multiple RPCEntryPoints
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Before
+******
+
+In v1.x, multiple endpoints were declared by instantiating ``RPCEntryPoint`` several times, each one bound to a named
+entry point. Procedures were then attached to a specific entry point using the ``entry_point`` argument of the
+``@rpc_method`` decorator. A procedure with no explicit entry point was served by every endpoint.
+
+.. code-block:: python
+   :caption: myapp/remote_procedures.py
+
+   from modernrpc.core import rpc_method
+
+   @rpc_method(entry_point="apiV1")
+   def add(a, b):
+       return a + b
+
+   @rpc_method(entry_point="apiV2")
+   def add(a, b):
+       return a + b
+
+   @rpc_method
+   def ping():
+       # No entry_point: available on every endpoint
+       return "pong"
+
+
+.. code-block:: python
+   :caption: myproject/urls.py
+
+   from django.urls import path
+   from modernrpc.views import RPCEntryPoint
+
+   urlpatterns = [
+       # ... other url patterns
+       path('rpc/v1/', RPCEntryPoint.as_view(entry_point="apiV1")),
+       path('rpc/v2/', RPCEntryPoint.as_view(entry_point="apiV2")),
+   ]
+
+After
+*****
+
+With v2, the ``entry_point`` concept disappears. Each endpoint becomes a distinct ``RpcServer`` instance, and you
+register each procedure directly on the server(s) that must expose it. To make a procedure available on several
+servers (the v1.x behavior of a procedure without an ``entry_point``), simply stack the registration decorators.
 
 .. code-block:: python
    :caption: myproject/myapp/rpc.py
@@ -211,16 +255,35 @@ servers, simply use the registration decorator multiple times.
    api_v2 = RpcServer()
 
 
-   @api_v1.register_procedure()
-   @api_v2.register_procedure()
+   @api_v1.register_procedure
    def add(a: int, b: int) -> int:
-       """Add two numbers and return the result.
-
-       :param a: First number
-       :param b: Second number
-       :return: Sum of a and b
-       """
+       """Add two numbers and return the result."""
        return a + b
+
+
+   @api_v2.register_procedure
+   def add(a: int, b: int) -> int:
+       """Add two numbers and return the result (v2)."""
+       return a + b
+
+
+   @api_v1.register_procedure
+   @api_v2.register_procedure
+   def ping() -> str:
+       # Registered on both servers
+       return "pong"
+
+.. code-block:: python
+   :caption: myproject/urls.py
+
+   from django.urls import path
+   from myapp.rpc import api_v1, api_v2
+
+   urlpatterns = [
+       # ... other url patterns
+       path('rpc/v1/', api_v1.view),
+       path('rpc/v2/', api_v2.view),
+   ]
 
 This new process allows you to easily customize registration per procedure and per server.
 

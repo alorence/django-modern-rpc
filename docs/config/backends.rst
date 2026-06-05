@@ -4,7 +4,7 @@ Backends
 .. versionadded:: 2.0
 
 Django-modern-rpc can be configured to use different backends to deserialize incoming RPC requests and serialize
-response data into the correct RPC response format. Using a custom backend can help implement non-standard behavior
+response data into the right RPC format. Using a custom backend can help implement non-standard behaviors
 (for example, allowing serialization of additional types) or improve performance.
 
 To compare backend performance, django-modern-rpc provides a benchmark test suite that is automatically run
@@ -152,8 +152,8 @@ Marshaller / Serializer
 The Marshaller class cannot be changed or configured at the moment.
 
 
-etree (xml.etree.ElementTree)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+etree (ElementTree)
+^^^^^^^^^^^^^^^^^^^
 
 Uses Python’s standard library ``xml.etree.ElementTree`` (through defusedxml wrappers) to parse and build XML-RPC
 messages. Can be used as both serializer and deserializer.
@@ -503,6 +503,168 @@ through the `cls` argument, primarily to allow serializing ``date``, ``time`` an
     }
 
 
+orjson
+^^^^^^
+
+Uses third party `orjson <https://github.com/ijl/orjson>`_ library. Can be used as both serializer and deserializer.
+
+To use this backend, `orjson` must be installed in the current environment. An extra dependency can be used for that:
+
+.. tab:: pip
+
+   .. code-block:: bash
+
+       pip install django-modern-rpc[orjson]
+
+.. tab:: poetry
+
+   .. code-block:: bash
+
+       poetry add django-modern-rpc[orjson]
+
+.. tab:: uv
+
+   .. code-block:: bash
+
+       uv add django-modern-rpc[orjson]
+
+Pros / Cons
+***********
+
+| :octicon:`thumbsup;1em;sd-mr-1` Extremely fast
+
+| :octicon:`thumbsdown;1em;sd-mr-1` requires an additional dependency
+
+Configuration
+*************
+
+Unmarshaller / Deserializer
+...........................
+
+- ``unmarshaller_klass``: dotted path to the Unmarshaller class. Defaults to
+  ``modernrpc.jsonrpc.backends.marshalling.Unmarshaller``.
+- ``unmarshaller_kwargs``: see :ref:`Unmarshaller configuration`
+- ``load_kwargs``: ignored for now. ``orjson.loads`` does not accept any additional keyword arguments
+
+.. code-block:: python
+   :caption: myproject/settings.py
+
+    MODERNRPC_JSON_DESERIALIZER = {
+        "class": "modernrpc.jsonrpc.backends.orjson.OrjsonDeserializer",
+        "kwargs": {
+            "unmarshaller_klass": "modernrpc.jsonrpc.backends.marshalling.Unmarshaller",
+            "unmarshaller_kwargs": {"validate_version": False},
+        }
+    }
+
+Marshaller / Serializer
+.......................
+
+- ``marshaller_klass``: dotted path to the Marshaller class. Defaults to
+  ``modernrpc.jsonrpc.backends.marshalling.Marshaller``.
+- ``marshaller_kwargs``: see :ref:`Marshaller configuration`
+- ``dump_kwargs``: passed to ``orjson.dumps``. See the
+  `orjson.dumps() <https://github.com/ijl/orjson?tab=readme-ov-file#serialize>`_ documentation
+  for the list of valid keywords arguments.
+
+Note: By default, since orjson is already able to serialize ``date`` and ``time`` objects, no particular encoder
+customization is performed by django-modern-rpc.
+
+.. code-block:: python
+   :caption: myproject/settings.py
+
+    MODERNRPC_JSON_SERIALIZER = {
+        "class": "modernrpc.jsonrpc.backends.orjson.OrjsonSerializer",
+        "kwargs": {
+            "dump_kwargs": {},
+        }
+    }
+
+
+ujson
+^^^^^
+
+Uses third party `ujson <https://github.com/ultrajson/ultrajson>`_ (UltraJSON) library. Can be used as both serializer
+and deserializer.
+
+To use this backend, `ujson` must be installed in the current environment. An extra dependency can be used for that:
+
+.. tab:: pip
+
+   .. code-block:: bash
+
+       pip install django-modern-rpc[ujson]
+
+.. tab:: poetry
+
+   .. code-block:: bash
+
+       poetry add django-modern-rpc[ujson]
+
+.. tab:: uv
+
+   .. code-block:: bash
+
+       uv add django-modern-rpc[ujson]
+
+Pros / Cons
+***********
+
+| :octicon:`thumbsup;1em;sd-mr-1` Very fast
+
+| :octicon:`thumbsdown;1em;sd-mr-1` requires an additional dependency
+
+Configuration
+*************
+
+Unmarshaller / Deserializer
+...........................
+
+- ``unmarshaller_klass``: dotted path to the Unmarshaller class. Defaults to
+  ``modernrpc.jsonrpc.backends.marshalling.Unmarshaller``.
+- ``unmarshaller_kwargs``: see :ref:`Unmarshaller configuration`
+- ``load_kwargs``: passed to ``ujson.loads``. See the
+  `ujson docs <https://github.com/ultrajson/ultrajson#decoder-options>`_ for the list of valid keyword arguments
+
+.. code-block:: python
+   :caption: myproject/settings.py
+
+    MODERNRPC_JSON_DESERIALIZER = {
+        "class": "modernrpc.jsonrpc.backends.ujson.UjsonDeserializer",
+        "kwargs": {
+            "load_kwargs": {},
+            "unmarshaller_klass": "modernrpc.jsonrpc.backends.marshalling.Unmarshaller",
+            "unmarshaller_kwargs": {"validate_version": False},
+        }
+    }
+
+Marshaller / Serializer
+.......................
+
+- ``marshaller_klass``: dotted path to the Marshaller class. Defaults to
+  ``modernrpc.jsonrpc.backends.marshalling.Marshaller``.
+- ``marshaller_kwargs``: see :ref:`Marshaller configuration`
+- ``dump_kwargs``: passed to ``ujson.dumps``. See the
+  `ujson docs <https://github.com/ultrajson/ultrajson#encoder-options>`_ for the list of valid keywords arguments.
+
+Note: ``ujson.dumps`` does not support the ``cls`` argument. By default, a custom ``default`` function created from
+Django's `DjangoJSONEncoder <https://docs.djangoproject.com/en/5.2/topics/serialization/#djangojsonencoder>`_
+``default`` method is passed to ``ujson.dumps``, primarily to allow serializing ``date``, ``time`` and ``datetime``
+objects.
+
+.. code-block:: python
+   :caption: myproject/settings.py
+
+    MODERNRPC_JSON_SERIALIZER = {
+        "class": "modernrpc.jsonrpc.backends.ujson.UjsonSerializer",
+        "kwargs": {
+            "marshaller_klass": "myproject.core.marshaller.CustomMarshaller",
+            "marshaller_kwargs": {"config1": "foo"},
+            "dump_kwargs": {"indent": 2, "sort_keys": False},
+        }
+    }
+
+
 simplejson
 ^^^^^^^^^^
 
@@ -591,84 +753,6 @@ method is passed to ``simplejson.dumps``, primarily to allow serializing ``date`
     }
 
 
-orjson
-^^^^^^
-
-Uses third party `orjson <https://github.com/ijl/orjson>`_ library. Can be used as both serializer and deserializer.
-
-To use this backend, `orjson` must be installed in the current environment. An extra dependency can be used for that:
-
-.. tab:: pip
-
-   .. code-block:: bash
-
-       pip install django-modern-rpc[orjson]
-
-.. tab:: poetry
-
-   .. code-block:: bash
-
-       poetry add django-modern-rpc[orjson]
-
-.. tab:: uv
-
-   .. code-block:: bash
-
-       uv add django-modern-rpc[orjson]
-
-Pros / Cons
-***********
-
-| :octicon:`thumbsup;1em;sd-mr-1` Extremely fast
-
-| :octicon:`thumbsdown;1em;sd-mr-1` requires an additional dependency
-
-Configuration
-*************
-
-Unmarshaller / Deserializer
-...........................
-
-- ``unmarshaller_klass``: dotted path to the Unmarshaller class. Defaults to
-  ``modernrpc.jsonrpc.backends.marshalling.Unmarshaller``.
-- ``unmarshaller_kwargs``: see :ref:`Unmarshaller configuration`
-- ``load_kwargs``: ignored for now. ``orjson.loads`` does not accept any additional keyword arguments
-
-.. code-block:: python
-   :caption: myproject/settings.py
-
-    MODERNRPC_JSON_DESERIALIZER = {
-        "class": "modernrpc.jsonrpc.backends.orjson.OrjsonDeserializer",
-        "kwargs": {
-            "unmarshaller_klass": "modernrpc.jsonrpc.backends.marshalling.Unmarshaller",
-            "unmarshaller_kwargs": {"validate_version": False},
-        }
-    }
-
-Marshaller / Serializer
-.......................
-
-- ``marshaller_klass``: dotted path to the Marshaller class. Defaults to
-  ``modernrpc.jsonrpc.backends.marshalling.Marshaller``.
-- ``marshaller_kwargs``: see :ref:`Marshaller configuration`
-- ``dump_kwargs``: passed to ``orjson.dumps``. See the
-  `orjson.dumps() <https://github.com/ijl/orjson?tab=readme-ov-file#serialize>`_ documentation
-  for the list of valid keywords arguments.
-
-Note: By default, since orjson is already able to serialize ``date`` and ``time`` objects, no particular encoder
-customization is performed by django-modern-rpc.
-
-.. code-block:: python
-   :caption: myproject/settings.py
-
-    MODERNRPC_JSON_SERIALIZER = {
-        "class": "modernrpc.jsonrpc.backends.orjson.OrjsonSerializer",
-        "kwargs": {
-            "dump_kwargs": {},
-        }
-    }
-
-
 rapidjson
 ^^^^^^^^^
 
@@ -751,89 +835,6 @@ Note: By default, date & time handling is set to `ISO-8601` via the ``datetime_m
         }
     }
 
-
-ujson
-^^^^^
-
-Uses third party `ujson <https://github.com/ultrajson/ultrajson>`_ (UltraJSON) library. Can be used as both serializer
-and deserializer.
-
-To use this backend, `ujson` must be installed in the current environment. An extra dependency can be used for that:
-
-.. tab:: pip
-
-   .. code-block:: bash
-
-       pip install django-modern-rpc[ujson]
-
-.. tab:: poetry
-
-   .. code-block:: bash
-
-       poetry add django-modern-rpc[ujson]
-
-.. tab:: uv
-
-   .. code-block:: bash
-
-       uv add django-modern-rpc[ujson]
-
-Pros / Cons
-***********
-
-| :octicon:`thumbsup;1em;sd-mr-1` Very fast
-
-| :octicon:`thumbsdown;1em;sd-mr-1` requires an additional dependency
-
-Configuration
-*************
-
-Unmarshaller / Deserializer
-...........................
-
-- ``unmarshaller_klass``: dotted path to the Unmarshaller class. Defaults to
-  ``modernrpc.jsonrpc.backends.marshalling.Unmarshaller``.
-- ``unmarshaller_kwargs``: see :ref:`Unmarshaller configuration`
-- ``load_kwargs``: passed to ``ujson.loads``. See the
-  `ujson docs <https://github.com/ultrajson/ultrajson#decoder-options>`_ for the list of valid keyword arguments
-
-.. code-block:: python
-   :caption: myproject/settings.py
-
-    MODERNRPC_JSON_DESERIALIZER = {
-        "class": "modernrpc.jsonrpc.backends.ujson.UjsonDeserializer",
-        "kwargs": {
-            "load_kwargs": {},
-            "unmarshaller_klass": "modernrpc.jsonrpc.backends.marshalling.Unmarshaller",
-            "unmarshaller_kwargs": {"validate_version": False},
-        }
-    }
-
-Marshaller / Serializer
-.......................
-
-- ``marshaller_klass``: dotted path to the Marshaller class. Defaults to
-  ``modernrpc.jsonrpc.backends.marshalling.Marshaller``.
-- ``marshaller_kwargs``: see :ref:`Marshaller configuration`
-- ``dump_kwargs``: passed to ``ujson.dumps``. See the
-  `ujson docs <https://github.com/ultrajson/ultrajson#encoder-options>`_ for the list of valid keywords arguments.
-
-Note: ``ujson.dumps`` does not support the ``cls`` argument. By default, a custom ``default`` function created from
-Django's `DjangoJSONEncoder <https://docs.djangoproject.com/en/5.2/topics/serialization/#djangojsonencoder>`_
-``default`` method is passed to ``ujson.dumps``, primarily to allow serializing ``date``, ``time`` and ``datetime``
-objects.
-
-.. code-block:: python
-   :caption: myproject/settings.py
-
-    MODERNRPC_JSON_SERIALIZER = {
-        "class": "modernrpc.jsonrpc.backends.ujson.UjsonSerializer",
-        "kwargs": {
-            "marshaller_klass": "myproject.core.marshaller.CustomMarshaller",
-            "marshaller_kwargs": {"config1": "foo"},
-            "dump_kwargs": {"indent": 2, "sort_keys": False},
-        }
-    }
 
 
 Helper functions
