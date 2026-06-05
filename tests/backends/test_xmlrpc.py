@@ -583,7 +583,8 @@ class TestXmlRpcSerializer:
 
 
 class TestXmlRpcSerializerKwargs:
-    def test_builtin_xmlrpc_allow_none(self, dummy_xmlrpc_request, settings):
+    @pytest.mark.parametrize("data_with_none", [None, {"foo": None}, [15, None, 16]])
+    def test_builtin_xmlrpc_none_disallowed(self, dummy_xmlrpc_request, settings, data_with_none):
         # allow_none is set to True by default, allowing None values to be serialized
         # ensure that the correct exception is raised when the option is set to False
         settings.MODERNRPC_XML_SERIALIZER = {
@@ -593,4 +594,25 @@ class TestXmlRpcSerializerKwargs:
         serializer = XmlRpcHandler().serializer
 
         with pytest.raises(RPCMarshallingError, match="cannot marshal None unless allow_none is enabled"):
-            serializer.dumps(XmlRpcSuccessResult(request=dummy_xmlrpc_request, data=None))
+            serializer.dumps(XmlRpcSuccessResult(request=dummy_xmlrpc_request, data=data_with_none))
+
+    @pytest.mark.parametrize(
+        "serializer",
+        [
+            "modernrpc.xmlrpc.backends.xmltodict.XmlToDictSerializer",
+            "modernrpc.xmlrpc.backends.etree.EtreeSerializer",
+            "modernrpc.xmlrpc.backends.lxml.LxmlSerializer",
+        ],
+    )
+    @pytest.mark.parametrize("data_with_none", [None, {"foo": None}, [15, None, 16]])
+    def test_xmlrpc_marshaller_none_disallowed(self, dummy_xmlrpc_request, settings, serializer, data_with_none):
+        # allow_none is set to True by default, allowing None values to be serialized
+        # ensure that the correct exception is raised when the option is set to False
+        settings.MODERNRPC_XML_SERIALIZER = {
+            "class": serializer,
+            "kwargs": {"marshaller_kwargs": {"allow_none": False}},
+        }
+        serializer = XmlRpcHandler().serializer
+
+        with pytest.raises(RPCMarshallingError, match="cannot marshal None unless allow_none is enabled"):
+            serializer.dumps(XmlRpcSuccessResult(request=dummy_xmlrpc_request, data=data_with_none))
