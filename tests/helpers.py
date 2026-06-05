@@ -92,8 +92,11 @@ def extract_xmlrpc_fault_data(response: HttpResponse) -> tuple[int, str]:
     if fault_string is None:
         raise Failed("No faultString found!")
 
+    if fault_code.text is None:
+        raise Failed("faultCode text is None")
+
     try:
-        fault_code_value = int(fault_code.text)  # type: ignore[arg-type]
+        fault_code_value = int(fault_code.text)
     except ValueError as e:
         raise Failed(f'Unable to parse faultCode "{fault_code}" as int') from e
 
