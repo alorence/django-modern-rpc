@@ -209,8 +209,9 @@ class ProcedureWrapper:
             return ""
 
         if settings.MODERNRPC_DOC_FORMAT.lower() in ("rst", "restructured", "restructuredtext"):
+            html4css1 = importlib.import_module("docutils.writers.html4css1")
             docutils = importlib.import_module("docutils.core")
-            return docutils.publish_parts(self.text_doc, writer_name="html")["body"]
+            return docutils.publish_parts(self.text_doc, writer=html4css1.Writer())["body"]
 
         if settings.MODERNRPC_DOC_FORMAT.lower() in ("md", "markdown"):
             markdown_module = importlib.import_module("markdown")
