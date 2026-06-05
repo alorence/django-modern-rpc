@@ -49,6 +49,7 @@ dependencies = [
 docutils = ["docutils"]
 markdown = ["markdown"]
 orjson = ["orjson"]
+ujson = ["ujson"]
 simplejson = ["simplejson"]
 rapidjson = ["python-rapidjson"]
 xmltodict = ["xmltodict"]
@@ -79,11 +80,12 @@ dev = [
     "requests",
     "docutils >= 0.19",
     "markdown >= 3.5",
+    "orjson >= 3.10",
+    "ujson >= 5.0",
     "simplejson >= 3.19",
+    "python-rapidjson >= 1.20",
     "xmltodict >= 1.0",
     "lxml >= 5.3",
-    "orjson >= 3.10",
-    "python-rapidjson >= 1.20",
 ]
 tests = [
     "pytest",
@@ -95,6 +97,7 @@ tests = [
     "pytest-asyncio",
 ]
 type-checking = [
+    "ty",
     "mypy",
     "django-stubs",
     "lxml-stubs",
@@ -104,15 +107,15 @@ type-checking = [
     "types-requests",
     "types-simplejson",
     "types-xmltodict",
-    "ty",
+    "types-ujson",
 ]
 docs = [
     "sphinx >= 6.2; python_version < '3.11'",
     "sphinx >= 8.2; python_version >= '3.11'",
     "sphinx-book-theme >= 1.1.0",
     "sphinx-autobuild",
-    "sphinx-design>=0.5.0",
-    "sphinx-inline-tabs>=2023.4.21",
+    "sphinx-design >= 0.5.0",
+    "sphinx-inline-tabs >= 2025.12.21.14",
     "myst-parser",
 ]
 

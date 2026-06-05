@@ -14,7 +14,7 @@ Embed an XML-RPC / JSON-RPC server in your Django project!
 - Custom error handling
 - Sync and async procedures
 - Multiple servers
-- Customizable XML / JSON backends with builtin support for orjson, rapidjson, lxml, etree, etc.
+- Customizable XML / JSON backends with builtin support for orjson, ujson, rapidjson, lxml, etree, etc.
 
 ## Requirements
 
