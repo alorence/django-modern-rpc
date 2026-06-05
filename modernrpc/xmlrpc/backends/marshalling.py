@@ -96,7 +96,7 @@ class EtreeElementUnmarshaller(Generic[ElementType]):
     def load_nil(self, _: ElementType) -> None:
         if self.allow_none:
             return
-        raise ValueError("cannot marshal None unless allow_none is enabled")
+        raise ValueError("cannot unmarshal <nil/> unless allow_none is enabled")
 
     def load_int(self, elt: ElementType) -> int:
         return int(self.stripped_text(elt))
@@ -104,7 +104,7 @@ class EtreeElementUnmarshaller(Generic[ElementType]):
     def load_bool(self, elt: ElementType) -> bool:
         value = self.stripped_text(elt)
         if value not in ("0", "1"):
-            raise TypeError(f"Invalid boolean value: only 0 and 1 are allowed, found {value}")
+            raise TypeError(f"invalid boolean value: only 0 and 1 are allowed, found {value}")
         return value == "1"
 
     def load_float(self, elt: ElementType) -> float:

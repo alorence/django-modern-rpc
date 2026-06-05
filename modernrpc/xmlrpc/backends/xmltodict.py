@@ -23,7 +23,8 @@ DumpFuncType = Callable[[Any], dict]
 
 
 class Unmarshaller:
-    def __init__(self) -> None:
+    def __init__(self, allow_none=True) -> None:
+        self.allow_none = allow_none
         self.load_funcs: dict[str, LoadFuncType] = {
             "value": self.load_value,
             "nil": self.load_nil,
@@ -60,12 +61,12 @@ class Unmarshaller:
         try:
             method_call = data["methodCall"]
         except KeyError as exc:
-            raise RPCInvalidRequest("missing methodCall tag", data=data) from exc
+            raise RPCInvalidRequest("Missing methodCall tag", data=data) from exc
 
         try:
             method_name = method_call["methodName"]
         except KeyError as exc:
-            raise RPCInvalidRequest("missing methodCall.methodName tag", data=data) from exc
+            raise RPCInvalidRequest("Missing methodCall.methodName tag", data=data) from exc
 
         # We don't use method_call.get("params", default={}) here because if <params> tag is present but empty,
         # the default won't be used and the function will actually return None
@@ -91,9 +92,10 @@ class Unmarshaller:
         _type, value = first(data.items())
         return self.dispatch(_type, value)
 
-    @staticmethod
-    def load_nil(_) -> None:
-        return None
+    def load_nil(self, _) -> None:
+        if self.allow_none:
+            return
+        raise ValueError("cannot unmarshal <nil/> unless allow_none is enabled")
 
     @staticmethod
     def load_int(data: str) -> int:
@@ -102,7 +104,7 @@ class Unmarshaller:
     @staticmethod
     def load_bool(data: str) -> bool:
         if data not in ("0", "1"):
-            raise TypeError("Invalid boolean value: only 0 and 1 are allowed")
+            raise TypeError("invalid boolean value: only 0 and 1 are allowed")
         return data == "1"
 
     @staticmethod
@@ -283,7 +285,7 @@ class XmlToDictDeserializer:
 
         try:
             return self.unmarshaller.dict_to_request(structured_data)
-        except TypeError as exc:
+        except Exception as exc:
             raise RPCInvalidRequest(str(exc)) from exc
 
 

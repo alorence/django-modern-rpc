@@ -361,6 +361,36 @@ class TestXmlRpcDeserializerKwargs:
         assert isinstance(request.args[0], xmlrpc.client.DateTime)
         assert request.args[0] == datetime(2026, 1, 1, 0, 0, 0)
 
+    @pytest.mark.parametrize(
+        "deserializer",
+        [
+            "modernrpc.xmlrpc.backends.xmltodict.XmlToDictDeserializer",
+            "modernrpc.xmlrpc.backends.etree.EtreeDeserializer",
+            "modernrpc.xmlrpc.backends.lxml.LxmlDeserializer",
+        ],
+    )
+    def test_nil_disallowed(self, settings, deserializer):
+        settings.MODERNRPC_XML_DESERIALIZER = {
+            "class": deserializer,
+            "kwargs": {"unmarshaller_kwargs": {"allow_none": False}},
+        }
+
+        deserializer = XmlRpcHandler().deserializer
+        payload = """
+            <?xml version="1.0"?>
+            <methodCall>
+              <methodName>foo.bar</methodName>
+              <params>
+                <param><value>
+                  <nil/>
+                </value></param>
+              </params>
+            </methodCall>
+        """
+
+        with pytest.raises(RPCInvalidRequest, match="cannot unmarshal <nil/> unless allow_none is enabled"):
+            deserializer.loads(inspect.cleandoc(payload))
+
 
 class TestXmlRpcSerializer:
     @pytest.mark.parametrize(
