@@ -6,8 +6,7 @@
 import inspect
 import re
 import typing
-
-from django.utils.functional import cached_property
+from functools import cached_property
 
 from modernrpc.types import FuncOrCoro
 

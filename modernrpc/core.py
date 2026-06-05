@@ -3,19 +3,16 @@ import logging
 from collections import defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass
+from functools import cached_property
 from typing import TYPE_CHECKING, Any
 
 from asgiref.sync import async_to_sync, iscoroutinefunction, sync_to_async
 from django.http import HttpRequest
-from django.utils.functional import cached_property
 
 from modernrpc.compat import is_union_type, union_str_repr
 from modernrpc.config import settings
 from modernrpc.constants import NOT_SET, Protocol
-from modernrpc.exceptions import (
-    AuthenticationError,
-    RPCInvalidParams,
-)
+from modernrpc.exceptions import AuthenticationError, RPCInvalidParams
 from modernrpc.helpers import check_flags_compatibility, ensure_sequence
 from modernrpc.introspection import DocstringParser, Introspector
 from modernrpc.types import AuthPredicateType, FuncOrCoro

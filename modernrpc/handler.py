@@ -5,7 +5,8 @@ from typing import Any, ClassVar, Generic
 
 from django.http import HttpRequest
 
-from modernrpc import Protocol, RpcRequestContext
+from modernrpc.constants import Protocol
+from modernrpc.core import RpcRequestContext
 from modernrpc.exceptions import RPCMethodNotFound
 from modernrpc.types import RequestType, RpcErrorResult, RpcSuccessResult
 
