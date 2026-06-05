@@ -2,7 +2,7 @@
 
 ## v2.1.0
 
-**Release date: undefined**
+**Release date: 2026-06-05**
 
 ### Improvements
 

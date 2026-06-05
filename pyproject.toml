@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------
 [project]
 name = "django-modern-rpc"
-version = "2.0.0"
+version = "2.1.0"
 description = "Simple and powerful RPC server for your Django project"
 license = "MIT"
 license-files = ["LICENSE.txt"]
@@ -19,7 +19,6 @@ classifiers = [
     "Programming Language :: Python",
     "Development Status :: 5 - Production/Stable",
     "Environment :: Web Environment",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",

@@ -19,7 +19,7 @@ sys.path.insert(0, str(root))
 
 # General information about the project.
 project = "django-modern-rpc"
-project_copyright = "2025"
+project_copyright = "2026"
 author = "Antoine Lorence"
 
 # The full version, including alpha/beta/rc tags
