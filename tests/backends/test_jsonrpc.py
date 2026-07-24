@@ -237,6 +237,55 @@ class TestJsonRpcDeserializer:
         with pytest.raises(RPCInvalidRequest):
             json_deserializer.loads(payload)
 
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            '"just a string"',
+            "42",
+            "true",
+            "null",
+        ],
+    )
+    def test_non_object_request(self, json_deserializer, payload):
+        with pytest.raises(RPCInvalidRequest):
+            json_deserializer.loads(payload)
+
+    @pytest.mark.parametrize(
+        "method",
+        [
+            "{}",
+            '{"x": "y"}',
+            "[]",
+            '["a"]',
+            "42",
+            "null",
+            "true",
+        ],
+    )
+    def test_invalid_method_name_type(self, json_deserializer, method):
+        payload = f"""{{
+          "id": 255,
+          "jsonrpc": "2.0",
+          "method": {method},
+          "params": [5]
+        }}
+        """
+        with pytest.raises(RPCInvalidRequest):
+            json_deserializer.loads(payload)
+
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            "[1, 2, 3]",
+            '["a", "b"]',
+            '[{"jsonrpc": "2.0", "id": 1, "method": "foo"}, 51]',
+            "[null]",
+        ],
+    )
+    def test_batch_with_non_object_elements(self, json_deserializer, payload):
+        with pytest.raises(RPCInvalidRequest):
+            json_deserializer.loads(payload)
+
 
 class TestJsonRpcSerializer:
     notif = JsonRpcRequest(method_name="webhook")

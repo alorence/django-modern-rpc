@@ -12,8 +12,18 @@ class Unmarshaller:
         self.validate_version = validate_version
 
     def validate_dict_request(self, request_data: DictStrAny) -> None:
+        if not isinstance(request_data, dict):
+            raise RPCInvalidRequest(
+                f"Invalid request type: expected a JSON object, found {type(request_data).__name__}"
+            )
+
         if "method" not in request_data:
             raise RPCInvalidRequest("Unable to find method name", data=request_data)
+
+        if not isinstance(request_data["method"], str):
+            raise RPCInvalidRequest(
+                f'Parameter "method" must be a String, found {type(request_data["method"]).__name__}'
+            )
 
         if "jsonrpc" not in request_data:
             raise RPCInvalidRequest("jsonrpc required")

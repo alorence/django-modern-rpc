@@ -1,3 +1,4 @@
+import json
 from http import HTTPStatus
 
 import pytest
@@ -73,3 +74,45 @@ class TestNonRpcResponsesAsync:
 
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.content == b"Unable to handle your request, unsupported Content-Type text/html."
+
+
+MALFORMED_JSONRPC_PAYLOADS = [
+    pytest.param('"just a string"', id="string_root"),
+    pytest.param("[1, 2, 3]", id="batch_of_ints"),
+    pytest.param('{"jsonrpc": "2.0", "method": {}, "id": 1}', id="dict_method_name"),
+    pytest.param('{"jsonrpc": "2.0", "method": ["a"], "id": 1}', id="list_method_name"),
+]
+
+
+class TestMalformedJsonRpcRequests:
+    """Malformed JSON-RPC payloads must produce a proper "Invalid request" error response, never an HTTP 500"""
+
+    @pytest.fixture
+    def server(self):
+        return RpcServer()
+
+    @pytest.mark.parametrize("payload", MALFORMED_JSONRPC_PAYLOADS)
+    def test_invalid_request_error_response(self, rf, server, payload):
+        response = server.view(rf.post("/rpc", data=payload, content_type="application/json"))
+
+        assert response.status_code == HTTPStatus.OK
+        result = json.loads(response.content)
+        assert result["error"]["code"] == -32600
+        assert "Invalid request" in result["error"]["message"]
+
+
+class TestMalformedJsonRpcRequestsAsync:
+    """Malformed JSON-RPC payloads must produce a proper "Invalid request" error response, never an HTTP 500"""
+
+    @pytest.fixture
+    def server(self):
+        return RpcServer()
+
+    @pytest.mark.parametrize("payload", MALFORMED_JSONRPC_PAYLOADS)
+    async def test_invalid_request_error_response(self, async_rf, server, payload):
+        response = await server.async_view(async_rf.post("/rpc", data=payload, content_type="application/json"))
+
+        assert response.status_code == HTTPStatus.OK
+        result = json.loads(response.content)
+        assert result["error"]["code"] == -32600
+        assert "Invalid request" in result["error"]["message"]

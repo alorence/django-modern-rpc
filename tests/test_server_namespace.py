@@ -30,6 +30,13 @@ class TestInitialRpcServer:
         with pytest.raises(RPCMethodNotFound):
             RpcServer().get_procedure_wrapper("foo", proto)
 
+    @pytest.mark.parametrize("proto", ALL_PROTOCOLS)
+    @pytest.mark.parametrize("name", [["foo"], {"foo": "bar"}, {"foo"}], ids=["list", "dict", "set"])
+    def test_procedure_unhashable_name(self, proto, name):
+        """An unhashable procedure name must be reported as 'method not found', not raise a TypeError"""
+        with pytest.raises(RPCMethodNotFound):
+            RpcServer().get_procedure_wrapper(name, proto)
+
     def test_supported_handlers(self):
         """Check that a fresh RPCServer 'supported_handlers' is correct with its initialization"""
 
