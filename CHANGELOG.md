@@ -1,5 +1,12 @@
 # Changelog
 
+## Next release
+
+### Misc
+
+- Added support for Django 6.1
+
+
 ## v2.1.0
 
 **Release date: 2026-06-05**

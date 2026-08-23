@@ -26,6 +26,7 @@ class Python(StrEnum):
 
 
 class Django(StrEnum):
+    v6_1 = "6.1"
     v6_0 = "6.0"
     v5_2 = "5.2"
     v5_1 = "5.1"
