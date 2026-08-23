@@ -172,7 +172,7 @@ class RpcServer(RegistryMixin):
         if self.error_handler:
             try:
                 self.error_handler(exception, context)
-            except Exception as exc:
+            except Exception as exc:  # ruff: ignore[BLE001]
                 exception = exc
 
         if isinstance(exception, RPCException):

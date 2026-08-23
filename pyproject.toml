@@ -74,7 +74,7 @@ default-groups = ["dev", "tests"]
 
 [dependency-groups]
 dev = [
-    "ruff ~= 0.15",
+    "ruff ~= 0.16",
     "jsonrpcclient ~= 4.0.3",
     "requests",
     "docutils >= 0.19",
@@ -129,10 +129,10 @@ explicit = true
 # ------------------------------------------------------------------
 # |                        Pytest settings
 # ------------------------------------------------------------------
-[tool.pytest.ini_options]
+[tool.pytest]
 testpaths = ["tests"]
 python_files = ["test_*.py", "bench_*.py"]
-addopts = "--benchmark-autosave --benchmark-disable"
+addopts = ["--benchmark-autosave", "--benchmark-disable"]
 
 # pytest-django settings
 DJANGO_SETTINGS_MODULE = "tests.project.settings"
@@ -198,8 +198,8 @@ quote-style = "double"
 
 [tool.ruff.lint]
 # List of rules currently enabled.
-# Docs: https://beta.ruff.rs/docs/rules/
-select = [
+# Docs: https://docs.astral.sh/ruff/rules/
+extend-select = [
     "F", # pyflakes
     "E", "W", # pycodestyle Errors & warnings
     "C90", # mccabe: functions complexity
@@ -265,7 +265,8 @@ select = [
 [tool.ruff.lint.per-file-ignores]
 # Some issues are irrelevant in tests
 "tests/*" = [
-    "S"  # Disable flake8-bandit in the "tests" directory: all alerts are mainly false positive
+    "S",  # flake8-bandit
+    "DTZ",  # flakee8-datetimez
 ]
 
 [tool.ruff.lint.mccabe]

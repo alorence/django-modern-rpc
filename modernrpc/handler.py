@@ -58,7 +58,7 @@ class RpcHandler(ABC, Generic[RequestType]):
         try:
             result_data = wrapper.execute(context, rpc_request.args, getattr(rpc_request, "kwargs", None))
 
-        except Exception as exc:
+        except BaseException as exc:  # ruff: ignore[BLE001]
             rpc_exc = context.server.on_error(exc, context)
             return self.build_error_result(
                 request=rpc_request, code=rpc_exc.code, message=rpc_exc.message, data=rpc_exc.data
@@ -86,7 +86,7 @@ class RpcHandler(ABC, Generic[RequestType]):
         try:
             result_data = await wrapper.aexecute(context, rpc_request.args, getattr(rpc_request, "kwargs", None))
 
-        except Exception as exc:
+        except BaseException as exc:  # ruff: ignore[BLE001]
             rpc_exc = context.server.on_error(exc, context)
             return self.build_error_result(
                 request=rpc_request, code=rpc_exc.code, message=rpc_exc.message, data=rpc_exc.data

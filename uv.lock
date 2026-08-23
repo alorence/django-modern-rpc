@@ -637,7 +637,7 @@ dev = [
     { name = "orjson", specifier = ">=3.10" },
     { name = "python-rapidjson", specifier = ">=1.20" },
     { name = "requests" },
-    { name = "ruff", specifier = "~=0.15" },
+    { name = "ruff", specifier = "~=0.16" },
     { name = "simplejson", specifier = ">=3.19" },
     { name = "ujson", specifier = ">=5.0" },
     { name = "xmltodict", specifier = ">=1.0" },

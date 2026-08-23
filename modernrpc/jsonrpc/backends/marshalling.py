@@ -77,7 +77,7 @@ class Marshaller:
 
     def result_to_dict(
         self, result: JsonRpcResult | list[JsonRpcResult]
-    ) -> DictStrAny | None | list[DictStrAny | None]:
+    ) -> list[DictStrAny | None] | DictStrAny | None:
         if isinstance(result, list):
             return [self.result_to_dict(cast("JsonRpcResult", r)) for r in result]
 

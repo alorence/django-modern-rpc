@@ -117,7 +117,7 @@ class Unmarshaller:
 
     @staticmethod
     def load_datetime(data: str) -> datetime:
-        return datetime.strptime(data, "%Y%m%dT%H:%M:%S")
+        return datetime.strptime(data, "%Y%m%dT%H:%M:%S")  # ruff: ignore[DTZ007]
 
     @staticmethod
     def load_base64(data: str) -> bytes:

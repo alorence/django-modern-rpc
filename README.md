@@ -45,6 +45,7 @@ from modernrpc.server import RpcServer
 
 server = RpcServer()
 
+
 @server.register_procedure
 def add(a: int, b: int) -> int:
     """Add two numbers and return the result.
@@ -64,7 +65,7 @@ from myapp.rpc import server
 
 urlpatterns = [
     # ... other url patterns
-    path('rpc/', server.view),  # Synchronous view
+    path("rpc/", server.view),  # Synchronous view
     # Alternatively, you can use the asynchronous view:
     # path('rpc/', server.async_view),
 ]

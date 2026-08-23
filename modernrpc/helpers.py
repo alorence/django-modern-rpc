@@ -33,11 +33,11 @@ def get_builtin_date(
         return date
     if isinstance(date, xmlrpc.client.DateTime):
         # If a special xmlrpc.client.DateTime instance is given, convert it to a standard datetime instance
-        return datetime.datetime.strptime(date.value, "%Y%m%dT%H:%M:%S")
+        return datetime.datetime.strptime(date.value, "%Y%m%dT%H:%M:%S")  # ruff: ignore[DTZ007]
 
     # If the date is given as str. This is the normal behavior for JSON-RPC
     try:
-        return datetime.datetime.strptime(date, date_format)
+        return datetime.datetime.strptime(date, date_format)  # ruff: ignore[DTZ007]
     except ValueError:
         if raise_exception:
             raise

@@ -114,7 +114,7 @@ class EtreeElementUnmarshaller(Generic[ElementType]):
         return str(self.stripped_text(elt))
 
     def load_datetime(self, elt: ElementType) -> datetime:
-        return datetime.strptime(self.stripped_text(elt), "%Y%m%dT%H:%M:%S")
+        return datetime.strptime(self.stripped_text(elt), "%Y%m%dT%H:%M:%S")  # ruff: ignore[DTZ007]
 
     def load_base64(self, elt: ElementType) -> bytes:
         return base64.b64decode(self.stripped_text(elt))
