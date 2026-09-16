@@ -14,6 +14,7 @@ from lxml.doctestcompare import PARSE_XML, LXMLOutputChecker  # ty: ignore[unres
 
 from modernrpc import Protocol
 from modernrpc.jsonrpc.backends.json import PythonJsonDeserializer, PythonJsonSerializer
+from modernrpc.jsonrpc.backends.msgspec import MsgspecDeserializer, MsgspecSerializer
 from modernrpc.jsonrpc.backends.orjson import OrjsonDeserializer, OrjsonSerializer
 from modernrpc.jsonrpc.backends.rapidjson import RapidjsonDeserializer, RapidjsonSerializer
 from modernrpc.jsonrpc.backends.simplejson import SimplejsonDeserializer, SimplejsonSerializer
@@ -35,6 +36,7 @@ JSON_DESERIALIZERS_CLASSES = [
     PythonJsonDeserializer,
     SimplejsonDeserializer,
     OrjsonDeserializer,
+    MsgspecDeserializer,
     RapidjsonDeserializer,
     UjsonDeserializer,
 ]
@@ -42,6 +44,7 @@ JSON_SERIALIZERS_CLASSES = [
     PythonJsonSerializer,
     SimplejsonSerializer,
     OrjsonSerializer,
+    MsgspecSerializer,
     RapidjsonSerializer,
     UjsonSerializer,
 ]

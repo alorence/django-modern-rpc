@@ -1,0 +1,69 @@
+from collections.abc import Iterable
+from functools import cached_property
+from typing import TYPE_CHECKING
+
+import msgspec
+from django.utils.module_loading import import_string
+
+from modernrpc.exceptions import RPCMarshallingError, RPCParseError
+from modernrpc.jsonrpc.handler import JsonRpcRequest, JsonRpcResult
+from modernrpc.types import CustomKwargs
+
+if TYPE_CHECKING:
+    from modernrpc.types import DictStrAny
+
+
+class MsgspecDeserializer:
+    """json-rpc deserializer based on the third-party msgspec library"""
+
+    def __init__(
+        self,
+        unmarshaller_klass="modernrpc.jsonrpc.backends.marshalling.Unmarshaller",
+        unmarshaller_kwargs: CustomKwargs = None,
+        load_kwargs: CustomKwargs = None,
+    ):
+        self.unmarshaller_klass = import_string(unmarshaller_klass)
+        self.unmarshaller_kwargs = unmarshaller_kwargs or {}
+
+        self.load_kwargs = load_kwargs or {}
+
+    @cached_property
+    def unmarshaller(self):
+        return self.unmarshaller_klass(**self.unmarshaller_kwargs)
+
+    def loads(self, data: str) -> JsonRpcRequest | list[JsonRpcRequest]:
+        try:
+            structured_data: list[DictStrAny] | DictStrAny = msgspec.json.decode(data, **self.load_kwargs)
+        except msgspec.DecodeError as exc:
+            raise RPCParseError(str(exc), data=exc) from exc
+
+        return self.unmarshaller.dict_to_request(structured_data)
+
+
+class MsgspecSerializer:
+    """json-rpc serializer based on the third-party msgspec library"""
+
+    def __init__(
+        self,
+        marshaller_klass="modernrpc.jsonrpc.backends.marshalling.Marshaller",
+        marshaller_kwargs: CustomKwargs = None,
+        dump_kwargs: CustomKwargs = None,
+    ):
+        self.marshaller_klass = import_string(marshaller_klass)
+        self.marshaller_kwargs = marshaller_kwargs or {}
+
+        self.dump_kwargs = dump_kwargs or {}
+        # Note: msgspec natively serializes date, time, datetime, timedelta, UUID, Decimal, bytes, set and
+        # dataclasses instances. No particular encoder customization is needed here.
+
+    @cached_property
+    def marshaller(self):
+        return self.marshaller_klass(**self.marshaller_kwargs)
+
+    def dumps(self, result: JsonRpcResult | Iterable[JsonRpcResult]) -> str:
+        structured_data = self.marshaller.result_to_dict(result)
+        try:
+            return msgspec.json.encode(structured_data, **self.dump_kwargs).decode("utf-8")
+        # NotImplementedError is the exception a custom "enc_hook" is expected to raise on unsupported types
+        except (TypeError, NotImplementedError, UnicodeEncodeError, UnicodeDecodeError) as exc:
+            raise RPCMarshallingError(structured_data, exc) from exc

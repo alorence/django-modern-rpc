@@ -2,6 +2,10 @@
 
 ## Next release
 
+### Improvements
+
+- A new JSON-RPC backend based on the third party library msgspec has been added.
+
 ### Misc
 
 - Added support for Django 6.1

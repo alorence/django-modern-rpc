@@ -1,10 +1,13 @@
+
 {
   "permissions": {
     "allow": [
       "Bash(uv run python:*)",
       "Bash(uv run pytest:*)",
       "Bash(uv run mypy:*)",
-      "Bash(uv run ty check:*)"
+      "Bash(uv run ty check:*)",
+      "Read(//tmp/**)",
+      "Bash(uv pip *)"
     ]
   }
 }

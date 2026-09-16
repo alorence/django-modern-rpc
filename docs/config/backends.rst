@@ -581,6 +581,91 @@ particular encoder customization is performed by django-modern-rpc.
     }
 
 
+msgspec
+^^^^^^^
+
+Uses third party `msgspec <https://jcristharif.com/msgspec/>`_ library. Can be used as both serializer and
+deserializer.
+
+To use this backend, `msgspec` must be installed in the current environment. An extra dependency can be used for that:
+
+.. tab:: pip
+
+   .. code-block:: bash
+
+       pip install django-modern-rpc[msgspec]
+
+.. tab:: poetry
+
+   .. code-block:: bash
+
+       poetry add django-modern-rpc[msgspec]
+
+.. tab:: uv
+
+   .. code-block:: bash
+
+       uv add django-modern-rpc[msgspec]
+
+Pros / Cons
+***********
+
+| :octicon:`thumbsup;1em;sd-mr-1` Extremely fast
+| :octicon:`thumbsup;1em;sd-mr-1` Natively serializes ``date``, ``time``, ``datetime``, ``timedelta``, ``UUID``,
+  ``Decimal``, ``Enum`` and dataclasses instances
+
+| :octicon:`thumbsdown;1em;sd-mr-1` requires an additional dependency
+| :octicon:`thumbsdown;1em;sd-mr-1` ``bytes`` objects are serialized as base64 strings instead of raising an error
+
+Configuration
+*************
+
+Unmarshaller / Deserializer
+...........................
+
+- ``unmarshaller_klass``: dotted path to the Unmarshaller class. Defaults to
+  ``modernrpc.jsonrpc.backends.marshalling.Unmarshaller``.
+- ``unmarshaller_kwargs``: see :ref:`Unmarshaller configuration`
+- ``load_kwargs``: passed to ``msgspec.json.decode``. See the
+  `msgspec.json.decode() <https://jcristharif.com/msgspec/api.html#msgspec.json.decode>`_ documentation
+  for the list of valid keyword arguments (``strict``, ``dec_hook``)
+
+.. code-block:: python
+   :caption: myproject/settings.py
+
+    MODERNRPC_JSON_DESERIALIZER = {
+        "class": "modernrpc.jsonrpc.backends.msgspec.MsgspecDeserializer",
+        "kwargs": {
+            "unmarshaller_klass": "modernrpc.jsonrpc.backends.marshalling.Unmarshaller",
+            "unmarshaller_kwargs": {"validate_version": False},
+        }
+    }
+
+Marshaller / Serializer
+.......................
+
+- ``marshaller_klass``: dotted path to the Marshaller class. Defaults to
+  ``modernrpc.jsonrpc.backends.marshalling.Marshaller``.
+- ``marshaller_kwargs``: see :ref:`Marshaller configuration`
+- ``dump_kwargs``: passed to ``msgspec.json.encode``. See the
+  `msgspec.json.encode() <https://jcristharif.com/msgspec/api.html#msgspec.json.encode>`_ documentation
+  for the list of valid keyword arguments (``enc_hook``, ``order``)
+
+Note: By default, since msgspec is already able to serialize ``date``, ``time``, ``datetime`` and many other standard
+types natively, no particular encoder customization is performed by django-modern-rpc. Additional types can be
+supported by providing a custom ``enc_hook`` through ``dump_kwargs``.
+
+.. code-block:: python
+   :caption: myproject/settings.py
+
+    MODERNRPC_JSON_SERIALIZER = {
+        "class": "modernrpc.jsonrpc.backends.msgspec.MsgspecSerializer",
+        "kwargs": {
+            "dump_kwargs": {"order": "sorted"},
+        }
+    }
+
+
 ujson
 ^^^^^
 

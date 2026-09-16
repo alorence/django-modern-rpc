@@ -7,6 +7,7 @@ import pytest
 from helpers import assert_json_data_are_equal
 
 from modernrpc.exceptions import RPCInvalidRequest, RPCMarshallingError, RPCParseError
+from modernrpc.jsonrpc.backends.msgspec import MsgspecSerializer
 from modernrpc.jsonrpc.handler import JsonRpcErrorResult, JsonRpcRequest, JsonRpcSuccessResult
 
 
@@ -371,9 +372,13 @@ class TestJsonRpcSerializer:
         "value",
         [
             b"foo\x98",
+            object(),
         ],
     )
     def test_result_unsupported_type(self, request, json_serializer, value):
+        if isinstance(value, bytes) and isinstance(json_serializer, MsgspecSerializer):
+            pytest.skip("msgspec natively serializes bytes objects as base64 strings")
+
         result = JsonRpcSuccessResult(request=self.req1, data=value)
         with pytest.raises(RPCMarshallingError) as exc:
             json_serializer.dumps(result)
@@ -407,3 +412,28 @@ class TestJsonRpcSerializer:
             }
         }"""
         assert_json_data_are_equal(json_serializer.dumps(result), expected)
+
+
+class TestMsgspecSerializer:
+    """Specific tests for the features provided by the msgspec backend only"""
+
+    req = JsonRpcRequest(request_id=1, method_name="foo")
+
+    def test_custom_enc_hook(self):
+        """Support for additional types can be provided through a custom enc_hook"""
+        serializer = MsgspecSerializer(dump_kwargs={"enc_hook": lambda obj: f"<{type(obj).__name__}>"})
+        result = JsonRpcSuccessResult(request=self.req, data=object())
+        expected = """{"id": 1, "jsonrpc": "2.0", "result": "<object>"}"""
+        assert_json_data_are_equal(serializer.dumps(result), expected)
+
+    def test_custom_enc_hook_unsupported_type(self):
+        """NotImplementedError, raised by a custom enc_hook on unsupported types, is properly converted"""
+
+        def enc_hook(obj):
+            raise NotImplementedError(f"Objects of type {type(obj)} are not supported")
+
+        serializer = MsgspecSerializer(dump_kwargs={"enc_hook": enc_hook})
+        result = JsonRpcSuccessResult(request=self.req, data=object())
+        with pytest.raises(RPCMarshallingError) as exc:
+            serializer.dumps(result)
+        assert "Unable to serialize result data" in exc.value.message

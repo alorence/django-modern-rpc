@@ -74,7 +74,7 @@ Django URL route → RpcServer → RpcHandler (JSON-RPC or XML-RPC) → Procedur
 4. **ProcedureWrapper** (`modernrpc/core.py`) — Wraps a callable/coroutine for RPC execution. Stores auth predicates, protocol restriction, and an optional `context_target` argument name for injecting `RpcRequestContext`.
 
 5. **Backend system** — Pluggable serialization/deserialization per protocol:
-   - JSON: `modernrpc/jsonrpc/backends/` (json, orjson, rapidjson, simplejson)
+   - JSON: `modernrpc/jsonrpc/backends/` (json, orjson, msgspec, ujson, rapidjson, simplejson)
    - XML: `modernrpc/xmlrpc/backends/` (xmlrpc, lxml, etree, xmltodict)
    - Selected via `MODERNRPC_*_SERIALIZER` / `MODERNRPC_*_DESERIALIZER` Django settings.
 
