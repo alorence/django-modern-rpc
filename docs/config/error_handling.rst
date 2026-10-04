@@ -14,6 +14,13 @@ To implement this behavior, django-modern-rpc uses Python exception mechanism to
   error to the sender
 - Catch any exception raised from procedures and convert it to a standardized error response.
 
+Cancellation
+------------
+
+``asyncio.CancelledError`` propagates from procedures and cancelled requests without calling the custom error handler
+or creating an RPC error response. This applies to both synchronous and asynchronous views, including batch requests.
+Procedures can use ``try``/``finally`` to clean up resources. If they catch ``CancelledError``, they must raise it again.
+
 Builtin exceptions
 ------------------
 

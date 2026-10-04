@@ -1,6 +1,12 @@
+import asyncio
 from unittest.mock import Mock
 
+import django
 import pytest
+from asgiref.sync import sync_to_async
+from asgiref.testing import ApplicationCommunicator
+from django.core.handlers.asgi import ASGIHandler
+from django.urls import path
 
 from modernrpc import Protocol, RpcRequestContext, RpcServer
 from modernrpc.exceptions import RPCException, RPCInternalError, RPCMethodNotFound
@@ -93,3 +99,112 @@ class TestRpcServerErrorHandling:
         custom_handler.assert_called_once()
         assert result.code == -1000
         assert result.message == "Custom error"
+
+
+class TestCancellationHandling:
+    @pytest.mark.parametrize("request_factory", ["jsonrpc_rf", "xmlrpc_rf"])
+    @pytest.mark.parametrize("asynchronous_view", [False, True], ids=["sync-view", "async-view"])
+    @pytest.mark.parametrize("asynchronous_procedure", [False, True], ids=["sync-procedure", "async-procedure"])
+    async def test_procedure_cancellation(self, request, request_factory, asynchronous_view, asynchronous_procedure):
+        error_handler = Mock()
+        server = RpcServer(error_handler=error_handler)
+        cancellation = asyncio.CancelledError("procedure stopped")
+
+        def sync_procedure():
+            raise cancellation
+
+        async def async_procedure():
+            raise cancellation
+
+        server.register_procedure(async_procedure if asynchronous_procedure else sync_procedure, name="cancelled")
+        rpc_request = request.getfixturevalue(request_factory)(method_name="cancelled")
+        view = server.async_view if asynchronous_view else sync_to_async(server.view)
+
+        with pytest.raises(asyncio.CancelledError) as exc_info:
+            await view(rpc_request)
+
+        assert exc_info.value is cancellation
+        error_handler.assert_not_called()
+
+    @pytest.mark.parametrize("request_factory", ["jsonrpc_rf", "xmlrpc_rf"])
+    async def test_running_view_cancellation(self, request, request_factory):
+        error_handler = Mock()
+        server = RpcServer(error_handler=error_handler)
+        entered = asyncio.Event()
+        cleaned = asyncio.Event()
+
+        @server.register_procedure
+        async def waiting():
+            entered.set()
+            try:
+                await asyncio.Future()
+            finally:
+                cleaned.set()
+
+        rpc_request = request.getfixturevalue(request_factory)(method_name="waiting")
+        task = asyncio.create_task(server.async_view(rpc_request))
+        try:
+            await asyncio.wait_for(entered.wait(), timeout=2)
+            task.cancel()
+            with pytest.raises(asyncio.CancelledError):
+                await asyncio.wait_for(task, timeout=2)
+        finally:
+            task.cancel()
+            await asyncio.gather(task, return_exceptions=True)
+
+        assert cleaned.is_set()
+        error_handler.assert_not_called()
+
+    @pytest.mark.parametrize("batch", [False, True], ids=["notification", "batch"])
+    async def test_json_notification_cancellation(self, jsonrpc_rf, jsonrpc_batch_rf, batch):
+        error_handler = Mock()
+        server = RpcServer(error_handler=error_handler)
+
+        @server.register_procedure
+        async def cancelled():
+            raise asyncio.CancelledError
+
+        rpc_request = (
+            jsonrpc_batch_rf(requests=[("cancelled", (), True), ("cancelled", (), False)])
+            if batch
+            else jsonrpc_rf(method_name="cancelled", is_notif=True)
+        )
+
+        with pytest.raises(asyncio.CancelledError):
+            await server.async_view(rpc_request)
+
+        error_handler.assert_not_called()
+
+    @pytest.mark.skipif(django.VERSION < (5, 0), reason="Django 4.2 does not cancel views on disconnect")
+    @pytest.mark.parametrize("request_factory", ["jsonrpc_rf", "xmlrpc_rf"])
+    async def test_asgi_disconnect(self, request, request_factory, async_rf, settings):
+        error_handler = Mock()
+        server = RpcServer(error_handler=error_handler)
+        entered = asyncio.Event()
+        cleaned = asyncio.Event()
+
+        @server.register_procedure
+        async def waiting():
+            entered.set()
+            try:
+                await asyncio.Future()
+            finally:
+                cleaned.set()
+
+        rpc_request = request.getfixturevalue(request_factory)(method_name="waiting")
+        settings.ROOT_URLCONF = type("CancellationUrls", (), {"urlpatterns": [path("rpc", server.async_view)]})
+        settings.MIDDLEWARE = []
+        asgi_request = async_rf.post("/rpc", data=rpc_request.body, content_type=rpc_request.content_type)
+        communicator = ApplicationCommunicator(ASGIHandler(), asgi_request.scope)
+        try:
+            await communicator.send_input({"type": "http.request", "body": rpc_request.body})
+            await asyncio.wait_for(entered.wait(), timeout=2)
+            await communicator.send_input({"type": "http.disconnect"})
+            await communicator.wait(timeout=2)
+
+            assert cleaned.is_set()
+            assert communicator.output_queue.empty()
+            error_handler.assert_not_called()
+        finally:
+            communicator.stop(exceptions=False)
+            await asyncio.gather(communicator.future, return_exceptions=True)

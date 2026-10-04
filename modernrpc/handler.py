@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from abc import ABC, abstractmethod
 from http import HTTPStatus
@@ -58,6 +59,8 @@ class RpcHandler(ABC, Generic[RequestType]):
         try:
             result_data = wrapper.execute(context, rpc_request.args, getattr(rpc_request, "kwargs", None))
 
+        except asyncio.CancelledError:
+            raise
         except BaseException as exc:  # ruff: ignore[BLE001]
             rpc_exc = context.server.on_error(exc, context)
             return self.build_error_result(
@@ -86,6 +89,8 @@ class RpcHandler(ABC, Generic[RequestType]):
         try:
             result_data = await wrapper.aexecute(context, rpc_request.args, getattr(rpc_request, "kwargs", None))
 
+        except asyncio.CancelledError:
+            raise
         except BaseException as exc:  # ruff: ignore[BLE001]
             rpc_exc = context.server.on_error(exc, context)
             return self.build_error_result(
