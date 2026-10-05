@@ -16,7 +16,7 @@ on:
   workflow_dispatch:
 
 env:
-  UV_VERSION: 0.12.15
+  UV_VERSION: 0.12.23
 
 jobs:
   generate-jobs:
@@ -24,7 +24,7 @@ jobs:
     outputs:
       session: ${{ steps.set-matrix.outputs.session }}
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
 
     - name: Install nox
       uses: wntrblm/nox@a976d7ee04ab7a13634adc1016d4755a1348225f  # 2026.08.17 - https://github.com/wntrblm/nox/releases
@@ -43,13 +43,13 @@ jobs:
       matrix:
         session: ${{ fromJson(needs.generate-jobs.outputs.session) }}
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
 
     - name: Install nox
       uses: wntrblm/nox@a976d7ee04ab7a13634adc1016d4755a1348225f  # 2026.08.17 - https://github.com/wntrblm/nox/releases
 
     - name: Install uv
-      uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0, see https://github.com/astral-sh/setup-uv/releases
+      uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0, see https://github.com/astral-sh/setup-uv/releases
       with:
         version: ${{ env.UV_VERSION }}
 

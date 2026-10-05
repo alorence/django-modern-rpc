@@ -14,7 +14,7 @@ on:
     - cron: '55 2 */7 * *'
 
 env:
-  UV_VERSION: 0.12.15
+  UV_VERSION: 0.12.23
 
 jobs:
   debug:
@@ -31,9 +31,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: debug
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Install uv
-      uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0, see https://github.com/astral-sh/setup-uv/releases
+      uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0, see https://github.com/astral-sh/setup-uv/releases
       with:
         version: ${{ env.UV_VERSION }}
     - name: Check lockfile
@@ -43,9 +43,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: debug
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Install uv
-      uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0, see https://github.com/astral-sh/setup-uv/releases
+      uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0, see https://github.com/astral-sh/setup-uv/releases
       with:
         version: ${{ env.UV_VERSION }}
     - name: Ruff
@@ -56,9 +56,9 @@ jobs:
     continue-on-error: true
     needs: debug
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Install uv
-      uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0, see https://github.com/astral-sh/setup-uv/releases
+      uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0, see https://github.com/astral-sh/setup-uv/releases
       with:
         version: ${{ env.UV_VERSION }}
     - name: Ruff Format
@@ -68,9 +68,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: debug
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Install uv
-      uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0, see https://github.com/astral-sh/setup-uv/releases
+      uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0, see https://github.com/astral-sh/setup-uv/releases
       with:
         version: ${{ env.UV_VERSION }}
     - name: Mypy
@@ -81,9 +81,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: debug
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Install uv
-      uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0, see https://github.com/astral-sh/setup-uv/releases
+      uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0, see https://github.com/astral-sh/setup-uv/releases
       with:
         version: ${{ env.UV_VERSION }}
     - name: Ty
@@ -97,7 +97,7 @@ jobs:
     outputs:
       session: ${{ steps.set-matrix.outputs.session }}
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Install nox
       uses: wntrblm/nox@a976d7ee04ab7a13634adc1016d4755a1348225f  # 2026.08.17 - https://github.com/wntrblm/nox/releases
     - name: Build GH Actions test matrix from nox sessions
@@ -114,13 +114,13 @@ jobs:
       matrix:
         session: ${{ fromJson(needs.generate-jobs.outputs.session) }}
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
 
     - name: Install nox
       uses: wntrblm/nox@a976d7ee04ab7a13634adc1016d4755a1348225f  # 2026.08.17 - https://github.com/wntrblm/nox/releases
 
     - name: Install uv
-      uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0, see https://github.com/astral-sh/setup-uv/releases
+      uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0, see https://github.com/astral-sh/setup-uv/releases
       with:
         version: ${{ env.UV_VERSION }}
 
@@ -137,7 +137,7 @@ jobs:
         CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
       run: uvx --from codacy-coverage python-codacy-coverage -r coverage.xml
 
-    - uses: gacts/github-slug@83cd3d95888be8777f0d9c810c1266da1c5c3ef1 # v1.3.5 - https://github.com/gacts/github-slug/releases
+    - uses: gacts/github-slug@c29c0ddd888a1703a6fc06c55a5f6ddd7beae490 # v1.3.6 - https://github.com/gacts/github-slug/releases
       id: test-session-slug
       with:
         to-slug: "${{ matrix.session }}"
@@ -152,7 +152,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: tests
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       with:
         fetch-depth: 0  # SonraQube analysis requires disabling shallow clones
 
@@ -163,7 +163,7 @@ jobs:
 
     - name: SonarQube Scan + Coverage upload
       continue-on-error: true
-      uses: SonarSource/sonarqube-scan-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f # v8.2.1 - https://github.com/SonarSource/sonarqube-scan-action/releases
+      uses: SonarSource/sonarqube-scan-action@d209202bc7d53ff1cc128f7f907dac145c9d6ae9 # v8.3.0 - https://github.com/SonarSource/sonarqube-scan-action/releases
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       with:

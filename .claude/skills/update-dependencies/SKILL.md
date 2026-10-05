@@ -24,7 +24,7 @@ If `uv self update` fails (uv installed by a system package manager), report it 
 
 ```bash
 git diff --quiet uv.lock  # sanity check: lockfile untouched before update
-uv sync --update --all-groups
+uv sync --upgrade --all-groups
 ```
 
 Then list what changed, to know which tools must be propagated elsewhere:
@@ -94,8 +94,8 @@ Re-run the script after editing: every pinned action must be `[OK]`.
 uv lock --check
 uv run ruff check .
 uv run ruff format . --check
-uv run mypy
-uv run ty check
+uv run --group=type-checking mypy .   # same as CI; `uv run mypy` alone fails (no `files` in config)
+uv run --group=type-checking ty check .
 uv run pytest -n auto
 ```
 

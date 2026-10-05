@@ -42,7 +42,10 @@ def tag_sha(repo: str, tag: str) -> str | None:
         text=True,
         check=False,
     ).stdout
-    refs = dict(reversed(line.split("\t")) for line in out.splitlines() if line)
+    refs = {}
+    for line in out.splitlines():
+        sha, _, ref = line.partition("\t")
+        refs[ref] = sha
     # Peeled ref (^{}) is the commit for annotated tags; fall back to the lightweight tag
     return refs.get(f"refs/tags/{tag}^{{}}") or refs.get(f"refs/tags/{tag}")
 
