@@ -108,6 +108,7 @@ class TestJsonRpcSyncView:
             "unserializable_result_procedure",
             "async_simple_procedure",
             "async_unserializable_result_procedure",
+            "async_cancelled_procedure",
         ]
         server.on_error.assert_not_called()
 

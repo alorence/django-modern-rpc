@@ -1,3 +1,4 @@
+import asyncio
 from unittest.mock import Mock
 
 import pytest
@@ -93,3 +94,32 @@ class TestRpcServerErrorHandling:
         custom_handler.assert_called_once()
         assert result.code == -1000
         assert result.message == "Custom error"
+
+    @pytest.mark.parametrize(
+        ("protocol", "handler", "content_type"),
+        [
+            (Protocol.JSON_RPC, JsonRpcHandler(), "application/json"),
+            (Protocol.XML_RPC, XmlRpcHandler(), "application/xml"),
+        ],
+    )
+    async def test_task_cancellation_is_propagated(self, rf, protocol, handler, content_type):
+        """Test that asyncio.CancelledError raised from a procedure is not converted into an RPC error."""
+        custom_handler = Mock()
+        server = RpcServer(error_handler=custom_handler)
+
+        @server.register_procedure(name="cancelled")
+        async def cancelled():
+            raise asyncio.CancelledError
+
+        request = rf.post("/rpc", content_type=content_type)
+        context = RpcRequestContext(request, server, handler, protocol)
+
+        mocked_rpc_request = Mock()
+        mocked_rpc_request.method_name = "cancelled"
+        mocked_rpc_request.args = []
+        mocked_rpc_request.kwargs = {}
+
+        with pytest.raises(asyncio.CancelledError):
+            await handler.aprocess_single_request(mocked_rpc_request, context)
+
+        custom_handler.assert_not_called()

@@ -1,3 +1,4 @@
+import asyncio
 import importlib
 from unittest.mock import Mock
 
@@ -35,6 +36,11 @@ def server(monkeypatch):
     async def async_unserializable_result_procedure():
         """Return an object that cannot be serialized by default backends"""
         return ...
+
+    @server.register_procedure
+    async def async_cancelled_procedure():
+        """Simulate the cancellation of the task running the procedure"""
+        raise asyncio.CancelledError
 
     monkeypatch.setattr(server, "on_error", Mock(side_effect=server.on_error))
 

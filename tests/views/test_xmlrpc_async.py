@@ -1,3 +1,4 @@
+import asyncio
 import re
 from http import HTTPStatus
 
@@ -86,6 +87,7 @@ class TestXmlRpcAsyncView:
             "unserializable_result_procedure",
             "async_simple_procedure",
             "async_unserializable_result_procedure",
+            "async_cancelled_procedure",
         ]
         server.on_error.assert_not_called()
 
@@ -167,6 +169,22 @@ class TestXmlRpcAsyncMulticall:
         result = extract_xmlrpc_success_result(response)
         assert result[0] == ["foo='xxx' bar=20"]
         assert isinstance(result[1], list)  # listMethods returns a list
+        server_using_sync_or_async_multicall.on_error.assert_not_called()
+
+    async def test_multicall_cancelled_procedure(self, xmlrpc_rf, server_using_sync_or_async_multicall):
+        """Ensure a task cancellation raised by one call of a multicall is propagated, not converted to an RPC fault"""
+        mc_params = [
+            [
+                {"methodName": "simple_procedure", "params": ("xxx", 20)},
+                {"methodName": "async_cancelled_procedure"},
+                {"methodName": "async_simple_procedure", "params": ("yyy", 20)},
+            ]
+        ]
+        request = xmlrpc_rf(method_name="system.multicall", params=mc_params)
+
+        with pytest.raises(asyncio.CancelledError):
+            await server_using_sync_or_async_multicall.async_view(request)
+
         server_using_sync_or_async_multicall.on_error.assert_not_called()
 
     async def test_multicall_invalid_params_1(self, xmlrpc_rf, server_using_sync_or_async_multicall):

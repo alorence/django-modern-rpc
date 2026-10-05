@@ -1,3 +1,4 @@
+import asyncio
 import json
 import random
 import re
@@ -108,6 +109,7 @@ class TestJsonRpcAsyncView:
             "unserializable_result_procedure",
             "async_simple_procedure",
             "async_unserializable_result_procedure",
+            "async_cancelled_procedure",
         ]
         server.on_error.assert_not_called()
 
@@ -202,3 +204,22 @@ class TestJsonRpcAsyncBatch:
         assert response.status_code == HTTPStatus.NO_CONTENT
         assert response.content == b""
         server.on_error.assert_called()
+
+
+@pytest.mark.usefixtures("all_json_deserializers", "all_json_serializers")
+class TestJsonRpcAsyncBatchCancellation:
+    @pytest.mark.parametrize("is_notif", [False, True], ids=["request", "notification"])
+    async def test_jsonrpc_batch_cancelled_procedure(self, jsonrpc_batch_rf, server, is_notif):
+        """Ensure a task cancellation raised by one procedure of a batch is propagated, not converted to an RPC error"""
+        request = jsonrpc_batch_rf(
+            requests=[
+                ("simple_procedure", ("xxx", 20), False),
+                ("async_cancelled_procedure", (), is_notif),
+                ("async_simple_procedure", ("yyy", 20), False),
+            ]
+        )
+
+        with pytest.raises(asyncio.CancelledError):
+            await server.async_view(request)
+
+        server.on_error.assert_not_called()
