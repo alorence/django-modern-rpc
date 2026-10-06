@@ -265,7 +265,7 @@ class TestXmlRpcDeserializer:
         assert request.args == [{"foo": 9}, {"bar": 9.0, "baz": "9"}]
 
     def test_invalid_xml_payload(self, xml_deserializer):
-        payload = """
+        payload = inspect.cleandoc("""
             <?xml version="1.0"?>
             <methodCall>
               <methodName>foo.baz</methodName
@@ -273,9 +273,9 @@ class TestXmlRpcDeserializer:
                 <param><value><i4>11</i4></value></param>
               </params>
             </methodCall>
-        """
+        """)
         with pytest.raises(RPCParseError):
-            xml_deserializer.loads(inspect.cleandoc(payload))
+            xml_deserializer.loads(payload)
 
     def test_missing_root_tag(self, request, xml_deserializer):
         if "PythonXmlRpc" in xml_deserializer.__class__.__name__:
@@ -284,7 +284,7 @@ class TestXmlRpcDeserializer:
             )
             request.applymarker(marker)
 
-        payload = """
+        payload = inspect.cleandoc("""
             <?xml version="1.0"?>
             <foo>
               <methodName>foo.baz</methodName>
@@ -292,24 +292,24 @@ class TestXmlRpcDeserializer:
                 <param><value><int>5</int></value></param>
               </params>
             </foo>
-        """
+        """)
         with pytest.raises(RPCInvalidRequest):
-            xml_deserializer.loads(inspect.cleandoc(payload))
+            xml_deserializer.loads(payload)
 
     def test_missing_method_name(self, xml_deserializer):
-        payload = """
+        payload = inspect.cleandoc("""
             <?xml version="1.0"?>
             <methodCall>
               <params>
                 <param><value><int>5</int></value></param>
               </params>
             </methodCall>
-        """
+        """)
         with pytest.raises(RPCInvalidRequest):
-            xml_deserializer.loads(inspect.cleandoc(payload))
+            xml_deserializer.loads(payload)
 
     def test_invalid_type(self, xml_deserializer):
-        payload = """
+        payload = inspect.cleandoc("""
             <?xml version="1.0"?>
             <methodCall>
               <methodName>foo.bar</methodName>
@@ -317,13 +317,13 @@ class TestXmlRpcDeserializer:
                 <param><value><foo>5</foo></value></param>
               </params>
             </methodCall>
-        """
+        """)
         with pytest.raises(RPCInvalidRequest):
-            xml_deserializer.loads(inspect.cleandoc(payload))
+            xml_deserializer.loads(payload)
 
     @pytest.mark.parametrize("val", [5, True, False, -3, -1, "null", "true", "false"])
     def test_invalid_bool_value(self, xml_deserializer, val):
-        payload = f"""
+        payload = inspect.cleandoc(f"""
             <?xml version="1.0"?>
             <methodCall>
               <methodName>foo.bar</methodName>
@@ -331,9 +331,9 @@ class TestXmlRpcDeserializer:
                 <param><value><boolean>{val}</boolean></value></param>
               </params>
             </methodCall>
-        """
+        """)
         with pytest.raises(RPCInvalidRequest):
-            xml_deserializer.loads(inspect.cleandoc(payload))
+            xml_deserializer.loads(payload)
 
 
 class TestXmlRpcDeserializerKwargs:
@@ -376,7 +376,7 @@ class TestXmlRpcDeserializerKwargs:
         }
 
         deserializer = XmlRpcHandler().deserializer
-        payload = """
+        payload = inspect.cleandoc("""
             <?xml version="1.0"?>
             <methodCall>
               <methodName>foo.bar</methodName>
@@ -386,10 +386,10 @@ class TestXmlRpcDeserializerKwargs:
                 </value></param>
               </params>
             </methodCall>
-        """
+        """)
 
         with pytest.raises(RPCInvalidRequest, match="cannot unmarshal <nil/> unless allow_none is enabled"):
-            deserializer.loads(inspect.cleandoc(payload))
+            deserializer.loads(payload)
 
 
 class TestXmlRpcSerializer:
@@ -623,8 +623,9 @@ class TestXmlRpcSerializerKwargs:
         }
         serializer = XmlRpcHandler().serializer
 
+        result = XmlRpcSuccessResult(request=dummy_xmlrpc_request, data=data_with_none)
         with pytest.raises(RPCMarshallingError, match="cannot marshal None unless allow_none is enabled"):
-            serializer.dumps(XmlRpcSuccessResult(request=dummy_xmlrpc_request, data=data_with_none))
+            serializer.dumps(result)
 
     @pytest.mark.parametrize(
         "serializer",
@@ -644,5 +645,6 @@ class TestXmlRpcSerializerKwargs:
         }
         serializer = XmlRpcHandler().serializer
 
+        result = XmlRpcSuccessResult(request=dummy_xmlrpc_request, data=data_with_none)
         with pytest.raises(RPCMarshallingError, match="cannot marshal None unless allow_none is enabled"):
-            serializer.dumps(XmlRpcSuccessResult(request=dummy_xmlrpc_request, data=data_with_none))
+            serializer.dumps(result)
