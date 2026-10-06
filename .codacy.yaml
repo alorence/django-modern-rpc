@@ -3,6 +3,18 @@ engines:
   bandit:
     exclude_paths:
       - "tests/**"
+  lizard:
+    exclude_paths:
+      - "tests/**"
   markdownlint:
     exclude_paths:
       - "CHANGELOG.md"
+  prospector:
+    exclude_paths:
+      - "tests/**"
+  ruff:
+    exclude_paths:
+      - "uv.lock"
+  semgrep:
+    exclude_paths:
+      - "tests/**"
