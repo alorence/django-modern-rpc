@@ -1,0 +1,168 @@
+{
+  "summary": {
+    "enabledPatterns": {
+      "before": 2152,
+      "after": 1050
+    },
+    "enabledTools": {
+      "before": 13,
+      "after": 13
+    },
+    "issues": {
+      "before": 109,
+      "after": 36
+    },
+    "analysisRuntime": {
+      "before": 118041,
+      "after": 98103
+    }
+  },
+  "toolChanges": [],
+  "patternChanges": [
+    {
+      "patternId": "Semgrep_* (986 patterns: java, javascript, ruby, scala, go, terraform, csharp, kotlin, php, k8s, docker-compose...)",
+      "toolId": "Semgrep",
+      "action": "disabled",
+      "reason": "Wrong stack - project is Python/YAML/Markdown/CSS only",
+      "delta": 0,
+      "parameters": []
+    },
+    {
+      "patternId": "Stylelint_* (55 unconfigured *-allowed-list / *-pattern / null-threshold rules)",
+      "toolId": "Stylelint",
+      "action": "disabled",
+      "reason": "Unconfigured rules flag every property/unit/function of docs/_static/custom.css; class-pattern fires on Sphinx theme classes",
+      "delta": -38,
+      "parameters": []
+    },
+    {
+      "patternId": "Agentlinter_* (58 clarity/completeness/memory/runtime/blueprint/token-budget rules)",
+      "toolId": "Agentlinter",
+      "action": "disabled",
+      "reason": "Subjective prose rules or OpenClaw-specific runtime checks, irrelevant for CLAUDE.md/skills",
+      "delta": -9,
+      "parameters": []
+    },
+    {
+      "patternId": "Semgrep_python.lang.security.use-defused-xml.use-defused-xml",
+      "toolId": "Semgrep",
+      "action": "disabled",
+      "reason": "Duplicate of Bandit B313-B320/B405-B411 (XML parsing)",
+      "delta": -4,
+      "parameters": []
+    },
+    {
+      "patternId": "Semgrep_python_xml_rule-*",
+      "toolId": "Semgrep",
+      "action": "disabled",
+      "reason": "Duplicate of Bandit B313-B320/B405-B411; flagged hardened lxml parser",
+      "delta": -2,
+      "parameters": []
+    },
+    {
+      "patternId": "PyLintPython3_W0718",
+      "toolId": "PyLintPython3",
+      "action": "disabled",
+      "reason": "Convention mismatch: RPC server must catch all exceptions to return RPC errors; ruff BLE deliberately disabled in pyproject.toml",
+      "delta": -4,
+      "parameters": []
+    },
+    {
+      "patternId": "Semgrep_python.lang.security.audit.dynamic-urllib-use-detected + Semgrep_python_urlopen_rule-urllib-urlopen",
+      "toolId": "Semgrep",
+      "action": "disabled",
+      "reason": "Duplicate of Bandit B310",
+      "delta": -2,
+      "parameters": []
+    },
+    {
+      "patternId": "Semgrep_generic.secrets.security.detected-sonarqube-docs-api-key",
+      "toolId": "Semgrep",
+      "action": "disabled",
+      "reason": "False positive on `${{ secrets.SONAR_TOKEN }}` reference",
+      "delta": -1,
+      "parameters": []
+    },
+    {
+      "patternId": "Bandit_B404",
+      "toolId": "Bandit",
+      "action": "disabled",
+      "reason": "Import-only warning; subprocess calls still covered by B602-B607",
+      "delta": -1,
+      "parameters": []
+    },
+    {
+      "patternId": "Prospector_pyflakes",
+      "toolId": "Prospector",
+      "action": "disabled",
+      "reason": "Duplicate of Ruff F rules",
+      "delta": 0,
+      "parameters": []
+    }
+  ],
+  "fileExclusions": {
+    "global": [],
+    "perTool": {
+      "Semgrep": [
+        "tests/**"
+      ],
+      "Prospector": [
+        "tests/**"
+      ],
+      "Lizard": [
+        "tests/**"
+      ]
+    }
+  },
+  "securityCoverage": {
+    "deduplication": [
+      "XML parsing: Bandit B313-B320/B405-B411 kept, Semgrep use-defused-xml + python_xml_rule-* disabled",
+      "urllib open: Bandit B310 kept, 2 Semgrep rules disabled",
+      "Hardcoded secrets: Semgrep gitleaks + Trivy_secret + Prospector_dodgy kept; Semgrep sonarqube-docs-api-key disabled"
+    ],
+    "newCoverage": [],
+    "noisyButKept": [
+      "Bandit B411/B405 on xmlrpc.client/Element imports (used for serialization, parsing goes through defusedxml) - ignore per-instance on Codacy",
+      "Semgrep direct-use-of-httpresponse on server.py:187 - ignore per-instance on Codacy"
+    ]
+  },
+  "keyImprovements": [
+    "Issues reduced from 109 to 36 (-67%), all remaining ones are actionable or security findings to triage",
+    "986 Semgrep patterns for languages absent from the project removed",
+    "Tests excluded from Semgrep/Prospector/Lizard, consistent with Bandit exclusion and ruff per-file-ignores (S) in tests; secrets in tests still scanned by Trivy",
+    "Cross-tool duplicates on XML parsing and urllib removed, Bandit kept as the single source",
+    "Misconfigured Stylelint and subjective Agentlinter rules removed"
+  ],
+  "localConfigTools": [
+    {
+      "toolId": "Ruff",
+      "configFile": "pyproject.toml",
+      "issueCount": 0,
+      "note": "Controlled by [tool.ruff] in pyproject.toml"
+    }
+  ],
+  "codacyYaml": "---\nengines:\n  bandit:\n    exclude_paths:\n      - \"tests/**\"\n  lizard:\n    exclude_paths:\n      - \"tests/**\"\n  markdownlint:\n    exclude_paths:\n      - \"CHANGELOG.md\"\n  prospector:\n    exclude_paths:\n      - \"tests/**\"\n  ruff:\n    exclude_paths:\n      - \"uv.lock\"\n  semgrep:\n    exclude_paths:\n      - \"tests/**\"\n",
+  "importResults": {
+    "status": "success",
+    "toolsConfigured": 13,
+    "toolsEnabled": [],
+    "toolsDisabled": [],
+    "errors": [],
+    "warnings": [
+      "Exclusions in .codacy.yaml apply on Cloud only once committed to main"
+    ],
+    "codingStandards": [
+      "modernrpc"
+    ],
+    "forceUsed": true
+  },
+  "cloudVerification": {
+    "reanalysisCompleted": true,
+    "issuesBefore": 714,
+    "issuesAfter": 98,
+    "patternsDisabled": [],
+    "warnings": [
+      "Remaining gap vs local (36) comes from uncommitted .codacy.yaml exclusions (uv.lock, tests/**)"
+    ]
+  }
+}

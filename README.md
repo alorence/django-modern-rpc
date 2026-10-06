@@ -84,15 +84,17 @@ All these tools are automatically run in various GitHub Actions workflows, and e
 static code analysis and collect coverage results.
 
 ### SonarQube
+
 [![Sonar Coverage](https://img.shields.io/sonar/coverage/alorence_django-modern-rpc?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge&logo=sonar&logoColor=mintcream)](https://sonarcloud.io/component_measures?id=alorence_django-modern-rpc&metric=new_coverage&view=list)
 [![Sonar Quality Gate](https://img.shields.io/sonar/quality_gate/alorence_django-modern-rpc?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge&logo=sonar&logoColor=mintcream)](https://sonarcloud.io/summary/new_code?id=alorence_django-modern-rpc)
 [![Sonar Tech Debt](https://img.shields.io/sonar/tech_debt/alorence_django-modern-rpc?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge&logo=sonar&logoColor=mintcream)](https://sonarcloud.io/component_measures?metric=new_sqale_debt_ratio&id=alorence_django-modern-rpc)
-[![Sonar Violations](https://img.shields.io/sonar/violations/alorence_django-modern-rpc?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge&logo=sonar&logoColor=mintcream)
-](https://sonarcloud.io/project/issues?issueStatuses=OPEN%2CCONFIRMED&id=alorence_django-modern-rpc)
+[![Sonar Violations](https://img.shields.io/sonar/violations/alorence_django-modern-rpc?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge&logo=sonar&logoColor=mintcream)](https://sonarcloud.io/project/issues?issueStatuses=OPEN%2CCONFIRMED&id=alorence_django-modern-rpc)
 
 ### Codacy
+
 [![Codacy Coverage](https://img.shields.io/codacy/coverage/37607e2ecaf549b890fc6defca88c7f8?style=for-the-badge&logo=codacy)](https://app.codacy.com/gh/alorence/django-modern-rpc/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage)
 [![Codacy Grade](https://img.shields.io/codacy/grade/37607e2ecaf549b890fc6defca88c7f8?style=for-the-badge&logo=codacy)](https://app.codacy.com/gh/alorence/django-modern-rpc/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 
 ### Coveralls
+
 [![Coveralls](https://img.shields.io/coverallsCoverage/github/alorence/django-modern-rpc?style=for-the-badge&logo=coveralls)](https://coveralls.io/github/alorence/django-modern-rpc)

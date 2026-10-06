@@ -6,9 +6,11 @@ engines:
   lizard:
     exclude_paths:
       - "tests/**"
+      - "uv.lock"
   markdownlint:
     exclude_paths:
       - "CHANGELOG.md"
+      - "CLAUDE.md"
   prospector:
     exclude_paths:
       - "tests/**"

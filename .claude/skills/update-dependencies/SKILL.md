@@ -56,6 +56,7 @@ Known locations (check again with the grep above, new ones may appear):
 Get a locked version with: `grep -A1 '^name = "ruff"$' uv.lock`.
 
 Rules:
+
 - Pre-commit hooks for tools that are also project dependencies must match the version in `uv.lock` exactly
   (don't use `pre-commit autoupdate` for them, it may pick a version newer than the lock).
 - For hooks that are not project dependencies (e.g. `pre-commit/pre-commit-hooks`), check the latest release
@@ -71,6 +72,7 @@ python3 .claude/skills/update-dependencies/scripts/check_actions.py
 ```
 
 It lists every `uses:` and, per action, the latest release tag and the commit SHA it points to:
+
 - `[OK]`: pinned SHA is the latest release, nothing to do.
 - `[OUTDATED]`: replace the SHA **and** the version in the trailing comment, everywhere the action is used
   (e.g. `sed -i 's/<old_sha>/<new_sha>/g; s/# v10.1.0,/# v10.2.0,/g' .github/workflows/*.yml`).
@@ -80,6 +82,7 @@ It lists every `uses:` and, per action, the latest release tag and the commit SH
   these silently.
 
 Caveats:
+
 - "Latest release" is not always meaningful: `github/codeql-action` publishes `codeql-bundle-*` releases, so compare
   with tags (`git ls-remote --tags https://github.com/github/codeql-action 'v4*'`) instead.
 - For a major version bump of a pinned action, look at the release notes for breaking changes (inputs renamed,
@@ -105,6 +108,7 @@ A new ruff/mypy/ty version may introduce new lint or typing errors. Fix trivial 
 ## 6. Summarize
 
 Report to the user:
+
 - uv version before → after
 - notable package updates (major/minor bumps, especially Django, ruff, mypy, ty, serialization backends)
 - updated actions (old → new version)

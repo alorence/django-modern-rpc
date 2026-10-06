@@ -16,7 +16,7 @@ img.permalink-icon {
     height: 0.8em;
 }
 
-html[data-theme=dark] main.bd-main img.permalink-icon {
+html[data-theme="dark"] main.bd-main img.permalink-icon {
     /*
     Permalink icon is customized with _static/permalink.svg file. Unfortunately, the default color of this icon
     is black and is almost invisible with dark theme.
@@ -26,10 +26,10 @@ html[data-theme=dark] main.bd-main img.permalink-icon {
     background: transparent;
 }
 
-html[data-theme=light] h4 {
+html[data-theme="light"] h4 {
     color: #595858;
 }
 
-html[data-theme=dark] h4 {
+html[data-theme="dark"] h4 {
     color: #b2b0a9;
 }
