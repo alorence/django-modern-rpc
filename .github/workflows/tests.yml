@@ -133,9 +133,10 @@ jobs:
 
     - name: Submit coverage report - Codacy
       continue-on-error: true
-      env:
-        CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
-      run: uvx --from codacy-coverage python-codacy-coverage -r coverage.xml
+      uses: codacy/codacy-coverage-reporter-action@v1.3.0
+      with:
+        project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        coverage-reports: coverage.xml
 
     - uses: gacts/github-slug@c29c0ddd888a1703a6fc06c55a5f6ddd7beae490 # v1.3.6 - https://github.com/gacts/github-slug/releases
       id: test-session-slug
