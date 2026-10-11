@@ -20,14 +20,14 @@ Embed an XML-RPC / JSON-RPC server in your Django project!
 
 The following Django / Python versions are supported, according to [Django Installation FAQ](https://docs.djangoproject.com/en/5.2/faq/install/#what-python-version-can-i-use-with-django)
 
-|   Python ➞ | 3.10 | 3.11 | 3.12 | 3.13 | 3.14 |
-|-----------:|:----:|:----:|:----:|:----:|:----:|
-| Django 4.2 |  🟢  |  🟢  |  🟢  |  🔴  |  🔴  |
-| Django 5.0 |  🟢  |  🟢  |  🟢  |  🔴  |  🔴  |
-| Django 5.1 |  🟢  |  🟢  |  🟢  |  🟢  |  🔴  |
-| Django 5.2 |  🟢  |  🟢  |  🟢  |  🟢  |  🟢  |
-| Django 6.0 |  🔴  |  🔴  |  🟢  |  🟢  |  🟢  |
-| Django 6.1 |  🔴  |  🔴  |  🟢  |  🟢  |  🟢  |
+|   Python ➞ | 3.10 | 3.11 | 3.12 | 3.13 | 3.14 | 3.15 |
+|-----------:|:----:|:----:|:----:|:----:|:----:|:----:|
+| Django 4.2 |  🟢  |  🟢  |  🟢  |  🔴  |  🔴  |  🔴  |
+| Django 5.0 |  🟢  |  🟢  |  🟢  |  🔴  |  🔴  |  🔴  |
+| Django 5.1 |  🟢  |  🟢  |  🟢  |  🟢  |  🔴  |  🔴  |
+| Django 5.2 |  🟢  |  🟢  |  🟢  |  🟢  |  🟢  |  🔴  |
+| Django 6.0 |  🔴  |  🔴  |  🟢  |  🟢  |  🟢  |  🟢  |
+| Django 6.1 |  🔴  |  🔴  |  🟢  |  🟢  |  🟢  |  🟢  |
 
 To enforce security, [defusedxml](https://pypi.org/project/defusedxml/) will be installed as a dependency.
 

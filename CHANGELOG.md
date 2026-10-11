@@ -9,6 +9,7 @@
 ### Misc
 
 - Added support for Django 6.1
+- Added support for Python 3.15
 
 ## v2.1.0
 

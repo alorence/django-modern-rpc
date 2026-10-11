@@ -14,6 +14,7 @@ AUTODOC_PORT = os.environ.get("SPHINX_AUTODOC_PORT", "8001")
 
 
 class Python(StrEnum):
+    v3_15 = "3.15"
     v3_14 = "3.14"
     v3_13 = "3.13"
     v3_12 = "3.12"
@@ -44,6 +45,7 @@ def is_combination_supported(py: Python, dj: Django) -> bool:
     This is a direct implementation of the table provided in Django FAQ:
      - https://docs.djangoproject.com/en/4.2/faq/install/#what-python-version-can-i-use-with-django
      - https://docs.djangoproject.com/en/5.2/faq/install/#what-python-version-can-i-use-with-django
+     - https://docs.djangoproject.com/en/6.1/faq/install/#what-python-version-can-i-use-with-django
     """
     if dj == Django.v4_2:
         return Version(py) <= Version("3.12")
@@ -55,7 +57,7 @@ def is_combination_supported(py: Python, dj: Django) -> bool:
         return Version(py) <= Version("3.13")
 
     if dj == Django.v5_2:
-        return True
+        return Version(py) <= Version("3.14")
 
     if dj >= Django.v6_0:
         return Version("3.12") <= Version(py)
