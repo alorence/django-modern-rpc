@@ -25,17 +25,11 @@ repos:
       - id: ruff-check
       # Formatter
       - id: ruff-format
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v2.4.1
+  - repo: local
     hooks:
-      - id: mypy
-        files: ^modernrpc
-        additional_dependencies:
-          - django-stubs
-          - lxml-stubs
-          - types-defusedxml
-          - types-docutils
-          - types-markdown
-          - types-requests
-          - types-simplejson
-          - types-xmltodict
+      - id: pyrefly
+        name: pyrefly
+        entry: uv run --group=type-checking pyrefly check
+        language: system
+        types_or: [python, pyi]
+        pass_filenames: false

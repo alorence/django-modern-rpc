@@ -166,19 +166,11 @@ def format_check(session: nox.Session):
 
 
 @nox.session(venv_backend="uv", tags=["checks"])
-def ty(session: nox.Session):
+def pyrefly(session: nox.Session):
     """Verify type hints"""
     env_vars = {"UV_PROJECT_ENVIRONMENT": session.virtualenv.location}
     session.run_install("uv", "sync", "--group", "type-checking", env=env_vars)
-    session.run("ty", "check", env=env_vars)
-
-
-@nox.session(venv_backend="uv", tags=["checks"])
-def mypy(session: nox.Session):
-    """Verify type hints"""
-    env_vars = {"UV_PROJECT_ENVIRONMENT": session.virtualenv.location}
-    session.run_install("uv", "sync", "--group", "type-checking", env=env_vars)
-    session.run("mypy", ".", env=env_vars)
+    session.run("pyrefly", "check", env=env_vars)
 
 
 @nox.session(name="docs:build", venv_backend="uv", default=False)

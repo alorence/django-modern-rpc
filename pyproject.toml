@@ -100,8 +100,7 @@ tests = [
     "pytest-asyncio",
 ]
 type-checking = [
-    "ty",
-    "mypy",
+    "pyrefly>=1.4.1",
     "django-stubs",
     "lxml-stubs",
     "types-defusedxml",
@@ -111,7 +110,6 @@ type-checking = [
     "types-simplejson",
     "types-xmltodict",
     "types-ujson",
-    "pyrefly>=1.4.1",
 ]
 docs = [
     "sphinx >= 6.2; python_version < '3.11'",
@@ -169,19 +167,8 @@ exclude_also = [
     # Don't complain if tests don't hit defensive assertion code:
     "raise AssertionError",
     "raise NotImplementedError",
-    # Such block is used only when mypy is ran
+    # Such block is used only when type checker is ran
     "if TYPE_CHECKING:",
-]
-
-# ------------------------------------------------------------------
-# |                        Mypy settings
-# ------------------------------------------------------------------
-[tool.mypy]
-files = ["."]
-exclude = [
-    'noxfile\.py',
-    '^tests/.+$',
-    '^docs/.+$',
 ]
 
 # ------------------------------------------------------------------
@@ -191,14 +178,6 @@ exclude = [
 search-path = ["tests/"]
 python-version = "3.10"
 preset = "strict"
-
-
-# ------------------------------------------------------------------
-# |                         Ty settings
-# ------------------------------------------------------------------
-[tool.ty.src]
-exclude = ["noxfile.py"]
-[tool.ty.environment]
 
 # ------------------------------------------------------------------
 # |                        Ruff settings

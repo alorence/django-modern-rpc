@@ -23,7 +23,7 @@ else:
     _F = typing.TypeVar("_F", bound=typing.Callable[..., typing.Any])
 
     def async_csrf_exempt(view_func: _F) -> _F:
-        view_func.csrf_exempt = True  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
+        view_func.csrf_exempt = True  # pyrefly: ignore[missing-attribute]
         return view_func
 
 

@@ -17,7 +17,7 @@ Before submitting, ensure:
 
 - Tests pass locally (at least with your preferred python version, preferably with all supported versions).
   See :ref:`Matrix testing`.
-- Linting and formatting are applied (Ruff), and mypy passes for supported code paths. See :ref:`Linting, formatting`
+- Linting and formatting are applied (Ruff), and pyrefly passes. See :ref:`Linting, formatting`
   and :ref:`Type checking`
 - Documentation is updated according to your changes. See :ref:`Documentation`
 
@@ -238,19 +238,19 @@ Type checking
 .. important:: The requirements to use type checker are not installed by default. Make sure you ran
    :command:`uv sync --group type-checking` if you want to run it directly with :command:`uv run`. Nox task will do it automatically
 
-.. _Mypy: https://mypy.readthedocs.io
+.. _Pyrefly: https://pyrefly.org
 
-This project uses Mypy_ to check type hints consistency
+This project uses Pyrefly_ to check type hints consistency
 
 .. code-block:: bash
 
-   uv run mypy .
+   uv run --group type-checking pyrefly check
 
 Alternatively, use :command:`nox`:
 
 .. code-block:: bash
 
-   nox -s mypy
+   nox -s pyrefly
 
 Documentation
 -------------

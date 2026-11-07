@@ -38,8 +38,7 @@ uv run ruff format . --check  # Check formatting
 
 ### Type checking
 ```bash
-uv run mypy       # mypy (excludes tests/ and docs/)
-uv run ty check   # ty (faster alternative)
+uv run --group=type-checking pyrefly check   # pyrefly (strict preset, configured in pyproject.toml)
 ```
 
 ### Benchmarks

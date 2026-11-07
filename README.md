@@ -77,7 +77,7 @@ The server's view is already configured with CSRF exemption and POST-only restri
 ## Code quality
 
 The project uses nox as a task runner to launch tests suite against all supported Python / Django combinations and
-generate a coverage report file. Ruff is used to lint and format the codebase, and mypy is used to perform
+generate a coverage report file. Ruff is used to lint and format the codebase, and pyrefly is used to perform
 type checking.
 
 All these tools are automatically run in various GitHub Actions workflows, and external tools are used to perform
