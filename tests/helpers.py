@@ -10,7 +10,7 @@ import jsonrpcclient.sentinels
 import pytest
 from _pytest.main import Failed
 from django.http import HttpRequest, HttpResponse
-from lxml.doctestcompare import PARSE_XML, LXMLOutputChecker  # ty: ignore[import-not-found]
+from lxml.doctestcompare import PARSE_XML, LXMLOutputChecker
 
 from modernrpc import Protocol
 from modernrpc.jsonrpc.backends.json import PythonJsonDeserializer, PythonJsonSerializer

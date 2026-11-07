@@ -1,6 +1,6 @@
 ---
 name: update-dependencies
-description: Routine update of all project dependencies — uv itself, uv.lock (all groups), tool versions pinned in GitHub workflows and .pre-commit-config.yaml (uv, ruff, mypy...), and SHA-pinned GitHub Actions. Use when asked to "bump dependencies", "update deps", "mettre à jour les dépendances" or similar.
+description: Routine update of all project dependencies — uv itself, uv.lock (all groups), tool versions pinned in GitHub workflows and .pre-commit-config.yaml (uv, ruff...), and SHA-pinned GitHub Actions. Use when asked to "bump dependencies", "update deps", "mettre à jour les dépendances" or similar.
 ---
 
 # Update dependencies
@@ -50,8 +50,7 @@ Known locations (check again with the grep above, new ones may appear):
 | uv | `env.UV_VERSION` in `tests.yml`, `benchmarks.yml`, `publish.yml` | `uv --version` (step 1) |
 | uv | `astral-sh/uv-pre-commit` `rev:` in `.pre-commit-config.yaml` | same, without `v` prefix (`0.12.15`) |
 | ruff | `astral-sh/ruff-pre-commit` `rev:` | ruff version in `uv.lock`, with `v` prefix (`v0.16.8`) |
-| mypy | `pre-commit/mirrors-mypy` `rev:` | mypy version in `uv.lock`, with `v` prefix |
-| ty, others | any `*_VERSION` variable or `rev:` added later | version in `uv.lock` |
+| others | any `*_VERSION` variable or `rev:` added later | version in `uv.lock` |
 
 Get a locked version with: `grep -A1 '^name = "ruff"$' uv.lock`.
 
@@ -97,12 +96,11 @@ Re-run the script after editing: every pinned action must be `[OK]`.
 uv lock --check
 uv run ruff check .
 uv run ruff format . --check
-uv run --group=type-checking mypy
-uv run --group=type-checking ty check .
+uv run --group=type-checking pyrefly check
 uv run pytest -n auto
 ```
 
-A new ruff/mypy/ty version may introduce new lint or typing errors. Fix trivial ones (or auto-fix with
+A new ruff/pyrefly version may introduce new lint or typing errors. Fix trivial ones (or auto-fix with
 `uv run ruff check . --fix`); for anything non-trivial, report to the user instead of silencing rules.
 
 ## 6. Summarize
@@ -110,7 +108,7 @@ A new ruff/mypy/ty version may introduce new lint or typing errors. Fix trivial 
 Report to the user:
 
 - uv version before → after
-- notable package updates (major/minor bumps, especially Django, ruff, mypy, ty, serialization backends)
+- notable package updates (major/minor bumps, especially Django, ruff, pyrefly, serialization backends)
 - updated actions (old → new version)
 - unpinned actions with a new major available, and any skipped item with the reason
 - verification results (tests, lint, type checking)
