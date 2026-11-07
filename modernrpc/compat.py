@@ -20,9 +20,11 @@ if django.VERSION >= (5, 0):
 else:
     # Fore Django version < 5.0, we partially redefine decorators to support async view
 
-    def async_csrf_exempt(view):
-        view.csrf_exempt = True
-        return view
+    _F = typing.TypeVar("_F", bound=typing.Callable[..., typing.Any])
+
+    def async_csrf_exempt(view_func: _F) -> _F:
+        view_func.csrf_exempt = True  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
+        return view_func
 
 
 if sys.version_info >= (3, 14):

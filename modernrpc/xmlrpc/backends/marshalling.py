@@ -13,7 +13,7 @@ from modernrpc.xmlrpc.backends.constants import MAXINT, MININT
 from modernrpc.xmlrpc.handler import XmlRpcRequest, XmlRpcResult
 
 
-class ElementTypeProtocol(Iterable, Protocol):
+class ElementTypeProtocol(Iterable[Any], Protocol):
     """
     Base protocol for XML element types. This reflects the API of both the xml.etree and the lxml library.
     Unfortunately, since both libraries share the same interface without inheriting a common base class, we
@@ -23,9 +23,9 @@ class ElementTypeProtocol(Iterable, Protocol):
     tag: str
     text: str
 
-    def find(self, path: str, namespaces=None) -> Self | None: ...
+    def find(self, path: str, namespaces: dict[str, str] | None = None) -> Self | None: ...
 
-    def findall(self, path: str, namespaces=None) -> list[Self]: ...
+    def findall(self, path: str, namespaces: dict[str, str] | None = None) -> list[Self]: ...
 
     def append(self, sub_element: Self) -> None: ...
 
@@ -37,10 +37,10 @@ DumpFuncType = Callable[[Any], ElementType]
 
 
 class EtreeElementUnmarshaller(Generic[ElementType]):
-    def __init__(self, allow_none=True) -> None:
+    def __init__(self, allow_none: bool = True) -> None:
         self.allow_none = allow_none
 
-        self.load_funcs: dict[str, LoadFuncType] = {
+        self.load_funcs: dict[str, LoadFuncType[ElementType]] = {
             "value": self.load_value,
             "nil": self.load_nil,
             "boolean": self.load_bool,
@@ -142,14 +142,14 @@ class EtreeElementMarshaller(Generic[ElementType]):
         self,
         element_factory: Callable[[str], ElementType],
         sub_element_factory: Callable[[ElementType, str], ElementType],
-        allow_none=True,
+        allow_none: bool = True,
     ) -> None:
         self.element_factory = element_factory
         self.sub_element_factory = sub_element_factory
 
         self.allow_none = allow_none
 
-        self.dump_funcs: dict[type, DumpFuncType] = {
+        self.dump_funcs: dict[type, DumpFuncType[ElementType]] = {
             NoneType: self.dump_nil,
             bool: self.dump_bool,
             int: self.dump_int,
@@ -245,17 +245,17 @@ class EtreeElementMarshaller(Generic[ElementType]):
         b64.text = base64.b64encode(value).decode()
         return b64
 
-    def dump_dict(self, value: dict) -> ElementType:
+    def dump_dict(self, value: DictStrAny) -> ElementType:
         struct = self.element_factory("struct")
         for key, val in value.items():
             member = self.sub_element_factory(struct, "member")
             name = self.sub_element_factory(member, "name")
-            name.text = str(key)
+            name.text = key
             value_el = self.sub_element_factory(member, "value")
             value_el.append(self.dispatch(val))
         return struct
 
-    def dump_list(self, value: list | tuple) -> ElementType:
+    def dump_list(self, value: list[Any] | tuple[Any, ...]) -> ElementType:
         array = self.element_factory("array")
         data = self.sub_element_factory(array, "data")
         for val in value:

@@ -1,45 +1,48 @@
+from typing import Any
 from unittest.mock import Mock
 
 import pytest
+from django.test import RequestFactory
 from helpers import ALL_PROTOCOLS
+from pytest_django import Settings
 
-from modernrpc import Protocol, RpcServer
+from modernrpc import Protocol, RpcNamespace, RpcServer
 from modernrpc.exceptions import AuthenticationError, RPCMethodNotFound
+from modernrpc.handler import RpcHandler
 from modernrpc.jsonrpc.handler import JsonRpcHandler
-from modernrpc.server import RpcNamespace
 from modernrpc.xmlrpc.handler import XmlRpcHandler
 
 
 class TestJsonRpcHandler:
     handler = JsonRpcHandler()
 
-    def test_response_content_type(self):
+    def test_response_content_type(self) -> None:
         assert self.handler.response_content_type == "application/json"
 
 
 class TestXmlRpcHandler:
     handler = XmlRpcHandler()
 
-    def test_response_content_type(self):
+    def test_response_content_type(self) -> None:
         assert self.handler.response_content_type == "application/xml"
 
 
 class TestInitialRpcServer:
     @pytest.mark.parametrize("proto", ALL_PROTOCOLS)
-    def test_procedure_unregistered(self, proto):
+    def test_procedure_unregistered(self, proto: Protocol) -> None:
         server = RpcServer()
         with pytest.raises(RPCMethodNotFound):
             server.get_procedure_wrapper("foo", proto)
 
     @pytest.mark.parametrize("proto", ALL_PROTOCOLS)
     @pytest.mark.parametrize("name", [["foo"], {"foo": "bar"}, {"foo"}], ids=["list", "dict", "set"])
-    def test_procedure_unhashable_name(self, proto, name):
+    def test_procedure_unhashable_name(self, proto: Protocol, name: Any) -> None:
         """An unhashable procedure name must be reported as 'method not found', not raise a TypeError"""
         server = RpcServer()
         with pytest.raises(RPCMethodNotFound):
             server.get_procedure_wrapper(name, proto)
 
-    def test_supported_handlers(self):
+    def test_supported_handlers(self) -> None:
         """Check that a fresh RPCServer 'supported_handlers' is correct with its initialization"""
 
         handlers = RpcServer().handlers
@@ -55,11 +58,11 @@ class TestInitialRpcServer:
             (Protocol.XML_RPC, XmlRpcHandler),
         ],
     )
-    def test_specific_protocol_handlers(self, proto, handler_klass):
+    def test_specific_protocol_handlers(self, proto: Protocol, handler_klass: type[RpcHandler[Any]]) -> None:
         assert len(RpcServer(supported_protocol=proto).handlers) == 1
         assert isinstance(RpcServer(supported_protocol=proto).handlers[0], handler_klass)
 
-    def test_get_jsonrpc_handler(self, rf, jsonrpc_content_type):
+    def test_get_jsonrpc_handler(self, rf: RequestFactory, jsonrpc_content_type: str) -> None:
         """Check that the correct handler is retrieved from the request's Content-Type header"""
 
         # Build a dummy request. The only important thing is its "Content-Type"
@@ -76,7 +79,7 @@ class TestInitialRpcServer:
         handler = RpcServer(supported_protocol=Protocol.XML_RPC).get_request_handler(request)
         assert handler is None
 
-    def test_get_xmlrpc_handler(self, rf, xmlrpc_content_type):
+    def test_get_xmlrpc_handler(self, rf: RequestFactory, xmlrpc_content_type: str) -> None:
         """Check that correct handler is retrieved from request's Content-Type header"""
 
         # Build a dummy request. The only important thing is its "Content-Type"
@@ -93,7 +96,7 @@ class TestInitialRpcServer:
         handler = RpcServer(supported_protocol=Protocol.JSON_RPC).get_request_handler(request)
         assert handler is None
 
-    def test_system_procedures_disabled(self, settings):
+    def test_system_procedures_disabled(self, settings: Settings) -> None:
         server = RpcServer(register_system_procedures=False)
 
         # Verify that system procedures are not registered
@@ -102,7 +105,7 @@ class TestInitialRpcServer:
         assert "system.methodHelp" not in server.procedures
         assert "system.multicall" not in server.procedures
 
-    def test_system_procedures(self):
+    def test_system_procedures(self) -> None:
         server = RpcServer()
 
         assert "system.listMethods" in server.procedures
@@ -111,13 +114,13 @@ class TestInitialRpcServer:
         assert "system.multicall" in server.procedures
 
 
-def dummy_procedure():
+def dummy_procedure() -> bool:
     return True
 
 
 class TestRpcServerRegistration:
     @pytest.mark.parametrize("proto", ALL_PROTOCOLS)
-    def test_procedure_registration(self, proto):
+    def test_procedure_registration(self, proto: Protocol) -> None:
         dummy_server = RpcServer()
 
         dummy_server.register_procedure(dummy_procedure)
@@ -127,7 +130,7 @@ class TestRpcServerRegistration:
         assert wrapper.name == "dummy_procedure"
 
     @pytest.mark.parametrize("proto", ALL_PROTOCOLS)
-    def test_procedure_registration_custom_name(self, proto):
+    def test_procedure_registration_custom_name(self, proto: Protocol) -> None:
         dummy_server = RpcServer()
 
         dummy_server.register_procedure(dummy_procedure, name="foo")
@@ -140,7 +143,7 @@ class TestRpcServerRegistration:
             dummy_server.get_procedure_wrapper("dummy_procedure", proto)
 
     @pytest.mark.parametrize("proto", ALL_PROTOCOLS)
-    def test_procedure_registration_with_invalid_name(self, proto):
+    def test_procedure_registration_with_invalid_name(self, proto: Protocol) -> None:
         dummy_server = RpcServer()
 
         with pytest.raises(ValueError, match=r'method names starting with "rpc." are reserved for system extensions'):
@@ -150,7 +153,7 @@ class TestRpcServerRegistration:
             dummy_server.get_procedure_wrapper("rpc.foo", proto)
 
     @pytest.mark.parametrize("proto", ALL_PROTOCOLS)
-    def test_server_registration_auth(self, proto):
+    def test_server_registration_auth(self, proto: Protocol) -> None:
         server_auth_callbacks = [Mock(), Mock()]
         server = RpcServer(auth=server_auth_callbacks)
 
@@ -160,7 +163,7 @@ class TestRpcServerRegistration:
         assert wrapper.auth == server_auth_callbacks
 
     @pytest.mark.parametrize("proto", ALL_PROTOCOLS)
-    def test_server_registration_auth_overrides(self, rf, proto):
+    def test_server_registration_auth_overrides(self, rf: RequestFactory, proto: Protocol) -> None:
         server_auth_callback = Mock(return_value=False)
         server = RpcServer(auth=server_auth_callback)
 
@@ -172,7 +175,7 @@ class TestRpcServerRegistration:
         server_auth_callback.assert_not_called()
 
     @pytest.mark.parametrize("proto", ALL_PROTOCOLS)
-    def test_namespace_registration_server_auth(self, rf, proto):
+    def test_namespace_registration_server_auth(self, rf: RequestFactory, proto: Protocol) -> None:
         server_auth_callback = Mock(return_value=True)
         server = RpcServer(auth=server_auth_callback)
 
@@ -188,7 +191,7 @@ class TestRpcServerRegistration:
         server_auth_callback.assert_called_once()
 
     @pytest.mark.parametrize("proto", ALL_PROTOCOLS)
-    def test_namespace_registration_auth(self, rf, proto):
+    def test_namespace_registration_auth(self, rf: RequestFactory, proto: Protocol) -> None:
         server_auth_callback = Mock(return_value=True)
         server = RpcServer(auth=server_auth_callback)
 
@@ -210,7 +213,7 @@ class TestRpcServerRegistration:
         server_auth_callback.assert_not_called()
 
     @pytest.mark.parametrize("proto", ALL_PROTOCOLS)
-    def test_namespace_registration_auth_overrides(self, rf, proto):
+    def test_namespace_registration_auth_overrides(self, rf: RequestFactory, proto: Protocol) -> None:
         server_auth_callback = Mock(return_value=True)
         server = RpcServer(auth=server_auth_callback)
 
@@ -230,16 +233,16 @@ class TestRpcServerRegistration:
 
 class TestRpcNamespace:
     @pytest.fixture
-    def namespace(self):
+    def namespace(self) -> RpcNamespace:
         return RpcNamespace()
 
-    def test_unregistered(self, namespace):
+    def test_unregistered(self, namespace: RpcNamespace) -> None:
         server = RpcServer()
 
         assert "dummy_procedure" not in server.procedures
         assert "dummy_procedure" not in namespace.procedures
 
-    def test_valid_namespace_registration(self, namespace):
+    def test_valid_namespace_registration(self, namespace: RpcNamespace) -> None:
         namespace.register_procedure(dummy_procedure, name="bar")
 
         assert "dummy_procedure" not in namespace.procedures
@@ -251,7 +254,7 @@ class TestRpcNamespace:
         assert "dummy_procedure" not in server.procedures
         assert "foo.bar" in server.procedures
 
-    def test_forbidden_namespace_registration(self, namespace):
+    def test_forbidden_namespace_registration(self, namespace: RpcNamespace) -> None:
         namespace.register_procedure(dummy_procedure, name="bar")
         server = RpcServer()
 

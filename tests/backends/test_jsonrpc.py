@@ -2,11 +2,13 @@ import json
 import random
 from collections import OrderedDict
 from datetime import datetime
+from typing import Any
 
 import pytest
 from helpers import assert_json_data_are_equal
 
 from modernrpc.exceptions import RPCInvalidRequest, RPCMarshallingError, RPCParseError
+from modernrpc.jsonrpc.backends import JsonRpcDeserializer, JsonRpcSerializer
 from modernrpc.jsonrpc.backends.msgspec import MsgspecSerializer
 from modernrpc.jsonrpc.handler import JsonRpcErrorResult, JsonRpcRequest, JsonRpcSuccessResult
 
@@ -18,7 +20,7 @@ class TestJsonRpcDeserializer:
     have the correct type and value
     """
 
-    def test_method_name_no_params(self, json_deserializer):
+    def test_method_name_no_params(self, json_deserializer: JsonRpcDeserializer) -> None:
         payload = """{
           "id": 255,
           "jsonrpc": "2.0",
@@ -26,6 +28,7 @@ class TestJsonRpcDeserializer:
         }
         """
         request = json_deserializer.loads(payload)
+        assert isinstance(request, JsonRpcRequest)
         assert request.jsonrpc == "2.0"
         assert request.request_id == 255
         assert request.is_notification is False
@@ -33,7 +36,7 @@ class TestJsonRpcDeserializer:
         assert request.args == []
         assert request.kwargs == {}
 
-    def test_method_name_null_params(self, json_deserializer):
+    def test_method_name_null_params(self, json_deserializer: JsonRpcDeserializer) -> None:
         payload = """{
           "id": 255,
           "jsonrpc": "2.0",
@@ -42,6 +45,7 @@ class TestJsonRpcDeserializer:
         }
         """
         request = json_deserializer.loads(payload)
+        assert isinstance(request, JsonRpcRequest)
         assert request.jsonrpc == "2.0"
         assert request.request_id == 255
         assert request.is_notification is False
@@ -49,7 +53,7 @@ class TestJsonRpcDeserializer:
         assert request.args == []
         assert request.kwargs == {}
 
-    def test_args(self, json_deserializer):
+    def test_args(self, json_deserializer: JsonRpcDeserializer) -> None:
         payload = """{
           "id": null,
           "jsonrpc": "2.0",
@@ -58,6 +62,7 @@ class TestJsonRpcDeserializer:
         }
         """
         request = json_deserializer.loads(payload)
+        assert isinstance(request, JsonRpcRequest)
         assert request.jsonrpc == "2.0"
         assert request.request_id is None
         assert request.is_notification is False
@@ -65,7 +70,7 @@ class TestJsonRpcDeserializer:
         assert request.args == [55, 74.2, False, True]
         assert request.kwargs == {}
 
-    def test_kwargs(self, json_deserializer):
+    def test_kwargs(self, json_deserializer: JsonRpcDeserializer) -> None:
         payload = """{
           "id": "33",
           "jsonrpc": "2.0",
@@ -78,6 +83,7 @@ class TestJsonRpcDeserializer:
         }
         """
         request = json_deserializer.loads(payload)
+        assert isinstance(request, JsonRpcRequest)
         assert request.jsonrpc == "2.0"
         assert request.request_id == "33"
         assert request.is_notification is False
@@ -105,11 +111,13 @@ class TestJsonRpcDeserializer:
         ],
     )
     @pytest.mark.parametrize("is_kwargs", [True, False])
-    def test_arg_scalar(self, json_deserializer, value, expected_value, is_kwargs):
+    def test_arg_scalar(
+        self, json_deserializer: JsonRpcDeserializer, value: Any, expected_value: Any, is_kwargs: bool
+    ) -> None:
         if is_kwargs:
             params = f'{{"arg1": {value}}}'
-            expected_args = []
-            expected_kwargs = {"arg1": expected_value}
+            expected_args: list[Any] = []
+            expected_kwargs: dict[str, Any] = {"arg1": expected_value}
         else:
             params = f"[{value}]"
             expected_args = [expected_value]
@@ -122,6 +130,7 @@ class TestJsonRpcDeserializer:
           "params": {params}
         }}"""
         request = json_deserializer.loads(payload)
+        assert isinstance(request, JsonRpcRequest)
         assert request.args == expected_args
         assert request.kwargs == expected_kwargs
 
@@ -145,11 +154,13 @@ class TestJsonRpcDeserializer:
         ],
     )
     @pytest.mark.parametrize("is_kwargs", [True, False])
-    def test_notification(self, json_deserializer, value, expected_value, is_kwargs):
+    def test_notification(
+        self, json_deserializer: JsonRpcDeserializer, value: Any, expected_value: Any, is_kwargs: bool
+    ) -> None:
         if is_kwargs:
             params = f'{{"arg1": {value}}}'
-            expected_args = []
-            expected_kwargs = {"arg1": expected_value}
+            expected_args: list[Any] = []
+            expected_kwargs: dict[str, Any] = {"arg1": expected_value}
         else:
             params = f"[{value}]"
             expected_args = [expected_value]
@@ -161,10 +172,11 @@ class TestJsonRpcDeserializer:
           "params": {params}
         }}"""
         request = json_deserializer.loads(payload)
+        assert isinstance(request, JsonRpcRequest)
         assert request.args == expected_args
         assert request.kwargs == expected_kwargs
 
-    def test_multicall(self, json_deserializer):
+    def test_multicall(self, json_deserializer: JsonRpcDeserializer) -> None:
         payload = """
         [
           {"jsonrpc": "2.0", "id": 33, "method": "foo", "params": {"a": 5, "b": null}},
@@ -187,7 +199,7 @@ class TestJsonRpcDeserializer:
         assert requests[1].args == ["abcd", 123.5]
         assert requests[1].kwargs == {}
 
-    def test_invalid_json_payload(self, json_deserializer):
+    def test_invalid_json_payload(self, json_deserializer: JsonRpcDeserializer) -> None:
         payload = """{
           "id]: 255,
           "jsonrpc": "2.0",
@@ -198,7 +210,7 @@ class TestJsonRpcDeserializer:
         with pytest.raises(RPCParseError):
             json_deserializer.loads(payload)
 
-    def test_missing_method_name(self, json_deserializer):
+    def test_missing_method_name(self, json_deserializer: JsonRpcDeserializer) -> None:
         payload = """{
           "id": 255,
           "jsonrpc": "2.0",
@@ -208,7 +220,7 @@ class TestJsonRpcDeserializer:
         with pytest.raises(RPCInvalidRequest):
             json_deserializer.loads(payload)
 
-    def test_missing_jsonrpc(self, json_deserializer):
+    def test_missing_jsonrpc(self, json_deserializer: JsonRpcDeserializer) -> None:
         payload = """{
           "id": 255,
           "method": "foo",
@@ -227,7 +239,7 @@ class TestJsonRpcDeserializer:
             "[1, 2, 3]",
         ],
     )
-    def test_invalid_request_id_type(self, json_deserializer, request_id):
+    def test_invalid_request_id_type(self, json_deserializer: JsonRpcDeserializer, request_id: Any) -> None:
         payload = f"""{{
           "id": {request_id},
           "jsonrpc": "2.0",
@@ -247,7 +259,7 @@ class TestJsonRpcDeserializer:
             "null",
         ],
     )
-    def test_non_object_request(self, json_deserializer, payload):
+    def test_non_object_request(self, json_deserializer: JsonRpcDeserializer, payload: Any) -> None:
         with pytest.raises(RPCInvalidRequest):
             json_deserializer.loads(payload)
 
@@ -263,7 +275,7 @@ class TestJsonRpcDeserializer:
             "true",
         ],
     )
-    def test_invalid_method_name_type(self, json_deserializer, method):
+    def test_invalid_method_name_type(self, json_deserializer: JsonRpcDeserializer, method: Any) -> None:
         payload = f"""{{
           "id": 255,
           "jsonrpc": "2.0",
@@ -283,7 +295,7 @@ class TestJsonRpcDeserializer:
             "[null]",
         ],
     )
-    def test_batch_with_non_object_elements(self, json_deserializer, payload):
+    def test_batch_with_non_object_elements(self, json_deserializer: JsonRpcDeserializer, payload: Any) -> None:
         with pytest.raises(RPCInvalidRequest):
             json_deserializer.loads(payload)
 
@@ -317,7 +329,7 @@ class TestJsonRpcSerializer:
             (OrderedDict(foo="bar", baz=55), '{"foo": "bar", "baz": 55}'),
         ],
     )
-    def test_success_result_scalar(self, json_serializer, data, expected_result):
+    def test_success_result_scalar(self, json_serializer: JsonRpcSerializer, data: Any, expected_result: Any) -> None:
         request_id = random.choice([None, "1", "2", "3", 4, 5, 6])
         result = JsonRpcSuccessResult(request=JsonRpcRequest(request_id=request_id, method_name=""), data=data)
         expected = f"""{{
@@ -348,12 +360,12 @@ class TestJsonRpcSerializer:
             (OrderedDict(foo="bar", baz=55), '{"foo": "bar", "baz": 55}'),
         ],
     )
-    def test_notification_result(self, json_serializer, data, expected_result):
+    def test_notification_result(self, json_serializer: JsonRpcSerializer, data: Any, expected_result: Any) -> None:
         result = JsonRpcSuccessResult(request=self.notif)
         expected = "null"
         assert_json_data_are_equal(json_serializer.dumps(result), expected)
 
-    def test_result_batch(self, json_serializer):
+    def test_result_batch(self, json_serializer: JsonRpcSerializer) -> None:
         results = [
             JsonRpcSuccessResult(request=self.req0, data=[10, 20, 30]),
             JsonRpcSuccessResult(request=self.notif),
@@ -375,7 +387,9 @@ class TestJsonRpcSerializer:
             object(),
         ],
     )
-    def test_result_unsupported_type(self, request, json_serializer, value):
+    def test_result_unsupported_type(
+        self, request: pytest.FixtureRequest, json_serializer: JsonRpcSerializer, value: Any
+    ) -> None:
         if isinstance(value, bytes) and isinstance(json_serializer, MsgspecSerializer):
             pytest.skip("msgspec natively serializes bytes objects as base64 strings")
 
@@ -384,7 +398,7 @@ class TestJsonRpcSerializer:
             json_serializer.dumps(result)
         assert "Unable to serialize result data" in exc.value.message
 
-    def test_result_error(self, json_serializer):
+    def test_result_error(self, json_serializer: JsonRpcSerializer) -> None:
         result = JsonRpcErrorResult(request=self.req0, code=-65000, message="foo")
         expected = """{
             "id": null,
@@ -396,7 +410,7 @@ class TestJsonRpcSerializer:
         }"""
         assert_json_data_are_equal(json_serializer.dumps(result), expected)
 
-    def test_result_error_with_data(self, json_serializer):
+    def test_result_error_with_data(self, json_serializer: JsonRpcSerializer) -> None:
         error_data = {"reason": "foo", "exception": "ValueError"}
         result = JsonRpcErrorResult(request=self.req1, code=65000, message="bar", data=error_data)
         expected = """{
@@ -419,17 +433,17 @@ class TestMsgspecSerializer:
 
     req = JsonRpcRequest(request_id=1, method_name="foo")
 
-    def test_custom_enc_hook(self):
+    def test_custom_enc_hook(self) -> None:
         """Support for additional types can be provided through a custom enc_hook"""
         serializer = MsgspecSerializer(dump_kwargs={"enc_hook": lambda obj: f"<{type(obj).__name__}>"})
         result = JsonRpcSuccessResult(request=self.req, data=object())
         expected = """{"id": 1, "jsonrpc": "2.0", "result": "<object>"}"""
         assert_json_data_are_equal(serializer.dumps(result), expected)
 
-    def test_custom_enc_hook_unsupported_type(self):
+    def test_custom_enc_hook_unsupported_type(self) -> None:
         """NotImplementedError, raised by a custom enc_hook on unsupported types, is properly converted"""
 
-        def enc_hook(obj):
+        def enc_hook(obj: object):
             raise NotImplementedError(f"Objects of type {type(obj)} are not supported")
 
         serializer = MsgspecSerializer(dump_kwargs={"enc_hook": enc_hook})

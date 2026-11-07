@@ -44,12 +44,12 @@ def get_builtin_date(
         return None
 
 
-def ensure_sequence(element: Any) -> Sequence:
+def ensure_sequence(element: Any) -> Sequence[Any]:
     """Ensure the given argument is a sequence object (tuple, list). If not, return a list containing its value."""
     return element if isinstance(element, (list, tuple)) else [element]
 
 
-def first(seq: Iterable, default=NOT_SET) -> Any:
+def first(seq: Iterable[Any], default: Any = NOT_SET) -> Any:
     """
     Return the first element of the given iterable, or default value if the iterable is empty.
     When the default value is not set, raise an IndexError if the iterable is empty.

@@ -1,5 +1,6 @@
 import datetime as dt
 import xmlrpc.client
+from typing import Any
 
 import pytest
 
@@ -17,7 +18,7 @@ from modernrpc.helpers import check_flags_compatibility, ensure_sequence, first,
         ({"x": 42}, [{"x": 42}]),
     ],
 )
-def test_ensure_sequence(arg, expected_result):
+def test_ensure_sequence(arg: Any, expected_result: Any) -> None:
     assert ensure_sequence(arg) == expected_result
 
 
@@ -31,7 +32,7 @@ def test_ensure_sequence(arg, expected_result):
         ({"x": 42}, "x"),
     ],
 )
-def test_first_helper(arg, expected_result):
+def test_first_helper(arg: Any, expected_result: Any) -> None:
     assert first(arg) == expected_result
 
 
@@ -43,7 +44,7 @@ def test_first_helper(arg, expected_result):
         ({}, IndexError),
     ],
 )
-def test_first_helper_with_empty_arg(arg, expected_exception):
+def test_first_helper_with_empty_arg(arg: Any, expected_exception: type[Exception]) -> None:
     with pytest.raises(expected_exception):
         first(arg)
 
@@ -58,11 +59,11 @@ def test_first_helper_with_empty_arg(arg, expected_exception):
         xmlrpc.client.DateTime(dt.datetime(2016, 10, 20, 21, 54, 0)),
     ],
 )
-def test_get_builtin_date(date):
+def test_get_builtin_date(date: Any) -> None:
     assert get_builtin_date(date) == dt.datetime(2016, 10, 20, 21, 54, 0)
 
 
-def test_get_builtin_date_with_format():
+def test_get_builtin_date_with_format() -> None:
     res = get_builtin_date("20 10 2016 21h54m00", date_format="%d %m %Y %Hh%Mm%S")
     assert res == dt.datetime(2016, 10, 20, 21, 54, 0)
 
@@ -78,7 +79,7 @@ def test_get_builtin_date_with_format():
         "2016-12-20T21:54",
     ],
 )
-def test_get_builtin_date_invalid(date_str):
+def test_get_builtin_date_invalid(date_str: str) -> None:
     assert get_builtin_date(date_str) is None
     with pytest.raises(ValueError, match=r"time data .+ does not match format '%Y-%m-%dT%H:%M:%S'"):
         get_builtin_date(date_str, raise_exception=True)
@@ -98,15 +99,15 @@ def test_get_builtin_date_invalid(date_str):
         (Protocol.JSON_RPC, Protocol.XML_RPC, False),
     ],
 )
-def test_flags_compatibility(a, b, expected):
+def test_flags_compatibility(a: Protocol, b: Protocol, expected: bool) -> None:
     assert check_flags_compatibility(a, b) == expected
 
 
-def test_union_type():
+def test_union_type() -> None:
     assert is_union_type(int | str) is True
     assert is_union_type(int) is False
     assert is_union_type(type(None)) is False
 
 
-def test_union_str_repr():
+def test_union_str_repr() -> None:
     assert union_str_repr(int | str) == "int | str"

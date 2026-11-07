@@ -1,23 +1,25 @@
 import json
 from http import HTTPStatus
+from typing import Any
 
 import pytest
+from django.test import AsyncRequestFactory, RequestFactory
 
 from modernrpc import RpcServer
 
 
 class TestNonRpcResponses:
     @pytest.fixture
-    def server(self):
+    def server(self) -> RpcServer:
         return RpcServer()
 
     @pytest.mark.parametrize("method", ["GET", "HEAD", "OPTIONS", "DELETE", "PATCH", "PUT"])
-    def test_invalid_method(self, rf, server, method):
+    def test_invalid_method(self, rf: RequestFactory, server: RpcServer, method: str) -> None:
         response = server.view(rf.generic(method, "/rpc"))
 
         assert response.status_code == HTTPStatus.METHOD_NOT_ALLOWED
 
-    def test_redirection(self, rf, server):
+    def test_redirection(self, rf: RequestFactory, server: RpcServer) -> None:
         server.redirect_get_request_target = "/foo"
 
         response = server.view(rf.get("/rpc"))
@@ -25,7 +27,7 @@ class TestNonRpcResponses:
         assert response.status_code == HTTPStatus.MOVED_PERMANENTLY
         assert response.headers["Location"] == "/foo"
 
-    def test_no_content_type(self, rf, server):
+    def test_no_content_type(self, rf: RequestFactory, server: RpcServer) -> None:
         response = server.view(rf.post("/rpc", data="Hello World!!", content_type=""))
 
         assert response.status_code == HTTPStatus.BAD_REQUEST
@@ -34,7 +36,7 @@ class TestNonRpcResponses:
             b"determine which handler can interpret your request."
         )
 
-    def test_invalid_content_type(self, rf, server):
+    def test_invalid_content_type(self, rf: RequestFactory, server: RpcServer) -> None:
         response = server.view(rf.post("/rpc", data="Hello World!!", content_type="text/html"))
 
         assert response.status_code == HTTPStatus.BAD_REQUEST
@@ -43,16 +45,16 @@ class TestNonRpcResponses:
 
 class TestNonRpcResponsesAsync:
     @pytest.fixture
-    def server(self):
+    def server(self) -> RpcServer:
         return RpcServer()
 
     @pytest.mark.parametrize("method", ["GET", "HEAD", "OPTIONS", "DELETE", "PATCH", "PUT"])
-    async def test_invalid_method(self, async_rf, server, method):
+    async def test_invalid_method(self, async_rf: AsyncRequestFactory, server: RpcServer, method: str):
         response = await server.async_view(async_rf.generic(method, "/rpc"))
 
         assert response.status_code == HTTPStatus.METHOD_NOT_ALLOWED
 
-    async def test_redirection(self, async_rf, server):
+    async def test_redirection(self, async_rf: AsyncRequestFactory, server: RpcServer):
         server.redirect_get_request_target = "/foo"
 
         response = await server.async_view(async_rf.get("/rpc"))
@@ -60,7 +62,7 @@ class TestNonRpcResponsesAsync:
         assert response.status_code == HTTPStatus.MOVED_PERMANENTLY
         assert response.headers["Location"] == "/foo"
 
-    async def test_no_content_type(self, async_rf, server):
+    async def test_no_content_type(self, async_rf: AsyncRequestFactory, server: RpcServer):
         response = await server.async_view(async_rf.post("/rpc", data="Hello World!!", content_type=""))
 
         assert response.status_code == HTTPStatus.BAD_REQUEST
@@ -69,7 +71,7 @@ class TestNonRpcResponsesAsync:
             b"determine which handler can interpret your request."
         )
 
-    async def test_invalid_content_type(self, async_rf, server):
+    async def test_invalid_content_type(self, async_rf: AsyncRequestFactory, server: RpcServer):
         response = await server.async_view(async_rf.post("/rpc", data="Hello World!!", content_type="text/html"))
 
         assert response.status_code == HTTPStatus.BAD_REQUEST
@@ -88,11 +90,11 @@ class TestMalformedJsonRpcRequests:
     """Malformed JSON-RPC payloads must produce a proper "Invalid request" error response, never an HTTP 500"""
 
     @pytest.fixture
-    def server(self):
+    def server(self) -> RpcServer:
         return RpcServer()
 
     @pytest.mark.parametrize("payload", MALFORMED_JSONRPC_PAYLOADS)
-    def test_invalid_request_error_response(self, rf, server, payload):
+    def test_invalid_request_error_response(self, rf: RequestFactory, server: RpcServer, payload: Any) -> None:
         response = server.view(rf.post("/rpc", data=payload, content_type="application/json"))
 
         assert response.status_code == HTTPStatus.OK
@@ -105,11 +107,11 @@ class TestMalformedJsonRpcRequestsAsync:
     """Malformed JSON-RPC payloads must produce a proper "Invalid request" error response, never an HTTP 500"""
 
     @pytest.fixture
-    def server(self):
+    def server(self) -> RpcServer:
         return RpcServer()
 
     @pytest.mark.parametrize("payload", MALFORMED_JSONRPC_PAYLOADS)
-    async def test_invalid_request_error_response(self, async_rf, server, payload):
+    async def test_invalid_request_error_response(self, async_rf: AsyncRequestFactory, server: RpcServer, payload: Any):
         response = await server.async_view(async_rf.post("/rpc", data=payload, content_type="application/json"))
 
         assert response.status_code == HTTPStatus.OK

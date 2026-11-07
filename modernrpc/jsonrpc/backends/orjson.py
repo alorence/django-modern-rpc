@@ -18,7 +18,7 @@ class OrjsonDeserializer:
 
     def __init__(
         self,
-        unmarshaller_klass="modernrpc.jsonrpc.backends.marshalling.Unmarshaller",
+        unmarshaller_klass: str = "modernrpc.jsonrpc.backends.marshalling.Unmarshaller",
         unmarshaller_kwargs: CustomKwargs = None,
     ):
         self.unmarshaller_klass = import_string(unmarshaller_klass)
@@ -43,7 +43,7 @@ class OrjsonSerializer:
 
     def __init__(
         self,
-        marshaller_klass="modernrpc.jsonrpc.backends.marshalling.Marshaller",
+        marshaller_klass: str = "modernrpc.jsonrpc.backends.marshalling.Marshaller",
         marshaller_kwargs: CustomKwargs = None,
         dump_kwargs: CustomKwargs = None,
     ):

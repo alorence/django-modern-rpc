@@ -20,9 +20,9 @@ class LxmlDeserializer:
 
     def __init__(
         self,
-        unmarshaller_klass="modernrpc.xmlrpc.backends.marshalling.EtreeElementUnmarshaller",
+        unmarshaller_klass: str = "modernrpc.xmlrpc.backends.marshalling.EtreeElementUnmarshaller",
         unmarshaller_kwargs: CustomKwargs = None,
-        element_type_klass=LXML_DEFAULT_ELEMENT_TYPE,
+        element_type_klass: str = LXML_DEFAULT_ELEMENT_TYPE,
         load_parser_kwargs: CustomKwargs = None,
         load_kwargs: CustomKwargs = None,
     ):
@@ -66,9 +66,9 @@ class LxmlSerializer:
 
     def __init__(
         self,
-        marshaller_klass="modernrpc.xmlrpc.backends.marshalling.EtreeElementMarshaller",
+        marshaller_klass: str = "modernrpc.xmlrpc.backends.marshalling.EtreeElementMarshaller",
         marshaller_kwargs: CustomKwargs = None,
-        element_type_klass=LXML_DEFAULT_ELEMENT_TYPE,
+        element_type_klass: str = LXML_DEFAULT_ELEMENT_TYPE,
         dump_kwargs: CustomKwargs = None,
     ):
         self.marshaller_klass = import_string(marshaller_klass)

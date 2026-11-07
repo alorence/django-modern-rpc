@@ -19,11 +19,11 @@ from modernrpc.xmlrpc.backends.constants import MAXINT, MININT
 from modernrpc.xmlrpc.handler import XmlRpcRequest, XmlRpcResult
 
 LoadFuncType = Callable[[Any], Any]
-DumpFuncType = Callable[[Any], dict]
+DumpFuncType = Callable[[Any], dict[Any, Any]]
 
 
 class Unmarshaller:
-    def __init__(self, allow_none=True) -> None:
+    def __init__(self, allow_none: bool = True) -> None:
         self.allow_none = allow_none
         self.load_funcs: dict[str, LoadFuncType] = {
             "value": self.load_value,
@@ -40,7 +40,7 @@ class Unmarshaller:
         }
 
     @classmethod
-    def do_force_list(cls, path, key, value):
+    def do_force_list(cls, path: list[tuple[str, Any]], key: str, value: Any) -> bool:
         """Indicate to xmltodict parser when a specific tag MUST return a list even for a single element"""
         if path:
             # <param> is expected only as child of <params>
@@ -88,7 +88,7 @@ class Unmarshaller:
 
         return load_func(value)
 
-    def load_value(self, data: dict) -> Any:
+    def load_value(self, data: DictStrAny) -> Any:
         _type, value = first(data.items())
         return self.dispatch(_type, value)
 
@@ -130,7 +130,7 @@ class Unmarshaller:
             values.append(self.dispatch(_type, value))
         return values
 
-    def load_struct(self, data: dict):
+    def load_struct(self, data: DictStrAny):
         res = {}
         for member in data["member"]:
             value = member["value"]
@@ -142,7 +142,7 @@ class Unmarshaller:
 
 
 class Marshaller:
-    def __init__(self, allow_none=True) -> None:
+    def __init__(self, allow_none: bool = True) -> None:
         self.allow_none = allow_none
 
         self.dump_funcs: dict[type, DumpFuncType] = {
@@ -221,7 +221,7 @@ class Marshaller:
     def dump_bytearray(value: bytes | bytearray) -> dict[Literal["base64"], str]:
         return {"base64": base64.b64encode(value).decode()}
 
-    def dump_dict(self, value: dict) -> dict[Literal["struct"], dict[Literal["member"], list[DictStrAny]]]:
+    def dump_dict(self, value: DictStrAny) -> dict[Literal["struct"], dict[Literal["member"], list[DictStrAny]]]:
         return {
             "struct": {
                 "member": [
@@ -235,7 +235,7 @@ class Marshaller:
         }
 
     def dump_list(
-        self, value: list | tuple
+        self, value: list[Any] | tuple[Any, ...]
     ) -> dict[Literal["array"], dict[Literal["data"], dict[Literal["value"], list[Any]]]]:
         return {
             "array": {
@@ -251,7 +251,7 @@ class XmlToDictDeserializer:
 
     def __init__(
         self,
-        unmarshaller_klass="modernrpc.xmlrpc.backends.xmltodict.Unmarshaller",
+        unmarshaller_klass: str = "modernrpc.xmlrpc.backends.xmltodict.Unmarshaller",
         unmarshaller_kwargs: CustomKwargs = None,
         load_kwargs: CustomKwargs = None,
     ):
@@ -294,7 +294,7 @@ class XmlToDictSerializer:
 
     def __init__(
         self,
-        marshaller_klass="modernrpc.xmlrpc.backends.xmltodict.Marshaller",
+        marshaller_klass: str = "modernrpc.xmlrpc.backends.xmltodict.Marshaller",
         marshaller_kwargs: CustomKwargs = None,
         dump_kwargs: CustomKwargs = None,
     ):

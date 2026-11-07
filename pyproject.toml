@@ -190,6 +190,7 @@ exclude = [
 [tool.pyrefly]
 search-path = ["tests/"]
 python-version = "3.10"
+preset = "strict"
 
 
 # ------------------------------------------------------------------

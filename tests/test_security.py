@@ -9,12 +9,13 @@ This file contains tests for each XML backend to verify they're protected agains
 import pytest
 
 from modernrpc.exceptions import RPCInsecureRequest, RPCInvalidRequest, RPCParseError
+from modernrpc.xmlrpc.backends import XmlRpcDeserializer
 
 
 class TestXmlBackendSecurity:
     """Test that XML backends are protected against common vulnerabilities."""
 
-    def test_dtd_attack(self, request, xml_deserializer):
+    def test_dtd_attack(self, request: pytest.FixtureRequest, xml_deserializer: XmlRpcDeserializer) -> None:
         """Test that XML backends reject DTD declarations."""
         xml_with_dtd = """<?xml version="1.0"?>
         <!DOCTYPE methodCall [
@@ -36,7 +37,7 @@ class TestXmlBackendSecurity:
         with pytest.raises(expected_exception=(RPCInsecureRequest, RPCInvalidRequest)):
             xml_deserializer.loads(xml_with_dtd)
 
-    def test_billion_laughs_attack(self, xml_deserializer):
+    def test_billion_laughs_attack(self, xml_deserializer: XmlRpcDeserializer) -> None:
         """Test that XML backends are protected against entity expansion attacks."""
         billion_laughs = """<?xml version="1.0"?>
         <!DOCTYPE methodCall [
@@ -64,7 +65,7 @@ class TestXmlBackendSecurity:
         with pytest.raises(expected_exception=(RPCInsecureRequest, RPCParseError)):
             xml_deserializer.loads(billion_laughs)
 
-    def test_external_entity_attack(self, xml_deserializer):
+    def test_external_entity_attack(self, xml_deserializer: XmlRpcDeserializer) -> None:
         """Test that XML backends are protected against external entity reference attacks."""
         external_entity = """<?xml version="1.0"?>
         <!DOCTYPE methodCall [

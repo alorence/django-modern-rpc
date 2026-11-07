@@ -42,7 +42,7 @@ class RpcRequestContext:
 
     request: "HttpRequest"
     server: "RpcServer"
-    handler: "RpcHandler"
+    handler: "RpcHandler[Any]"
     protocol: "Protocol"
     auth_result: Any = None
 
@@ -136,7 +136,7 @@ class ProcedureWrapper:
         self,
         context: RpcRequestContext,
         args: Iterable[Any] | None = None,
-        kwargs: dict | None = None,
+        kwargs: dict[str, Any] | None = None,
     ) -> Any:
         args = args or []
         kwargs = kwargs or {}
@@ -165,7 +165,7 @@ class ProcedureWrapper:
         self,
         context: RpcRequestContext,
         args: Iterable[Any] | None = None,
-        kwargs: dict | None = None,
+        kwargs: dict[str, Any] | None = None,
     ) -> Any:
         args = args or []
         kwargs = kwargs or {}
