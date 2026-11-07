@@ -1,5 +1,5 @@
 from types import NoneType
-from typing import cast, overload
+from typing import overload
 
 from modernrpc.constants import NOT_SET
 from modernrpc.exceptions import RPCInvalidRequest
@@ -79,7 +79,7 @@ class Marshaller:
         self, result: JsonRpcResult | list[JsonRpcResult]
     ) -> list[DictStrAny | None] | DictStrAny | None:
         if isinstance(result, list):
-            return [self.result_to_dict(cast("JsonRpcResult", r)) for r in result]
+            return [self.result_to_dict(r) for r in result]
 
         if result.request.is_notification:
             return None

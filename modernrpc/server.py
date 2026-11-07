@@ -152,7 +152,7 @@ class RpcServer(RegistryMixin):
             raise RPCMethodNotFound(name) from None
         except TypeError:
             # An unhashable "name" (list, dict, ...) submitted by the client cannot be a registered procedure
-            raise RPCMethodNotFound(str(name)) from None
+            raise RPCMethodNotFound(name) from None
 
         if check_flags_compatibility(wrapper.protocol, protocol):
             return wrapper

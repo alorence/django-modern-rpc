@@ -1,6 +1,6 @@
 import os
 import shutil
-from enum import StrEnum
+from enum import StrEnum  # pyrefly: ignore[missing-module-attribute]
 from pathlib import Path
 
 # pyrefly: ignore[missing-import]
