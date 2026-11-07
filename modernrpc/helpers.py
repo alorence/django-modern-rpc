@@ -1,4 +1,4 @@
-import datetime
+import datetime as dt
 import xmlrpc.client
 from collections.abc import Callable, Iterable, Sequence
 from enum import Flag
@@ -13,10 +13,10 @@ def check_flags_compatibility(a: Flag, b: Flag) -> bool:
 
 
 def get_builtin_date(
-    date: str | datetime.datetime | xmlrpc.client.DateTime,
+    date: str | dt.datetime | xmlrpc.client.DateTime,
     date_format: str = "%Y-%m-%dT%H:%M:%S",
     raise_exception: bool = False,
-) -> datetime.datetime | None:
+) -> dt.datetime | None:
     """
     Try to convert a date to a builtin instance of ``datetime.datetime``.
     The input date can be a ``str``, a ``datetime.datetime``, a ``xmlrpc.client.Datetime`` or a ``xmlrpclib.Datetime``
@@ -27,17 +27,17 @@ def get_builtin_date(
     :param raise_exception: If set to True, an exception will be raised if the input string cannot be parsed
     :return: A valid ``datetime.datetime`` instance
     """
-    if isinstance(date, datetime.datetime):
+    if isinstance(date, dt.datetime):
         # Default XML-RPC handler is configured to decode a dateTime.iso8601 value
         # to builtin datetime.datetime instance
         return date
     if isinstance(date, xmlrpc.client.DateTime):
         # If a special xmlrpc.client.DateTime instance is given, convert it to a standard datetime instance
-        return datetime.datetime.strptime(date.value, "%Y%m%dT%H:%M:%S")  # ruff: ignore[DTZ007]
+        return dt.datetime.strptime(date.value, "%Y%m%dT%H:%M:%S")
 
     # If the date is given as str. This is the normal behavior for JSON-RPC
     try:
-        return datetime.datetime.strptime(date, date_format)  # ruff: ignore[DTZ007]
+        return dt.datetime.strptime(date, date_format)
     except ValueError:
         if raise_exception:
             raise

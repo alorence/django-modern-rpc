@@ -14,7 +14,7 @@ on:
     - cron: '55 2 */7 * *'
 
 env:
-  UV_VERSION: 0.12.23
+  UV_VERSION: 0.13.7
 
 jobs:
   debug:
@@ -33,7 +33,7 @@ jobs:
     steps:
     - uses: actions/checkout@v7
     - name: Install uv
-      uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0, see https://github.com/astral-sh/setup-uv/releases
+      uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3, see https://github.com/astral-sh/setup-uv/releases
       with:
         version: ${{ env.UV_VERSION }}
     - name: Check lockfile
@@ -45,7 +45,7 @@ jobs:
     steps:
     - uses: actions/checkout@v7
     - name: Install uv
-      uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0, see https://github.com/astral-sh/setup-uv/releases
+      uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3, see https://github.com/astral-sh/setup-uv/releases
       with:
         version: ${{ env.UV_VERSION }}
     - name: Ruff
@@ -58,7 +58,7 @@ jobs:
     steps:
     - uses: actions/checkout@v7
     - name: Install uv
-      uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0, see https://github.com/astral-sh/setup-uv/releases
+      uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3, see https://github.com/astral-sh/setup-uv/releases
       with:
         version: ${{ env.UV_VERSION }}
     - name: Ruff Format
@@ -70,7 +70,7 @@ jobs:
     steps:
     - uses: actions/checkout@v7
     - name: Install uv
-      uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0, see https://github.com/astral-sh/setup-uv/releases
+      uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3, see https://github.com/astral-sh/setup-uv/releases
       with:
         version: ${{ env.UV_VERSION }}
     - name: Mypy
@@ -83,7 +83,7 @@ jobs:
     steps:
     - uses: actions/checkout@v7
     - name: Install uv
-      uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0, see https://github.com/astral-sh/setup-uv/releases
+      uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3, see https://github.com/astral-sh/setup-uv/releases
       with:
         version: ${{ env.UV_VERSION }}
     - name: Ty
@@ -99,7 +99,7 @@ jobs:
     steps:
     - uses: actions/checkout@v7
     - name: Install nox
-      uses: wntrblm/nox@a976d7ee04ab7a13634adc1016d4755a1348225f  # 2026.08.17 - https://github.com/wntrblm/nox/releases
+      uses: wntrblm/nox@afa3983bbac3143bab5c8406244327581f76a3d7  # 2026.10.20 - https://github.com/wntrblm/nox/releases
     - name: Build GH Actions test matrix from nox sessions
       id: set-matrix
       shell: bash
@@ -117,10 +117,10 @@ jobs:
     - uses: actions/checkout@v7
 
     - name: Install nox
-      uses: wntrblm/nox@a976d7ee04ab7a13634adc1016d4755a1348225f  # 2026.08.17 - https://github.com/wntrblm/nox/releases
+      uses: wntrblm/nox@afa3983bbac3143bab5c8406244327581f76a3d7  # 2026.10.20 - https://github.com/wntrblm/nox/releases
 
     - name: Install uv
-      uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0, see https://github.com/astral-sh/setup-uv/releases
+      uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3, see https://github.com/astral-sh/setup-uv/releases
       with:
         version: ${{ env.UV_VERSION }}
 
@@ -144,7 +144,7 @@ jobs:
         to-slug: "${{ matrix.session }}"
 
     - name: Archive coverage report
-      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1 - https://github.com/actions/upload-artifact/releases
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2 - https://github.com/actions/upload-artifact/releases
       with:
         name: report-${{ steps.test-session-slug.outputs.slug }}
         path: coverage.xml
@@ -158,13 +158,13 @@ jobs:
         fetch-depth: 0  # SonraQube analysis requires disabling shallow clones
 
     - name: Collect coverage report files
-      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1 - https://github.com/actions/download-artifact/releases
+      uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2 - https://github.com/actions/download-artifact/releases
       with:
         path: ./artifacts
 
     - name: SonarQube Scan + Coverage upload
       continue-on-error: true
-      uses: SonarSource/sonarqube-scan-action@d209202bc7d53ff1cc128f7f907dac145c9d6ae9 # v8.3.0 - https://github.com/SonarSource/sonarqube-scan-action/releases
+      uses: SonarSource/sonarqube-scan-action@e805d875275f728fac1885b413934be6d7c63f65 # v8.4.1 - https://github.com/SonarSource/sonarqube-scan-action/releases
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       with:

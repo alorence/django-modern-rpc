@@ -1,4 +1,4 @@
-import datetime
+import datetime as dt
 import xmlrpc.client
 
 import pytest
@@ -54,17 +54,17 @@ def test_first_helper_with_empty_arg(arg, expected_exception):
     "date",
     [
         "2016-10-20T21:54:00",
-        datetime.datetime(2016, 10, 20, 21, 54, 0),
-        xmlrpc.client.DateTime(datetime.datetime(2016, 10, 20, 21, 54, 0)),
+        dt.datetime(2016, 10, 20, 21, 54, 0),
+        xmlrpc.client.DateTime(dt.datetime(2016, 10, 20, 21, 54, 0)),
     ],
 )
 def test_get_builtin_date(date):
-    assert get_builtin_date(date) == datetime.datetime(2016, 10, 20, 21, 54, 0)
+    assert get_builtin_date(date) == dt.datetime(2016, 10, 20, 21, 54, 0)
 
 
 def test_get_builtin_date_with_format():
     res = get_builtin_date("20 10 2016 21h54m00", date_format="%d %m %Y %Hh%Mm%S")
-    assert res == datetime.datetime(2016, 10, 20, 21, 54, 0)
+    assert res == dt.datetime(2016, 10, 20, 21, 54, 0)
 
 
 @pytest.mark.parametrize(
