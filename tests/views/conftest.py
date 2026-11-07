@@ -3,13 +3,14 @@ import importlib
 from unittest.mock import Mock
 
 import pytest
+from pytest_django import Settings
 
 from modernrpc import RpcServer
 from modernrpc.constants import SYSTEM_NAMESPACE_DOTTED_PATH
 
 
 @pytest.fixture
-def server(monkeypatch):
+def server(monkeypatch: pytest.MonkeyPatch) -> RpcServer:
     """Create a fresh instance of RpcServer with a mocked 'on_error' method and some fake procedures registered."""
     server = RpcServer()
 
@@ -48,7 +49,9 @@ def server(monkeypatch):
 
 
 @pytest.fixture(params=[True, False])
-def server_using_sync_or_async_multicall(request, settings, server, monkeypatch):
+def server_using_sync_or_async_multicall(
+    request: pytest.FixtureRequest, settings: Settings, server: RpcServer, monkeypatch: pytest.MonkeyPatch
+) -> RpcServer:
     """
     Create a new instance of RpcServer with a mocked 'on_error' method and some fake procedures registered.
     The fixture is parametrized to run tests with sync and async system.multicall versions.

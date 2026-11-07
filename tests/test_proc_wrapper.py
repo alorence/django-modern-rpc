@@ -1,39 +1,42 @@
+from collections.abc import Callable
+
 import pytest
+from pytest_django import Settings
 
 from modernrpc import Protocol, RpcRequestContext
 from modernrpc.core import ProcedureArgDocs, ProcedureWrapper
 
 
 class TestProcedureArgDocs:
-    def test_type_hint_as_str(self):
+    def test_type_hint_as_str(self) -> None:
         argz = ProcedureArgDocs(docstring="", doc_type="", type_hint=str)
         assert argz.type_hint_as_str == "str"
 
-    def test_union_type_hint_as_str(self):
+    def test_union_type_hint_as_str(self) -> None:
         argz = ProcedureArgDocs(docstring="", doc_type="", type_hint=int | str)
         assert argz.type_hint_as_str == "int | str"
 
 
 class TestProtocolsAvailability:
     @pytest.fixture
-    def dummy_procedure(self):
+    def dummy_procedure(self) -> Callable[[], None]:
         def func(): ...
 
         return func
 
-    def test_all_protocols(self, dummy_procedure):
+    def test_all_protocols(self, dummy_procedure: Callable[[], None]) -> None:
         wrapper = ProcedureWrapper(dummy_procedure)
 
         assert wrapper.is_available_in_xml_rpc is True
         assert wrapper.is_available_in_json_rpc is True
 
-    def test_xml_rpc_only(self, dummy_procedure):
+    def test_xml_rpc_only(self, dummy_procedure: Callable[[], None]) -> None:
         wrapper = ProcedureWrapper(dummy_procedure, protocol=Protocol.XML_RPC)
 
         assert wrapper.is_available_in_xml_rpc is True
         assert wrapper.is_available_in_json_rpc is False
 
-    def test_json_rpc_only(self, dummy_procedure):
+    def test_json_rpc_only(self, dummy_procedure: Callable[[], None]) -> None:
         wrapper = ProcedureWrapper(dummy_procedure, protocol=Protocol.JSON_RPC)
 
         assert wrapper.is_available_in_xml_rpc is False
@@ -44,23 +47,23 @@ class TestNoDocNoArgs:
     """Make sure docstring and introspection work as expected"""
 
     @pytest.fixture
-    def wrapper(self):
+    def wrapper(self) -> ProcedureWrapper:
         def dummy_procedure(): ...
 
         return ProcedureWrapper(dummy_procedure)
 
-    def test_str_repr(self, wrapper):
+    def test_str_repr(self, wrapper: ProcedureWrapper) -> None:
         assert str(wrapper) == "dummy_procedure()"
 
-    def test_docstring(self, wrapper):
+    def test_docstring(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.text_doc == ""
         assert wrapper.html_doc == ""
 
-    def test_arguments(self, wrapper):
+    def test_arguments(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.arguments_names == []
         assert wrapper.arguments == {}
 
-    def test_returns(self, wrapper):
+    def test_returns(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.returns == ProcedureArgDocs(docstring="", doc_type="", type_hint=None)
 
 
@@ -68,40 +71,40 @@ class TestSingleLineDocNoArgs:
     """Standard single-line docstring with various parsers"""
 
     @pytest.fixture
-    def wrapper(self):
+    def wrapper(self) -> ProcedureWrapper:
         def single_line_doc():
             """*italic*, **strong**, normal text"""
 
         return ProcedureWrapper(single_line_doc)
 
-    def test_str_repr(self, wrapper):
+    def test_str_repr(self, wrapper: ProcedureWrapper) -> None:
         assert str(wrapper) == "single_line_doc()"
 
-    def test_arguments(self, wrapper):
+    def test_arguments(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.arguments_names == []
         assert wrapper.arguments == {}
 
-    def test_returns(self, wrapper):
+    def test_returns(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.returns == ProcedureArgDocs(docstring="", doc_type="", type_hint=None)
 
-    def test_docstring(self, wrapper):
+    def test_docstring(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.text_doc == "*italic*, **strong**, normal text"
 
-    def test_default_html_doc(self, wrapper):
+    def test_default_html_doc(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.html_doc == "<p>*italic*, **strong**, normal text</p>"
 
-    def test_markdown_html_doc(self, settings, wrapper):
+    def test_markdown_html_doc(self, settings: Settings, wrapper: ProcedureWrapper) -> None:
         settings.MODERNRPC_DOC_FORMAT = "md"
         assert wrapper.html_doc == "<p><em>italic</em>, <strong>strong</strong>, normal text</p>"
 
-    def test_rst_html_doc(self, settings, wrapper):
+    def test_rst_html_doc(self, settings: Settings, wrapper: ProcedureWrapper) -> None:
         settings.MODERNRPC_DOC_FORMAT = "rst"
         assert wrapper.html_doc == "<p><em>italic</em>, <strong>strong</strong>, normal text</p>\n"
 
 
 class TestMultiLinesDocstringSimple:
     @pytest.fixture
-    def wrapper(self):
+    def wrapper(self) -> ProcedureWrapper:
         def multilines_docstring():
             """
             This method has multi-lines documentation.
@@ -112,31 +115,31 @@ class TestMultiLinesDocstringSimple:
 
         return ProcedureWrapper(multilines_docstring)
 
-    def test_str_repr(self, wrapper):
+    def test_str_repr(self, wrapper: ProcedureWrapper) -> None:
         assert str(wrapper) == "multilines_docstring()"
 
-    def test_arguments(self, wrapper):
+    def test_arguments(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.arguments_names == []
         assert wrapper.arguments == {}
 
-    def test_returns(self, wrapper):
+    def test_returns(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.returns == ProcedureArgDocs(docstring="", doc_type="", type_hint=None)
 
-    def test_docstring(self, wrapper):
+    def test_docstring(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.text_doc == (
             "This method has multi-lines documentation.\n\n"
             "The content is indented when raw ``__doc__`` attribute function is read.\n"
             "The indentation should not interfere with semantic interpretation of the docstring."
         )
 
-    def test_default_html_doc(self, wrapper):
+    def test_default_html_doc(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.html_doc == (
             "<p>This method has multi-lines documentation.</p>"
             "<p>The content is indented when raw ``__doc__`` attribute function is read. "
             "The indentation should not interfere with semantic interpretation of the docstring.</p>"
         )
 
-    def test_markdown_html_doc(self, settings, wrapper):
+    def test_markdown_html_doc(self, settings: Settings, wrapper: ProcedureWrapper) -> None:
         settings.MODERNRPC_DOC_FORMAT = "md"
         assert wrapper.html_doc == (
             "<p>This method has multi-lines documentation.</p>\n"
@@ -144,7 +147,7 @@ class TestMultiLinesDocstringSimple:
             "The indentation should not interfere with semantic interpretation of the docstring.</p>"
         )
 
-    def test_rst_html_doc(self, settings, wrapper):
+    def test_rst_html_doc(self, settings: Settings, wrapper: ProcedureWrapper) -> None:
         settings.MODERNRPC_DOC_FORMAT = "rst"
         assert wrapper.html_doc == (
             "<p>This method has multi-lines documentation.</p>\n"
@@ -157,7 +160,7 @@ class TestMultiLinesDocstringWithBlock:
     """Standard multi-line docstring with an indented block"""
 
     @pytest.fixture
-    def wrapper(self):
+    def wrapper(self) -> ProcedureWrapper:
         def multilines_docstring_with_block():
             """
             This method has *multi-lines* **documentation**.
@@ -170,29 +173,29 @@ class TestMultiLinesDocstringWithBlock:
 
         return ProcedureWrapper(multilines_docstring_with_block)
 
-    def test_str_repr(self, wrapper):
+    def test_str_repr(self, wrapper: ProcedureWrapper) -> None:
         assert str(wrapper) == "multilines_docstring_with_block()"
 
-    def test_arguments(self, wrapper):
+    def test_arguments(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.arguments_names == []
         assert wrapper.arguments == {}
 
-    def test_returns(self, wrapper):
+    def test_returns(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.returns == ProcedureArgDocs(docstring="", doc_type="", type_hint=None)
 
-    def test_docstring(self, wrapper):
+    def test_docstring(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.text_doc == (
             "This method has *multi-lines* **documentation**.\n\nHere is a quote block:\n\n    abcdef 123456"
         )
 
-    def test_default_html_doc(self, wrapper):
+    def test_default_html_doc(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.html_doc == (
             "<p>This method has *multi-lines* **documentation**.</p>"
             "<p>Here is a quote block:</p>"
             "<p>    abcdef 123456</p>"
         )
 
-    def test_markdown_html_doc(self, settings, wrapper):
+    def test_markdown_html_doc(self, settings: Settings, wrapper: ProcedureWrapper) -> None:
         settings.MODERNRPC_DOC_FORMAT = "md"
         assert wrapper.html_doc == (
             "<p>This method has <em>multi-lines</em> <strong>documentation</strong>.</p>\n"
@@ -200,7 +203,7 @@ class TestMultiLinesDocstringWithBlock:
             "<pre><code>abcdef 123456\n</code></pre>"
         )
 
-    def test_rst_html_doc(self, settings, wrapper):
+    def test_rst_html_doc(self, settings: Settings, wrapper: ProcedureWrapper) -> None:
         settings.MODERNRPC_DOC_FORMAT = "rst"
         assert wrapper.html_doc == (
             "<p>This method has <em>multi-lines</em> <strong>documentation</strong>.</p>\n"
@@ -211,8 +214,8 @@ class TestMultiLinesDocstringWithBlock:
 
 class TestMultilinesDocstringWithArgs:
     @pytest.fixture
-    def wrapper(self):
-        def multilines_docstring_with_args_and_doc(one, two, three, four, five):
+    def wrapper(self) -> ProcedureWrapper:
+        def multilines_docstring_with_args_and_doc(one, two, three, four, five):  # pyrefly: ignore[implicit-any-parameter]
             """Lorem ipsum dolor sit amet. ferox, talis valebats nunquam reperire de alter, varius advena.
             musa camerarius sectam est. grandis, primus axonas hic transferre de neuter, barbatus pes?
             :param one: single line description
@@ -226,10 +229,10 @@ class TestMultilinesDocstringWithArgs:
 
         return ProcedureWrapper(multilines_docstring_with_args_and_doc)
 
-    def test_str_repr(self, wrapper):
+    def test_str_repr(self, wrapper: ProcedureWrapper) -> None:
         assert str(wrapper) == "multilines_docstring_with_args_and_doc(one, two, three, four, five)"
 
-    def test_arguments(self, wrapper):
+    def test_arguments(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.arguments_names == ["one", "two", "three", "four", "five"]
 
         assert wrapper.arguments == {
@@ -242,10 +245,10 @@ class TestMultilinesDocstringWithArgs:
             "five": ProcedureArgDocs(docstring="last param", doc_type="", type_hint=None),
         }
 
-    def test_returns(self, wrapper):
+    def test_returns(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.returns == ProcedureArgDocs(docstring="bar", doc_type="", type_hint=None)
 
-    def test_docstring(self, wrapper):
+    def test_docstring(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.text_doc == (
             "Lorem ipsum dolor sit amet. ferox, talis valebats nunquam reperire de alter, varius advena.\n"
             "musa camerarius sectam est. grandis, primus axonas hic transferre de neuter, barbatus pes?"
@@ -258,16 +261,16 @@ class TestMultilinesDocstringWithArgs:
 
 class TestNoDocstringWithArgs:
     @pytest.fixture
-    def wrapper(self):
-        def untyped_and_undocumented_args(a, b, c):
+    def wrapper(self) -> ProcedureWrapper:
+        def untyped_and_undocumented_args(a, b, c):  # pyrefly: ignore[implicit-any-parameter]
             pass
 
         return ProcedureWrapper(untyped_and_undocumented_args)
 
-    def test_str_repr(self, wrapper):
+    def test_str_repr(self, wrapper: ProcedureWrapper) -> None:
         assert str(wrapper) == "untyped_and_undocumented_args(a, b, c)"
 
-    def test_arguments(self, wrapper):
+    def test_arguments(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.arguments_names == ["a", "b", "c"]
         assert wrapper.arguments == {
             "a": ProcedureArgDocs(docstring="", doc_type="", type_hint=None),
@@ -275,10 +278,10 @@ class TestNoDocstringWithArgs:
             "c": ProcedureArgDocs(docstring="", doc_type="", type_hint=None),
         }
 
-    def test_returns(self, wrapper):
+    def test_returns(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.returns == ProcedureArgDocs(docstring="", doc_type="", type_hint=None)
 
-    def test_docstring(self, wrapper):
+    def test_docstring(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.text_doc == ""
         assert wrapper.html_doc == ""
 
@@ -287,27 +290,27 @@ class TestArgsTypeHint:
     """Type hinting is correctly returned using the introspection module"""
 
     @pytest.fixture
-    def wrapper(self):
-        def typed_args(a: int, b: str, c: list | float) -> dict | list:
+    def wrapper(self) -> ProcedureWrapper:
+        def typed_args(a: int, b: str, c: list | float) -> dict | list:  # pyrefly: ignore[implicit-any-type-argument]
             return []
 
         return ProcedureWrapper(typed_args)
 
-    def test_str_repr(self, wrapper):
+    def test_str_repr(self, wrapper: ProcedureWrapper) -> None:
         assert str(wrapper) == "typed_args(a, b, c)"
 
-    def test_arguments(self, wrapper):
+    def test_arguments(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.arguments_names == ["a", "b", "c"]
         assert wrapper.arguments == {
             "a": ProcedureArgDocs(docstring="", doc_type="", type_hint=int),
             "b": ProcedureArgDocs(docstring="", doc_type="", type_hint=str),
-            "c": ProcedureArgDocs(docstring="", doc_type="", type_hint=list | float),
+            "c": ProcedureArgDocs(docstring="", doc_type="", type_hint=list | float),  # pyrefly: ignore[implicit-any-type-argument]
         }
 
-    def test_returns(self, wrapper):
-        assert wrapper.returns == ProcedureArgDocs(docstring="", doc_type="", type_hint=dict | list)
+    def test_returns(self, wrapper: ProcedureWrapper) -> None:
+        assert wrapper.returns == ProcedureArgDocs(docstring="", doc_type="", type_hint=dict | list)  # pyrefly: ignore[implicit-any-type-argument]
 
-    def test_docstring(self, wrapper):
+    def test_docstring(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.text_doc == ""
         assert wrapper.html_doc == ""
 
@@ -316,8 +319,8 @@ class TestWithTypeHintAndDocstring:
     """Typehint + standard reStructuredText docstring"""
 
     @pytest.fixture
-    def wrapper(self):
-        def typehints_and_standard_docstring(a: str, b, c: float) -> float:
+    def wrapper(self) -> ProcedureWrapper:
+        def typehints_and_standard_docstring(a: str, b, c: float) -> float:  # pyrefly: ignore[implicit-any-parameter]
             """
 
             :param a: param A
@@ -329,10 +332,10 @@ class TestWithTypeHintAndDocstring:
 
         return ProcedureWrapper(typehints_and_standard_docstring)
 
-    def test_str_repr(self, wrapper):
+    def test_str_repr(self, wrapper: ProcedureWrapper) -> None:
         assert str(wrapper) == "typehints_and_standard_docstring(a, b, c)"
 
-    def test_arguments(self, wrapper):
+    def test_arguments(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.arguments_names == ["a", "b", "c"]
         assert wrapper.arguments == {
             "a": ProcedureArgDocs(docstring="param A", doc_type="", type_hint=str),
@@ -340,10 +343,10 @@ class TestWithTypeHintAndDocstring:
             "c": ProcedureArgDocs(docstring="param C", doc_type="", type_hint=float),
         }
 
-    def test_returns(self, wrapper):
+    def test_returns(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.returns == ProcedureArgDocs(docstring="A decimal value", doc_type="", type_hint=float)
 
-    def test_docstring(self, wrapper):
+    def test_docstring(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.text_doc == ""
         assert wrapper.html_doc == ""
 
@@ -352,8 +355,8 @@ class TestWithDocstringOnlyFunction:
     """No typehint but everything in reStructuredText docstring"""
 
     @pytest.fixture
-    def wrapper(self):
-        def args_and_types_docstring(name, birthdate, sex):
+    def wrapper(self) -> ProcedureWrapper:
+        def args_and_types_docstring(name, birthdate, sex):  # pyrefly: ignore[implicit-any-parameter]
             """
             This is the textual doc of the method
             :param name: A name
@@ -367,10 +370,10 @@ class TestWithDocstringOnlyFunction:
 
         return ProcedureWrapper(args_and_types_docstring)
 
-    def test_str_repr(self, wrapper):
+    def test_str_repr(self, wrapper: ProcedureWrapper) -> None:
         assert str(wrapper) == "args_and_types_docstring(name, birthdate, sex)"
 
-    def test_arguments(self, wrapper):
+    def test_arguments(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.arguments_names == ["name", "birthdate", "sex"]
         assert wrapper.arguments == {
             "name": ProcedureArgDocs(docstring="A name", doc_type="str", type_hint=None),
@@ -378,12 +381,12 @@ class TestWithDocstringOnlyFunction:
             "sex": ProcedureArgDocs(docstring="Male or Female", doc_type="str", type_hint=None),
         }
 
-    def test_returns(self, wrapper):
+    def test_returns(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.returns == ProcedureArgDocs(
             docstring="A string representation of given arguments", doc_type="", type_hint=None
         )
 
-    def test_default_html_doc_doc(self, wrapper):
+    def test_default_html_doc_doc(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.text_doc == "This is the textual doc of the method"
         assert wrapper.html_doc == "<p>This is the textual doc of the method</p>"
 
@@ -392,8 +395,8 @@ class TestWithTypeHintAndDocstringTypes:
     """Legacy standard docstring must override typehint"""
 
     @pytest.fixture
-    def wrapper(self):
-        def typehints_and_types_docstring(x: list, y: str) -> dict:
+    def wrapper(self) -> ProcedureWrapper:
+        def typehints_and_types_docstring(x: list, y: str) -> dict:  # pyrefly: ignore[implicit-any-type-argument]
             """This is the docstring part of the function
 
             It also contains a multi-line description
@@ -408,20 +411,20 @@ class TestWithTypeHintAndDocstringTypes:
 
         return ProcedureWrapper(typehints_and_types_docstring)
 
-    def test_str_repr(self, wrapper):
+    def test_str_repr(self, wrapper: ProcedureWrapper) -> None:
         assert str(wrapper) == "typehints_and_types_docstring(x, y)"
 
-    def test_arguments(self, wrapper):
+    def test_arguments(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.arguments_names == ["x", "y"]
         assert wrapper.arguments == {
             "x": ProcedureArgDocs(docstring="abcd", doc_type="float", type_hint=list),
             "y": ProcedureArgDocs(docstring="xyz", doc_type="int", type_hint=str),
         }
 
-    def test_returns(self, wrapper):
+    def test_returns(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.returns == ProcedureArgDocs(docstring="efgh", doc_type="str", type_hint=dict)
 
-    def test_default_html_doc(self, wrapper):
+    def test_default_html_doc(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.text_doc == (
             "This is the docstring part of the function\n\nIt also contains a multi-line description"
         )
@@ -434,17 +437,17 @@ class TestWithTypeHintAndKwargs:
     """Legacy standard docstring must override typehint"""
 
     @pytest.fixture
-    def wrapper(self):
-        def with_kwargs(x: list, y: str, **kwargs) -> str:
+    def wrapper(self) -> ProcedureWrapper:
+        def with_kwargs(x: list, y: str, **kwargs) -> str:  # pyrefly: ignore[implicit-any-parameter, implicit-any-type-argument]
             """This is the docstring part of the function"""
             return "abcdefgh"
 
         return ProcedureWrapper(with_kwargs)
 
-    def test_str_repr(self, wrapper):
+    def test_str_repr(self, wrapper: ProcedureWrapper) -> None:
         assert str(wrapper) == "with_kwargs(x, y, kwargs)"
 
-    def test_arguments(self, wrapper):
+    def test_arguments(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.arguments_names == ["x", "y", "kwargs"]
         assert wrapper.arguments == {
             "x": ProcedureArgDocs(docstring="", doc_type="", type_hint=list),
@@ -452,25 +455,25 @@ class TestWithTypeHintAndKwargs:
             "kwargs": ProcedureArgDocs(docstring="", doc_type="", type_hint=None),
         }
 
-    def test_returns(self, wrapper):
+    def test_returns(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.returns == ProcedureArgDocs(docstring="", doc_type="", type_hint=str)
 
-    def test_default_html_doc(self, wrapper):
+    def test_default_html_doc(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.text_doc == "This is the docstring part of the function"
         assert wrapper.html_doc == "<p>This is the docstring part of the function</p>"
 
 
 class TestContextTarget:
     @pytest.fixture
-    def wrapper(self):
+    def wrapper(self) -> ProcedureWrapper:
         def dummy_with_ctx_target(a: int, b: str, context: RpcRequestContext): ...
 
         return ProcedureWrapper(dummy_with_ctx_target, context_target="context")
 
-    def test_str_repr(self, wrapper):
+    def test_str_repr(self, wrapper: ProcedureWrapper) -> None:
         assert str(wrapper) == "dummy_with_ctx_target(a, b)"
 
-    def test_arguments(self, wrapper):
+    def test_arguments(self, wrapper: ProcedureWrapper) -> None:
         assert wrapper.arguments_names == ["a", "b"]
         assert wrapper.arguments == {
             "a": ProcedureArgDocs(docstring="", doc_type="", type_hint=int),

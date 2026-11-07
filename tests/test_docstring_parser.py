@@ -5,28 +5,28 @@ from modernrpc.introspection import DocstringParser
 
 class TestEmptyAndPlainText:
     @pytest.fixture
-    def parser(self):
-        def func():
+    def parser(self) -> DocstringParser:
+        def func() -> None:
             pass
 
         return DocstringParser(func)
 
-    def test_docstring(self, parser):
+    def test_docstring(self, parser: DocstringParser) -> None:
         assert parser.docstring == ""
 
-    def test_args_docs(self, parser):
+    def test_args_docs(self, parser: DocstringParser) -> None:
         assert parser.args_docstrings == {}
         assert parser.args_types == {}
 
-    def test_returns_docs(self, parser):
+    def test_returns_docs(self, parser: DocstringParser) -> None:
         assert parser.return_doc == ""
         assert parser.return_type == ""
 
 
 class TestSimpleDocstring:
     @pytest.fixture
-    def parser(self):
-        def func():
+    def parser(self) -> DocstringParser:
+        def func() -> None:
             """
             A brief description line.
 
@@ -36,25 +36,25 @@ class TestSimpleDocstring:
 
         return DocstringParser(func)
 
-    def test_docstring(self, parser):
+    def test_docstring(self, parser: DocstringParser) -> None:
         assert parser.docstring == (
             "A brief description line.\n\nAdditional details should remain in the parsed docstring "
             "while any\nparameter/return legacy annotations are stripped."
         )
 
-    def test_args_docs(self, parser):
+    def test_args_docs(self, parser: DocstringParser) -> None:
         assert parser.args_docstrings == {}
         assert parser.args_types == {}
 
-    def test_returns_docs(self, parser):
+    def test_returns_docs(self, parser: DocstringParser) -> None:
         assert parser.return_doc == ""
         assert parser.return_type == ""
 
 
 class TestParamAndReturnParsing:
     @pytest.fixture
-    def parser(self):
-        def func():
+    def parser(self) -> DocstringParser:
+        def func() -> None:
             """
             Function with params in reST style.
 
@@ -70,25 +70,25 @@ class TestParamAndReturnParsing:
 
         return DocstringParser(func)
 
-    def test_docstring(self, parser):
+    def test_docstring(self, parser: DocstringParser) -> None:
         assert parser.docstring == "Function with params in reST style."
 
-    def test_args_docs(self, parser):
+    def test_args_docs(self, parser: DocstringParser) -> None:
         assert parser.args_docstrings == {
             "x": "the first value",
             "y": "the second value with a continuation line that should be glued with single spaces",
         }
         assert parser.args_types == {"x": "int", "y": "str"}
 
-    def test_returns_docs(self, parser):
+    def test_returns_docs(self, parser: DocstringParser) -> None:
         assert parser.return_doc == "sum of values"
         assert parser.return_type == "int"
 
 
 class TestDocstringStripsMeta:
     @pytest.fixture
-    def parser(self):
-        def func():
+    def parser(self) -> DocstringParser:
+        def func() -> None:
             """
             Function with params in @ style.
 
@@ -103,16 +103,16 @@ class TestDocstringStripsMeta:
 
         return DocstringParser(func)
 
-    def test_docstring(self, parser):
+    def test_docstring(self, parser: DocstringParser) -> None:
         assert parser.docstring == "Function with params in @ style."
 
-    def test_args_docs(self, parser):
+    def test_args_docs(self, parser: DocstringParser) -> None:
         assert parser.args_docstrings == {
             "a": "alpha",
             "b": "beta with line wrap",
         }
         assert parser.args_types == {"a": "float", "b": "list[str]"}
 
-    def test_returns_docs(self, parser):
+    def test_returns_docs(self, parser: DocstringParser) -> None:
         assert parser.return_doc == "something"
         assert parser.return_type == "dict"

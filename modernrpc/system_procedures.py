@@ -1,4 +1,5 @@
 import asyncio
+from typing import Any
 
 from modernrpc import Protocol, RpcNamespace, RpcRequestContext
 from modernrpc.config import settings
@@ -58,7 +59,7 @@ def __system_method_help(method_name: str, _ctx: RpcRequestContext):
 if settings.MODERNRPC_XMLRPC_ASYNC_MULTICALL:
 
     @system.register_procedure(name="multicall", protocol=Protocol.XML_RPC, context_target="_ctx")
-    async def __system_multicall(calls: list, _ctx: RpcRequestContext):
+    async def __system_multicall(calls: list[Any], _ctx: RpcRequestContext):
         """
         Call multiple procedure at once, using asyncio.gather().
 
@@ -81,7 +82,7 @@ if settings.MODERNRPC_XMLRPC_ASYNC_MULTICALL:
 else:
 
     @system.register_procedure(name="multicall", protocol=Protocol.XML_RPC, context_target="_ctx")
-    def __system_multicall(calls: list, _ctx: RpcRequestContext):
+    def __system_multicall(calls: list[Any], _ctx: RpcRequestContext):
         """
         Call multiple procedure at once.
 

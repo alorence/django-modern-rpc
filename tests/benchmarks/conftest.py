@@ -2019,7 +2019,7 @@ def random_data() -> DictStrAny:
 
 
 @pytest.fixture
-def jsonrpc_request(random_data) -> str:
+def jsonrpc_request(random_data: DictStrAny) -> str:
     req = """
         {
           "id": 255,
@@ -2032,10 +2032,10 @@ def jsonrpc_request(random_data) -> str:
 
 
 @pytest.fixture
-def jsonrpc_result(random_data) -> JsonRpcSuccessResult:
+def jsonrpc_result(random_data: DictStrAny) -> JsonRpcSuccessResult:
     return JsonRpcSuccessResult(request=JsonRpcRequest(request_id=500, method_name=""), data=random_data)
 
 
 @pytest.fixture
-def xmlrpc_result(random_data) -> XmlRpcSuccessResult:
+def xmlrpc_result(random_data: DictStrAny) -> XmlRpcSuccessResult:
     return XmlRpcSuccessResult(request=XmlRpcRequest(method_name=""), data=random_data)

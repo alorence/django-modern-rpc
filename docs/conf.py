@@ -7,6 +7,7 @@
 import importlib.metadata
 import sys
 from pathlib import Path
+from typing import Any
 
 from django.conf import settings
 
@@ -80,7 +81,7 @@ html_permalinks_icon = '<img src="/_static/permalink.svg" class="permalink-icon"
 # All (**) pages will have 1 more sidebar content (donation.html) after the default one (sbt-sidebar-nav.html)
 # See https://sphinx-book-theme.readthedocs.io/en/stable/sections/sidebar-primary.html
 html_sidebars = {"**": ["sbt-sidebar-nav.html", "donation.html"]}
-html_theme_options = {
+html_theme_options: dict[str, Any] = {
     "home_page_in_toc": True,
     "show_toc_level": 2,
     "toc_title": "Navigation",

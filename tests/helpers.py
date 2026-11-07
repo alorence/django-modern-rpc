@@ -3,13 +3,13 @@ import xmlrpc.client
 from collections.abc import Callable
 from doctest import Example
 from json import JSONDecodeError
-from typing import Any
+from typing import Any, TypeAlias
 from xml.etree import ElementTree as ET
 
 import jsonrpcclient.sentinels
 import pytest
 from _pytest.main import Failed
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
 from lxml.doctestcompare import PARSE_XML, LXMLOutputChecker  # ty: ignore[import-not-found]
 
 from modernrpc import Protocol
@@ -25,6 +25,10 @@ from modernrpc.xmlrpc.backends.etree import EtreeDeserializer, EtreeSerializer
 from modernrpc.xmlrpc.backends.lxml import LxmlDeserializer, LxmlSerializer
 from modernrpc.xmlrpc.backends.xmlrpc import PythonXmlRpcDeserializer, PythonXmlRpcSerializer
 from modernrpc.xmlrpc.backends.xmltodict import XmlToDictDeserializer, XmlToDictSerializer
+
+XmlRpcRF: TypeAlias = Callable[..., HttpRequest]
+JsonRpcRF: TypeAlias = Callable[..., HttpRequest]
+JsonRpcBatchRF: TypeAlias = Callable[..., HttpRequest]
 
 ALL_PROTOCOLS = [Protocol.XML_RPC, Protocol.JSON_RPC]
 # List all backends supported in tests for deserialization (data to request object) and
@@ -50,12 +54,12 @@ JSON_SERIALIZERS_CLASSES = [
 ]
 
 
-def build_xml_rpc_request_data(method="dummy", params=()) -> str:
+def build_xml_rpc_request_data(method: str = "dummy", params: tuple[Any, ...] = ()) -> str:
     return xmlrpc.client.dumps(methodname=method, params=tuple(params))
 
 
 def build_json_rpc_request_data(
-    method="dummy", params: tuple = (), is_notification=False, req_id: RequestIdType = None
+    method: str = "dummy", params: tuple[Any, ...] = (), is_notification: bool = False, req_id: RequestIdType = None
 ) -> DictStrAny:
     if is_notification:
         return jsonrpcclient.notification(method=method, params=params)
@@ -114,13 +118,11 @@ def extract_jsonrpc_success_result(response: HttpResponse) -> Any:
         response_data = json.loads(response.content)
     except JSONDecodeError:
         pytest.fail(f"Unable to parse JSON payload:\n{response.content.decode()}")
-        raise
 
     try:
         result = response_data["result"]
     except KeyError:
         pytest.fail(f'Unable to extract result from payload "{response_data}"')
-        raise
 
     return result
 
@@ -130,37 +132,22 @@ def extract_jsonrpc_fault_data(response: HttpResponse) -> tuple[int, str]:
         response_data = json.loads(response.content)
     except JSONDecodeError:
         pytest.fail(f"Unable to parse JSON payload:\n{response.content.decode()}")
-        raise
 
     try:
         error_data = response_data["error"]
     except KeyError:
         pytest.fail(f'Unable to extract error data from payload "{response_data}"')
-        raise
 
     try:
         err_code = int(error_data["code"])
     except KeyError:
         pytest.fail(f'Unable to extract error code from payload "{response_data}"')
-        raise
     except ValueError:
         pytest.fail(f'Unable to convert error code "{error_data["code"]}" to int')
-        raise
 
     try:
         message = error_data["message"]
     except KeyError:
         pytest.fail(f'Unable to extract error message from payload "{response_data}"')
-        raise
 
     return err_code, message
-
-
-def params_with_xfail(possible_values: list, condition: Callable, reason: str):
-    """
-    Build a list of replacement value for a fixture containing one or more xfail instances (depending on condition)
-    """
-    return [
-        pytest.param(element, marks=pytest.mark.xfail(reason=reason)) if condition(element) else element
-        for element in possible_values
-    ]

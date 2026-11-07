@@ -3,16 +3,19 @@ import inspect
 import xmlrpc.client
 from collections import OrderedDict
 from datetime import datetime
+from typing import Any
 
 import pytest
 from helpers import assert_xml_data_are_equal
+from pytest_django import Settings
 
 from modernrpc.exceptions import RPCInvalidRequest, RPCMarshallingError, RPCParseError
+from modernrpc.xmlrpc.backends import XmlRpcDeserializer, XmlRpcSerializer
 from modernrpc.xmlrpc.handler import XmlRpcErrorResult, XmlRpcHandler, XmlRpcRequest, XmlRpcSuccessResult
 
 
 @pytest.fixture
-def dummy_xmlrpc_request():
+def dummy_xmlrpc_request() -> XmlRpcRequest:
     return XmlRpcRequest(method_name="foo.bar")
 
 
@@ -23,7 +26,7 @@ class TestXmlRpcDeserializer:
     have the correct type and value
     """
 
-    def test_method_name_no_params(self, xml_deserializer):
+    def test_method_name_no_params(self, xml_deserializer: XmlRpcDeserializer) -> None:
         payload = """
             <?xml version="1.0"?>
             <methodCall>
@@ -36,7 +39,7 @@ class TestXmlRpcDeserializer:
         assert request.method_name == "foo.bar"
         assert request.args == []
 
-    def test_method_name_empty_params(self, xml_deserializer):
+    def test_method_name_empty_params(self, xml_deserializer: XmlRpcDeserializer) -> None:
         payload = """
             <?xml version="1.0"?>
             <methodCall>
@@ -86,7 +89,16 @@ class TestXmlRpcDeserializer:
             ("dateTime.iso8601", "20250101T00:00:00", datetime(2025, 1, 1, 0, 0, 0)),
         ],
     )
-    def test_param_scalar(self, xml_deserializer, inner_template, outer_template, typ, value, expected_value, request):
+    def test_param_scalar(
+        self,
+        xml_deserializer: XmlRpcDeserializer,
+        inner_template: str,
+        outer_template: str,
+        typ: str,
+        value: Any,
+        expected_value: Any,
+        request: pytest.FixtureRequest,
+    ) -> None:
         """
         This is a huge test, configured with multiple possible values.
         Here is a description of the parametrization applied to it:
@@ -125,10 +137,10 @@ class TestXmlRpcDeserializer:
             </params>
             </methodCall>
         """.lstrip()
-        request = xml_deserializer.loads(inspect.cleandoc(payload))
-        assert request.args == [expected_value]
+        rpc_request = xml_deserializer.loads(inspect.cleandoc(payload))
+        assert rpc_request.args == [expected_value]
 
-    def test_param_binary(self, xml_deserializer):
+    def test_param_binary(self, xml_deserializer: XmlRpcDeserializer) -> None:
         initial_data = b"\x3247\x9684\x41\x77\\x12\x34"
         b64_data = base64.b64encode(initial_data).decode()
         payload = f"""
@@ -148,7 +160,7 @@ class TestXmlRpcDeserializer:
         assert request.method_name == "foo.bar.baz"
         assert request.args == [initial_data]
 
-    def test_param_array_single_value(self, xml_deserializer):
+    def test_param_array_single_value(self, xml_deserializer: XmlRpcDeserializer) -> None:
         payload = """
             <?xml version="1.0"?>
             <methodCall>
@@ -170,7 +182,7 @@ class TestXmlRpcDeserializer:
         assert request.method_name == "foo.bar.baz"
         assert request.args == [[8]]
 
-    def test_array_params_multiple_values(self, xml_deserializer):
+    def test_array_params_multiple_values(self, xml_deserializer: XmlRpcDeserializer) -> None:
         payload = """
             <?xml version="1.0"?>
             <methodCall>
@@ -203,7 +215,7 @@ class TestXmlRpcDeserializer:
         assert request.method_name == "foo.bar.baz"
         assert request.args == [[5, 9, "abc"], [0.0]]
 
-    def test_param_struct_single_value(self, xml_deserializer):
+    def test_param_struct_single_value(self, xml_deserializer: XmlRpcDeserializer) -> None:
         payload = """
             <?xml version="1.0"?>
             <methodCall>
@@ -226,7 +238,7 @@ class TestXmlRpcDeserializer:
         assert request.method_name == "foo.bar.baz"
         assert request.args == [{"pi": 3.14}]
 
-    def test_param_struct_multiple_values(self, xml_deserializer):
+    def test_param_struct_multiple_values(self, xml_deserializer: XmlRpcDeserializer) -> None:
         payload = """
             <?xml version="1.0"?>
             <methodCall>
@@ -263,7 +275,7 @@ class TestXmlRpcDeserializer:
         assert request.method_name == "foo.bar.baz"
         assert request.args == [{"foo": 9}, {"bar": 9.0, "baz": "9"}]
 
-    def test_invalid_xml_payload(self, xml_deserializer):
+    def test_invalid_xml_payload(self, xml_deserializer: XmlRpcDeserializer) -> None:
         payload = inspect.cleandoc("""
             <?xml version="1.0"?>
             <methodCall>
@@ -276,7 +288,7 @@ class TestXmlRpcDeserializer:
         with pytest.raises(RPCParseError):
             xml_deserializer.loads(payload)
 
-    def test_missing_root_tag(self, request, xml_deserializer):
+    def test_missing_root_tag(self, request: pytest.FixtureRequest, xml_deserializer: XmlRpcDeserializer) -> None:
         if "PythonXmlRpc" in xml_deserializer.__class__.__name__:
             marker = pytest.mark.xfail(
                 reason='PythonXmlRpcDeserializer allows requests without any "methodCall" root tag', strict=True
@@ -295,7 +307,7 @@ class TestXmlRpcDeserializer:
         with pytest.raises(RPCInvalidRequest):
             xml_deserializer.loads(payload)
 
-    def test_missing_method_name(self, xml_deserializer):
+    def test_missing_method_name(self, xml_deserializer: XmlRpcDeserializer) -> None:
         payload = inspect.cleandoc("""
             <?xml version="1.0"?>
             <methodCall>
@@ -307,7 +319,7 @@ class TestXmlRpcDeserializer:
         with pytest.raises(RPCInvalidRequest):
             xml_deserializer.loads(payload)
 
-    def test_invalid_type(self, xml_deserializer):
+    def test_invalid_type(self, xml_deserializer: XmlRpcDeserializer) -> None:
         payload = inspect.cleandoc("""
             <?xml version="1.0"?>
             <methodCall>
@@ -321,7 +333,7 @@ class TestXmlRpcDeserializer:
             xml_deserializer.loads(payload)
 
     @pytest.mark.parametrize("val", [5, True, False, -3, -1, "null", "true", "false"])
-    def test_invalid_bool_value(self, xml_deserializer, val):
+    def test_invalid_bool_value(self, xml_deserializer: XmlRpcDeserializer, val: Any) -> None:
         payload = inspect.cleandoc(f"""
             <?xml version="1.0"?>
             <methodCall>
@@ -336,13 +348,13 @@ class TestXmlRpcDeserializer:
 
 
 class TestXmlRpcDeserializerKwargs:
-    def test_builtin_xmlrpc_use_datetime(self, settings):
+    def test_builtin_xmlrpc_use_datetime(self, settings: Settings) -> None:
         # use_datetime is set to True by default, allowing ...
         settings.MODERNRPC_XML_DESERIALIZER = {
             "class": "modernrpc.xmlrpc.backends.xmlrpc.PythonXmlRpcDeserializer",
             "kwargs": {"load_kwargs": {"use_datetime": False, "use_builtin_types": False}},
         }
-        deserializer = XmlRpcHandler().deserializer
+        handler_deserializer = XmlRpcHandler().deserializer
         payload = """
             <?xml version="1.0"?>
             <methodCall>
@@ -355,7 +367,7 @@ class TestXmlRpcDeserializerKwargs:
             </methodCall>
         """
 
-        request = deserializer.loads(inspect.cleandoc(payload))
+        request = handler_deserializer.loads(inspect.cleandoc(payload))
 
         assert isinstance(request.args[0], xmlrpc.client.DateTime)
         assert request.args[0] == datetime(2026, 1, 1, 0, 0, 0)
@@ -368,13 +380,13 @@ class TestXmlRpcDeserializerKwargs:
             "modernrpc.xmlrpc.backends.lxml.LxmlDeserializer",
         ],
     )
-    def test_nil_disallowed(self, settings, deserializer):
+    def test_nil_disallowed(self, settings: Settings, deserializer: str) -> None:
         settings.MODERNRPC_XML_DESERIALIZER = {
             "class": deserializer,
             "kwargs": {"unmarshaller_kwargs": {"allow_none": False}},
         }
 
-        deserializer = XmlRpcHandler().deserializer
+        handler_deserializer = XmlRpcHandler().deserializer
         payload = inspect.cleandoc("""
             <?xml version="1.0"?>
             <methodCall>
@@ -388,7 +400,7 @@ class TestXmlRpcDeserializerKwargs:
         """)
 
         with pytest.raises(RPCInvalidRequest, match="cannot unmarshal <nil/> unless allow_none is enabled"):
-            deserializer.loads(payload)
+            handler_deserializer.loads(payload)
 
 
 class TestXmlRpcSerializer:
@@ -408,7 +420,14 @@ class TestXmlRpcSerializer:
             (datetime(2025, 1, 1, 5, 6, 8), "dateTime.iso8601", "20250101T05:06:08"),
         ],
     )
-    def test_result_scalar(self, xml_serializer, dummy_xmlrpc_request, data, expected_type, expected_result):
+    def test_result_scalar(
+        self,
+        xml_serializer: XmlRpcSerializer,
+        dummy_xmlrpc_request: XmlRpcRequest,
+        data: Any,
+        expected_type: str,
+        expected_result: Any,
+    ) -> None:
         expected_payload = f"""<?xml version='1.0'?>
             <methodResponse>
                 <params>
@@ -423,7 +442,7 @@ class TestXmlRpcSerializer:
             expected_payload,
         )
 
-    def test_result_null(self, xml_serializer, dummy_xmlrpc_request):
+    def test_result_null(self, xml_serializer: XmlRpcSerializer, dummy_xmlrpc_request: XmlRpcRequest) -> None:
         result = xml_serializer.dumps(XmlRpcSuccessResult(request=dummy_xmlrpc_request, data=None))
         expected = """<?xml version='1.0'?>
             <methodResponse>
@@ -436,7 +455,7 @@ class TestXmlRpcSerializer:
         """
         assert_xml_data_are_equal(result, expected)
 
-    def test_result_binary(self, xml_serializer, dummy_xmlrpc_request):
+    def test_result_binary(self, xml_serializer: XmlRpcSerializer, dummy_xmlrpc_request: XmlRpcRequest) -> None:
         res_data = b"\x04\x99\x54ufg\x10\xfe"
         b64_res_data = base64.b64encode(res_data).decode()
         result = xml_serializer.dumps(XmlRpcSuccessResult(request=dummy_xmlrpc_request, data=res_data))
@@ -453,7 +472,9 @@ class TestXmlRpcSerializer:
         """
         assert_xml_data_are_equal(result, expected)
 
-    def test_result_array_single_value(self, xml_serializer, dummy_xmlrpc_request):
+    def test_result_array_single_value(
+        self, xml_serializer: XmlRpcSerializer, dummy_xmlrpc_request: XmlRpcRequest
+    ) -> None:
         result = xml_serializer.dumps(XmlRpcSuccessResult(request=dummy_xmlrpc_request, data=["foo"]))
         expected = """<?xml version='1.0'?>
             <methodResponse>
@@ -479,7 +500,9 @@ class TestXmlRpcSerializer:
             (1, 3, 5, "foo", "bar", 3.14),
         ],
     )
-    def test_result_array_multiple_values(self, xml_serializer, dummy_xmlrpc_request, array_value):
+    def test_result_array_multiple_values(
+        self, xml_serializer: XmlRpcSerializer, dummy_xmlrpc_request: XmlRpcRequest, array_value: Any
+    ) -> None:
         result = xml_serializer.dumps(XmlRpcSuccessResult(request=dummy_xmlrpc_request, data=array_value))
         expected = """<?xml version='1.0'?>
             <methodResponse>
@@ -503,7 +526,9 @@ class TestXmlRpcSerializer:
         """
         assert_xml_data_are_equal(result, expected)
 
-    def test_result_dict_single_value(self, xml_serializer, dummy_xmlrpc_request):
+    def test_result_dict_single_value(
+        self, xml_serializer: XmlRpcSerializer, dummy_xmlrpc_request: XmlRpcRequest
+    ) -> None:
         result = xml_serializer.dumps(XmlRpcSuccessResult(request=dummy_xmlrpc_request, data={"pi": 3.14}))
         expected = """<?xml version='1.0'?>
             <methodResponse>
@@ -532,7 +557,13 @@ class TestXmlRpcSerializer:
             OrderedDict(a=12, b=["1", "2", "3"], final=None),
         ],
     )
-    def test_result_dict_multiple_values(self, request, xml_serializer, dummy_xmlrpc_request, struct_value):
+    def test_result_dict_multiple_values(
+        self,
+        request: pytest.FixtureRequest,
+        xml_serializer: XmlRpcSerializer,
+        dummy_xmlrpc_request: XmlRpcRequest,
+        struct_value: Any,
+    ) -> None:
         if "PythonXmlRpc" in xml_serializer.__class__.__name__ and isinstance(struct_value, OrderedDict):
             marker = pytest.mark.xfail(reason="PythonXmlRpcSerializer does not support OrderedDict", strict=True)
             request.applymarker(marker)
@@ -574,7 +605,7 @@ class TestXmlRpcSerializer:
         """
         assert_xml_data_are_equal(result, expected)
 
-    def test_result_error(self, xml_serializer, dummy_xmlrpc_request):
+    def test_result_error(self, xml_serializer: XmlRpcSerializer, dummy_xmlrpc_request: XmlRpcRequest) -> None:
         result = xml_serializer.dumps(
             XmlRpcErrorResult(request=dummy_xmlrpc_request, code=-65000, message="foo", data="abcdef")
         )
@@ -603,7 +634,9 @@ class TestXmlRpcSerializer:
         assert_xml_data_are_equal(result, expected)
 
     @pytest.mark.parametrize("val", [2**32, 2**31 + 5, -(2**31) - 1])
-    def test_int_overflow_result(self, xml_serializer, dummy_xmlrpc_request, val):
+    def test_int_overflow_result(
+        self, xml_serializer: XmlRpcSerializer, dummy_xmlrpc_request: XmlRpcRequest, val: Any
+    ) -> None:
         """XML-RPC enforce int value limits. Check that is correctly handled in backends"""
         result = XmlRpcSuccessResult(request=dummy_xmlrpc_request, data=val)
 
@@ -613,18 +646,20 @@ class TestXmlRpcSerializer:
 
 class TestXmlRpcSerializerKwargs:
     @pytest.mark.parametrize("data_with_none", [None, {"foo": None}, [15, None, 16]])
-    def test_builtin_xmlrpc_none_disallowed(self, dummy_xmlrpc_request, settings, data_with_none):
+    def test_builtin_xmlrpc_none_disallowed(
+        self, dummy_xmlrpc_request: XmlRpcRequest, settings: Settings, data_with_none: Any
+    ) -> None:
         # allow_none is set to True by default, allowing None values to be serialized
         # ensure that the correct exception is raised when the option is set to False
         settings.MODERNRPC_XML_SERIALIZER = {
             "class": "modernrpc.xmlrpc.backends.xmlrpc.PythonXmlRpcSerializer",
             "kwargs": {"dump_kwargs": {"allow_none": False}},
         }
-        serializer = XmlRpcHandler().serializer
+        handler_serializer = XmlRpcHandler().serializer
 
         result = XmlRpcSuccessResult(request=dummy_xmlrpc_request, data=data_with_none)
         with pytest.raises(RPCMarshallingError, match="cannot marshal None unless allow_none is enabled"):
-            serializer.dumps(result)
+            handler_serializer.dumps(result)
 
     @pytest.mark.parametrize(
         "serializer",
@@ -635,15 +670,17 @@ class TestXmlRpcSerializerKwargs:
         ],
     )
     @pytest.mark.parametrize("data_with_none", [None, {"foo": None}, [15, None, 16]])
-    def test_xmlrpc_marshaller_none_disallowed(self, dummy_xmlrpc_request, settings, serializer, data_with_none):
+    def test_xmlrpc_marshaller_none_disallowed(
+        self, dummy_xmlrpc_request: XmlRpcRequest, settings: Settings, serializer: str, data_with_none: Any
+    ) -> None:
         # allow_none is set to True by default, allowing None values to be serialized
         # ensure that the correct exception is raised when the option is set to False
         settings.MODERNRPC_XML_SERIALIZER = {
             "class": serializer,
             "kwargs": {"marshaller_kwargs": {"allow_none": False}},
         }
-        serializer = XmlRpcHandler().serializer
+        handler_serializer = XmlRpcHandler().serializer
 
         result = XmlRpcSuccessResult(request=dummy_xmlrpc_request, data=data_with_none)
         with pytest.raises(RPCMarshallingError, match="cannot marshal None unless allow_none is enabled"):
-            serializer.dumps(result)
+            handler_serializer.dumps(result)

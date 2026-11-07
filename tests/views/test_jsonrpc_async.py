@@ -3,17 +3,22 @@ import json
 import random
 import re
 from http import HTTPStatus
+from typing import TYPE_CHECKING, cast
 
 import pytest
 
+from modernrpc import RpcServer
 from modernrpc.exceptions import RPC_INTERNAL_ERROR, RPC_INVALID_PARAMS, RPC_METHOD_NOT_FOUND, RPC_PARSE_ERROR
-from tests.helpers import extract_jsonrpc_fault_data, extract_jsonrpc_success_result
+from tests.helpers import JsonRpcBatchRF, JsonRpcRF, extract_jsonrpc_fault_data, extract_jsonrpc_success_result
+
+if TYPE_CHECKING:
+    from unittest.mock import Mock
 
 
 @pytest.mark.usefixtures("all_json_deserializers", "all_json_serializers")
 @pytest.mark.parametrize("asynchronous", [False, True], ids=["sync", "async"])
 class TestJsonRpcAsyncView:
-    async def test_standard_call(self, jsonrpc_rf, server, asynchronous):
+    async def test_standard_call(self, jsonrpc_rf: JsonRpcRF, server: RpcServer, asynchronous: bool):
         method_name = "async_simple_procedure" if asynchronous else "simple_procedure"
         request = jsonrpc_rf(method_name=method_name, params=["bar", 42])
 
@@ -21,9 +26,9 @@ class TestJsonRpcAsyncView:
 
         assert response.status_code == HTTPStatus.OK
         assert extract_jsonrpc_success_result(response) == "foo='bar' bar=42"
-        server.on_error.assert_not_called()
+        cast("Mock", server.on_error).assert_not_called()
 
-    async def test_notification_call(self, jsonrpc_rf, server, asynchronous):
+    async def test_notification_call(self, jsonrpc_rf: JsonRpcRF, server: RpcServer, asynchronous: bool):
         method_name = "async_simple_procedure" if asynchronous else "simple_procedure"
         request = jsonrpc_rf(method_name=method_name, params=["bar", 42], is_notif=True)
 
@@ -31,9 +36,9 @@ class TestJsonRpcAsyncView:
 
         assert response.status_code == HTTPStatus.NO_CONTENT
         assert response.content == b""
-        server.on_error.assert_not_called()
+        cast("Mock", server.on_error).assert_not_called()
 
-    async def test_procedure_exception(self, jsonrpc_rf, server, asynchronous):
+    async def test_procedure_exception(self, jsonrpc_rf: JsonRpcRF, server: RpcServer, asynchronous: bool):
         method_name = "async_simple_procedure" if asynchronous else "simple_procedure"
         request = jsonrpc_rf(method_name=method_name, params=["bar", -2])
 
@@ -43,9 +48,9 @@ class TestJsonRpcAsyncView:
         code, message = extract_jsonrpc_fault_data(response)
         assert code == RPC_INTERNAL_ERROR
         assert message == "Internal error: bar cannot be negative"
-        server.on_error.assert_called_once()
+        cast("Mock", server.on_error).assert_called_once()
 
-    async def test_notification_exception(self, jsonrpc_rf, server, asynchronous):
+    async def test_notification_exception(self, jsonrpc_rf: JsonRpcRF, server: RpcServer, asynchronous: bool):
         method_name = "async_simple_procedure" if asynchronous else "simple_procedure"
         request = jsonrpc_rf(method_name=method_name, params=["bar", -2], is_notif=True)
 
@@ -53,9 +58,9 @@ class TestJsonRpcAsyncView:
 
         assert response.status_code == HTTPStatus.NO_CONTENT
         assert response.content == b""
-        server.on_error.assert_called_once()
+        cast("Mock", server.on_error).assert_called_once()
 
-    async def test_invalid_json_payload_request(self, jsonrpc_rf, server, asynchronous):
+    async def test_invalid_json_payload_request(self, jsonrpc_rf: JsonRpcRF, server: RpcServer, asynchronous: bool):
         method_name = "async_simple_procedure" if asynchronous else "simple_procedure"
         request = jsonrpc_rf(method_name=method_name, params=["bar", 11])
         request._body = request.body.replace(b'"', b"**")  # noqa: SLF001
@@ -66,9 +71,9 @@ class TestJsonRpcAsyncView:
         code, message = extract_jsonrpc_fault_data(response)
         assert code == RPC_PARSE_ERROR
         assert "Parse error, unable to read the request:" in message
-        server.on_error.assert_called_once()
+        cast("Mock", server.on_error).assert_called_once()
 
-    async def test_invalid_params(self, jsonrpc_rf, server, asynchronous):
+    async def test_invalid_params(self, jsonrpc_rf: JsonRpcRF, server: RpcServer, asynchronous: bool):
         method_name = "async_simple_procedure" if asynchronous else "simple_procedure"
         request = jsonrpc_rf(method_name=method_name, params=["bar", "baz", -111])
 
@@ -80,9 +85,9 @@ class TestJsonRpcAsyncView:
         assert re.match(
             rf"Invalid parameters: [\w.<>]*{method_name}\(\) takes 2 positional arguments but 3 were given", message
         )
-        server.on_error.assert_called_once()
+        cast("Mock", server.on_error).assert_called_once()
 
-    async def test_invalid_result(self, jsonrpc_rf, server, asynchronous):
+    async def test_invalid_result(self, jsonrpc_rf: JsonRpcRF, server: RpcServer, asynchronous: bool):
         method_name = "async_unserializable_result_procedure" if asynchronous else "unserializable_result_procedure"
         request = jsonrpc_rf(method_name=method_name, params=[], req_id=33)
 
@@ -92,9 +97,9 @@ class TestJsonRpcAsyncView:
         code, message = extract_jsonrpc_fault_data(response)
         assert code == RPC_INTERNAL_ERROR
         assert "Unable to serialize result data: {'id': 33, 'jsonrpc': '2.0', 'result': Ellipsis}" in message
-        server.on_error.assert_called_once()
+        cast("Mock", server.on_error).assert_called_once()
 
-    async def test_system_list_methods(self, jsonrpc_rf, server, asynchronous):
+    async def test_system_list_methods(self, jsonrpc_rf: JsonRpcRF, server: RpcServer, asynchronous: bool):
         request = jsonrpc_rf(method_name="system.listMethods")
 
         response = await server.async_view(request)
@@ -111,9 +116,9 @@ class TestJsonRpcAsyncView:
             "async_unserializable_result_procedure",
             "async_cancelled_procedure",
         ]
-        server.on_error.assert_not_called()
+        cast("Mock", server.on_error).assert_not_called()
 
-    async def test_system_method_signature(self, jsonrpc_rf, server, asynchronous):
+    async def test_system_method_signature(self, jsonrpc_rf: JsonRpcRF, server: RpcServer, asynchronous: bool):
         method_name = "async_simple_procedure" if asynchronous else "simple_procedure"
         request = jsonrpc_rf(method_name="system.methodSignature", params=[method_name])
 
@@ -121,9 +126,9 @@ class TestJsonRpcAsyncView:
 
         assert response.status_code == HTTPStatus.OK
         assert extract_jsonrpc_success_result(response) == [["undef", "str", "int"]]
-        server.on_error.assert_not_called()
+        cast("Mock", server.on_error).assert_not_called()
 
-    async def test_system_method_help(self, jsonrpc_rf, server, asynchronous):
+    async def test_system_method_help(self, jsonrpc_rf: JsonRpcRF, server: RpcServer, asynchronous: bool):
         method_name = "async_simple_procedure" if asynchronous else "simple_procedure"
         request = jsonrpc_rf(method_name="system.methodHelp", params=[method_name])
 
@@ -134,9 +139,11 @@ class TestJsonRpcAsyncView:
             extract_jsonrpc_success_result(response)
             == "Return a simple string when the given 'bar' is positive, raise ValueError when it is negative"
         )
-        server.on_error.assert_not_called()
+        cast("Mock", server.on_error).assert_not_called()
 
-    async def test_system_method_signature_invalid_arg(self, jsonrpc_rf, server, asynchronous):
+    async def test_system_method_signature_invalid_arg(
+        self, jsonrpc_rf: JsonRpcRF, server: RpcServer, asynchronous: bool
+    ):
         request = jsonrpc_rf(method_name="system.methodSignature", params=["non_existant_method"])
 
         response = await server.async_view(request)
@@ -145,9 +152,9 @@ class TestJsonRpcAsyncView:
         code, message = extract_jsonrpc_fault_data(response)
         assert code == RPC_METHOD_NOT_FOUND
         assert message == 'Method not found: "non_existant_method"'
-        server.on_error.assert_called_once()
+        cast("Mock", server.on_error).assert_called_once()
 
-    async def test_system_method_help_invalid_arg(self, jsonrpc_rf, server, asynchronous):
+    async def test_system_method_help_invalid_arg(self, jsonrpc_rf: JsonRpcRF, server: RpcServer, asynchronous: bool):
         request = jsonrpc_rf(method_name="system.methodHelp", params=["non_existant_method"])
 
         response = await server.async_view(request)
@@ -156,9 +163,9 @@ class TestJsonRpcAsyncView:
         code, message = extract_jsonrpc_fault_data(response)
         assert code == RPC_METHOD_NOT_FOUND
         assert message == 'Method not found: "non_existant_method"'
-        server.on_error.assert_called_once()
+        cast("Mock", server.on_error).assert_called_once()
 
-    async def test_system_multicall_unavailable(self, jsonrpc_rf, server, asynchronous):
+    async def test_system_multicall_unavailable(self, jsonrpc_rf: JsonRpcRF, server: RpcServer, asynchronous: bool):
         mc_params = [
             [
                 {"methodName": "simple_procedure", "params": ("xxx", 20)},
@@ -173,13 +180,13 @@ class TestJsonRpcAsyncView:
         code, message = extract_jsonrpc_fault_data(response)
         assert code == RPC_METHOD_NOT_FOUND
         assert message == 'Method not found: "system.multicall"'
-        server.on_error.assert_called_once()
+        cast("Mock", server.on_error).assert_called_once()
 
 
 @pytest.mark.usefixtures("all_json_deserializers", "all_json_serializers")
 @pytest.mark.parametrize("asynchronous", [False, True], ids=["sync", "async"])
 class TestJsonRpcAsyncBatch:
-    async def test_jsonrpc_batch_basics(self, jsonrpc_batch_rf, server, asynchronous):
+    async def test_jsonrpc_batch_basics(self, jsonrpc_batch_rf: JsonRpcBatchRF, server: RpcServer, asynchronous: bool):
         method_name = "async_simple_procedure" if asynchronous else "simple_procedure"
         request = jsonrpc_batch_rf(
             requests=[(method_name, (chr(i), random.randint(-8, 12)), False) for i in range(97, 123)]
@@ -191,9 +198,11 @@ class TestJsonRpcAsyncBatch:
         data = json.loads(response.content)
         assert isinstance(data, list)
         assert len(data) == 26
-        server.on_error.assert_called()
+        cast("Mock", server.on_error).assert_called()
 
-    async def test_jsonrpc_batch_all_notif(self, jsonrpc_batch_rf, server, asynchronous):
+    async def test_jsonrpc_batch_all_notif(
+        self, jsonrpc_batch_rf: JsonRpcBatchRF, server: RpcServer, asynchronous: bool
+    ):
         method_name = "async_simple_procedure" if asynchronous else "simple_procedure"
         request = jsonrpc_batch_rf(
             requests=[(method_name, (chr(i), random.randint(-8, 12)), True) for i in range(97, 123)]
@@ -203,13 +212,15 @@ class TestJsonRpcAsyncBatch:
 
         assert response.status_code == HTTPStatus.NO_CONTENT
         assert response.content == b""
-        server.on_error.assert_called()
+        cast("Mock", server.on_error).assert_called()
 
 
 @pytest.mark.usefixtures("all_json_deserializers", "all_json_serializers")
 class TestJsonRpcAsyncBatchCancellation:
     @pytest.mark.parametrize("is_notif", [False, True], ids=["request", "notification"])
-    async def test_jsonrpc_batch_cancelled_procedure(self, jsonrpc_batch_rf, server, is_notif):
+    async def test_jsonrpc_batch_cancelled_procedure(
+        self, jsonrpc_batch_rf: JsonRpcBatchRF, server: RpcServer, is_notif: bool
+    ):
         """Ensure a task cancellation raised by one procedure of a batch is propagated, not converted to an RPC error"""
         request = jsonrpc_batch_rf(
             requests=[
@@ -222,4 +233,4 @@ class TestJsonRpcAsyncBatchCancellation:
         with pytest.raises(asyncio.CancelledError):
             await server.async_view(request)
 
-        server.on_error.assert_not_called()
+        cast("Mock", server.on_error).assert_not_called()

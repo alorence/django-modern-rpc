@@ -4,10 +4,10 @@ math = RpcNamespace()
 
 
 @math.register_procedure
-def add(*args: float):
+def add(*args: float) -> float:
     return sum(args)
 
 
 @math.register_procedure
-def divide(a: float, b: float):
+def divide(a: float, b: float) -> float:
     return a / b

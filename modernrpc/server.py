@@ -42,7 +42,7 @@ class RegistryMixin:
         protocol: Protocol = Protocol.ALL,
         auth: AuthPredicateType = NOT_SET,
         context_target: str | None = None,
-    ) -> Callable:
+    ) -> Callable[..., Any]:
         """
         Registers a procedure for handling RPC (Remote Procedure Call) requests. This function can be used as a
         decorator to register the given callable function as an RPC procedure.
@@ -110,7 +110,7 @@ class RpcServer(RegistryMixin):
             lambda cls: check_flags_compatibility(cls.protocol, supported_protocol),
             (import_string(klass) for klass in settings.MODERNRPC_HANDLERS),
         )
-        self.handlers: list[RpcHandler] = [klass() for klass in handler_classes]
+        self.handlers: list[RpcHandler[Any]] = [klass() for klass in handler_classes]
 
         if register_system_procedures:
             system_namespace = import_string(SYSTEM_NAMESPACE_DOTTED_PATH)
@@ -159,7 +159,7 @@ class RpcServer(RegistryMixin):
 
         raise RPCMethodNotFound(name) from None
 
-    def get_request_handler(self, request: HttpRequest) -> RpcHandler | None:
+    def get_request_handler(self, request: HttpRequest) -> RpcHandler[Any] | None:
         """Return the first handler that can handle the given request, or None if no handler can handle it."""
         return first_true(self.handlers, pred=lambda handler: handler.can_handle(request), default=None)
 
@@ -215,7 +215,7 @@ class RpcServer(RegistryMixin):
         return None
 
     @staticmethod
-    def build_response(handler: RpcHandler, result_data: str | tuple[int, str]) -> HttpResponse:
+    def build_response(handler: RpcHandler[Any], result_data: str | tuple[int, str]) -> HttpResponse:
         """Build an HttpResponse instance from the given handler and result data."""
         if isinstance(result_data, tuple) and len(result_data) == 2:
             status, result_data = result_data

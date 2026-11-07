@@ -1,23 +1,27 @@
 import asyncio
+from typing import Any
 from unittest.mock import Mock
 
 import pytest
+from django.test import RequestFactory
 
 from modernrpc import Protocol, RpcRequestContext, RpcServer
 from modernrpc.exceptions import RPCException, RPCInternalError, RPCMethodNotFound
+from modernrpc.handler import RpcHandler
 from modernrpc.jsonrpc.handler import JsonRpcHandler
+from modernrpc.types import RpcErrorResult
 from modernrpc.xmlrpc.handler import XmlRpcHandler
 
 
 @pytest.fixture
-def mocked_request_context():
+def mocked_request_context() -> Mock:
     return Mock(spec=RpcRequestContext)
 
 
 class TestRpcServerErrorHandling:
     """Tests for RpcServer error handling mechanism."""
 
-    def test_default_error_handling_rpc_exception(self, mocked_request_context):
+    def test_default_error_handling_rpc_exception(self, mocked_request_context: Mock) -> None:
         """Test that RpcServer.on_error returns RPCException as is."""
         server = RpcServer()
 
@@ -28,7 +32,7 @@ class TestRpcServerErrorHandling:
         assert result.code == -32601
         assert "Method not found" in result.message
 
-    def test_default_error_handling_standard_exception(self, mocked_request_context):
+    def test_default_error_handling_standard_exception(self, mocked_request_context: Mock) -> None:
         """Test that RpcServer.on_error wraps standard exceptions in RPCInternalError."""
         server = RpcServer()
 
@@ -40,7 +44,7 @@ class TestRpcServerErrorHandling:
         assert "Internal error" in result.message
         assert "Test error message" in result.message
 
-    def test_custom_error_handler(self, mocked_request_context):
+    def test_custom_error_handler(self, mocked_request_context: Mock) -> None:
         """Test that custom error handler is called and its result is used."""
         custom_handler = Mock(side_effect=RPCException(-1000, "Custom error"))
         server = RpcServer(error_handler=custom_handler)
@@ -52,7 +56,7 @@ class TestRpcServerErrorHandling:
         assert result.code == -1000
         assert result.message == "Custom error"
 
-    def test_custom_error_handler_returns_none(self, mocked_request_context):
+    def test_custom_error_handler_returns_none(self, mocked_request_context: Mock) -> None:
         """Test that when custom error handler returns None, default handling is used."""
         custom_handler = Mock(return_value=None)
         server = RpcServer(error_handler=custom_handler)
@@ -73,7 +77,9 @@ class TestRpcServerErrorHandling:
             (Protocol.XML_RPC, XmlRpcHandler(), "application/xml"),
         ],
     )
-    def test_error_handling_integration_with_handler(self, rf, protocol, handler, content_type):
+    def test_error_handling_integration_with_handler(
+        self, rf: RequestFactory, protocol: Protocol, handler: RpcHandler[Any], content_type: str
+    ) -> None:
         """Test integration of error handling with request handlers."""
         # Create a server with a custom error handler
         custom_handler = Mock(side_effect=RPCException(-1000, "Custom error"))
@@ -83,15 +89,14 @@ class TestRpcServerErrorHandling:
         context = RpcRequestContext(request, server, handler, protocol)
 
         # Create a mock request object
-        mocked_rpc_request = Mock()
-        mocked_rpc_request.method_name = "non_existent_method"
-        mocked_rpc_request.args = []
+        mocked_rpc_request = Mock(method_name="non_existent_method", args=[])
 
         # Process the request
         result = handler.process_single_request(mocked_rpc_request, context)
 
         # Verify that the error handler was called
         custom_handler.assert_called_once()
+        assert isinstance(result, RpcErrorResult)
         assert result.code == -1000
         assert result.message == "Custom error"
 
@@ -102,7 +107,9 @@ class TestRpcServerErrorHandling:
             (Protocol.XML_RPC, XmlRpcHandler(), "application/xml"),
         ],
     )
-    async def test_task_cancellation_is_propagated(self, rf, protocol, handler, content_type):
+    async def test_task_cancellation_is_propagated(
+        self, rf: RequestFactory, protocol: Protocol, handler: RpcHandler[Any], content_type: str
+    ):
         """Test that asyncio.CancelledError raised from a procedure is not converted into an RPC error."""
         custom_handler = Mock()
         server = RpcServer(error_handler=custom_handler)
@@ -114,10 +121,7 @@ class TestRpcServerErrorHandling:
         request = rf.post("/rpc", content_type=content_type)
         context = RpcRequestContext(request, server, handler, protocol)
 
-        mocked_rpc_request = Mock()
-        mocked_rpc_request.method_name = "cancelled"
-        mocked_rpc_request.args = []
-        mocked_rpc_request.kwargs = {}
+        mocked_rpc_request = Mock(method_name="cancelled", args=[], kwargs={})
 
         with pytest.raises(asyncio.CancelledError):
             await handler.aprocess_single_request(mocked_rpc_request, context)

@@ -85,7 +85,7 @@ def build_test_matrix():
 
 @nox.session(name="tests", venv_backend="uv")
 @nox.parametrize(["python", "django"], build_test_matrix())
-def tests(session, python, django):
+def tests(session: nox.Session, python: str, django: str):
     """Execute the test suite using pytest"""
     env = {"UV_PROJECT_ENVIRONMENT": session.virtualenv.location}
     session.run_install("uv", "sync", "-p", python, "--no-install-package", "django", env=env)
@@ -98,14 +98,14 @@ def tests(session, python, django):
 
 
 @nox.session(name="tests:current-venv", venv_backend="none", default=False, tags=["tests"])
-def tests_current_venv(session):
+def tests_current_venv(session: nox.Session):
     """Run tests in the current virtualenv only"""
     post_args = session.posargs or []
     session.run("uv", "run", "pytest", "-n", "auto", *post_args)
 
 
 @nox.session(name="tests:coverage", venv_backend="none", default=False, tags=["tests"])
-def coverage(session):
+def coverage(session: nox.Session):
     """Run tests and generate a coverage report (in terminal by default, or in format passed as posarg)"""
     cov_type = "term"
     if session.posargs:
@@ -117,7 +117,7 @@ def coverage(session):
 
 
 @nox.session(name="tests:duration", venv_backend="none", default=False, tags=["tests"])
-def tests_duration(session):
+def tests_duration(session: nox.Session):
     """Run tests and report the 20 slowest tests"""
     session.run("uv", "run", "pytest", "--durations=20")
 
@@ -128,7 +128,7 @@ bench_tags = [[py.tag] for py in Python if is_test_enabled_on_cicd(py)]
 
 @nox.session(name="benchmarks", venv_backend="uv", default=False, tags=["benchmarks"])
 @nox.parametrize(["python"], bench_ids, tags=bench_tags)
-def benchmarks(session, python):
+def benchmarks(session: nox.Session, python: str):
     """Run benchmarks on all supported Python versions"""
     env = {"UV_PROJECT_ENVIRONMENT": session.virtualenv.location}
     session.run_install("uv", "sync", "-p", python, env=env)
@@ -136,37 +136,37 @@ def benchmarks(session, python):
 
 
 @nox.session(name="benchmarks:current-venv", venv_backend="none", default=False, tags=["benchmarks"])
-def benchmarks_current_venv(session):
+def benchmarks_current_venv(session: nox.Session):
     """Run benchmarks in the current virtualenv only"""
     session.run("uv", "run", "pytest", BENCHMARK_DIR, "--benchmark-enable")
 
 
 @nox.session(name="lint", venv_backend="none", tags=["ruff", "checks"])
-def lint(session):
+def lint(session: nox.Session):
     """Check the project for common issues"""
     session.run("uv", "run", "ruff", "check", ".")
 
 
 @nox.session(name="lint:fix", venv_backend="none", default=False, tags=["ruff"])
-def lint_fix(session):
+def lint_fix(session: nox.Session):
     """Check the project for common issues and apply obvious fixes"""
     session.run("uv", "run", "ruff", "check", ".", "--fix")
 
 
 @nox.session(name="format", venv_backend="none", default=False, tags=["ruff"])
-def format_apply(session):
+def format_apply(session: nox.Session):
     """Apply formatting rules on all files"""
     session.run("uv", "run", "ruff", "format", ".")
 
 
 @nox.session(name="format:check", venv_backend="none", tags=["ruff", "checks"])
-def format_check(session):
+def format_check(session: nox.Session):
     """Check that all files are well formated"""
     session.run("uv", "run", "ruff", "format", ".", "--check")
 
 
 @nox.session(venv_backend="uv", tags=["checks"])
-def ty(session):
+def ty(session: nox.Session):
     """Verify type hints"""
     env_vars = {"UV_PROJECT_ENVIRONMENT": session.virtualenv.location}
     session.run_install("uv", "sync", "--group", "type-checking", env=env_vars)
@@ -174,7 +174,7 @@ def ty(session):
 
 
 @nox.session(venv_backend="uv", tags=["checks"])
-def mypy(session):
+def mypy(session: nox.Session):
     """Verify type hints"""
     env_vars = {"UV_PROJECT_ENVIRONMENT": session.virtualenv.location}
     session.run_install("uv", "sync", "--group", "type-checking", env=env_vars)
@@ -182,7 +182,7 @@ def mypy(session):
 
 
 @nox.session(name="docs:build", venv_backend="uv", default=False)
-def docs_build(session):
+def docs_build(session: nox.Session):
     """Build the project's documentation"""
     env_vars = {"UV_PROJECT_ENVIRONMENT": session.virtualenv.location}
     session.run_install("uv", "sync", "--group", "docs", env=env_vars)
@@ -190,7 +190,7 @@ def docs_build(session):
 
 
 @nox.session(name="docs:serve", venv_backend="uv", default=False)
-def docs_serve(session):
+def docs_serve(session: nox.Session):
     """Continuously rebuild the project's documentation and serve it on localhost:8001"""
     env_vars = {"UV_PROJECT_ENVIRONMENT": session.virtualenv.location}
     session.run_install("uv", "sync", "--group", "docs", env=env_vars)
@@ -208,6 +208,6 @@ def docs_serve(session):
 
 
 @nox.session(name="docs:clean", venv_backend="none", default=False)
-def docs_cleanup(session):
+def docs_cleanup(session: nox.Session):
     """Cleanup previously built docs files"""
     shutil.rmtree(DOCS_BUILD_DIR)

@@ -18,7 +18,7 @@ class MsgspecDeserializer:
 
     def __init__(
         self,
-        unmarshaller_klass="modernrpc.jsonrpc.backends.marshalling.Unmarshaller",
+        unmarshaller_klass: str = "modernrpc.jsonrpc.backends.marshalling.Unmarshaller",
         unmarshaller_kwargs: CustomKwargs = None,
         load_kwargs: CustomKwargs = None,
     ):
@@ -45,7 +45,7 @@ class MsgspecSerializer:
 
     def __init__(
         self,
-        marshaller_klass="modernrpc.jsonrpc.backends.marshalling.Marshaller",
+        marshaller_klass: str = "modernrpc.jsonrpc.backends.marshalling.Marshaller",
         marshaller_kwargs: CustomKwargs = None,
         dump_kwargs: CustomKwargs = None,
     ):
