@@ -3,6 +3,7 @@ import shutil
 from enum import StrEnum
 from pathlib import Path
 
+# pyrefly: ignore[missing-import]
 import nox
 from packaging.version import Version
 

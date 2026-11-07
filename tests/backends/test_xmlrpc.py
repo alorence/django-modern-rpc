@@ -6,13 +6,12 @@ from datetime import datetime
 
 import pytest
 from helpers import assert_xml_data_are_equal
-from pytest_asyncio import fixture
 
 from modernrpc.exceptions import RPCInvalidRequest, RPCMarshallingError, RPCParseError
 from modernrpc.xmlrpc.handler import XmlRpcErrorResult, XmlRpcHandler, XmlRpcRequest, XmlRpcSuccessResult
 
 
-@fixture
+@pytest.fixture
 def dummy_xmlrpc_request():
     return XmlRpcRequest(method_name="foo.bar")
 

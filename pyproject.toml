@@ -111,6 +111,7 @@ type-checking = [
     "types-simplejson",
     "types-xmltodict",
     "types-ujson",
+    "pyrefly>=1.4.1",
 ]
 docs = [
     "sphinx >= 6.2; python_version < '3.11'",
@@ -182,6 +183,13 @@ exclude = [
     '^tests/.+$',
     '^docs/.+$',
 ]
+
+# ------------------------------------------------------------------
+# |                      Pyrefly settings
+# ------------------------------------------------------------------
+[tool.pyrefly]
+search-path = ["tests/"]
+
 
 # ------------------------------------------------------------------
 # |                         Ty settings
