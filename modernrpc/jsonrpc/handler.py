@@ -2,7 +2,7 @@ import asyncio
 import logging
 from dataclasses import dataclass, field
 from http import HTTPStatus
-from typing import TYPE_CHECKING, ClassVar, TypeAlias, cast
+from typing import TYPE_CHECKING, ClassVar, TypeAlias
 
 from django.utils.module_loading import import_string
 
@@ -83,7 +83,7 @@ class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
 
         # Parsed request is a list, we should handle it as a batch request
         if isinstance(parsed_request, list):
-            return self.process_batch_request(cast("list[JsonRpcRequest]", parsed_request), context)
+            return self.process_batch_request(parsed_request, context)
 
         # By default, handle a standard single request
         result = self.process_single_request(parsed_request, context)
@@ -116,7 +116,7 @@ class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
 
         # Parsed request is a list, we should handle it as a batch request
         if isinstance(parsed_request, list):
-            return await self.aprocess_batch_request(cast("list[JsonRpcRequest]", parsed_request), context)
+            return await self.aprocess_batch_request(parsed_request, context)
 
         # By default, handle a standard single request
         result = await self.aprocess_single_request(parsed_request, context)

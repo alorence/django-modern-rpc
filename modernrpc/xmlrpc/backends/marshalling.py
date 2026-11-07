@@ -111,7 +111,7 @@ class EtreeElementUnmarshaller(Generic[ElementType]):
         return float(self.stripped_text(elt))
 
     def load_str(self, elt: ElementType) -> str:
-        return str(self.stripped_text(elt))
+        return self.stripped_text(elt)
 
     def load_datetime(self, elt: ElementType) -> datetime:
         return datetime.strptime(self.stripped_text(elt), "%Y%m%dT%H:%M:%S")

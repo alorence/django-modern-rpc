@@ -113,7 +113,7 @@ class Unmarshaller:
 
     @staticmethod
     def load_str(data: str) -> str:
-        return str(data)
+        return data
 
     @staticmethod
     def load_datetime(data: str) -> datetime:
