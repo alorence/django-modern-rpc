@@ -98,6 +98,6 @@ Django URL route → RpcServer → RpcHandler (JSON-RPC or XML-RPC) → Procedur
 ## Code style
 
 - Line length: 120 characters
-- Formatter/linter: ruff (extensive rule set, see `pyproject.toml [tool.ruff.lint]`)
+- Formatter/linter: ruff (extensive rule set, see `tool.ruff.lint` section in `pyproject.toml`)
 - Bandit (S) rules disabled in `tests/`
 - Double quotes, LF line endings
