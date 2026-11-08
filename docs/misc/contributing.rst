@@ -223,7 +223,7 @@ Alternatively, use :command:`nox`:
 
 .. code-block:: bash
 
-   # Run linting with all supported Python versions
+   # Linting
    nox -s lint
 
    # Linting (apply basic fixes when possible)
@@ -235,12 +235,13 @@ Alternatively, use :command:`nox`:
 Type checking
 -------------
 
-.. important:: The requirements to use type checker are not installed by default. Make sure you ran
-   :command:`uv sync --group type-checking` if you want to run it directly with :command:`uv run`. Nox task will do it automatically
-
 .. _Pyrefly: https://pyrefly.org
 
-This project uses Pyrefly_ to check type hints consistency
+This project uses Pyrefly_ (``strict`` preset, configured in ``pyproject.toml``) to check type hints consistency on the
+whole codebase (library, tests, docs configuration and ``noxfile.py``).
+
+.. note:: The type checker and the stubs it needs belong to the ``type-checking`` dependency group, which is not
+   installed by :command:`uv sync`. The ``--group type-checking`` option in the command below installs it automatically.
 
 .. code-block:: bash
 
@@ -251,6 +252,8 @@ Alternatively, use :command:`nox`:
 .. code-block:: bash
 
    nox -s pyrefly
+
+Pyrefly is also executed by a pre-commit hook and by GitHub Actions on each push.
 
 Documentation
 -------------

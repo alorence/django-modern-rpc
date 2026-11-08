@@ -12,6 +12,10 @@
 - Added support for Python 3.15
 - Pyrefly (strict preset) is now the default type checker, replacing mypy and ty in nox sessions, pre-commit hooks
   and GitHub Actions workflows
+- `typing-extensions` (>= 4.14.0) is now a required dependency on all Python versions (it was previously required
+  only on Python < 3.11)
+- `modernrpc.constants.NOT_SET` is now a `typing_extensions.Sentinel` instance. The internal enum
+  `modernrpc.constants.Default` has been removed
 
 ## v2.1.0
 
