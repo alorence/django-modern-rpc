@@ -1,5 +1,14 @@
 ---
 engines:
+  agentlinter:
+    exclude_paths:
+      - "AGENTS.md"
+      - "CLAUDE.md"
+  markdownlint:
+    exclude_paths:
+      - "CHANGELOG.md"
+      - "AGENTS.md"
+      - "CLAUDE.md"
   bandit:
     exclude_paths:
       - "tests/**"
@@ -7,10 +16,6 @@ engines:
     exclude_paths:
       - "tests/**"
       - "uv.lock"
-  markdownlint:
-    exclude_paths:
-      - "CHANGELOG.md"
-      - "CLAUDE.md"
   prospector:
     exclude_paths:
       - "tests/**"
