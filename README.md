@@ -29,7 +29,8 @@ The following Django / Python versions are supported, according to [Django Insta
 | Django 6.0 |  🔴  |  🔴  |  🟢  |  🟢  |  🟢  |  🟢  |
 | Django 6.1 |  🔴  |  🔴  |  🟢  |  🟢  |  🟢  |  🟢  |
 
-To enforce security, [defusedxml](https://pypi.org/project/defusedxml/) will be installed as a dependency.
+To enforce security, [defusedxml](https://pypi.org/project/defusedxml/) will be installed as a dependency, along with
+[typing-extensions](https://pypi.org/project/typing-extensions/).
 
 ## Quickstart
 
