@@ -1,6 +1,6 @@
 import logging
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING, ClassVar, TypeAlias
 
 from django.utils.module_loading import import_string
 
@@ -20,9 +20,9 @@ logger = logging.getLogger(__name__)
 class XmlRpcRequest(RpcRequest): ...
 
 
-XmlRpcSuccessResult = RpcSuccessResult[XmlRpcRequest]
-XmlRpcErrorResult = RpcErrorResult[XmlRpcRequest]
-XmlRpcResult = XmlRpcSuccessResult | XmlRpcErrorResult
+XmlRpcSuccessResult: TypeAlias = RpcSuccessResult[XmlRpcRequest]
+XmlRpcErrorResult: TypeAlias = RpcErrorResult[XmlRpcRequest]
+XmlRpcResult: TypeAlias = XmlRpcSuccessResult | XmlRpcErrorResult
 
 
 class XmlRpcHandler(RpcHandler[XmlRpcRequest]):

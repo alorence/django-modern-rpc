@@ -1,10 +1,10 @@
 from collections.abc import Awaitable, Callable, Sequence
 from dataclasses import dataclass, field
-from typing import Any, Generic, Literal, TypeAlias, TypeVar
+from typing import Any, Generic, TypeAlias, TypeVar
 
 from django.http import HttpRequest
 
-from modernrpc.constants import Default
+from modernrpc.constants import NOT_SET
 
 
 @dataclass
@@ -41,6 +41,6 @@ DictStrAny: TypeAlias = dict[str, Any]
 CustomKwargs: TypeAlias = DictStrAny | None
 
 AuthPredicate: TypeAlias = Callable[[HttpRequest], Any]
-AuthPredicateType: TypeAlias = Literal[Default.NOT_SET] | AuthPredicate | Sequence[AuthPredicate] | None
+AuthPredicateType: TypeAlias = NOT_SET | AuthPredicate | Sequence[AuthPredicate] | None
 
 FuncOrCoro: TypeAlias = Callable[..., Any] | Callable[..., Awaitable[Any]]
