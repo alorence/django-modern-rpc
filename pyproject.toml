@@ -9,12 +9,6 @@ license = "MIT"
 license-files = ["LICENSE.txt"]
 readme = "README.md"
 
-authors = [
-    { name = "Antoine Lorence", email = "antoine.lorence@gmail.com" }
-]
-repository = "https://github.com/alorence/django-modern-rpc"
-documentation = "https://django-modern-rpc.readthedocs.io"
-
 classifiers = [
     "Programming Language :: Python",
     "Development Status :: 5 - Production/Stable",
@@ -46,6 +40,17 @@ dependencies = [
     "typing-extensions >= 4.14.0",
 ]
 
+[[project.authors]]
+name = "Antoine Lorence"
+email = "antoine.lorence@gmail.com"
+
+[project.urls]
+Repository = "https://github.com/alorence/django-modern-rpc"
+Documentation = "https://django-modern-rpc.readthedocs.io"
+Changelog = "https://github.com/alorence/django-modern-rpc/blob/main/CHANGELOG.md"
+Issues = "https://github.com/alorence/django-modern-rpc/issues"
+Demo = "https://modernrpc.fly.dev"
+
 [project.optional-dependencies]
 docutils = ["docutils"]
 markdown = ["markdown"]
@@ -56,10 +61,6 @@ simplejson = ["simplejson"]
 rapidjson = ["python-rapidjson"]
 xmltodict = ["xmltodict"]
 lxml = ["lxml"]
-
-[project.urls]
-"Bug Tracker" = "https://github.com/alorence/django-modern-rpc/issues"
-"Demo" = "https://modernrpc.fly.dev"
 
 [build-system]
 requires = ["uv_build>=0.12.0,<0.14.0"]

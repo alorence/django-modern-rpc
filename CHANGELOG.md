@@ -5,6 +5,9 @@
 ### Improvements
 
 - A new JSON-RPC backend based on the third party library msgspec has been added.
+- Incoming JSON-RPC requests are now validated more strictly: a request that is not a JSON object, or whose "method"
+  member is not a string, now returns an Invalid Request error (`-32600`). A method name that cannot be looked up
+  (list, dict...) returns a Method Not Found error (`-32601`).
 
 ### Misc
 
