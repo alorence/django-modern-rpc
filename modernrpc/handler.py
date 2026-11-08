@@ -31,14 +31,15 @@ class RpcHandler(ABC, Generic[RequestType]):
         """
         return getattr(request, "content_type", "").lower() in cls.valid_content_types
 
-    # @abc.abstractmethod
     def build_success_result(self, request: RequestType, data: Any) -> RpcSuccessResult[RequestType]:
+        """Build a RpcSuccessResult for the given request. Subclass may override this method to customize the output"""
         return self.success_result_type(request=request, data=data)
 
-    # @abc.abstractmethod
     def build_error_result(
         self, request: RequestType, code: int, message: str, data: Any = None
     ) -> RpcErrorResult[RequestType]:
+        """Build a RpcErrorResult from the given request with given code and message. Subclasses may override this
+        method to customize the output or execute additional code."""
         return self.error_result_type(request=request, code=code, message=message, data=data)
 
     def process_single_request(

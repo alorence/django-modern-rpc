@@ -624,7 +624,7 @@ dependencies = [
     { name = "defusedxml" },
     { name = "django", version = "5.2.19", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "django", version = "6.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
-    { name = "typing-extensions", marker = "python_full_version < '3.11'" },
+    { name = "typing-extensions" },
 ]
 
 [package.optional-dependencies]
@@ -724,7 +724,7 @@ requires-dist = [
     { name = "orjson", marker = "extra == 'orjson'" },
     { name = "python-rapidjson", marker = "extra == 'rapidjson'" },
     { name = "simplejson", marker = "extra == 'simplejson'" },
-    { name = "typing-extensions", marker = "python_full_version < '3.11'", specifier = ">=4.12.0" },
+    { name = "typing-extensions", specifier = ">=4.14.0" },
     { name = "ujson", marker = "extra == 'ujson'" },
     { name = "xmltodict", marker = "extra == 'xmltodict'" },
 ]

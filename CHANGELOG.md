@@ -10,6 +10,8 @@
 
 - Added support for Django 6.1
 - Added support for Python 3.15
+- Pyrefly (strict preset) is now the default type checker, replacing mypy and ty in nox sessions, pre-commit hooks
+  and GitHub Actions workflows
 
 ## v2.1.0
 
