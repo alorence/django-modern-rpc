@@ -116,13 +116,13 @@ def extract_xmlrpc_fault_data(response: HttpResponse) -> tuple[int, str]:
 def extract_jsonrpc_success_result(response: HttpResponse) -> Any:
     try:
         response_data = json.loads(response.content)
-    except JSONDecodeError:
-        pytest.fail(f"Unable to parse JSON payload:\n{response.content.decode()}")
+    except JSONDecodeError as e:
+        raise Failed(f"Unable to parse JSON payload:\n{response.content.decode()}") from e
 
     try:
         result = response_data["result"]
-    except KeyError:
-        pytest.fail(f'Unable to extract result from payload "{response_data}"')
+    except KeyError as e:
+        raise Failed(f'Unable to extract result from payload "{response_data}"') from e
 
     return result
 
@@ -130,24 +130,24 @@ def extract_jsonrpc_success_result(response: HttpResponse) -> Any:
 def extract_jsonrpc_fault_data(response: HttpResponse) -> tuple[int, str]:
     try:
         response_data = json.loads(response.content)
-    except JSONDecodeError:
-        pytest.fail(f"Unable to parse JSON payload:\n{response.content.decode()}")
+    except JSONDecodeError as e:
+        raise Failed(f"Unable to parse JSON payload:\n{response.content.decode()}") from e
 
     try:
         error_data = response_data["error"]
-    except KeyError:
-        pytest.fail(f'Unable to extract error data from payload "{response_data}"')
+    except KeyError as e:
+        raise Failed(f'Unable to extract error data from payload "{response_data}"') from e
 
     try:
         err_code = int(error_data["code"])
-    except KeyError:
-        pytest.fail(f'Unable to extract error code from payload "{response_data}"')
-    except ValueError:
-        pytest.fail(f'Unable to convert error code "{error_data["code"]}" to int')
+    except KeyError as e:
+        raise Failed(f'Unable to extract error code from payload "{response_data}"') from e
+    except ValueError as e:
+        raise Failed(f'Unable to convert error code "{error_data["code"]}" to int') from e
 
     try:
         message = error_data["message"]
-    except KeyError:
-        pytest.fail(f'Unable to extract error message from payload "{response_data}"')
+    except KeyError as e:
+        raise Failed(f'Unable to extract error message from payload "{response_data}"') from e
 
     return err_code, message
