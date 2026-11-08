@@ -1,5 +1,4 @@
 import asyncio
-from typing import Any
 from unittest.mock import Mock
 
 import pytest
@@ -9,7 +8,7 @@ from modernrpc import Protocol, RpcRequestContext, RpcServer
 from modernrpc.exceptions import RPCException, RPCInternalError, RPCMethodNotFound
 from modernrpc.handler import RpcHandler
 from modernrpc.jsonrpc.handler import JsonRpcHandler
-from modernrpc.types import RpcErrorResult
+from modernrpc.types import RpcErrorResult, RpcRequest
 from modernrpc.xmlrpc.handler import XmlRpcHandler
 
 
@@ -78,7 +77,7 @@ class TestRpcServerErrorHandling:
         ],
     )
     def test_error_handling_integration_with_handler(
-        self, rf: RequestFactory, protocol: Protocol, handler: RpcHandler[Any], content_type: str
+        self, rf: RequestFactory, protocol: Protocol, handler: RpcHandler[RpcRequest], content_type: str
     ) -> None:
         """Test integration of error handling with request handlers."""
         # Create a server with a custom error handler
@@ -108,7 +107,7 @@ class TestRpcServerErrorHandling:
         ],
     )
     async def test_task_cancellation_is_propagated(
-        self, rf: RequestFactory, protocol: Protocol, handler: RpcHandler[Any], content_type: str
+        self, rf: RequestFactory, protocol: Protocol, handler: RpcHandler[RpcRequest], content_type: str
     ):
         """Test that asyncio.CancelledError raised from a procedure is not converted into an RPC error."""
         custom_handler = Mock()

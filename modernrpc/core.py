@@ -20,6 +20,7 @@ from modernrpc.types import AuthPredicateType, FuncOrCoro
 if TYPE_CHECKING:
     from modernrpc.handler import RpcHandler
     from modernrpc.server import RpcServer
+    from modernrpc.types import RpcRequest
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +43,7 @@ class RpcRequestContext:
 
     request: "HttpRequest"
     server: "RpcServer"
-    handler: "RpcHandler[Any]"
+    handler: "RpcHandler[RpcRequest]"
     protocol: "Protocol"
     auth_result: Any = None
 

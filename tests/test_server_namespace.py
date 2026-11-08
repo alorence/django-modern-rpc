@@ -10,6 +10,7 @@ from modernrpc import Protocol, RpcNamespace, RpcServer
 from modernrpc.exceptions import AuthenticationError, RPCMethodNotFound
 from modernrpc.handler import RpcHandler
 from modernrpc.jsonrpc.handler import JsonRpcHandler
+from modernrpc.types import RpcRequest
 from modernrpc.xmlrpc.handler import XmlRpcHandler
 
 
@@ -58,7 +59,7 @@ class TestInitialRpcServer:
             (Protocol.XML_RPC, XmlRpcHandler),
         ],
     )
-    def test_specific_protocol_handlers(self, proto: Protocol, handler_klass: type[RpcHandler[Any]]) -> None:
+    def test_specific_protocol_handlers(self, proto: Protocol, handler_klass: type[RpcHandler[RpcRequest]]) -> None:
         assert len(RpcServer(supported_protocol=proto).handlers) == 1
         assert isinstance(RpcServer(supported_protocol=proto).handlers[0], handler_klass)
 
