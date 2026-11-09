@@ -1,6 +1,5 @@
 import json
 import random
-import re
 from http import HTTPStatus
 from typing import TYPE_CHECKING, cast
 
@@ -46,7 +45,7 @@ class TestJsonRpcSyncView:
         assert response.status_code == HTTPStatus.OK
         code, message = extract_jsonrpc_fault_data(response)
         assert code == RPC_INTERNAL_ERROR
-        assert message == "Internal error: bar cannot be negative"
+        assert message == "Internal error"
         cast("Mock", server.on_error).assert_called_once()
 
     def test_notification_exception(self, jsonrpc_rf: JsonRpcRF, server: RpcServer, asynchronous: bool) -> None:
@@ -81,9 +80,7 @@ class TestJsonRpcSyncView:
         assert response.status_code == HTTPStatus.OK
         code, message = extract_jsonrpc_fault_data(response)
         assert code == RPC_INVALID_PARAMS
-        assert re.match(
-            rf"Invalid parameters: [\w.<>]*{method_name}\(\) takes 2 positional arguments but 3 were given", message
-        )
+        assert message == "Invalid parameters: too many positional arguments"
         cast("Mock", server.on_error).assert_called_once()
 
     def test_invalid_result(self, jsonrpc_rf: JsonRpcRF, server: RpcServer, asynchronous: bool) -> None:
@@ -95,7 +92,7 @@ class TestJsonRpcSyncView:
         assert response.status_code == HTTPStatus.OK
         code, message = extract_jsonrpc_fault_data(response)
         assert code == RPC_INTERNAL_ERROR
-        assert "Unable to serialize result data: {'id': 33, 'jsonrpc': '2.0', 'result': Ellipsis}" in message
+        assert message == "Internal error"
         cast("Mock", server.on_error).assert_called_once()
 
     def test_system_list_methods(self, jsonrpc_rf: JsonRpcRF, server: RpcServer, asynchronous: bool) -> None:

@@ -309,8 +309,8 @@ class XmlToDictSerializer:
     def dumps(self, result: XmlRpcResult) -> str:
         try:
             structured_data = self.marshaller.result_to_dict(result)
-        except Exception as e:
-            raise RPCMarshallingError(result.data, e) from e
+        except Exception as exc:
+            raise RPCMarshallingError(result.data, exc) from exc
 
         output_stream = StringIO()
         xmltodict.unparse(structured_data, output=output_stream, **self.dump_kwargs)

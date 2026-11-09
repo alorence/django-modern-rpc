@@ -30,7 +30,7 @@ class TestXmlRpc:
             server.math.divide(9, 0)
 
         assert exc_info.value.faultCode == RPC_INTERNAL_ERROR
-        assert exc_info.value.faultString == "Internal error: division by zero"
+        assert exc_info.value.faultString == "Internal error"
 
     def test_basic_xmlrpc_multicall(self, live_server: LiveServer, server_path: str) -> None:
         with xmlrpc.client.ServerProxy(live_server + server_path, verbose=True) as server:
@@ -100,7 +100,7 @@ class TestJsonRpc:
         assert response.status_code == HTTPStatus.OK
         assert isinstance(data, jsonrpcclient.Error)
         assert data.code == RPC_INTERNAL_ERROR
-        assert data.message == "Internal error: division by zero"
+        assert data.message == "Internal error"
 
     def test_jsonrpc_batch_call(self, live_server: LiveServer, server_path: str) -> None:
         reqs = [
@@ -128,7 +128,7 @@ class TestJsonRpc:
 
         assert isinstance(data[3], jsonrpcclient.Error)
         assert data[3].code == RPC_INTERNAL_ERROR
-        assert data[3].message == "Internal error: division by zero"
+        assert data[3].message == "Internal error"
 
         assert isinstance(data[4], jsonrpcclient.Ok)
         assert data[4].result == 10

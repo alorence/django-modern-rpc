@@ -34,10 +34,48 @@ Here is a list of exceptions raised by django-modern-rpc
     RPCMarshallingError     -32603    Unable to serialize result data: [...]. Original exception: [...]
    ======================  ========  ===============
 
+.. note::
+   By default, ``RPCMarshallingError`` is returned to the client as a generic ``Internal error``, since its message
+   contains a representation of the procedure result. See :ref:`Internal errors`.
+
+Internal errors
+---------------
+
+Any exception raised by a procedure which is not a subclass of ``RPCException`` is considered unexpected (a bug, an
+unavailable database, a failing third-party API, etc.). Its message may contain implementation details that should
+not be disclosed to clients. For this reason, such exceptions are returned as a generic error:
+
+.. code-block:: json
+
+   {"jsonrpc": "2.0", "id": 1, "error": {"code": -32603, "message": "Internal error"}}
+
+The complete exception (message and traceback) is logged on the server side, using the ``modernrpc.server`` logger
+with ``ERROR`` level.
+
+During development, it may be convenient to get the original message in the response. Set
+``MODERNRPC_EXPOSE_INTERNAL_ERRORS = True`` in your settings, or enable it for a specific server only:
+
+.. code-block:: python
+
+   server = RpcServer(expose_internal_errors=settings.DEBUG)
+
+The response then contains the original message: ``Internal error: division by zero``.
+
+.. warning::
+   Do not expose internal errors in production.
+
+Exceptions inheriting from ``RPCException`` (builtin or custom ones) are always returned as is: they are considered
+part of your public API. To return a meaningful message for a specific Python exception, convert it using an error
+handler (see :ref:`Customize error handling` below).
+
+.. note::
+   Invalid parameters errors (``-32602``) are detected by checking the incoming arguments against the procedure
+   signature before calling it. A ``TypeError`` raised from inside a procedure is handled as an internal error.
+
 Custom exceptions
 -----------------
 
-When any exception is raised from a remote procedure, the client will get a default Internal Error as response. If you
+When any exception is raised from a remote procedure, the client will get a generic Internal Error as response. If you
 want to return a custom error code and message instead, simply define a custom exception. Create an ``RPCException``
 sub-classes and set a *faultCode* to ``RPC_CUSTOM_ERROR_BASE + N`` with ``N`` a unique number.
 
@@ -119,7 +157,7 @@ Below are a few practical examples.
 
 
 .. code-block:: python
-   :caption: Transform a specific exception into another one
+   :caption: Transform a specific exception into another one, with a message safe to return to the client
 
    from modernrpc.exceptions import RPCInvalidParams
 

@@ -72,17 +72,27 @@ class RPCInvalidParams(RPCException):
 class RPCInternalError(RPCException):
     """Raised by handlers if any standard exception is raised during the execution of the procedure."""
 
-    def __init__(self, message: str, data: Any = None):
-        err_msg = f"Internal error: {message}"
+    def __init__(self, message: str | None = None, data: Any = None):
+        err_msg = f"Internal error: {message}" if message else "Internal error"
         super().__init__(RPC_INTERNAL_ERROR, err_msg, data)
 
 
 class RPCMarshallingError(RPCException):
+    """
+    Raised by backends when the result of a procedure can't be serialized.
+
+    The message includes a representation of the result data, it may contain sensitive information. Unless
+    ``MODERNRPC_EXPOSE_INTERNAL_ERRORS`` is enabled, it is replaced by a generic message before being returned to the
+    client.
+    """
+
     def __init__(self, data: Any, exc: Exception):
         super().__init__(
             RPC_INTERNAL_ERROR,
             f"Unable to serialize result data: {data}. Original exception: {exc}",
         )
+        self.result_data = data
+        self.original_exc = exc
 
 
 class AuthenticationError(RPCException):

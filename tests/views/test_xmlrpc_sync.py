@@ -1,4 +1,3 @@
-import re
 from http import HTTPStatus
 from typing import TYPE_CHECKING, cast
 
@@ -34,7 +33,7 @@ class TestXmlRpcSyncView:
         assert response.status_code == HTTPStatus.OK
         code, message = extract_xmlrpc_fault_data(response)
         assert code == RPC_INTERNAL_ERROR
-        assert message == "Internal error: bar cannot be negative"
+        assert message == "Internal error"
         cast("Mock", server.on_error).assert_called_once()
 
     def test_invalid_xml_payload_request(self, xmlrpc_rf: XmlRpcRF, server: RpcServer, asynchronous: bool) -> None:
@@ -59,9 +58,7 @@ class TestXmlRpcSyncView:
         assert response.status_code == HTTPStatus.OK
         code, message = extract_xmlrpc_fault_data(response)
         assert code == RPC_INVALID_PARAMS
-        assert re.match(
-            rf"Invalid parameters: [\w.<>]*{method_name}\(\) takes 2 positional arguments but 3 were given", message
-        )
+        assert message == "Invalid parameters: too many positional arguments"
         cast("Mock", server.on_error).assert_called_once()
 
     def test_invalid_result(self, xmlrpc_rf: XmlRpcRF, server: RpcServer, asynchronous: bool) -> None:
@@ -73,7 +70,7 @@ class TestXmlRpcSyncView:
         assert response.status_code == HTTPStatus.OK
         code, message = extract_xmlrpc_fault_data(response)
         assert code == RPC_INTERNAL_ERROR
-        assert "Unable to serialize result data: Ellipsis" in message
+        assert message == "Internal error"
         cast("Mock", server.on_error).assert_called_once()
 
     def test_system_list_methods(self, xmlrpc_rf: XmlRpcRF, server: RpcServer, asynchronous: bool) -> None:
@@ -161,9 +158,9 @@ class TestXmlRpcSyncMulticall:
         assert response.status_code == HTTPStatus.OK
         assert extract_xmlrpc_success_result(response) == [
             ["foo='xxx' bar=20"],
-            {"faultCode": -32603, "faultString": "Internal error: bar cannot be negative"},
+            {"faultCode": -32603, "faultString": "Internal error"},
             ["foo='xxx' bar=20"],
-            {"faultCode": -32603, "faultString": "Internal error: bar cannot be negative"},
+            {"faultCode": -32603, "faultString": "Internal error"},
         ]
         assert cast("Mock", server_using_sync_or_async_multicall.on_error).call_count == 2
 

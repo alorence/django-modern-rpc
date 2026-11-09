@@ -14,6 +14,23 @@ Default encoding used to parse incoming requests when no charset is set in reque
 
 :Default:   ``utf-8``
 
+MODERNRPC_EXPOSE_INTERNAL_ERRORS
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Control whether the message of unexpected exceptions is returned to the client. When ``False`` (default), any
+exception which is not a subclass of ``RPCException`` (as well as serialization errors) is returned as a generic
+``Internal error`` (code ``-32603``), and its details are logged on the server side. When ``True``, the original
+exception message is returned to the client.
+
+This setting can be overridden for a specific server with the ``expose_internal_errors`` argument of ``RpcServer``.
+See :ref:`Internal errors` for details.
+
+:Default:   ``False``
+
+.. warning::
+   Exception messages may contain implementation details (SQL errors, file paths, third-party API responses, etc.).
+   Do not enable this setting in production.
+
 MODERNRPC_DOC_FORMAT
 ^^^^^^^^^^^^^^^^^^^^
 

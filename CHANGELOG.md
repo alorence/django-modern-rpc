@@ -8,6 +8,22 @@
 - Incoming JSON-RPC requests are now validated more strictly: a request that is not a JSON object, or whose "method"
   member is not a string, now returns an Invalid Request error (`-32600`). A method name that cannot be looked up
   (list, dict...) returns a Method Not Found error (`-32601`).
+- Procedure arguments are now checked against the procedure signature before the call. A `TypeError` raised from
+  inside a procedure is no longer mistaken for an Invalid Params error (`-32602`), it is now handled as an internal error.
+- New setting `MODERNRPC_EXPOSE_INTERNAL_ERRORS` and `RpcServer(expose_internal_errors=...)` argument to control
+  whether the message of unexpected exceptions is returned to clients.
+- Unexpected exceptions are now logged with their traceback (`modernrpc.server` logger, `ERROR` level).
+
+### Breaking Changes
+
+- **Security**: unexpected exceptions raised by procedures (any exception not inheriting from `RPCException`) and
+  serialization errors (`RPCMarshallingError`) are now returned to clients with a generic `Internal error` message
+  (code `-32603`). Previously, the original exception message was returned, possibly leaking implementation details
+  (SQL errors, file paths, etc.). Set `MODERNRPC_EXPOSE_INTERNAL_ERRORS = True` to restore the previous behavior, or
+  raise an `RPCException` subclass (directly or from an `error_handler`) to return a specific message.
+- Invalid Params error messages changed, as they are now built from the procedure signature check (e.g.
+  `Invalid parameters: too many positional arguments` instead of
+  `Invalid parameters: add() takes 2 positional arguments but 3 were given`).
 
 ### Misc
 

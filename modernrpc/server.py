@@ -14,7 +14,7 @@ from modernrpc.compat import async_csrf_exempt
 from modernrpc.config import settings
 from modernrpc.constants import NOT_SET, SYSTEM_NAMESPACE_DOTTED_PATH, Protocol
 from modernrpc.core import ProcedureWrapper, RpcRequestContext
-from modernrpc.exceptions import RPCException, RPCInternalError, RPCMethodNotFound
+from modernrpc.exceptions import RPCException, RPCInternalError, RPCMarshallingError, RPCMethodNotFound
 from modernrpc.handler import RpcHandler
 from modernrpc.helpers import check_flags_compatibility, first_true
 from modernrpc.types import AuthPredicateType, FuncOrCoro, RpcRequest
@@ -104,6 +104,7 @@ class RpcServer(RegistryMixin):
         error_handler: RpcErrorHandler | None = None,
         redirect_get_request_to: str | Callable[..., Any] | None = None,
         default_encoding: str = settings.MODERNRPC_DEFAULT_ENCODING,
+        expose_internal_errors: bool | None = None,
     ) -> None:
         super().__init__(auth)
         handler_classes = filter(
@@ -119,6 +120,9 @@ class RpcServer(RegistryMixin):
         self.error_handler = error_handler
         self.redirect_get_request_target = redirect_get_request_to
         self.default_encoding = default_encoding
+        self.expose_internal_errors: bool = (
+            settings.MODERNRPC_EXPOSE_INTERNAL_ERRORS if expose_internal_errors is None else expose_internal_errors
+        )
 
     def register_namespace(self, namespace: RpcNamespace, name: str | None = None) -> None:
         """Register all procedures from given namespace into the top-level server."""
@@ -165,9 +169,12 @@ class RpcServer(RegistryMixin):
 
     def on_error(self, exception: BaseException, context: RpcRequestContext) -> RPCException:
         """
-        If an error handler is defined, call it to run arbitrary code and return its not-None result.
-        Else, check the given exception type and return it if it is a subclass of RPCException.
-        Convert any other exception into RPCInternalError.
+        Convert the given exception into an RPCException used to build the error response.
+
+        If an error handler is defined, it is called first. If it raises an exception, this one replaces the original.
+        Then, RPCException subclasses are returned as is. Any other exception (and serialization errors) are logged and
+        converted into an RPCInternalError. Unless ``expose_internal_errors`` is enabled, the returned error has a
+        generic message to avoid leaking implementation details to the client.
         """
         if self.error_handler:
             try:
@@ -175,6 +182,13 @@ class RpcServer(RegistryMixin):
             except Exception as exc:  # ruff: ignore[BLE001]
                 exception = exc
 
+        if isinstance(exception, RPCException) and not isinstance(exception, RPCMarshallingError):
+            return exception
+
+        logger.error("Unexpected error while processing RPC request: %s", exception, exc_info=exception)
+
+        if not self.expose_internal_errors:
+            return RPCInternalError()
         if isinstance(exception, RPCException):
             return exception
         return RPCInternalError(message=str(exception))

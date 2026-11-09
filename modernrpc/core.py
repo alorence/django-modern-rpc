@@ -118,6 +118,23 @@ class ProcedureWrapper:
     def __hash__(self) -> int:
         return hash((self.func_or_coro, self.name, self.protocol))
 
+    def check_params(self, args: Iterable[Any], kwargs: dict[str, Any]) -> None:
+        """
+        Ensure the given args and kwargs can be passed to the procedure, or raise RPCInvalidParams.
+
+        This check is performed before calling the procedure, so a TypeError raised from inside the procedure is not
+        mistaken for an invalid parameters error (and its message is not returned to the client).
+        """
+        try:
+            signature = self.introspector.signature
+        except (TypeError, ValueError):
+            # Signature can't be determined (some builtins or C extensions): let the call itself fail if needed
+            return
+        try:
+            signature.bind(*args, **kwargs)
+        except TypeError as exc:
+            raise RPCInvalidParams(str(exc)) from None
+
     def check_permissions(self, request: HttpRequest) -> Any:
         """
         Call each predicate associated with the procedure to check authentication.
@@ -155,12 +172,8 @@ class ProcedureWrapper:
 
         function = async_to_sync(self.func_or_coro) if iscoroutinefunction(self.func_or_coro) else self.func_or_coro
 
-        try:
-            return function(*args, **kwargs)
-
-        except TypeError as exc:
-            # If given params cannot be transmitted properly to the procedure function
-            raise RPCInvalidParams(str(exc)) from None
+        self.check_params(args, kwargs)
+        return function(*args, **kwargs)
 
     async def aexecute(
         self,
@@ -184,11 +197,8 @@ class ProcedureWrapper:
 
         coro = self.func_or_coro if iscoroutinefunction(self.func_or_coro) else sync_to_async(self.func_or_coro)
 
-        try:
-            return await coro(*args, **kwargs)
-        except TypeError as exc:
-            # If given params cannot be transmitted properly to the procedure function
-            raise RPCInvalidParams(str(exc)) from None
+        self.check_params(args, kwargs)
+        return await coro(*args, **kwargs)
 
     @cached_property
     def is_available_in_xml_rpc(self):

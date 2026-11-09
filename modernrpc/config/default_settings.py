@@ -8,6 +8,11 @@ MODERNRPC_DOC_FORMAT = ""
 
 MODERNRPC_XMLRPC_ASYNC_MULTICALL = False
 
+# When False, unexpected exceptions raised while processing a request (i.e. not subclasses of RPCException, plus
+# serialization errors) are returned to the client with a generic "Internal error" message. Full details are logged.
+# When True, the original exception message is returned to the client. Do not enable this in production.
+MODERNRPC_EXPOSE_INTERNAL_ERRORS = False
+
 # List of handler classes used by default in any ``RpcServer`` instance
 MODERNRPC_HANDLERS = [
     "modernrpc.jsonrpc.handler.JsonRpcHandler",
