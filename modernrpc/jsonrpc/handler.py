@@ -77,12 +77,18 @@ class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
         except RPCException as exc:
             # We can't extract request_id from an incoming request. According to the spec, a
             # null 'id' should be used in response payload
-            fake_request = JsonRpcRequest(request_id=None, method_name="")
             rpc_exc = context.server.on_error(exc, context)
+            fake_request = JsonRpcRequest(request_id=None, method_name="")
             return self.serializer.dumps(self.build_error_result(fake_request, rpc_exc.code, rpc_exc.message))
 
         # Parsed request is a list, we should handle it as a batch request
         if isinstance(parsed_request, list):
+            try:
+                context.server.check_batch_size(len(parsed_request))
+            except RPCException as exc:
+                rpc_exc = context.server.on_error(exc, context)
+                fake_request = JsonRpcRequest(request_id=None, method_name="")
+                return self.serializer.dumps(self.build_error_result(fake_request, rpc_exc.code, rpc_exc.message))
             return self.process_batch_request(parsed_request, context)
 
         # By default, handle a standard single request
@@ -116,6 +122,12 @@ class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
 
         # Parsed request is a list, we should handle it as a batch request
         if isinstance(parsed_request, list):
+            try:
+                context.server.check_batch_size(len(parsed_request))
+            except RPCException as exc:
+                rpc_exc = context.server.on_error(exc, context)
+                fake_request = JsonRpcRequest(request_id=None, method_name="")
+                return self.serializer.dumps(self.build_error_result(fake_request, rpc_exc.code, rpc_exc.message))
             return await self.aprocess_batch_request(parsed_request, context)
 
         # By default, handle a standard single request

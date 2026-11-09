@@ -14,7 +14,13 @@ from modernrpc.compat import async_csrf_exempt
 from modernrpc.config import settings
 from modernrpc.constants import NOT_SET, SYSTEM_NAMESPACE_DOTTED_PATH, Protocol
 from modernrpc.core import ProcedureWrapper, RpcRequestContext
-from modernrpc.exceptions import RPCException, RPCInternalError, RPCMarshallingError, RPCMethodNotFound
+from modernrpc.exceptions import (
+    RPCException,
+    RPCInternalError,
+    RPCInvalidRequest,
+    RPCMarshallingError,
+    RPCMethodNotFound,
+)
 from modernrpc.handler import RpcHandler
 from modernrpc.helpers import check_flags_compatibility, first_true
 from modernrpc.types import AuthPredicateType, FuncOrCoro, RpcRequest
@@ -105,6 +111,7 @@ class RpcServer(RegistryMixin):
         redirect_get_request_to: str | Callable[..., Any] | None = None,
         default_encoding: str = settings.MODERNRPC_DEFAULT_ENCODING,
         expose_internal_errors: bool | None = None,
+        max_batch_size: int | NOT_SET | None = NOT_SET,
     ) -> None:
         super().__init__(auth)
         handler_classes = filter(
@@ -122,6 +129,9 @@ class RpcServer(RegistryMixin):
         self.default_encoding = default_encoding
         self.expose_internal_errors: bool = (
             settings.MODERNRPC_EXPOSE_INTERNAL_ERRORS if expose_internal_errors is None else expose_internal_errors
+        )
+        self.max_batch_size: int | None = (
+            settings.MODERNRPC_MAX_BATCH_SIZE if max_batch_size is NOT_SET else max_batch_size
         )
 
     def register_namespace(self, namespace: RpcNamespace, name: str | None = None) -> None:
@@ -166,6 +176,14 @@ class RpcServer(RegistryMixin):
     def get_request_handler(self, request: HttpRequest) -> RpcHandler[RpcRequest] | None:
         """Return the first handler that can handle the given request, or None if no handler can handle it."""
         return first_true(self.handlers, pred=lambda handler: handler.can_handle(request), default=None)
+
+    def check_batch_size(self, size: int) -> None:
+        """
+        Raise RPCInvalidRequest if the given number of calls exceeds the maximum allowed in a single request
+        (JSON-RPC batch request or XML-RPC system.multicall).
+        """
+        if self.max_batch_size is not None and size > self.max_batch_size:
+            raise RPCInvalidRequest(f"too many calls in a single request ({size}), maximum is {self.max_batch_size}")
 
     def on_error(self, exception: BaseException, context: RpcRequestContext) -> RPCException:
         """

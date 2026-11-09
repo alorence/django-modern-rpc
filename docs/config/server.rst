@@ -83,6 +83,9 @@ well as :ref:`Introspection procedures & multicall` for JSON-RPC specific implem
    procedure is executed sequentially. If you want to opt in for the asynchronous version (procedures executed
    concurrently using ``asyncio.gather()``), set ``settings.MODERNRPC_XMLRPC_ASYNC_MULTICALL = True``.
 
+.. note:: The number of calls in a single `system.multicall` is limited, and recursive multicall are forbidden.
+   See :ref:`Multicall` for details.
+
 
 Using the ``register_system_procedures`` argument, you can completely disable their automatic registration.
 

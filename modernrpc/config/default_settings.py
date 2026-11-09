@@ -13,6 +13,10 @@ MODERNRPC_XMLRPC_ASYNC_MULTICALL = False
 # When True, the original exception message is returned to the client. Do not enable this in production.
 MODERNRPC_EXPOSE_INTERNAL_ERRORS = False
 
+# Maximum number of calls allowed in a single JSON-RPC batch request or XML-RPC system.multicall call.
+# Set to None to disable the limit.
+MODERNRPC_MAX_BATCH_SIZE: int | None = 100
+
 # List of handler classes used by default in any ``RpcServer`` instance
 MODERNRPC_HANDLERS = [
     "modernrpc.jsonrpc.handler.JsonRpcHandler",

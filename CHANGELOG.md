@@ -13,6 +13,8 @@
 - New setting `MODERNRPC_EXPOSE_INTERNAL_ERRORS` and `RpcServer(expose_internal_errors=...)` argument to control
   whether the message of unexpected exceptions is returned to clients.
 - Unexpected exceptions are now logged with their traceback (`modernrpc.server` logger, `ERROR` level).
+- New setting `MODERNRPC_MAX_BATCH_SIZE` and `RpcServer(max_batch_size=...)` argument to limit the number of calls
+  in a single JSON-RPC batch request or XML-RPC `system.multicall`.
 
 ### Breaking Changes
 
@@ -24,6 +26,11 @@
 - Invalid Params error messages changed, as they are now built from the procedure signature check (e.g.
   `Invalid parameters: too many positional arguments` instead of
   `Invalid parameters: add() takes 2 positional arguments but 3 were given`).
+- **Security**: JSON-RPC batch requests and XML-RPC `system.multicall` are now limited to 100 calls by default.
+  A request exceeding the limit is rejected with an Invalid Request error (`-32600`), without executing any call. Use
+  `MODERNRPC_MAX_BATCH_SIZE` to change the limit, or set it to `None` to restore the previous behavior.
+- **Security**: recursive `system.multicall` (a multicall containing a call to `system.multicall`) is now forbidden.
+  Such a call returns an Invalid Request fault (`-32600`), other calls of the multicall are executed normally.
 
 ### Misc
 

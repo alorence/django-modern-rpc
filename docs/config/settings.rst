@@ -31,6 +31,22 @@ See :ref:`Internal errors` for details.
    Exception messages may contain implementation details (SQL errors, file paths, third-party API responses, etc.).
    Do not enable this setting in production.
 
+MODERNRPC_MAX_BATCH_SIZE
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Maximum number of calls allowed in a single request: number of items in a JSON-RPC batch request, or number of calls
+in an XML-RPC ``system.multicall``. A request exceeding this limit is rejected with an Invalid Request error
+(``-32600``) and none of its calls is executed. Set to ``None`` to disable the limit.
+
+This setting can be overridden for a specific server with the ``max_batch_size`` argument of ``RpcServer``.
+See :ref:`Batch requests` and :ref:`Multicall`.
+
+:Default:   ``100``
+
+.. warning::
+   Without limit, a small payload can trigger thousands of procedure executions. Only disable this limit if your
+   server is not exposed to untrusted clients.
+
 MODERNRPC_DOC_FORMAT
 ^^^^^^^^^^^^^^^^^^^^
 

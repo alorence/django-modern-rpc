@@ -45,6 +45,13 @@ responses, with the result for each individual request, or a corresponding fault
 It is available only to XML-RPC clients, since the JSON-RPC protocol specifies how to call multiple RPC methods
 at once using batch requests.
 
+To protect the server against amplification attacks, django-modern-rpc applies 2 restrictions:
+
+- The number of calls in a single multicall is limited by ``MODERNRPC_MAX_BATCH_SIZE`` (100 by default). When the limit
+  is exceeded, the multicall itself returns an Invalid Request fault (``-32600``) and none of the calls is executed.
+- A multicall cannot contain a call to ``system.multicall``. Such a call is not executed and gets its own Invalid
+  Request fault (``-32600``) in the results list; other calls are executed normally.
+
 .. _well defined: https://mirrors.talideon.com/articles/multicall.html
 .. _Python's ServerProxy: https://docs.python.org/3/library/xmlrpc.client.html#multicall-objects
 
@@ -105,6 +112,10 @@ Batch requests
 django-modern-rpc fully supports batch requests as defined in the spec. When a server exposes its async view, a batch
 request will execute procedures concurrently using ``asyncio.gather()``. When a server exposes the sync view,
 procedures are executed sequentially.
+
+The number of requests in a single batch is limited by ``MODERNRPC_MAX_BATCH_SIZE`` (100 by default, see
+:ref:`settings <MODERNRPC_MAX_BATCH_SIZE>`). When the limit is exceeded, a single Invalid Request error (``-32600``)
+with a ``null`` id is returned and none of the requests is executed.
 
 Error codes
 ^^^^^^^^^^^
