@@ -45,6 +45,10 @@ Example:
 
    server = RpcServer(auth=is_staff)
 
+.. warning::
+   This example relies on Django session authentication (``request.user``). RPC views are exempted from CSRF
+   protection, read :ref:`CSRF and session authentication` before using session-based predicates.
+
 2) Namespace level (default within a namespace)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -105,6 +109,10 @@ The first truthy result short‑circuits evaluation and authorizes the request; 
 
 In the example above, ``via_session`` is tried first, then ``via_token`` if needed.
 
+.. warning::
+   This example relies on Django session authentication (``request.user``). RPC views are exempted from CSRF
+   protection, read :ref:`CSRF and session authentication` before using session-based predicates.
+
 Accessing the authentication result in procedures
 -------------------------------------------------
 
@@ -135,6 +143,68 @@ Notes and best practices
 - Return a meaningful truthy object (e.g., the authenticated user, a claims dict, or a token string) to make it
   usable in your procedures via ``ctx.auth_result``.
 - Precedence: procedure auth > namespace auth > server auth.
+- Prefer header-based authentication (Basic, Bearer token, API key) over Django session. See
+  :ref:`CSRF and session authentication`.
+
+Security considerations
+-----------------------
+
+CSRF and session authentication
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+RPC views (``server.view`` and ``server.async_view``) are always exempted from Django's CSRF protection. This is
+required for an RPC API: most clients (``xmlrpc.client``, scripts, other servers, mobile apps) are not browsers and
+cannot provide a CSRF token.
+
+When authentication is based on HTTP headers (Basic auth, Bearer token, API key...), this is not a problem: a malicious
+web page cannot make the victim's browser add these headers automatically.
+
+When a predicate relies on the Django session (``request.user``), the session cookie **is** sent automatically by the
+browser, including with requests initiated by another website. In this case, the only remaining protections are:
+
+- **Content-Type check**: django-modern-rpc only accepts requests with an ``application/json`` (or variant),
+  ``text/xml`` or ``application/xml`` content type. A cross-site HTML form cannot send such a request.
+- **CORS preflight**: these content types are not "CORS-safelisted", so a cross-origin ``fetch()`` or
+  ``XMLHttpRequest`` triggers a preflight request first. By default, Django does not answer it with the required
+  ``Access-Control-Allow-*`` headers, and the browser does not send the actual request.
+
+These protections are effective by default, but they rely entirely on your CORS configuration. They are bypassed if:
+
+- your project allows credentialed cross-origin requests to the RPC endpoint from untrusted or overly broad origins,
+  for example with `django-cors-headers`_ configured with ``CORS_ALLOW_CREDENTIALS = True`` and
+  ``CORS_ALLOW_ALL_ORIGINS = True`` or wide regex patterns;
+- an allowed origin (for example another subdomain) is compromised or hosts untrusted content.
+
+In such a situation, a malicious page can call your procedures with the identity of a logged-in user.
+
+.. _django-cors-headers: https://github.com/adamchainz/django-cors-headers
+
+Recommendations:
+
+- **Prefer header-based authentication** for RPC endpoints. The helpers in ``modernrpc.auth`` (see :ref:`Utilities`
+  below) help extract credentials from the request:
+
+  .. code-block:: python
+
+     from django.contrib.auth import authenticate
+     from django.http import HttpRequest
+     from modernrpc import RpcServer
+     from modernrpc.auth import extract_http_basic_auth
+
+     def basic_auth_user(request: HttpRequest):
+         try:
+             username, password = extract_http_basic_auth(request)
+         except ValueError:
+             return None
+         return authenticate(request, username=username, password=password)
+
+     server = RpcServer(auth=basic_auth_user)
+
+- If you use session-based predicates (typically for a JavaScript client served from the same site), make sure the
+  RPC endpoint is not reachable through credentialed cross-origin requests: do not enable CORS with credentials on
+  this URL, or restrict ``CORS_ALLOWED_ORIGINS`` to origins you fully trust.
+- Keep Django's session cookie defaults (``SESSION_COOKIE_SAMESITE = "Lax"``) or make them stricter. ``SameSite``
+  prevents the cookie from being sent with requests from other sites, but not from other subdomains of the same site.
 
 Utilities
 ---------

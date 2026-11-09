@@ -42,6 +42,8 @@
   only on Python < 3.11)
 - `modernrpc.constants.NOT_SET` is now a `typing_extensions.Sentinel` instance. The internal enum
   `modernrpc.constants.Default` has been removed
+- Documentation: new "Security considerations" section in the authentication page, explaining the CSRF implications
+  of session-based authentication predicates (RPC views are CSRF-exempt) and recommending header-based authentication
 
 ## v2.1.0
 
