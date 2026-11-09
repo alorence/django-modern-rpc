@@ -93,11 +93,8 @@ html_theme_options: dict[str, Any] = {
     "analytics": {
         "google_analytics_id": "G-7KF8EXTF4W",
     },
-    "announcement": (
-        "⚠️ This is the modernrpc v2 documentation. If you installed a previous release, please refer to the "
-        'corresponding <a href="https://django-modern-rpc.readthedocs.io/v1.1.0/">v1.1.0</a> or '
-        '<a href="https://django-modern-rpc.readthedocs.io/v1.0.3/">v1.0.3</a> documentation.'
-    ),
+    # ruff: ignore[ERA001]
+    # "announcement": "Use this to show a message in the top of each page",
     "icon_links": [],
 }
 
