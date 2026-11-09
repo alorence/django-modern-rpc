@@ -1,13 +1,13 @@
 from collections.abc import Iterable
 from typing import Any, Protocol
 
-from modernrpc.jsonrpc.handler import JsonRpcRequest, JsonRpcResult
+from modernrpc.jsonrpc.handler import JsonRpcBatchItem, JsonRpcRequest, JsonRpcResult
 
 
 class JsonRpcDeserializer(Protocol):
     def __init__(self, **kwargs: Any): ...
 
-    def loads(self, data: str) -> JsonRpcRequest | list[JsonRpcRequest]: ...
+    def loads(self, data: str) -> JsonRpcRequest | list[JsonRpcBatchItem]: ...
 
 
 class JsonRpcSerializer(Protocol):

@@ -33,11 +33,16 @@ def extract_generic_token(request: HttpRequest, header_name: str, auth_type: str
 
 
 def extract_http_basic_auth(request: HttpRequest) -> tuple[str, str]:
-    """Extract HTTP Basic Auth credentials from a request object. Return a tuple with username and password"""
+    """
+    Extract HTTP Basic Auth credentials from a request object. Return a tuple with username and password.
+
+    As specified in RFC 7617, username and password are returned as they were encoded by the client: no
+    percent-decoding is applied.
+    """
     credentials = extract_generic_token(request, "Authorization", "Basic")
 
     uname, passwd = base64.b64decode(credentials).decode("utf-8").split(":", maxsplit=1)
-    return unquote(uname), unquote(passwd)
+    return uname, passwd
 
 
 extract_bearer_token: Callable[[HttpRequest], str] = functools.partial(

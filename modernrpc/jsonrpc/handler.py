@@ -9,7 +9,7 @@ from django.utils.module_loading import import_string
 from modernrpc import Protocol, RpcRequestContext
 from modernrpc.config import settings
 from modernrpc.constants import NOT_SET
-from modernrpc.exceptions import RPCException
+from modernrpc.exceptions import RPCException, RPCInvalidRequest
 from modernrpc.handler import RpcHandler
 from modernrpc.types import DictStrAny, RpcErrorResult, RpcRequest, RpcSuccessResult
 
@@ -42,6 +42,9 @@ class JsonRpcRequest(RpcRequest):
 JsonRpcSuccessResult: TypeAlias = RpcSuccessResult[JsonRpcRequest]
 JsonRpcErrorResult: TypeAlias = RpcErrorResult[JsonRpcRequest]
 JsonRpcResult: TypeAlias = JsonRpcSuccessResult | JsonRpcErrorResult
+
+# An item of a batch request: a valid request, or the error raised while validating the corresponding item
+JsonRpcBatchItem: TypeAlias = JsonRpcRequest | RPCInvalidRequest
 
 
 class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
@@ -142,11 +145,25 @@ class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
             rpc_exc = context.server.on_error(exc, context)
             return self.serializer.dumps(self.build_error_result(parsed_request, rpc_exc.code, rpc_exc.message))
 
+    def build_invalid_item_result(self, exc: RPCException, context: RpcRequestContext) -> JsonRpcResult:
+        """
+        Build the error result for an invalid item of a batch request. Since the request id can't be reliably
+        determined, a null id is used, as required by the JSON-RPC 2.0 specification.
+        """
+        rpc_exc = context.server.on_error(exc, context)
+        fake_request = JsonRpcRequest(request_id=None, method_name="")
+        return self.build_error_result(fake_request, rpc_exc.code, rpc_exc.message)
+
     def process_batch_request(
-        self, requests: list[JsonRpcRequest], context: RpcRequestContext
+        self, requests: list[JsonRpcBatchItem], context: RpcRequestContext
     ) -> str | tuple[HTTPStatus, str]:
         # Process each request and store corresponding results (success or error)
-        results: Iterator[JsonRpcResult] = (self.process_single_request(request, context) for request in requests)
+        results: Iterator[JsonRpcResult] = (
+            self.build_invalid_item_result(item, context)
+            if isinstance(item, RPCException)
+            else self.process_single_request(item, context)
+            for item in requests
+        )
 
         # Filter out notification results
         filtered_results = [result for result in results if not result.request.is_notification]
@@ -158,12 +175,17 @@ class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
         # Notifications-only batch request returns 204 no content
         return HTTPStatus.NO_CONTENT, ""
 
+    async def _aprocess_batch_item(self, item: JsonRpcBatchItem, context: RpcRequestContext) -> JsonRpcResult:
+        if isinstance(item, RPCException):
+            return self.build_invalid_item_result(item, context)
+        return await self.aprocess_single_request(item, context)
+
     async def aprocess_batch_request(
-        self, requests: list[JsonRpcRequest], context: RpcRequestContext
+        self, requests: list[JsonRpcBatchItem], context: RpcRequestContext
     ) -> str | tuple[HTTPStatus, str]:
         # Process each request and store corresponding results (success or error)
         results: list[JsonRpcResult] = await asyncio.gather(
-            *(self.aprocess_single_request(request, context) for request in requests)
+            *(self._aprocess_batch_item(item, context) for item in requests)
         )
 
         # Filter out notification results

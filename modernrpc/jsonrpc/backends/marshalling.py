@@ -3,7 +3,7 @@ from typing import overload
 
 from modernrpc.constants import NOT_SET
 from modernrpc.exceptions import RPCInvalidRequest
-from modernrpc.jsonrpc.handler import JsonRpcRequest, JsonRpcResult
+from modernrpc.jsonrpc.handler import JsonRpcBatchItem, JsonRpcRequest, JsonRpcResult
 from modernrpc.types import DictStrAny, RpcErrorResult
 
 
@@ -46,12 +46,33 @@ class Unmarshaller:
     def dict_to_request(self, structured_data: DictStrAny) -> JsonRpcRequest: ...
 
     @overload
-    def dict_to_request(self, structured_data: list[DictStrAny]) -> list[JsonRpcRequest]: ...
+    def dict_to_request(self, structured_data: list[DictStrAny]) -> list[JsonRpcBatchItem]: ...
 
-    def dict_to_request(self, structured_data: DictStrAny | list[DictStrAny]) -> JsonRpcRequest | list[JsonRpcRequest]:
+    def dict_to_request(
+        self, structured_data: DictStrAny | list[DictStrAny]
+    ) -> JsonRpcRequest | list[JsonRpcBatchItem]:
+        """
+        Convert the given structured data into a request object (single request), or a list of request objects
+        (batch request).
+
+        For a single request, RPCInvalidRequest is raised if the data is invalid. For a batch request, as required by
+        the JSON-RPC 2.0 specification, each invalid item is replaced in the returned list by the RPCInvalidRequest
+        instance describing the problem, so valid items can still be processed. An empty batch is invalid as a whole.
+        """
         if isinstance(structured_data, list):
-            return [self.dict_to_request(data) for data in structured_data]
+            if not structured_data:
+                raise RPCInvalidRequest("empty batch request")
+            return [self._batch_item_to_request(data) for data in structured_data]
 
+        return self._single_dict_to_request(structured_data)
+
+    def _batch_item_to_request(self, data: DictStrAny) -> JsonRpcBatchItem:
+        try:
+            return self._single_dict_to_request(data)
+        except RPCInvalidRequest as exc:
+            return exc
+
+    def _single_dict_to_request(self, structured_data: DictStrAny) -> JsonRpcRequest:
         self.validate_dict_request(structured_data)
 
         method_name = structured_data["method"]

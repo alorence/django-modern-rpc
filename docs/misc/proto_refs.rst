@@ -117,6 +117,11 @@ The number of requests in a single batch is limited by ``MODERNRPC_MAX_BATCH_SIZ
 :ref:`settings <MODERNRPC_MAX_BATCH_SIZE>`). When the limit is exceeded, a single Invalid Request error (``-32600``)
 with a ``null`` id is returned and none of the requests is executed.
 
+As required by the specification, when some items of a batch are invalid (not an object, missing or invalid
+``method``, unsupported ``jsonrpc`` version...), each of them gets its own Invalid Request error (``-32600``) with a
+``null`` id in the response list, while valid items are executed normally. An empty batch (``[]``) is rejected as a
+whole with a single Invalid Request error.
+
 Error codes
 ^^^^^^^^^^^
 

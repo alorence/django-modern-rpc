@@ -186,6 +186,8 @@ class TestJsonRpcDeserializer:
         requests = json_deserializer.loads(payload)
         assert isinstance(requests, list)
         assert len(requests) == 2
+        assert isinstance(requests[0], JsonRpcRequest)
+        assert isinstance(requests[1], JsonRpcRequest)
 
         assert requests[0].jsonrpc == "2.0"
         assert requests[0].method_name == "foo"
@@ -296,8 +298,40 @@ class TestJsonRpcDeserializer:
         ],
     )
     def test_batch_with_non_object_elements(self, json_deserializer: JsonRpcDeserializer, payload: Any) -> None:
-        with pytest.raises(RPCInvalidRequest):
-            json_deserializer.loads(payload)
+        """Invalid items of a batch are returned as RPCInvalidRequest instances, valid ones are still parsed"""
+        requests = json_deserializer.loads(payload)
+
+        assert isinstance(requests, list)
+        assert len(requests) == len(json.loads(payload))
+        for item, raw in zip(requests, json.loads(payload), strict=True):
+            if isinstance(raw, dict):
+                assert isinstance(item, JsonRpcRequest)
+            else:
+                assert isinstance(item, RPCInvalidRequest)
+                assert "Invalid request type: expected a JSON object" in item.message
+
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            '[{"jsonrpc": "2.0", "id": 1, "method": "foo"}, {"jsonrpc": "2.0", "id": 2}]',
+            '[{"jsonrpc": "2.0", "id": 1, "method": "foo"}, {"jsonrpc": "1.0", "id": 2, "method": "foo"}]',
+            '[{"jsonrpc": "2.0", "id": 1, "method": "foo"}, {"jsonrpc": "2.0", "id": 2, "method": 5}]',
+            '[{"jsonrpc": "2.0", "id": 1, "method": "foo"}, [{"jsonrpc": "2.0", "id": 2, "method": "foo"}]]',
+        ],
+        ids=["missing_method", "bad_version", "bad_method_type", "nested_batch"],
+    )
+    def test_batch_with_invalid_items(self, json_deserializer: JsonRpcDeserializer, payload: Any) -> None:
+        requests = json_deserializer.loads(payload)
+
+        assert isinstance(requests, list)
+        assert len(requests) == 2
+        assert isinstance(requests[0], JsonRpcRequest)
+        assert requests[0].method_name == "foo"
+        assert isinstance(requests[1], RPCInvalidRequest)
+
+    def test_empty_batch(self, json_deserializer: JsonRpcDeserializer) -> None:
+        with pytest.raises(RPCInvalidRequest, match="empty batch request"):
+            json_deserializer.loads("[]")
 
 
 class TestJsonRpcSerializer:

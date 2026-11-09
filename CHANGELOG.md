@@ -29,6 +29,15 @@
 - **Security**: JSON-RPC batch requests and XML-RPC `system.multicall` are now limited to 100 calls by default.
   A request exceeding the limit is rejected with an Invalid Request error (`-32600`), without executing any call. Use
   `MODERNRPC_MAX_BATCH_SIZE` to change the limit, or set it to `None` to restore the previous behavior.
+- `modernrpc.auth.extract_http_basic_auth()` no longer applies percent-decoding (`unquote()`) to the extracted username
+  and password, as specified by RFC 7617. A password like `p%40ss` was previously returned as `p@ss`. Clients
+  (including Python's `xmlrpc.client` and `requests`) already decode credentials found in URLs before sending them, so
+  this only affects clients sending percent-encoded credentials on purpose.
+- JSON-RPC batch requests containing invalid items are now handled as specified by JSON-RPC 2.0: each invalid item
+  gets its own Invalid Request error (`-32600`, `null` id) in the response list, and valid items are executed
+  normally. Previously, the whole batch was rejected with a single error. An empty batch (`[]`) now returns an
+  Invalid Request error instead of an empty response. Custom JSON-RPC deserializers/unmarshallers may now return
+  `RPCInvalidRequest` instances among the items of a batch (see `modernrpc.jsonrpc.handler.JsonRpcBatchItem`).
 - **Security**: recursive `system.multicall` (a multicall containing a call to `system.multicall`) is now forbidden.
   Such a call returns an Invalid Request fault (`-32600`), other calls of the multicall are executed normally.
 

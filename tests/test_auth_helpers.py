@@ -83,17 +83,20 @@ class TestExtractHttpBasicAuth:
         assert result_username == username
         assert result_password == password
 
-    def test_extract_quoted_credentials(self, rf: RequestFactory) -> None:
-        """Test that extract_http_basic_auth handles URL-encoded credentials correctly."""
-        username = quote("user with spaces")
-        password = quote("password with spaces")
+    @pytest.mark.parametrize(
+        ("username", "password"),
+        [
+            ("user with spaces", "password with spaces"),
+            ("john%40example.com", "p%40ss%3Aword"),
+            ("jöhn", "pässwörd:with:colons"),
+        ],
+    )
+    def test_credentials_are_not_percent_decoded(self, rf: RequestFactory, username: str, password: str) -> None:
+        """As specified in RFC 7617, credentials must be returned as is, without percent-decoding."""
         credentials = base64.b64encode(f"{username}:{password}".encode()).decode("utf-8")
         request = rf.get("/", headers={"Authorization": f"Basic {credentials}"})
 
-        result_username, result_password = extract_http_basic_auth(request)
-
-        assert result_username == "user with spaces"
-        assert result_password == "password with spaces"
+        assert extract_http_basic_auth(request) == (username, password)
 
     def test_missing_header(self, rf: RequestFactory) -> None:
         """Test that extract_http_basic_auth raises ValueError when the header is missing."""

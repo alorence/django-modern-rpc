@@ -6,7 +6,7 @@ import msgspec
 from django.utils.module_loading import import_string
 
 from modernrpc.exceptions import RPCMarshallingError, RPCParseError
-from modernrpc.jsonrpc.handler import JsonRpcRequest, JsonRpcResult
+from modernrpc.jsonrpc.handler import JsonRpcBatchItem, JsonRpcRequest, JsonRpcResult
 from modernrpc.types import CustomKwargs
 
 if TYPE_CHECKING:
@@ -31,7 +31,7 @@ class MsgspecDeserializer:
     def unmarshaller(self):
         return self.unmarshaller_klass(**self.unmarshaller_kwargs)
 
-    def loads(self, data: str) -> JsonRpcRequest | list[JsonRpcRequest]:
+    def loads(self, data: str) -> JsonRpcRequest | list[JsonRpcBatchItem]:
         try:
             structured_data: list[DictStrAny] | DictStrAny = msgspec.json.decode(data, **self.load_kwargs)
         except msgspec.DecodeError as exc:
