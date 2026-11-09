@@ -245,12 +245,13 @@ class EtreeElementMarshaller(Generic[ElementType]):
         b64.text = base64.b64encode(value).decode()
         return b64
 
-    def dump_dict(self, value: DictStrAny) -> ElementType:
+    def dump_dict(self, value: dict[Any, Any]) -> ElementType:
         struct = self.element_factory("struct")
         for key, val in value.items():
             member = self.sub_element_factory(struct, "member")
             name = self.sub_element_factory(member, "name")
-            name.text = key
+            # XML-RPC struct member names are strings. Keys of other types (int, etc.) are converted
+            name.text = str(key)
             value_el = self.sub_element_factory(member, "value")
             value_el.append(self.dispatch(val))
         return struct

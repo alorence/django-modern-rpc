@@ -91,7 +91,7 @@ class LxmlSerializer:
         """Serialize an XmlRpcResult to an XML string."""
         try:
             root = self.marshaller.result_to_element(result)
+            return lxml.etree.tostring(root, encoding="unicode", **self.dump_kwargs)
+
         except Exception as exc:
             raise RPCMarshallingError(result.data, exc) from exc
-
-        return lxml.etree.tostring(root, encoding="unicode", **self.dump_kwargs)

@@ -550,6 +550,39 @@ class TestXmlRpcSerializer:
         """
         assert_xml_data_are_equal(result, expected)
 
+    def test_result_dict_non_str_keys(
+        self, request: pytest.FixtureRequest, xml_serializer: XmlRpcSerializer, dummy_xmlrpc_request: XmlRpcRequest
+    ) -> None:
+        """Non-string keys are converted to string, as in v2.1 (regression test)"""
+        if "PythonXmlRpc" in xml_serializer.__class__.__name__:
+            marker = pytest.mark.xfail(
+                reason="Python's xmlrpc.client only supports str keys", raises=RPCMarshallingError, strict=True
+            )
+            request.applymarker(marker)
+
+        result = xml_serializer.dumps(XmlRpcSuccessResult(request=dummy_xmlrpc_request, data={1: "a", 2.5: "b"}))
+        expected = """<?xml version='1.0'?>
+            <methodResponse>
+              <params>
+                <param>
+                  <value>
+                    <struct>
+                      <member>
+                        <name>1</name>
+                        <value><string>a</string></value>
+                      </member>
+                      <member>
+                        <name>2.5</name>
+                        <value><string>b</string></value>
+                      </member>
+                    </struct>
+                  </value>
+                </param>
+              </params>
+            </methodResponse>
+        """
+        assert_xml_data_are_equal(result, expected)
+
     @pytest.mark.parametrize(
         "struct_value",
         [

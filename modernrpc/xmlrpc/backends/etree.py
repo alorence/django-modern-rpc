@@ -82,7 +82,7 @@ class EtreeSerializer:
         """Serialize an XmlRpcResult to an XML string."""
         try:
             root = self.marshaller.result_to_element(result)
+            return DefusedElementTree.tostring(root, encoding="unicode", **self.dump_kwargs)
+
         except Exception as exc:
             raise RPCMarshallingError(result.data, exc) from exc
-
-        return DefusedElementTree.tostring(root, encoding="unicode", **self.dump_kwargs)
