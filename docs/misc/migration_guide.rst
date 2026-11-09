@@ -1,6 +1,105 @@
 Migration guide
 ===============
 
+From 2.1 to 2.2
+---------------
+
+Version 2.2 hardens the default behavior of the library against information leaks and denial of service. Most
+projects can upgrade without any change, but a few default behaviors have changed. This section lists them, with the
+way to adapt your project or restore the previous behavior. See the :doc:`changelog` for the complete list of changes.
+
+Error messages of unexpected exceptions are hidden
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Exceptions raised by your procedures that don't inherit from ``RPCException`` (``ValueError``, ``KeyError``, database
+errors...) and serialization errors are now returned to clients with a generic message. The details are logged
+using the ``modernrpc.server`` logger, with ``ERROR`` level and traceback.
+
+.. code-block:: text
+
+   v2.1: {"code": -32603, "message": "Internal error: division by zero"}
+   v2.2: {"code": -32603, "message": "Internal error"}
+
+If your clients rely on these messages:
+
+- **Recommended**: raise an ``RPCException`` subclass from your procedure for errors that are part of your API
+  (see :ref:`Custom exceptions`), or convert specific exceptions from an error handler (see
+  :ref:`Customize error handling`). Their message is always returned to the client.
+- Restore the previous behavior globally with ``MODERNRPC_EXPOSE_INTERNAL_ERRORS = True``, or for a single server with
+  ``RpcServer(expose_internal_errors=True)``. Avoid it in production, see :ref:`Internal errors`.
+
+If your ``error_handler`` already logs every exception, you may want to silence the new log entries by adjusting the
+level of the ``modernrpc.server`` logger in your ``LOGGING`` configuration.
+
+Invalid parameters errors
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Arguments are now checked against the procedure signature before the call. This has 2 consequences:
+
+- The message of Invalid Params errors (``-32602``) changed. For example, ``Invalid parameters: add() takes 2
+  positional arguments but 3 were given`` is now ``Invalid parameters: too many positional arguments``. Update your
+  clients or tests if they check this message.
+- A ``TypeError`` raised from inside a procedure was previously returned as an Invalid Params error. It is now handled
+  as any other unexpected exception: Internal Error (``-32603``), with a generic message by default.
+
+Number of calls per request is limited
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+JSON-RPC batch requests and XML-RPC ``system.multicall`` now accept at most 100 calls by default. A request exceeding
+the limit is rejected with an Invalid Request error (``-32600``), and none of its calls is executed.
+
+If your clients legitimately send larger batches, raise the limit globally with ``MODERNRPC_MAX_BATCH_SIZE``, or for
+a single server:
+
+.. code-block:: python
+
+   server = RpcServer(max_batch_size=500)  # or None to disable the limit (not recommended)
+
+In addition, a ``system.multicall`` can't contain a call to ``system.multicall`` anymore. Such a call gets an Invalid
+Request fault (``-32600``) in the results list, the other calls are executed normally.
+
+JSON-RPC batch requests with invalid items
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+As required by the JSON-RPC 2.0 specification, invalid items of a batch request (not an object, missing ``method``...)
+now get their own Invalid Request error (``-32600``) with a ``null`` id in the response list, while valid items are
+executed. Previously, the whole batch was rejected with a single error object. An empty batch (``[]``) now returns an
+Invalid Request error instead of an empty response.
+
+No change is needed unless you wrote a custom JSON-RPC unmarshaller or deserializer, or overrode
+``JsonRpcHandler.process_batch_request()`` / ``aprocess_batch_request()``. In this case, note that the items of a
+batch are now typed ``JsonRpcBatchItem``: either a ``JsonRpcRequest``, or the ``RPCInvalidRequest`` exception
+describing an invalid item.
+
+HTTP Basic Auth credentials are not percent-decoded anymore
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``modernrpc.auth.extract_http_basic_auth()`` now returns username and password exactly as sent by the client, as
+specified by RFC 7617. Previously, ``urllib.parse.unquote()`` was applied, so a password like ``p%40ss`` was returned
+as ``p@ss``.
+
+Usual clients (Python's ``xmlrpc.client``, ``requests``...) already decode credentials embedded in the URL before
+sending them, so most projects are not affected. If your clients send percent-encoded credentials on purpose, apply
+``unquote()`` in your authentication predicate:
+
+.. code-block:: python
+
+   from urllib.parse import unquote
+   from modernrpc.auth import extract_http_basic_auth
+
+   def my_predicate(request):
+       username, password = map(unquote, extract_http_basic_auth(request))
+       ...
+
+Other changes
+^^^^^^^^^^^^^
+
+- ``typing-extensions`` is now a required dependency on all Python versions.
+- ``modernrpc.constants.NOT_SET`` is now a ``typing_extensions.Sentinel`` instance, and the internal enum
+  ``modernrpc.constants.Default`` has been removed. Compare with ``is NOT_SET`` if you used it in your code.
+- If your authentication predicates rely on the Django session (``request.user``), read
+  :ref:`CSRF and session authentication`.
+
 From 1.1 to 2.0
 ---------------
 
