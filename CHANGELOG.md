@@ -1,6 +1,8 @@
 # Changelog
 
-## Next release
+## v2.2.0
+
+**Release date: 2026-11-09**
 
 ### Improvements
 
