@@ -32,18 +32,13 @@ if sys.version_info >= (3, 14):
     def is_union_type(_type) -> bool:
         return isinstance(_type, types.UnionType)
 
-else:
-
-    def is_union_type(_type) -> bool:
-        return typing.get_origin(_type) in (types.UnionType, typing.Union)
-
-
-if sys.version_info >= (3, 14):
-
     def union_str_repr(obj: typing.Any) -> str:
         return str(obj)
 
 else:
+
+    def is_union_type(_type) -> bool:
+        return typing.get_origin(_type) in (types.UnionType, typing.Union)
 
     def union_str_repr(obj: typing.Any) -> str:
         return " | ".join(t.__name__ for t in typing.get_args(obj))
