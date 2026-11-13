@@ -733,7 +733,7 @@ provides-extras = ["docutils", "markdown", "orjson", "msgspec", "ujson", "simple
 [package.metadata.requires-dev]
 dev = [
     { name = "docutils", specifier = ">=0.19" },
-    { name = "jsonrpcclient", specifier = "~=4.0.3" },
+    { name = "jsonrpcclient", specifier = ">=4.0.3,<4.3.0" },
     { name = "lxml", specifier = ">=5.3" },
     { name = "markdown", specifier = ">=3.5" },
     { name = "msgspec", specifier = ">=0.19" },
@@ -954,11 +954,11 @@ wheels = [
 
 [[package]]
 name = "jsonrpcclient"
-version = "4.0.4"
+version = "4.2.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/90/0f/b6bf9c7c72c3262f7d8d8988bcc29085dc1c87a04b8c147d9bef0ad37372/jsonrpcclient-4.0.4.tar.gz", hash = "sha256:2232b22db9cf72d8b69254c9a56290a912c8777d9b022fed0667e2a9a2d8da9f", size = 42566, upload-time = "2026-11-06T00:17:49.355Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/72/19/68e565aee4b9031db88074068ffdb9b4a402815735ac9e4d02201b18d100/jsonrpcclient-4.2.1.tar.gz", hash = "sha256:3a9af03722a86706a7e6f9878b5a1627a18d9b06b5b3d523a921afcde29e0b73", size = 163312, upload-time = "2026-11-06T04:10:01.147Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/af/a9/77c9ebd70126e54363ee1e06c3bb3d0bf1be5078cc21a745450987c88df7/jsonrpcclient-4.0.4-py3-none-any.whl", hash = "sha256:7beb2ab99ba55fffddbc0f119381483967bd6f25b3ba72954be27ce2e77c7e0f", size = 7254, upload-time = "2026-11-06T00:17:48.218Z" },
+    { url = "https://files.pythonhosted.org/packages/dc/2a/9323ea25468e19908e90ebfdea32c480b27914ce46836b3278c4fd5ec6e5/jsonrpcclient-4.2.1-py3-none-any.whl", hash = "sha256:8f2a40c442ff66eddd990add4b1bd29412106baa1209ac390a294568466f10e1", size = 12776, upload-time = "2026-11-06T04:09:59.634Z" },
 ]
 
 [[package]]
