@@ -6,6 +6,7 @@ from django.http import HttpRequest
 from django.http.response import HttpResponse
 
 from modernrpc.core import RpcRequestContext
+from modernrpc.exceptions import RPCParseError
 
 if TYPE_CHECKING:
     from modernrpc.server import RpcServer
@@ -21,22 +22,25 @@ def handle_rpc_request(request: HttpRequest, server: "RpcServer") -> HttpRespons
     :param server: The RPC server instance
     :return: An HTTP response object
     """
-    response = server.check_request(request)
-    if response:
+    if response := server.check_request(request):
         return response
 
-    handler = server.get_request_handler(request)
-    if not handler:
+    if not (handler := server.get_request_handler(request)):
         return HttpResponse(
             f"Unable to handle your request, unsupported Content-Type {request.content_type}.",
             status=HTTPStatus.BAD_REQUEST,
             content_type="text/plain",
         )
 
-    result_data = handler.process_request(
-        request.body.decode(request.encoding or server.default_encoding),
-        RpcRequestContext(request, server, handler, handler.protocol),
-    )
+    context = RpcRequestContext(request, server, handler, handler.protocol)
+    try:
+        request_body = server.decode_request_body(request, server)
+
+    except RPCParseError as exc:
+        result_data = handler.build_request_error_response(exc, context)
+
+    else:
+        result_data = handler.process_request(request_body, context)
 
     return server.build_response(handler, result_data)
 
@@ -49,21 +53,24 @@ async def handle_rpc_request_async(request: HttpRequest, server: "RpcServer") ->
     :param server: The RPC server instance
     :return: An HTTP response object
     """
-    response = server.check_request(request)
-    if response:
+    if response := server.check_request(request):
         return response
 
-    handler = server.get_request_handler(request)
-    if not handler:
+    if not (handler := server.get_request_handler(request)):
         return HttpResponse(
             f"Unable to handle your request, unsupported Content-Type {request.content_type}.",
             status=HTTPStatus.BAD_REQUEST,
             content_type="text/plain",
         )
 
-    result_data = await handler.aprocess_request(
-        request.body.decode(request.encoding or server.default_encoding),
-        RpcRequestContext(request, server, handler, handler.protocol),
-    )
+    context = RpcRequestContext(request, server, handler, handler.protocol)
+    try:
+        request_body = server.decode_request_body(request, server)
+
+    except RPCParseError as exc:
+        result_data = handler.build_request_error_response(exc, context)
+
+    else:
+        result_data = await handler.aprocess_request(request_body, context)
 
     return server.build_response(handler, result_data)

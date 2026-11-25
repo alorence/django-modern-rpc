@@ -20,6 +20,7 @@ from modernrpc.exceptions import (
     RPCInvalidRequest,
     RPCMarshallingError,
     RPCMethodNotFound,
+    RPCParseError,
 )
 from modernrpc.handler import RpcHandler
 from modernrpc.helpers import check_flags_compatibility, first_true
@@ -245,6 +246,19 @@ class RpcServer(RegistryMixin):
                 content_type="text/plain",
             )
         return None
+
+    @staticmethod
+    def decode_request_body(request: HttpRequest, server: "RpcServer") -> str:
+        """
+        Decode the request body, using the charset declared in Content-Type header or the server default encoding.
+
+        :raise RPCParseError: if the body can't be decoded with the selected encoding
+        """
+        encoding = request.encoding or server.default_encoding
+        try:
+            return request.body.decode(encoding)
+        except UnicodeDecodeError as exc:
+            raise RPCParseError(f"request body is not valid {encoding} data") from exc
 
     @staticmethod
     def build_response(handler: RpcHandler[RpcRequest], result_data: str | tuple[int, str]) -> HttpResponse:

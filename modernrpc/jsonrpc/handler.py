@@ -67,6 +67,21 @@ class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
         serializer_kwargs: DictStrAny = serializer_config.get("kwargs", {})
         self.serializer: JsonRpcSerializer = serializer_klass(**serializer_kwargs)
 
+    def build_request_error_response(
+        self, exc: RPCException, context: RpcRequestContext, rpc_request: JsonRpcRequest | None = None
+    ) -> str:
+        """
+        Build the serialized error response for a request that couldn't be read. Since the request id can't be
+        determined, a null id is used, as required by the JSON-RPC 2.0 specification.
+        """
+        rpc_exc = context.server.on_error(exc, context)
+
+        if not rpc_request:
+            # Build a dummy request, with empty method name and null id
+            rpc_request = JsonRpcRequest(request_id=None, method_name="")
+
+        return self.serializer.dumps(self.build_error_result(rpc_request, rpc_exc.code, rpc_exc.message))
+
     def process_request(self, request_body: str, context: RpcRequestContext) -> str | tuple[HTTPStatus, str]:
         """
         Parse request and process it, according to its kind. Standard request as well as batch request is supported.
@@ -78,20 +93,14 @@ class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
             parsed_request = self.deserializer.loads(request_body)
 
         except RPCException as exc:
-            # We can't extract request_id from an incoming request. According to the spec, a
-            # null 'id' should be used in response payload
-            rpc_exc = context.server.on_error(exc, context)
-            fake_request = JsonRpcRequest(request_id=None, method_name="")
-            return self.serializer.dumps(self.build_error_result(fake_request, rpc_exc.code, rpc_exc.message))
+            return self.build_request_error_response(exc, context)
 
         # Parsed request is a list, we should handle it as a batch request
         if isinstance(parsed_request, list):
             try:
                 context.server.check_batch_size(len(parsed_request))
             except RPCException as exc:
-                rpc_exc = context.server.on_error(exc, context)
-                fake_request = JsonRpcRequest(request_id=None, method_name="")
-                return self.serializer.dumps(self.build_error_result(fake_request, rpc_exc.code, rpc_exc.message))
+                return self.build_request_error_response(exc, context)
             return self.process_batch_request(parsed_request, context)
 
         # By default, handle a standard single request
@@ -102,9 +111,9 @@ class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
 
         try:
             return self.serializer.dumps(result)
+
         except RPCException as exc:
-            rpc_exc = context.server.on_error(exc, context)
-            return self.serializer.dumps(self.build_error_result(parsed_request, rpc_exc.code, rpc_exc.message))
+            return self.build_request_error_response(exc, context, parsed_request)
 
     async def aprocess_request(self, request_body: str, context: RpcRequestContext) -> str | tuple[HTTPStatus, str]:
         """
@@ -117,20 +126,14 @@ class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
             parsed_request = self.deserializer.loads(request_body)
 
         except RPCException as exc:
-            # We can't extract request_id from an incoming request. According to the spec, a
-            # null 'id' should be used in response payload
-            fake_request = JsonRpcRequest(request_id=None, method_name="")
-            rpc_exc = context.server.on_error(exc, context)
-            return self.serializer.dumps(self.build_error_result(fake_request, rpc_exc.code, rpc_exc.message))
+            return self.build_request_error_response(exc, context)
 
         # Parsed request is a list, we should handle it as a batch request
         if isinstance(parsed_request, list):
             try:
                 context.server.check_batch_size(len(parsed_request))
             except RPCException as exc:
-                rpc_exc = context.server.on_error(exc, context)
-                fake_request = JsonRpcRequest(request_id=None, method_name="")
-                return self.serializer.dumps(self.build_error_result(fake_request, rpc_exc.code, rpc_exc.message))
+                return self.build_request_error_response(exc, context)
             return await self.aprocess_batch_request(parsed_request, context)
 
         # By default, handle a standard single request
@@ -142,8 +145,7 @@ class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
         try:
             return self.serializer.dumps(result)
         except RPCException as exc:
-            rpc_exc = context.server.on_error(exc, context)
-            return self.serializer.dumps(self.build_error_result(parsed_request, rpc_exc.code, rpc_exc.message))
+            return self.build_request_error_response(exc, context, parsed_request)
 
     def build_invalid_item_result(self, exc: RPCException, context: RpcRequestContext) -> JsonRpcResult:
         """
@@ -155,14 +157,14 @@ class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
         return self.build_error_result(fake_request, rpc_exc.code, rpc_exc.message)
 
     def process_batch_request(
-        self, requests: list[JsonRpcBatchItem], context: RpcRequestContext
+        self, rpc_requests: list[JsonRpcBatchItem], context: RpcRequestContext
     ) -> str | tuple[HTTPStatus, str]:
         # Process each request and store corresponding results (success or error)
         results: Iterator[JsonRpcResult] = (
             self.build_invalid_item_result(item, context)
             if isinstance(item, RPCException)
             else self.process_single_request(item, context)
-            for item in requests
+            for item in rpc_requests
         )
 
         # Filter out notification results

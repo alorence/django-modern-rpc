@@ -7,7 +7,7 @@ from django.http import HttpRequest
 
 from modernrpc.constants import Protocol
 from modernrpc.core import RpcRequestContext
-from modernrpc.exceptions import RPCMethodNotFound
+from modernrpc.exceptions import RPCException, RPCMethodNotFound
 from modernrpc.types import RequestType, RpcErrorResult, RpcSuccessResult
 
 logger = logging.getLogger(__name__)
@@ -32,16 +32,27 @@ class RpcHandler(ABC, Generic[RequestType]):
         content_type = request.content_type or ""
         return content_type.lower() in cls.valid_content_types
 
-    def build_success_result(self, request: RequestType, data: Any) -> RpcSuccessResult[RequestType]:
+    def build_success_result(self, rpc_request: RequestType, data: Any) -> RpcSuccessResult[RequestType]:
         """Build a RpcSuccessResult for the given request. Subclass may override this method to customize the output"""
-        return self.success_result_type(request=request, data=data)
+        return self.success_result_type(request=rpc_request, data=data)
 
     def build_error_result(
-        self, request: RequestType, code: int, message: str, data: Any = None
+        self, rpc_request: RequestType, code: int, message: str, data: Any = None
     ) -> RpcErrorResult[RequestType]:
         """Build a RpcErrorResult from the given request with given code and message. Subclasses may override this
         method to customize the output or execute additional code."""
-        return self.error_result_type(request=request, code=code, message=message, data=data)
+        return self.error_result_type(request=rpc_request, code=code, message=message, data=data)
+
+    @abstractmethod
+    def build_request_error_response(
+        self, exc: RPCException, context: RpcRequestContext, rpc_request: RequestType | None = None
+    ) -> str:
+        """
+        Build the serialized error response for a request that couldn't be read (undecodable body, parse error, etc.).
+
+        In such case, no information (request id, method name) can be extracted from the incoming request.
+        Implementations must pass the exception through `context.server.on_error()` before building the response.
+        """
 
     def process_single_request(
         self, rpc_request: RequestType, context: RpcRequestContext
@@ -54,7 +65,7 @@ class RpcHandler(ABC, Generic[RequestType]):
         except RPCMethodNotFound as exc:
             rpc_exc = context.server.on_error(exc, context)
             return self.build_error_result(
-                request=rpc_request, code=rpc_exc.code, message=rpc_exc.message, data=rpc_exc.data
+                rpc_request=rpc_request, code=rpc_exc.code, message=rpc_exc.message, data=rpc_exc.data
             )
 
         try:
@@ -63,7 +74,7 @@ class RpcHandler(ABC, Generic[RequestType]):
         except Exception as exc:  # ruff: ignore[BLE001]
             rpc_exc = context.server.on_error(exc, context)
             return self.build_error_result(
-                request=rpc_request, code=rpc_exc.code, message=rpc_exc.message, data=rpc_exc.data
+                rpc_request=rpc_request, code=rpc_exc.code, message=rpc_exc.message, data=rpc_exc.data
             )
 
         return self.build_success_result(rpc_request, result_data)
@@ -82,7 +93,7 @@ class RpcHandler(ABC, Generic[RequestType]):
         except RPCMethodNotFound as exc:
             rpc_exc = context.server.on_error(exc, context)
             return self.build_error_result(
-                request=rpc_request, code=rpc_exc.code, message=rpc_exc.message, data=rpc_exc.data
+                rpc_request=rpc_request, code=rpc_exc.code, message=rpc_exc.message, data=rpc_exc.data
             )
 
         try:
@@ -91,7 +102,7 @@ class RpcHandler(ABC, Generic[RequestType]):
         except Exception as exc:  # ruff: ignore[BLE001]
             rpc_exc = context.server.on_error(exc, context)
             return self.build_error_result(
-                request=rpc_request, code=rpc_exc.code, message=rpc_exc.message, data=rpc_exc.data
+                rpc_request=rpc_request, code=rpc_exc.code, message=rpc_exc.message, data=rpc_exc.data
             )
 
         return self.build_success_result(rpc_request, result_data)

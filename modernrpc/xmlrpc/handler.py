@@ -45,6 +45,18 @@ class XmlRpcHandler(RpcHandler[XmlRpcRequest]):
         serializer_kwargs: DictStrAny = serializer_config.get("kwargs", {})
         self.serializer: XmlRpcSerializer = serializer_klass(**serializer_kwargs)
 
+    def build_request_error_response(
+        self, exc: RPCException, context: RpcRequestContext, rpc_request: XmlRpcRequest | None = None
+    ) -> str:
+        """Build the serialized fault response for a request that couldn't be read."""
+        rpc_exc = context.server.on_error(exc, context)
+
+        if not rpc_request:
+            # Build a dummy request, with empty method name
+            rpc_request = XmlRpcRequest(method_name="")
+
+        return self.serializer.dumps(self.build_error_result(rpc_request, rpc_exc.code, rpc_exc.message))
+
     def process_request(self, request_body: str, context: RpcRequestContext) -> str:
         """
         Parse request and delegates to process_single_request(), catching exceptions to handle errors.
@@ -52,22 +64,18 @@ class XmlRpcHandler(RpcHandler[XmlRpcRequest]):
         `system.multicall()` is implemented in the `modernrpc.system_procedures` module.
         """
         try:
-            request = self.deserializer.loads(request_body)
+            rpc_request = self.deserializer.loads(request_body)
 
         except RPCException as exc:
-            rpc_exc = context.server.on_error(exc, context)
-            return self.serializer.dumps(
-                self.build_error_result(XmlRpcRequest(method_name=""), rpc_exc.code, rpc_exc.message)
-            )
+            return self.build_request_error_response(exc, context)
 
-        result = self.process_single_request(request, context)
+        result = self.process_single_request(rpc_request, context)
 
         try:
             return self.serializer.dumps(result)
 
         except RPCException as exc:
-            rpc_exc = context.server.on_error(exc, context)
-            return self.serializer.dumps(self.build_error_result(request, rpc_exc.code, rpc_exc.message))
+            return self.build_request_error_response(exc, context, rpc_request)
 
     async def aprocess_request(self, request_body: str, context: RpcRequestContext) -> str:
         """
@@ -76,19 +84,15 @@ class XmlRpcHandler(RpcHandler[XmlRpcRequest]):
         `system.multicall()` is implemented in the `modernrpc.system_procedures` module.
         """
         try:
-            request = self.deserializer.loads(request_body)
+            rpc_request = self.deserializer.loads(request_body)
 
         except RPCException as exc:
-            rpc_exc = context.server.on_error(exc, context)
-            return self.serializer.dumps(
-                self.build_error_result(XmlRpcRequest(method_name=""), rpc_exc.code, rpc_exc.message)
-            )
+            return self.build_request_error_response(exc, context)
 
-        result = await self.aprocess_single_request(request, context)
+        result = await self.aprocess_single_request(rpc_request, context)
 
         try:
             return self.serializer.dumps(result)
 
         except RPCException as exc:
-            rpc_exc = context.server.on_error(exc, context)
-            return self.serializer.dumps(self.build_error_result(request, rpc_exc.code, rpc_exc.message))
+            return self.build_request_error_response(exc, context, rpc_request)
