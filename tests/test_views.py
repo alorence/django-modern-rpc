@@ -7,7 +7,8 @@ from django.http import HttpResponse
 from django.test import AsyncRequestFactory, RequestFactory
 
 from modernrpc import RpcServer
-from modernrpc.exceptions import RPCInvalidRequest
+from modernrpc.exceptions import RPC_PARSE_ERROR, RPCInvalidRequest
+from tests.helpers import extract_jsonrpc_fault_data, extract_xmlrpc_fault_data
 
 
 class TestNonRpcResponses:
@@ -176,3 +177,95 @@ class TestJsonRpcBatchWithInvalidItems:
 
         assert len(handled) == 2
         assert all(isinstance(exc, RPCInvalidRequest) for exc in handled)
+
+
+# Strings containing characters encoded as a single byte in legacy Windows code pages. Such bytes are not valid
+# UTF-8 sequences. Note: "ń" is not part of cp1252, it is encoded with cp1250 (Central European) instead.
+NON_UTF8_STRINGS = [
+    pytest.param("Ñandú", "cp1252", id="N_tilde_upper-cp1252"),
+    pytest.param("España", "cp1252", id="n_tilde_lower-cp1252"),
+    pytest.param("Gdańsk", "cp1250", id="n_acute-cp1250"),
+]
+
+
+def build_jsonrpc_payload(value: str, encoding: str) -> bytes:
+    payload = json.dumps(
+        {"jsonrpc": "2.0", "id": 1, "method": "system.methodHelp", "params": [value]},
+        ensure_ascii=False,
+    )
+    return payload.encode(encoding)
+
+
+def build_xmlrpc_payload(value: str, encoding: str) -> bytes:
+    payload = (
+        "<?xml version='1.0'?>"
+        "<methodCall>"
+        "<methodName>system.methodHelp</methodName>"
+        f"<params><param><value><string>{value}</string></value></param></params>"
+        "</methodCall>"
+    )
+    return payload.encode(encoding)
+
+
+class TestNonUtf8EncodedRequests:
+    """
+    A request body encoded in cp1252 (or another legacy code page), sent without any "charset" attribute in
+    Content-Type header, can't be decoded with the default encoding (utf-8). Server must return a proper RPC error
+    response, never an HTTP 500.
+    """
+
+    @pytest.fixture
+    def server(self) -> RpcServer:
+        return RpcServer()
+
+    @pytest.mark.parametrize(("value", "encoding"), NON_UTF8_STRINGS)
+    def test_jsonrpc(self, rf: RequestFactory, server: RpcServer, value: str, encoding: str) -> None:
+        request = rf.post("/rpc", data=build_jsonrpc_payload(value, encoding), content_type="application/json")
+
+        response = server.view(request)
+
+        assert response.status_code == HTTPStatus.OK
+        code, _ = extract_jsonrpc_fault_data(response)
+        assert code == RPC_PARSE_ERROR
+
+    @pytest.mark.parametrize(("value", "encoding"), NON_UTF8_STRINGS)
+    def test_xmlrpc(self, rf: RequestFactory, server: RpcServer, value: str, encoding: str) -> None:
+        request = rf.post("/rpc", data=build_xmlrpc_payload(value, encoding), content_type="text/xml")
+
+        response = server.view(request)
+
+        assert response.status_code == HTTPStatus.OK
+        code, _ = extract_xmlrpc_fault_data(response)
+        assert code == RPC_PARSE_ERROR
+
+
+class TestNonUtf8EncodedRequestsAsync:
+    """
+    A request body encoded in cp1252 (or another legacy code page), sent without any "charset" attribute in
+    Content-Type header, can't be decoded with the default encoding (utf-8). Server must return a proper RPC error
+    response, never an HTTP 500.
+    """
+
+    @pytest.fixture
+    def server(self) -> RpcServer:
+        return RpcServer()
+
+    @pytest.mark.parametrize(("value", "encoding"), NON_UTF8_STRINGS)
+    async def test_jsonrpc(self, async_rf: AsyncRequestFactory, server: RpcServer, value: str, encoding: str) -> None:
+        request = async_rf.post("/rpc", data=build_jsonrpc_payload(value, encoding), content_type="application/json")
+
+        response = await server.async_view(request)
+
+        assert response.status_code == HTTPStatus.OK
+        code, _ = extract_jsonrpc_fault_data(response)
+        assert code == RPC_PARSE_ERROR
+
+    @pytest.mark.parametrize(("value", "encoding"), NON_UTF8_STRINGS)
+    async def test_xmlrpc(self, async_rf: AsyncRequestFactory, server: RpcServer, value: str, encoding: str) -> None:
+        request = async_rf.post("/rpc", data=build_xmlrpc_payload(value, encoding), content_type="text/xml")
+
+        response = await server.async_view(request)
+
+        assert response.status_code == HTTPStatus.OK
+        code, _ = extract_xmlrpc_fault_data(response)
+        assert code == RPC_PARSE_ERROR
