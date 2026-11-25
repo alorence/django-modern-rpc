@@ -16,7 +16,7 @@ on:
   workflow_dispatch:
 
 env:
-  UV_VERSION: 0.13.7
+  UV_VERSION: 0.13.10
 
 jobs:
   generate-jobs:
@@ -49,7 +49,7 @@ jobs:
       uses: wntrblm/nox@afa3983bbac3143bab5c8406244327581f76a3d7  # 2026.10.20 - https://github.com/wntrblm/nox/releases
 
     - name: Install uv
-      uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3, see https://github.com/astral-sh/setup-uv/releases
+      uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0, see https://github.com/astral-sh/setup-uv/releases
       with:
         version: ${{ env.UV_VERSION }}
 
