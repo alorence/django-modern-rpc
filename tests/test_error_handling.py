@@ -63,8 +63,9 @@ class TestRpcServerErrorHandling:
             server.on_error(exception, mocked_request_context)
 
         assert "Test error message" in caplog.text
-        assert caplog.records[-1].exc_info is not None
-        assert caplog.records[-1].exc_info[1] is exception
+        exc_info = caplog.records[-1].exc_info
+        assert exc_info
+        assert exc_info[1] is exception
 
     @pytest.mark.parametrize("from_settings", [False, True], ids=["init-arg", "settings"])
     def test_expose_internal_errors(

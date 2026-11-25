@@ -29,7 +29,8 @@ class RpcHandler(ABC, Generic[RequestType]):
 
         The default implementation will check Content-Type for a supported value
         """
-        return getattr(request, "content_type", "").lower() in cls.valid_content_types
+        content_type = request.content_type or ""
+        return content_type.lower() in cls.valid_content_types
 
     def build_success_result(self, request: RequestType, data: Any) -> RpcSuccessResult[RequestType]:
         """Build a RpcSuccessResult for the given request. Subclass may override this method to customize the output"""
