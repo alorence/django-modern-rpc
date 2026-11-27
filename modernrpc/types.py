@@ -36,6 +36,8 @@ class RpcErrorResult(RpcResult[RequestType]):
     data: Any = None
 
 
+RpcSuccessOrErrorResult: TypeAlias = RpcSuccessResult[RequestType] | RpcErrorResult[RequestType]
+
 # Type aliases. New syntax `type X = list[str]` will be available from Python 3.12
 DictStrAny: TypeAlias = dict[str, Any]
 CustomKwargs: TypeAlias = DictStrAny | None

@@ -1,5 +1,52 @@
 # Changelog
 
+## v2.3.0
+
+**Release date: unreleased**
+
+### Bugfixes
+
+- A request body that can't be decoded with the declared charset (or `MODERNRPC_DEFAULT_ENCODING` when the
+  `Content-Type` header has no charset), for example a payload encoded in cp1252 sent without charset, now returns a
+  proper Parse Error response (`-32700`, HTTP 200, `null` id for JSON-RPC) instead of an HTTP 500 caused by an
+  unhandled `UnicodeDecodeError` (#215). Like any other error, it is passed to the server `error_handler`.
+
+### Improvements
+
+- The serialization process of `RpcHandler` is now exposed through public methods, so it can be reused or customized
+  in subclasses: `serialize_result()`, `serialize_result_safely()`, `serialize_exception_result()` and
+  `build_http_response()`.
+- New method `RpcServer.decode_request_body()`, raising `RPCParseError` when the request body can't be decoded.
+- New type alias `modernrpc.types.RpcSuccessOrErrorResult`.
+- All errors happening outside a procedure (unreadable body, invalid request, batch size exceeded, result that can't be
+  serialized...) are now built through a single method, `RpcHandler.build_error_result()`, in both sync and async code
+  paths.
+
+### Breaking Changes
+
+These changes only affect projects that subclass `RpcServer`, `RpcHandler`, `JsonRpcHandler` or `XmlRpcHandler`, or
+call their methods directly. See the migration guide in the documentation for details.
+
+- `RpcHandler.build_error_result()` signature changed from `(request, code, message, data=None)` to
+  `(exc, context, rpc_request=None)`. The method now calls `context.server.on_error()` itself (the `error_handler`
+  must not be invoked again by the caller) and uses `build_dummy_request()` when `rpc_request` is `None`.
+- New abstract methods in `RpcHandler`: `build_dummy_request()` and `serialize_result()`. A custom handler inheriting
+  directly from `RpcHandler` must implement them, otherwise it can't be instantiated anymore. Handlers inheriting
+  from `JsonRpcHandler` or `XmlRpcHandler` are not affected.
+- Class attributes `RpcHandler.success_result_type` and `RpcHandler.error_result_type` have been removed.
+  `build_success_result()` and `build_error_result()` now always instantiate `RpcSuccessResult` and `RpcErrorResult`.
+  Override these methods to return custom result types.
+- The first argument of `RpcHandler.build_success_result()` has been renamed from `request` to `rpc_request`.
+- `JsonRpcHandler.build_invalid_item_result()` has been removed. Use `build_error_result(exc, context)` instead.
+- The first argument of `JsonRpcHandler.process_batch_request()` and `aprocess_batch_request()` has been renamed from
+  `requests` to `rpc_requests`.
+- In `JsonRpcHandler`, the batch size check (`RpcServer.check_batch_size()`) is now performed while parsing the
+  request, before `process_batch_request()` / `aprocess_batch_request()` is called.
+- `RpcServer.build_response()` static method has been removed. The HTTP response is now built by the handler itself,
+  with `RpcHandler.build_http_response()`. Override this method to customize the HTTP response (status, headers...).
+- Request body decoding moved from the views to `RpcServer.decode_request_body()`. When decoding fails, the views
+  call `handler.serialize_exception_result()` and `handler.process_request()` / `aprocess_request()` is not called.
+
 ## v2.2.0
 
 **Release date: 2026-11-09**
