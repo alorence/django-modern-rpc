@@ -44,19 +44,41 @@ class RpcHandler(ABC, Generic[RequestType]):
         return self.error_result_type(request=rpc_request, code=code, message=message, data=data)
 
     @abstractmethod
+    def build_empty_dummy_request(self) -> RequestType:
+        """Build an empty dummy request. This method is used to build a request object when no request is available,
+        for example when building an error response."""
+
+    @abstractmethod
+    def serialize_result(self, result: RpcSuccessResult[RequestType] | RpcErrorResult[RequestType]) -> str:
+        """Serialize a single result, according to the protocol implemented by the concrete handler."""
+
     def build_request_error_response(
         self, exc: RPCException, context: RpcRequestContext, rpc_request: RequestType | None = None
-    ) -> str:
+    ) -> RpcErrorResult[RequestType]:
         """
-        Build the serialized error response for a request that couldn't be read (undecodable body, parse error, etc.).
+        Build the error result for a request that couldn't be read (undecodable body, parse error, etc.) or whose
+        result couldn't be serialized.
 
-        In such case, no information (request id, method name) can be extracted from the incoming request.
-        Implementations must pass the exception through `context.server.on_error()` before building the response.
+        When no `rpc_request` is given, no information (request id, method name) can be extracted from the incoming
+        request, so a dummy request is used instead. The exception is passed through `context.server.on_error()` before
+        building the result.
         """
+        rpc_exc = context.server.on_error(exc, context)
+
+        if not rpc_request:
+            rpc_request = self.build_empty_dummy_request()
+
+        return self.build_error_result(rpc_request, rpc_exc.code, rpc_exc.message)
+
+    def build_serialized_error_response(
+        self, exc: RPCException, context: RpcRequestContext, rpc_request: RequestType | None = None
+    ) -> str:
+        """Same as build_request_error_response(), but return the serialized result, ready to be sent to the client."""
+        return self.serialize_result(self.build_request_error_response(exc, context, rpc_request))
 
     def process_single_request(
         self, rpc_request: RequestType, context: RpcRequestContext
-    ) -> RpcSuccessResult[RequestType] | RpcErrorResult[RequestType]:
+    ) -> RpcSuccessResult[RequestType] | RpcErrorResult[RequestType]:  # FIXME: replace return type by RpcResult?
         """Check and call the remote procedure, based on the given request dict."""
 
         try:
