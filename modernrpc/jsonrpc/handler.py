@@ -71,16 +71,18 @@ class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
     def serialize_result(self, result: JsonRpcResult) -> str:
         return self.serializer.dumps(result)
 
-    def parse_request(self, request_body: str, context: RpcRequestContext) -> JsonRpcRequest | list[JsonRpcBatchItem]:
+    def _jsonrpc_common_parse_request(
+        self, request_body: str, context: RpcRequestContext
+    ) -> JsonRpcRequest | list[JsonRpcBatchItem]:
         """
         Deserialize the request body into a single request or a batch request (list of items).
 
         :raise RPCException: if the body can't be parsed, or if a batch request contains too many items
         """
-        parsed_request = self.deserializer.loads(request_body)
-        if isinstance(parsed_request, list):
-            context.server.check_batch_size(len(parsed_request))
-        return parsed_request
+        rpc_request = self.deserializer.loads(request_body)
+        if isinstance(rpc_request, list):
+            context.server.check_batch_size(len(rpc_request))
+        return rpc_request
 
     def process_request(self, request_body: str, context: RpcRequestContext) -> str | tuple[HTTPStatus, str]:
         """
@@ -90,16 +92,16 @@ class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
         result of `parse_request()`, a standard or a batch request will be handled here.
         """
         try:
-            parsed_request = self.parse_request(request_body, context)
+            rpc_request = self._jsonrpc_common_parse_request(request_body, context)
 
         except RPCException as exc:
-            return self.serialize_request_error(exc, context)
+            return self.serialize_exception_result(exc, context)
 
-        if isinstance(parsed_request, list):
-            return self.process_batch_request(parsed_request, context)
+        if isinstance(rpc_request, list):
+            return self.process_batch_request(rpc_request, context)
 
-        result = self.process_single_request(parsed_request, context)
-        if parsed_request.is_notification:
+        result = self.process_single_request(rpc_request, context)
+        if rpc_request.is_notification:
             return HTTPStatus.NO_CONTENT, ""
 
         return self.serialize_result_safely(result, context)
@@ -107,10 +109,10 @@ class JsonRpcHandler(RpcHandler[JsonRpcRequest]):
     async def aprocess_request(self, request_body: str, context: RpcRequestContext) -> str | tuple[HTTPStatus, str]:
         """Asynchronous version of process_request()."""
         try:
-            parsed_request = self.parse_request(request_body, context)
+            parsed_request = self._jsonrpc_common_parse_request(request_body, context)
 
         except RPCException as exc:
-            return self.serialize_request_error(exc, context)
+            return self.serialize_exception_result(exc, context)
 
         if isinstance(parsed_request, list):
             return await self.aprocess_batch_request(parsed_request, context)

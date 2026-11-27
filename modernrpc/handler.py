@@ -8,7 +8,7 @@ from django.http import HttpRequest, HttpResponse
 from modernrpc.constants import Protocol
 from modernrpc.core import RpcRequestContext
 from modernrpc.exceptions import RPCException
-from modernrpc.types import RequestType, RpcErrorResult, RpcSuccessResult
+from modernrpc.types import RequestType, RpcErrorResult, RpcSuccessOrErrorResult, RpcSuccessResult
 
 logger = logging.getLogger(__name__)
 
@@ -30,8 +30,11 @@ class RpcHandler(ABC, Generic[RequestType]):
         content_type = request.content_type or ""
         return content_type.lower() in cls.valid_content_types
 
-    @staticmethod
-    def build_success_result(rpc_request: RequestType, data: Any) -> RpcSuccessResult[RequestType]:
+    @abstractmethod
+    def build_dummy_request(self) -> RequestType:
+        """Build a fake request object used to answer a request that couldn't be read. See build_error_result()."""
+
+    def build_success_result(self, rpc_request: RequestType, data: Any) -> RpcSuccessResult[RequestType]:
         """Build a RpcSuccessResult for the given request. Subclass may override this method to customize the output"""
         return RpcSuccessResult(request=rpc_request, data=data)
 
@@ -51,31 +54,24 @@ class RpcHandler(ABC, Generic[RequestType]):
             rpc_request = self.build_dummy_request()
         return RpcErrorResult(request=rpc_request, code=rpc_exc.code, message=rpc_exc.message)
 
-    @abstractmethod
-    def build_dummy_request(self) -> RequestType:
-        """Build the request object used to answer a request that couldn't be read. See
-        build_request_error_result()."""
-
-    @abstractmethod
-    def serialize_result(self, result: RpcSuccessResult[RequestType] | RpcErrorResult[RequestType]) -> str:
-        """Serialize a single result, according to the protocol implemented by the concrete handler. May raise
-        an RPCException (RPCMarshallingError) when the result contains data that can't be serialized."""
-
-    def serialize_result_safely(
-        self, result: RpcSuccessResult[RequestType] | RpcErrorResult[RequestType], context: RpcRequestContext
-    ) -> str:
+    def serialize_result_safely(self, result: RpcSuccessOrErrorResult[RequestType], context: RpcRequestContext) -> str:
         """Same as serialize_result(), but when the result can't be serialized, serialize the corresponding error."""
         try:
             return self.serialize_result(result)
 
         except RPCException as exc:
-            return self.serialize_request_error(exc, context, result.request)
+            return self.serialize_exception_result(exc, context, result.request)
 
-    def serialize_request_error(
+    def serialize_exception_result(
         self, exc: BaseException, context: RpcRequestContext, rpc_request: RequestType | None = None
     ) -> str:
-        """Same as build_request_error_result(), but return the serialized result."""
+        """Same as build_error_result(), but return the serialized result."""
         return self.serialize_result(self.build_error_result(exc, context, rpc_request))
+
+    @abstractmethod
+    def serialize_result(self, result: RpcSuccessOrErrorResult[RequestType]) -> str:
+        """Serialize a single result, according to the protocol implemented by the concrete handler. May raise
+        an RPCException (RPCMarshallingError) when the result contains data that can't be serialized."""
 
     def build_http_response(self, content: str | tuple[HTTPStatus, str]) -> HttpResponse:
         """Build the HttpResponse from the value returned by process_request() or serialize_request_error()."""
@@ -84,7 +80,7 @@ class RpcHandler(ABC, Generic[RequestType]):
 
     def process_single_request(
         self, rpc_request: RequestType, context: RpcRequestContext
-    ) -> RpcSuccessResult[RequestType] | RpcErrorResult[RequestType]:  # FIXME: replace return type by RpcResult?
+    ) -> RpcSuccessOrErrorResult[RequestType]:
         """Check and call the remote procedure, based on the given request dict."""
         try:
             wrapper = context.server.get_procedure_wrapper(rpc_request.method_name, self.protocol)
@@ -97,7 +93,7 @@ class RpcHandler(ABC, Generic[RequestType]):
 
     async def aprocess_single_request(
         self, rpc_request: RequestType, context: RpcRequestContext
-    ) -> RpcSuccessResult[RequestType] | RpcErrorResult[RequestType]:
+    ) -> RpcSuccessOrErrorResult[RequestType]:
         """
         Asynchronous version of process_single_request().
         Check and call the remote procedure, based on the given request dict.

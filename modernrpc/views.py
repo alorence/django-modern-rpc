@@ -37,7 +37,7 @@ def handle_rpc_request(request: HttpRequest, server: "RpcServer") -> HttpRespons
         request_body = server.decode_request_body(request)
 
     except RPCParseError as exc:
-        result_data = handler.serialize_request_error(exc, context)
+        result_data = handler.serialize_exception_result(exc, context)
 
     else:
         result_data = handler.process_request(request_body, context)
@@ -68,7 +68,7 @@ async def handle_rpc_request_async(request: HttpRequest, server: "RpcServer") ->
         request_body = server.decode_request_body(request)
 
     except RPCParseError as exc:
-        result_data = handler.serialize_request_error(exc, context)
+        result_data = handler.serialize_exception_result(exc, context)
 
     else:
         result_data = await handler.aprocess_request(request_body, context)

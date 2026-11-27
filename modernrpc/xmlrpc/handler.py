@@ -59,7 +59,7 @@ class XmlRpcHandler(RpcHandler[XmlRpcRequest]):
             rpc_request = self.deserializer.loads(request_body)
 
         except RPCException as exc:
-            return self.serialize_request_error(exc, context)
+            return self.serialize_exception_result(exc, context)
 
         result = self.process_single_request(rpc_request, context)
         return self.serialize_result_safely(result, context)
@@ -74,7 +74,7 @@ class XmlRpcHandler(RpcHandler[XmlRpcRequest]):
             rpc_request = self.deserializer.loads(request_body)
 
         except RPCException as exc:
-            return self.serialize_request_error(exc, context)
+            return self.serialize_exception_result(exc, context)
 
         result = await self.aprocess_single_request(rpc_request, context)
         return self.serialize_result_safely(result, context)
