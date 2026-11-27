@@ -137,18 +137,11 @@ class RpcServer(RegistryMixin):
 
     def register_namespace(self, namespace: RpcNamespace, name: str | None = None) -> None:
         """Register all procedures from given namespace into the top-level server."""
-        if name:
-            prefix = name + "."
-            logger.debug(
-                f"About to register {len(namespace.procedures)} procedure(s) "
-                f"from namespace '{name}' into the top-level server"
-            )
-        else:
-            prefix = ""
-            logger.debug(
-                f"About to register {len(namespace.procedures)} procedure(s) "
-                f"from unnamed namespace into the top-level server"
-            )
+        prefix = f"{name}." if name else ""
+        logger.debug(
+            f"About to register {len(namespace.procedures)} procedure(s) "
+            f"from {f'namespace {name!r}' if name else 'unnamed namespace'} into the top-level server"
+        )
 
         for procedure_name, wrapper in namespace.procedures.items():
             self.register_procedure(
@@ -163,16 +156,14 @@ class RpcServer(RegistryMixin):
         """Return the procedure wrapper with given name compatible with given protocol, or raise RPCMethodNotFound"""
         try:
             wrapper = self.procedures[name]
-        except KeyError:
-            raise RPCMethodNotFound(name) from None
-        except TypeError:
-            # An unhashable "name" (list, dict, ...) submitted by the client cannot be a registered procedure
+        except (KeyError, TypeError):
+            # TypeError: an unhashable "name" (list, dict, ...) submitted by the client can't be a registered procedure
             raise RPCMethodNotFound(name) from None
 
-        if check_flags_compatibility(wrapper.protocol, protocol):
-            return wrapper
+        if not check_flags_compatibility(wrapper.protocol, protocol):
+            raise RPCMethodNotFound(name)
 
-        raise RPCMethodNotFound(name) from None
+        return wrapper
 
     def get_request_handler(self, request: HttpRequest) -> RpcHandler[RpcRequest] | None:
         """Return the first handler that can handle the given request, or None if no handler can handle it."""
@@ -247,28 +238,17 @@ class RpcServer(RegistryMixin):
             )
         return None
 
-    @staticmethod
-    def decode_request_body(request: HttpRequest, server: "RpcServer") -> str:
+    def decode_request_body(self, request: HttpRequest) -> str:
         """
         Decode the request body, using the charset declared in Content-Type header or the server default encoding.
 
         :raise RPCParseError: if the body can't be decoded with the selected encoding
         """
-        encoding = request.encoding or server.default_encoding
+        encoding = request.encoding or self.default_encoding
         try:
             return request.body.decode(encoding)
         except UnicodeDecodeError as exc:
             raise RPCParseError(f"request body is not valid {encoding} data") from exc
-
-    @staticmethod
-    def build_response(handler: RpcHandler[RpcRequest], result_data: str | tuple[int, str]) -> HttpResponse:
-        """Build an HttpResponse instance from the given handler and result data."""
-        if isinstance(result_data, tuple) and len(result_data) == 2:
-            status, result_data = result_data
-        else:
-            status = HTTPStatus.OK
-
-        return HttpResponse(result_data, status=status, content_type=handler.response_content_type)
 
     @property
     def view(self) -> Callable[[HttpRequest], HttpResponse]:

@@ -3,11 +3,11 @@ from abc import ABC, abstractmethod
 from http import HTTPStatus
 from typing import Any, ClassVar, Generic
 
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponse
 
 from modernrpc.constants import Protocol
 from modernrpc.core import RpcRequestContext
-from modernrpc.exceptions import RPCException, RPCMethodNotFound
+from modernrpc.exceptions import RPCException
 from modernrpc.types import RequestType, RpcErrorResult, RpcSuccessResult
 
 logger = logging.getLogger(__name__)
@@ -19,8 +19,6 @@ class RpcHandler(ABC, Generic[RequestType]):
     protocol: Protocol
     valid_content_types: ClassVar[list[str]]
     response_content_type: str
-    success_result_type: type[RpcSuccessResult[RequestType]]
-    error_result_type: type[RpcErrorResult[RequestType]]
 
     @classmethod
     def can_handle(cls, request: HttpRequest) -> bool:
@@ -32,72 +30,68 @@ class RpcHandler(ABC, Generic[RequestType]):
         content_type = request.content_type or ""
         return content_type.lower() in cls.valid_content_types
 
-    def build_success_result(self, rpc_request: RequestType, data: Any) -> RpcSuccessResult[RequestType]:
+    @staticmethod
+    def build_success_result(rpc_request: RequestType, data: Any) -> RpcSuccessResult[RequestType]:
         """Build a RpcSuccessResult for the given request. Subclass may override this method to customize the output"""
-        return self.success_result_type(request=rpc_request, data=data)
+        return RpcSuccessResult(request=rpc_request, data=data)
 
     def build_error_result(
-        self, rpc_request: RequestType, code: int, message: str, data: Any = None
+        self, exc: BaseException, context: RpcRequestContext, rpc_request: RequestType | None = None
     ) -> RpcErrorResult[RequestType]:
-        """Build a RpcErrorResult from the given request with given code and message. Subclasses may override this
-        method to customize the output or execute additional code."""
-        return self.error_result_type(request=rpc_request, code=code, message=message, data=data)
+        """
+        Build the error result for a request that failed outside the procedure itself: unreadable body, invalid
+        request, too many calls in a batch, result that can't be serialized, etc.
+
+        The exception is passed through `context.server.on_error()` first. Its `data` is never part of the result,
+        since it only holds internal details here (e.g. the original exception raised by a deserializer). When
+        `rpc_request` is None (the request couldn't be read), a dummy request is used, see build_dummy_request().
+        """
+        rpc_exc = context.server.on_error(exc, context)
+        if rpc_request is None:
+            rpc_request = self.build_dummy_request()
+        return RpcErrorResult(request=rpc_request, code=rpc_exc.code, message=rpc_exc.message)
 
     @abstractmethod
-    def build_empty_dummy_request(self) -> RequestType:
-        """Build an empty dummy request. This method is used to build a request object when no request is available,
-        for example when building an error response."""
+    def build_dummy_request(self) -> RequestType:
+        """Build the request object used to answer a request that couldn't be read. See
+        build_request_error_result()."""
 
     @abstractmethod
     def serialize_result(self, result: RpcSuccessResult[RequestType] | RpcErrorResult[RequestType]) -> str:
-        """Serialize a single result, according to the protocol implemented by the concrete handler."""
+        """Serialize a single result, according to the protocol implemented by the concrete handler. May raise
+        an RPCException (RPCMarshallingError) when the result contains data that can't be serialized."""
 
-    def build_request_error_response(
-        self, exc: RPCException, context: RpcRequestContext, rpc_request: RequestType | None = None
-    ) -> RpcErrorResult[RequestType]:
-        """
-        Build the error result for a request that couldn't be read (undecodable body, parse error, etc.) or whose
-        result couldn't be serialized.
-
-        When no `rpc_request` is given, no information (request id, method name) can be extracted from the incoming
-        request, so a dummy request is used instead. The exception is passed through `context.server.on_error()` before
-        building the result.
-        """
-        rpc_exc = context.server.on_error(exc, context)
-
-        if not rpc_request:
-            rpc_request = self.build_empty_dummy_request()
-
-        return self.build_error_result(rpc_request, rpc_exc.code, rpc_exc.message)
-
-    def build_serialized_error_response(
-        self, exc: RPCException, context: RpcRequestContext, rpc_request: RequestType | None = None
+    def serialize_result_safely(
+        self, result: RpcSuccessResult[RequestType] | RpcErrorResult[RequestType], context: RpcRequestContext
     ) -> str:
-        """Same as build_request_error_response(), but return the serialized result, ready to be sent to the client."""
-        return self.serialize_result(self.build_request_error_response(exc, context, rpc_request))
+        """Same as serialize_result(), but when the result can't be serialized, serialize the corresponding error."""
+        try:
+            return self.serialize_result(result)
+
+        except RPCException as exc:
+            return self.serialize_request_error(exc, context, result.request)
+
+    def serialize_request_error(
+        self, exc: BaseException, context: RpcRequestContext, rpc_request: RequestType | None = None
+    ) -> str:
+        """Same as build_request_error_result(), but return the serialized result."""
+        return self.serialize_result(self.build_error_result(exc, context, rpc_request))
+
+    def build_http_response(self, content: str | tuple[HTTPStatus, str]) -> HttpResponse:
+        """Build the HttpResponse from the value returned by process_request() or serialize_request_error()."""
+        status, body = content if isinstance(content, tuple) else (HTTPStatus.OK, content)
+        return HttpResponse(body, status=status, content_type=self.response_content_type)
 
     def process_single_request(
         self, rpc_request: RequestType, context: RpcRequestContext
     ) -> RpcSuccessResult[RequestType] | RpcErrorResult[RequestType]:  # FIXME: replace return type by RpcResult?
         """Check and call the remote procedure, based on the given request dict."""
-
         try:
             wrapper = context.server.get_procedure_wrapper(rpc_request.method_name, self.protocol)
-
-        except RPCMethodNotFound as exc:
-            rpc_exc = context.server.on_error(exc, context)
-            return self.build_error_result(
-                rpc_request=rpc_request, code=rpc_exc.code, message=rpc_exc.message, data=rpc_exc.data
-            )
-
-        try:
             result_data = wrapper.execute(context, rpc_request.args, getattr(rpc_request, "kwargs", None))
 
         except Exception as exc:  # ruff: ignore[BLE001]
-            rpc_exc = context.server.on_error(exc, context)
-            return self.build_error_result(
-                rpc_request=rpc_request, code=rpc_exc.code, message=rpc_exc.message, data=rpc_exc.data
-            )
+            return self.build_error_result(exc, context, rpc_request)
 
         return self.build_success_result(rpc_request, result_data)
 
@@ -108,31 +102,20 @@ class RpcHandler(ABC, Generic[RequestType]):
         Asynchronous version of process_single_request().
         Check and call the remote procedure, based on the given request dict.
         """
-
         try:
             wrapper = context.server.get_procedure_wrapper(rpc_request.method_name, self.protocol)
-
-        except RPCMethodNotFound as exc:
-            rpc_exc = context.server.on_error(exc, context)
-            return self.build_error_result(
-                rpc_request=rpc_request, code=rpc_exc.code, message=rpc_exc.message, data=rpc_exc.data
-            )
-
-        try:
             result_data = await wrapper.aexecute(context, rpc_request.args, getattr(rpc_request, "kwargs", None))
 
         except Exception as exc:  # ruff: ignore[BLE001]
-            rpc_exc = context.server.on_error(exc, context)
-            return self.build_error_result(
-                rpc_request=rpc_request, code=rpc_exc.code, message=rpc_exc.message, data=rpc_exc.data
-            )
+            return self.build_error_result(exc, context, rpc_request)
 
         return self.build_success_result(rpc_request, result_data)
 
     @abstractmethod
     def process_request(self, request_body: str, context: RpcRequestContext) -> str | tuple[HTTPStatus, str]:
         """
-        Fully process a request. Return the str content ready to be sent as HttpResponse.
+        Fully process a request. Return the serialized content (optionally with an HTTP status), ready to be
+        passed to build_http_response().
 
         This is the only method the view is supposed to call after choosing the right handler.
         Concrete implementation must perform all work here, according to its protocol specifications.

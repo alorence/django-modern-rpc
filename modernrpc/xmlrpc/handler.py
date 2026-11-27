@@ -31,8 +31,6 @@ class XmlRpcHandler(RpcHandler[XmlRpcRequest]):
     protocol = Protocol.XML_RPC
     valid_content_types: ClassVar[list[str]] = ["text/xml", "application/xml"]
     response_content_type = "application/xml"
-    success_result_type = XmlRpcSuccessResult
-    error_result_type = XmlRpcErrorResult
 
     def __init__(self) -> None:
         deserializer_config = settings.MODERNRPC_XML_DESERIALIZER
@@ -45,7 +43,7 @@ class XmlRpcHandler(RpcHandler[XmlRpcRequest]):
         serializer_kwargs: DictStrAny = serializer_config.get("kwargs", {})
         self.serializer: XmlRpcSerializer = serializer_klass(**serializer_kwargs)
 
-    def build_empty_dummy_request(self) -> XmlRpcRequest:
+    def build_dummy_request(self) -> XmlRpcRequest:
         return XmlRpcRequest(method_name="")
 
     def serialize_result(self, result: XmlRpcResult) -> str:
@@ -61,19 +59,14 @@ class XmlRpcHandler(RpcHandler[XmlRpcRequest]):
             rpc_request = self.deserializer.loads(request_body)
 
         except RPCException as exc:
-            return self.build_serialized_error_response(exc, context)
+            return self.serialize_request_error(exc, context)
 
         result = self.process_single_request(rpc_request, context)
-
-        try:
-            return self.serialize_result(result)
-
-        except RPCException as exc:
-            return self.build_serialized_error_response(exc, context, rpc_request)
+        return self.serialize_result_safely(result, context)
 
     async def aprocess_request(self, request_body: str, context: RpcRequestContext) -> str:
         """
-        Parse request and delegates to process_single_request(), catching exceptions to handle errors.
+        Asynchronous version of process_request().
 
         `system.multicall()` is implemented in the `modernrpc.system_procedures` module.
         """
@@ -81,12 +74,7 @@ class XmlRpcHandler(RpcHandler[XmlRpcRequest]):
             rpc_request = self.deserializer.loads(request_body)
 
         except RPCException as exc:
-            return self.build_serialized_error_response(exc, context)
+            return self.serialize_request_error(exc, context)
 
         result = await self.aprocess_single_request(rpc_request, context)
-
-        try:
-            return self.serialize_result(result)
-
-        except RPCException as exc:
-            return self.build_serialized_error_response(exc, context, rpc_request)
+        return self.serialize_result_safely(result, context)

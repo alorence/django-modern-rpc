@@ -34,15 +34,15 @@ def handle_rpc_request(request: HttpRequest, server: "RpcServer") -> HttpRespons
 
     context = RpcRequestContext(request, server, handler, handler.protocol)
     try:
-        request_body = server.decode_request_body(request, server)
+        request_body = server.decode_request_body(request)
 
     except RPCParseError as exc:
-        result_data = handler.build_serialized_error_response(exc, context)
+        result_data = handler.serialize_request_error(exc, context)
 
     else:
         result_data = handler.process_request(request_body, context)
 
-    return server.build_response(handler, result_data)
+    return handler.build_http_response(result_data)
 
 
 async def handle_rpc_request_async(request: HttpRequest, server: "RpcServer") -> HttpResponse:
@@ -65,12 +65,12 @@ async def handle_rpc_request_async(request: HttpRequest, server: "RpcServer") ->
 
     context = RpcRequestContext(request, server, handler, handler.protocol)
     try:
-        request_body = server.decode_request_body(request, server)
+        request_body = server.decode_request_body(request)
 
     except RPCParseError as exc:
-        result_data = handler.build_serialized_error_response(exc, context)
+        result_data = handler.serialize_request_error(exc, context)
 
     else:
         result_data = await handler.aprocess_request(request_body, context)
 
-    return server.build_response(handler, result_data)
+    return handler.build_http_response(result_data)
