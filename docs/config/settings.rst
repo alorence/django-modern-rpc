@@ -10,7 +10,8 @@ Global settings
 MODERNRPC_DEFAULT_ENCODING
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Default encoding used to parse incoming requests when no charset is set in request headers.
+Default encoding used to parse incoming requests when no charset is set in request headers. A request body that
+can't be decoded with the selected encoding gets a Parse Error response (``-32700``).
 
 :Default:   ``utf-8``
 
